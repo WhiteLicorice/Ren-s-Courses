@@ -2,35 +2,28 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
         tailwind.config = {
-            darkMode: 'media',
             theme: {
                 extend: {
+
                     colors: {
-                        primary: tailwind.colors.rose
+                        primary: tailwind.colors.violet
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-                        serif: ['Merriweather', 'Georgia', 'serif'],
-                    },
-                },
-            },
-        }
+                },},
+                }
     </script>
 
 
-    <HeadOutlet />
+    <HeadOutlet/>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-950 font-serif text-black dark:text-gray-200">
-
-    <Routes />
+<body class="bg-gray-950 font-sans text-gray-200">
+<Routes/>
 </body>
 
 </html>
