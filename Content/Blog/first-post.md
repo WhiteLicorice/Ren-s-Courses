@@ -14,4 +14,7 @@ Also here is a sample image:
 
 ![programming bug](media/programming_bug.jpg)
 
-
+```python
+hello_world: Optional[str] = "Hello world!"
+print(hello_world)
+```
