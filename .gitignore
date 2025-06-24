@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# blazor-static output files
+output
+
 # dotenv files
 .env
 
