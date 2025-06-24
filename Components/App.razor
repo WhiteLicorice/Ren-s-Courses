@@ -5,6 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+
+    @* START TAILWIND SETUP *@
+
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
         tailwind.config = {
@@ -22,12 +25,18 @@
         }
     </script>
 
+    @* END TAILWIND SETUP *@
+
+    @* START PRISM SETUP *@
+
     @* For setting up Prism.js - syntax highlighting in markdown (blog) files *@
     @* See: https://cdnjs.com/libraries/prism *@
     @* Core library! *@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism-tomorrow.min.css"
         integrity="sha512-kSwGoyIkfz4+hMo5jkJngSByil9jxJPKbweYec/UgS+S1EgE45qm4Gea7Ks2oxQ7qiYyyZRn66A9df2lMtjIsw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    @* TODO: Fetch language definitions as needed from the Prism CDN provider... *@
 
     @* JavaScript *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual
@@ -38,6 +47,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"
         integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    @* END PRISM SETUP *@
 
     <HeadOutlet />
 </head>
