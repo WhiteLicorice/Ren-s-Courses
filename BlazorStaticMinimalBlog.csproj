@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorStatic" Version="1.0.0-beta.14"/>
+    <PackageReference Include="BlazorStatic" Version="1.0.0-beta.14" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +19,7 @@
 
   <!-- to make hot reload work on .md files -->
   <ItemGroup>
-    <Watch Include="Content/**/*"/>
+    <Watch Include="Content/**/*" />
   </ItemGroup>
 
 
