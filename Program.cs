@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
 
-builder.Services.AddBlazorStaticService(opt => {
+builder.Services.AddBlazorStaticService(opt =>
+{
     //opt. //check to change the defaults
 }
 ).AddBlazorStaticContentService<BlogFrontMatter>();
@@ -19,7 +20,7 @@ builder.Services.AddRazorComponents();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if(!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -43,5 +44,5 @@ public static class WebsiteKeys
     public const string X = "https://x.com/";
     public const string Title = "Ren's Blog";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "Sample blog created with BlazorStatic and TailwindCSS";
+    public const string BlogLead = "Blog built with BlazorStatic and TailwindCSS.";
 }
