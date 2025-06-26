@@ -53,10 +53,10 @@
     [Parameter] public List<Post<BlogFrontMatter>>? Posts { get; set; } // Posts delegate
     protected override void OnInitialized()
     {   
-        DateTime now = DateTime.Now;
+        DateTime now = DateTime.UtcNow;
         posts = (Posts ?? blazorStaticContentService.Posts)
                     .Where(p => !p.FrontMatter.IsDraft
-                            && p.FrontMatter.Published <= now)
+                            && p.FrontMatter.Published.ToUniversalTime() <= now)
                     .OrderByDescending(p => p.FrontMatter.Published)
                     .ToList();
 
