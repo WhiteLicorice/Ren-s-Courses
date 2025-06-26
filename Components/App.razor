@@ -64,20 +64,25 @@
             overflow: auto;
         }
 
+        pre[class*=language-][data-language] code {
+            display: block;
+            padding-top: 1.5em;
+        }
+
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
             color: #000;
             background-color: #CFCFCF;
-            display: inline-block;
+            width: fit-content;
+            white-space: nowrap;
             position: absolute;
             top: 0;
-            float: inline-end;
-            right: 0;
+            left: 0;
             font-size: .9em;
-            border-radius: 0 0 0 5px;
+            border-radius: 0 0 5px 0;
             padding: 0 .5em;
             text-shadow: none;
-=        }
+        }
     </style>
     @* END PRISM SETUP *@
 
