@@ -49,13 +49,17 @@
 
 
 @code {
-    List<Post<BlogFrontMatter>> posts = new();
-
-
-    [Parameter] public List<Post<BlogFrontMatter>>? Posts { get; set; }
+    private List<Post<BlogFrontMatter>> posts = new();
+    [Parameter] public List<Post<BlogFrontMatter>>? Posts { get; set; } // Posts delegate
     protected override void OnInitialized()
-    {
-        posts = Posts != null ? Posts.OrderBy(x => x.FrontMatter.Published).ToList() : blazorStaticContentService.Posts;
+    {   
+        DateTime now = DateTime.Now;
+        posts = (Posts ?? blazorStaticContentService.Posts)
+                    .Where(p => !p.FrontMatter.IsDraft
+                            && p.FrontMatter.Published <= now)
+                    .OrderByDescending(p => p.FrontMatter.Published)
+                    .ToList();
+
         base.OnInitialized();
     }
 }
