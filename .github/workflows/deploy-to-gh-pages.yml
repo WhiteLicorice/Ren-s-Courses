@@ -43,7 +43,7 @@ jobs:
           for f in output/blog/*.html; do
             filename=$(basename "$f" .html)
             echo "Converting $f → pdf/${filename}.pdf"
-            gh run-worker fifsky/html-to-pdf-action@master \
+            gh run fifsky/html-to-pdf-action@master \
               --htmlFile "$f" \
               --outputFile "pdf/${filename}.pdf" \
               --pdfOptions '{"format":"A4","margin":{"top":"10mm","left":"10mm","right":"10mm","bottom":"10mm"}}'
