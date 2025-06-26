@@ -14,7 +14,8 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: tailwind.colors.rose
+                        primary: tailwind.colors.red,
+                        'github-dark': '#24292e'
                     },
                     fontFamily: {
                         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
@@ -31,10 +32,9 @@
 
     @* For setting up Prism.js - syntax highlighting in markdown (blog) files *@
     @* See: https://cdnjs.com/libraries/prism *@
-    @* Core library! *@
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism-tomorrow.min.css"
-        integrity="sha512-kSwGoyIkfz4+hMo5jkJngSByil9jxJPKbweYec/UgS+S1EgE45qm4Gea7Ks2oxQ7qiYyyZRn66A9df2lMtjIsw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    @* CSS library! *@
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
 
     @* TODO: Fetch language definitions as needed from the Prism CDN provider... *@
 
@@ -47,13 +47,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"
         integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
+
     @* END PRISM SETUP *@
 
     <HeadOutlet />
 </head>
 
-<body class="bg-gray-950 font-serif text-gray-200">
+<body class="bg-github-dark font-serif text-gray-200">
     <Routes />
 </body>
 
