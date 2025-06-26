@@ -35,9 +35,21 @@ jobs:
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}}  --configuration Release
           
-      - run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll #folder starting with _ are handled as jekyll. This file will prevent that.  
+      - run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll #folder starting with _ are handled as jekyll. This file will prevent that.
+
+      - name: Generate PDFs from generated HTML
+        run: |
+          mkdir -p pdf
+          for f in output/blog/*.html; do
+            filename=$(basename "$f" .html)
+            echo "Converting $f → pdf/${filename}.pdf"
+            gh run-worker fifsky/html-to-pdf-action@master \
+              --htmlFile "$f" \
+              --outputFile "pdf/${filename}.pdf" \
+              --pdfOptions '{"format":"A4","margin":{"top":"10mm","left":"10mm","right":"10mm","bottom":"10mm"}}'
+          done
           
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ${{ env.WEBAPP_PATH }}output
+          folder: ${{ env.WEBAPP_PATH }}output | ${{ env.WEBAPP_PATH }}pdf
