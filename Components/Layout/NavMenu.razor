@@ -63,10 +63,32 @@
         mobileMenu.classList.toggle('hidden');
     };
 
- document.querySelector('#toggle-button').addEventListener('click', toggleMobileMenu);
- document.querySelector('#close-mobile-menu-button').addEventListener('click', toggleMobileMenu);
+    document.querySelector('#toggle-button').addEventListener('click', toggleMobileMenu);
+    document.querySelector('#close-mobile-menu-button').addEventListener('click', toggleMobileMenu);
 </script>
 
+<script>
+    // Fixes the flying mobile menu jank in Firefox browsers...
+    document.addEventListener('DOMContentLoaded', () => {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const toggleButtons = [
+            document.getElementById('toggle-button'),
+            document.getElementById('close-mobile-menu-button')
+        ];
+        toggleButtons.forEach(btn =>
+            btn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('translate-x-full');
+                mobileMenu.classList.toggle('hidden');
+            })
+        );
+
+        document
+            .querySelectorAll('#mobile-menu nav a')
+            .forEach(link => link.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full', 'hidden');
+            }));
+    });
+</script>
 
 @code
 {
