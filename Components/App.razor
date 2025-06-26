@@ -62,22 +62,25 @@
         pre[class*=language-] {
             position: relative;
             overflow: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
             color: #000;
             background-color: #CFCFCF;
-            display: inline-block;
+            display: block;
             position: sticky;
             top: 0;
-            right: 0;
+            align-self: flex-end;
+            width: max-content;
             font-size: .9em;
             border-radius: 0 0 0 5px;
             padding: 0 .5em;
             text-shadow: none;
             z-index: 1;
-            margin-left: auto;
+            order: -1;
         }
     </style>
     @* END PRISM SETUP *@
