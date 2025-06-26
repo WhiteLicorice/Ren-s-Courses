@@ -28,7 +28,7 @@
             </svg>
         </button>
         <div id="mobile-menu"
-            class="fixed left-0 top-0 z-10 h-full w-full hidden translate-x-full transform   duration-300 ease-in-out bg-gray-950 opacity-[0.98]">
+            class="fixed left-0 top-0 z-10 h-full w-full translate-x-full transform transition-transform duration-300 ease-in-out bg-gray-950 opacity-[0.98] mobile-menu-initial">
             <div class="flex justify-end">
                 <button id="close-mobile-menu-button" class="mr-8 mt-11 h-8 w-8" aria-label="Toggle Menu">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -55,18 +55,43 @@
     </div>
 </header>
 
+<style>
+    /* This is really bad, but it works, and we're unlikely to scale this component - ren*/
+
+    /* Ensure mobile menu is always hidden initially and positioned off-screen */
+    .mobile-menu-initial {
+        visibility: hidden;
+        transform: translateX(100%) !important;
+    }
+
+    /* Show the menu when it's being opened */
+    .mobile-menu-show {
+        visibility: visible !important;
+        transform: translateX(0) !important;
+    }
+</style>
+
 <script>
     //👎 but what can I do? It's a static html. I can't use C# here.
     const toggleMobileMenu = () => {
         const mobileMenu = document.querySelector('#mobile-menu');
-        mobileMenu.classList.toggle('translate-x-full');
-        mobileMenu.classList.toggle('hidden');
+        mobileMenu.classList.toggle('mobile-menu-show');
     };
 
- document.querySelector('#toggle-button').addEventListener('click', toggleMobileMenu);
- document.querySelector('#close-mobile-menu-button').addEventListener('click', toggleMobileMenu);
-</script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const mobileMenu = document.querySelector('#mobile-menu');
+        const toggleButton = document.querySelector('#toggle-button');
+        const closeButton = document.querySelector('#close-mobile-menu-button');
 
+        // Remove the initial class after DOM is loaded
+        setTimeout(() => {
+            mobileMenu.classList.remove('mobile-menu-initial');
+        }, 100);
+
+        toggleButton?.addEventListener('click', toggleMobileMenu);
+        closeButton?.addEventListener('click', toggleMobileMenu);
+    });
+</script>
 
 @code
 {
@@ -76,7 +101,6 @@
 new("Tags", "tags"),
 new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github)
     ];
-
 
     record MenuItem(string Name, string Link, Svg.Icons? Icon = null);
 }
