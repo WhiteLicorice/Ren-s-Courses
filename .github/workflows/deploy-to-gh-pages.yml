@@ -2,7 +2,7 @@ name: Build and publish to gh pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   schedule:
     - cron: '5 * * * *'
     - cron: '35 * * * *'
