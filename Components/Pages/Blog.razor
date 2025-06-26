@@ -117,15 +117,6 @@
 
 <script>Prism.highlightAll();</script>
 
-<script>
-    /* Used so the codename tag doesn't scroll along the box itself on smaller viewports */
-    document.querySelectorAll('pre[class*=language-]').forEach(pre => {
-        pre.addEventListener('scroll', () => {
-            pre.style.setProperty('--scroll-offset', pre.scrollLeft + 'px');
-        });
-    });
-</script>
-
 @code {
     [Parameter] public string? FileName { get; set; }
     Post<BlogFrontMatter>? post;
