@@ -49,9 +49,34 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     @* Show Language Name *@
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" integrity="sha512-09fmad4VA38AJxIRtkrW3DmKI2PsTsEpx3bfR8ZmkQunfQ9jORIieKVREv6fVLmqdnrFbPkCO5PKTnBIIvswBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js" integrity="sha512-WZeiH/5UJ3HZsxGBbWWIBluPrC/PIHbs/x1GtCP7lky8XbHXEzYfI9PJkL0d7/LdL7DvzHFScNkic8PaNhh+qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css"
+        integrity="sha512-09fmad4VA38AJxIRtkrW3DmKI2PsTsEpx3bfR8ZmkQunfQ9jORIieKVREv6fVLmqdnrFbPkCO5PKTnBIIvswBg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"
+        integrity="sha512-WZeiH/5UJ3HZsxGBbWWIBluPrC/PIHbs/x1GtCP7lky8XbHXEzYfI9PJkL0d7/LdL7DvzHFScNkic8PaNhh+qg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    @* Override the CDN's positioning for the language label - fixes the issue on smaller viewports where the tag scrolls along the codebox *@
+    <style>
+        pre[class*=language-] {
+            position: relative
+        }
+
+        pre[class*=language-][data-language]::before {
+            content: attr(data-language);
+            color: #000;
+            background-color: #CFCFCF;
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: .9em;
+            border-radius: 0 0 0 5px;
+            padding: 0 .5em;
+            text-shadow: none
+        }
+    </style>
     @* END PRISM SETUP *@
 
     <HeadOutlet />
