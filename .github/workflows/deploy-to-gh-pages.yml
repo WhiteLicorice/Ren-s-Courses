@@ -1,64 +1,64 @@
-name: Build and publish to gh pages
+name: Build, PDF-export & publish to GH Pages
 
 on:
   push:
     branches: [ "*" ]
+
 env:
   ASPNETCORE_ENVIRONMENT: Production
   WEBAPP_PATH: ./
   WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write 
+    outputs:
+      html-files: ${{ steps.find_html.outputs.files }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v3
         with:
-              dotnet-version: 9.0.x
+          dotnet-version: 9.0.x
 
-      - name: Remove launchSettings.json (to not override ASPNETCORE_ENVIRONMENT)
-        run: rm  ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
+      - name: Build static site
+        run: dotnet run --project ${{ env.WEBAPP_PATH }}${{ env.WEBAPP_CSPROJ }} --configuration Release
 
-      - name: Change <base href="" /> in App.razor to match GitHub repo name
+      - name: Find all blog HTML files
+        id: find_html
         run: |
-          REPO_NAME=$(echo "${{ github.repository }}" | awk -F '/' '{print $NF}')
-          if [[ "$REPO_NAME" != *.github.io ]]; then
-            sed -i 's|<base href="/" />|<base href="/'$REPO_NAME'/" />|g' ${{ env.WEBAPP_PATH }}/Components/App.razor
-          fi
-          
-      - name: Run webapp and generate static files
-        run: |
-          dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}}  --configuration Release
-          
-      - run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll #folder starting with _ are handled as jekyll. This file will prevent that.
+          # Collect only the filenames (not full paths)
+          files=$(find output/blog -name '*.html' -printf "%f\n" | jq -R . | jq -s .)
+          echo "files=$files" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+  generate-pdfs:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.build.outputs.html-files) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate PDF for ${{ matrix.file }}
+        uses: fifsky/html-to-pdf-action@master
         with:
-          node-version: '16'
-      
-      - name: Install html-pdf-cli
-        run: npm install -g html-pdf-cli
-      
-      - name: Generate PDFs from HTML
-        run: |
-          mkdir -p pdf
-          for f in output/blog/*.html; do
-            filename=$(basename "$f" .html)
-            echo "Converting $f → pdf/${filename}.pdf"
-            html-pdf-cli "$f" pdf/${filename}.pdf \
-              --format A4 \
-              --margin top:10mm,left:10mm,right:10mm,bottom:10mm
-          done
-          
-      - name: Deploy to GitHub Pages
+          htmlFile: output/blog/${{ matrix.file }}
+          outputFile: pdf/${{ matrix.file/.html/.pdf }}
+          pdfOptions: '{"format":"A4","margin":{"top":"10mm","left":"10mm","right":"10mm","bottom":"10mm"}}'
+
+  deploy:
+    needs: [build, generate-pdfs]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: |
-            ${{ env.WEBAPP_PATH }}output
-            ${{ env.WEBAPP_PATH }}pdf
+            output
+            pdf
