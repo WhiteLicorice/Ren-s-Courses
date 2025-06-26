@@ -60,7 +60,8 @@
     @* Override the CDN's positioning for the language label - fixes the issue on smaller viewports where the tag scrolls along the codebox *@
     <style>
         pre[class*=language-] {
-            position: relative
+            position: relative;
+            overflow: auto;
         }
 
         pre[class*=language-][data-language]::before {
