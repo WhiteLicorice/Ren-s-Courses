@@ -4,8 +4,8 @@ on:
   push:
     branches: [ "master" ]
   schedule:
-    - cron: '5 * * * *'
-    - cron: '35 * * * *'
+    - cron: '12 * * * *'
+    - cron: '42 * * * *'
   
 env:
   ASPNETCORE_ENVIRONMENT: Production
@@ -18,7 +18,15 @@ jobs:
     permissions:
       contents: write 
     steps:
-      - uses: actions/checkout@v4
+      - name: Set timezone to PH (UTC +8)
+        uses: MathRobin/timezone-action@v1.1
+        with:
+             timezoneLinux: 'Asia/Manila'
+             timezoneMacos: 'Asia/Manila'
+             timezoneWindows: 'Singapore Standard Time'
+             
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v3
@@ -39,7 +47,8 @@ jobs:
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}}  --configuration Release
           
-      - run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll #folder starting with _ are handled as jekyll. This file will prevent that.  
+      - name: Handle default Jekyll behaviour
+        run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll #folder starting with _ are handled as jekyll. This file will prevent that.  
           
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
