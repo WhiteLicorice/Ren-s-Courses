@@ -42,7 +42,7 @@ public static class WebsiteKeys
 {
     public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog";
     public const string X = "https://x.com/";
-    public const string Title = "Ren's Blog";
+    public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "Blog built with BlazorStatic and TailwindCSS.";
+    public const string BlogLead = "A collection of coursework and articles. Powered by Blazor.";
 }
