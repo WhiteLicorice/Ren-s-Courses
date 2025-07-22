@@ -40,7 +40,7 @@ app.Run();
 
 public static class WebsiteKeys
 {
-    public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog";
+    public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Courses";
     public const string X = "https://x.com/";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
