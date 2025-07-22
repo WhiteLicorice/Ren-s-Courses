@@ -44,5 +44,5 @@ public static class WebsiteKeys
     public const string X = "https://x.com/";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "A collection of coursework and articles. Powered by Blazor.";
+    public const string BlogLead = "This is Ren's collection of coursework and articles. Powered by Blazor.";
 }
