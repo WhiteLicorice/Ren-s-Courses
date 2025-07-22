@@ -1,7 +1,7 @@
 ---
 title: Second post
 lead: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui.
-published: 2023-11-05
+published: 3000-11-05
 tags: [tag-001, another-sample-tag]
 authors:
     - name: "Jan Tesař"
