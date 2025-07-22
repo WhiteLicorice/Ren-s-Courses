@@ -1,5 +1,5 @@
 ---
-title: Lab Exercise 0
+title: CMSC 131 - Lab 0
 lead: Creating a developer environment for NASM on Windows with VSCode.
 published: 2025-07-21
 tags: [cmsc-131]
@@ -9,7 +9,7 @@ authors:
       xUserName: null
 ---
 
-# Lab Exercise #0
+# A NASM Development Environment
 
 CMSC 131 is often the first foray of a CS student into the (ugly) domain of command line usage, workflow orchestration, and low-level programming. To alleviate frustration, the instructor has taken the liberty of diving into the abyss and charting a course.
 
@@ -17,7 +17,7 @@ The following steps require patience, a strict adherence to instructions, and a 
 
 The goal is to prepare a developer environment for NASM X86 on Windows using VSCode, in preparation for the lab exercises that follow.
 
-> If you do not wish to use a Windows environment for the course, you may look into WSL, Linux, or DOSBOX. But these methods will not be covered here.
+> If you do not wish to use a Windows environment for the course, you may look into WSL, Linux, or DOSBox. But these methods will not be covered here.
 
 ---
 
@@ -70,9 +70,7 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
 2. Scroll down to the **Example Code** section.
 3. Select **MS C Examples** and download the ZIP archive.
 4. Extract the archive into a folder called `pc_asm`.
-5. Open this folder in **VSCode**.
-6. You should see NASM syntax highlighting (if the extension is installed).
-7. Done.
+5. Done.
 
 ---
 
@@ -170,9 +168,53 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
    - `cdecl.h`
    - `driver.c`
    - `skel.asm`
-3. Rename `skel.asm` to `lab0.asm`, `lab1.asm`, etc., for each lab.
+3. In the future, you may rename `skel.asm` to `lab0.asm`, `lab1.asm`, etc., for each lab.
 4. Open the `.asm` file in VSCode.
-5. Press `Ctrl + Shift + B` to build and run.
+5. This is how an introductory "Hello World" program looks like in assembly:
+```nasm
+;
+; file: skel.asm
+; This file is a skeleton that can be used to start assembly programs.
+;
+
+%include "asm_io.inc"
+
+segment .data
+;
+; initialized data is put in the data segment here
+;
+hello_msg db "Hello, world!", 0    ; null-terminated string for printing
+
+
+segment .bss
+;
+; uninitialized data is put in the bss segment
+;
+
+
+segment .text
+        global  _asm_main
+_asm_main:
+        enter   0,0               ; setup routine
+        pusha
+
+;
+; code is put in the text segment. Do not modify the code before
+; or after this comment.
+;
+        mov     eax, hello_msg    ; store the address of the "Hello, world!" string in the eax register
+        call    print_string      ; print "Hello, world!"
+
+        call print_nl             ; prints out a new line
+        call print_nl             ; prints out a new line
+
+        popa
+        mov     eax, 0            ; return back to C
+        leave                     
+        ret
+
+```
+5. Once the contents of your `skel.asm` match the code above, press `Ctrl + Shift + B` to build and run.
 6. You should see `Hello, world!` printed.
 7. Done.
 
