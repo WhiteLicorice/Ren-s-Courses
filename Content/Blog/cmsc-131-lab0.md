@@ -61,7 +61,7 @@ The course will rely heavily on Paul Carter's book: [PC Assembly Language](https
    gcc -where
    ```
    If you find another (stray) GCC installation, edit your PATH so that `C:/msys64/mingw32/bin/gcc.exe` comes **first**.
-7. If `gcc -v` shows a 64-bit toolchain, double-check you're using the 32-bit variant (`mingw-w64-i686-toolchain`).
+7. If `gcc -v` shows a 64-bit toolchain, double-check that you are using the 32-bit variant (`mingw-w64-i686-toolchain`).
 8. Done.
 
 ---
@@ -105,7 +105,7 @@ gcc -m32 -c driver.c -o driver.o
 ```powershell
 gcc --% -m32 first.obj asm_io.obj driver.o -o first.exe -Wl,-subsystem,console
 ```
-- This links all three object files (`first.obj`, `asm_io.obj`, and `driver.o`) into a final 32-bit **Windows console executable**. The `-Wl,-subsystem,console` tells the linker that this is a command-line (not GUI) program. `--%` is used in PowerShell to prevent argument parsing errors. You may omit this flag if you're using Windows CMD.
+- This links all three object files (`first.obj`, `asm_io.obj`, and `driver.o`) into a final 32-bit **Windows console executable**. The `-Wl,-subsystem,console` tells the linker that this is a command-line (not GUI) program. `--%` is used in PowerShell to prevent argument parsing errors. You may omit this flag if you are using Windows CMD.
 
 ```powershell
 ./first.exe
