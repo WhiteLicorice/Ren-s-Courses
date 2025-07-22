@@ -1,6 +1,6 @@
 ---
 title: CMSC-131-Lab-0
-lead: Creating a developer environment for NASM on Windows with VSCode.
+lead: Creating a developer environment for NASM on Windows with Visual Studio Code.
 published: 2025-07-21
 tags: [cmsc-131, cmsc-131-lab, assembly]
 authors:
@@ -15,7 +15,7 @@ CMSC 131 is often the first foray of a CS student into the (ugly) domain of comm
 
 The following steps require patience, a strict adherence to instructions, and a stable internet connection.
 
-The goal is to prepare a developer environment for NASM X86 on Windows using VSCode, in preparation for the lab exercises that follow.
+The goal is to prepare a developer environment for NASM X86 on Windows using Visual Studio Code, in preparation for the lab exercises that follow.
 
 If you do not wish to use a Windows environment for the course, you may look into WSL, Linux, or DOSBox. But these methods will not be covered here, as plenty of documentation exists for them on the internet. Documentation is, however, scarce for Windows.
 
@@ -76,13 +76,13 @@ The course will rely heavily on Paul Carter's book: [PC Assembly Language](https
 
 ---
 
-## 🔧 Prepping VSCode for NASM Development
+## 🔧 Prepping Visual Studio Code for NASM Development
 
-1. Open up **VSCode**.
+1. Open up **Visual Studio Code**.
 2. Under the `Extensions` tab, search for `NASM`.
 3. Install the **NASM X86 Assembly Language** extension.
 4. Go to the `pc_asm` folder from earlier.
-5. To run `first.asm`, input the following lines one by one into the VSCode `powershell`:
+5. To run `first.asm`, input the following lines one by one into the Visual Studio Code `powershell`:
 
 ```powershell
 nasm -f win32 first.asm -o first.obj
@@ -113,7 +113,7 @@ gcc --% -m32 first.obj asm_io.obj driver.o -o first.exe -Wl,-subsystem,console
 - Runs your freshly built executable. If all went well, this should run your program in the terminal.
 
 While typing these commands every time works, it is error-prone and tedious.
-That is why we will use a **`tasks.json` in VSCode** to automate and standardize this process. With one shortcut (`Ctrl + Shift + B`), VSCode runs all these steps for you reliably, across all future labs. To do this, advance to the following steps.
+That is why we will use a **`tasks.json` in Visual Studio Code** to automate and standardize this process. With one shortcut (`Ctrl + Shift + B`), Visual Studio Code runs all these steps for you reliably, across all future labs. To do this, advance to the following steps.
 
 5. Create a `.vscode` folder inside the `pc_asm` folder.
 6. Inside `.vscode`, create a `tasks.json` file.
@@ -206,7 +206,7 @@ How this workflow was constructed from the previous commands is left as an exerc
    - `driver.c`
    - `skel.asm`
 3. In the future, you may rename `skel.asm` to `lab0.asm`, `lab1.asm`, etc., for each lab.
-4. Open the `.asm` file in VSCode.
+4. Open the `.asm` file in Visual Studio Code.
 5. This is how an introductory "Hello World" program looks like in assembly:
 ```nasm
 ;
