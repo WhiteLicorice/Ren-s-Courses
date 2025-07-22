@@ -202,12 +202,17 @@ _asm_main:
 ; code is put in the text segment. Do not modify the code before
 ; or after this comment.
 ;
+
         mov     eax, hello_msg    ; store the address of the "Hello, world!" string in the eax register
         call    print_string      ; print "Hello, world!"
 
         call print_nl             ; prints out a new line
         call print_nl             ; prints out a new line
 
+;
+; return to C driver. Do not modify the code
+; after this comment.
+;
         popa
         mov     eax, 0            ; return back to C
         leave                     
