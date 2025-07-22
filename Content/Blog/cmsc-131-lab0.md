@@ -1,8 +1,8 @@
 ---
-title: CMSC 131 - Lab 0
+title: CMSC-131-Lab-0
 lead: Creating a developer environment for NASM on Windows with VSCode.
 published: 2025-07-21
-tags: [cmsc-131]
+tags: [cmsc-131, cmsc-131-lab, assembly]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
@@ -17,7 +17,9 @@ The following steps require patience, a strict adherence to instructions, and a 
 
 The goal is to prepare a developer environment for NASM X86 on Windows using VSCode, in preparation for the lab exercises that follow.
 
-> If you do not wish to use a Windows environment for the course, you may look into WSL, Linux, or DOSBox. But these methods will not be covered here.
+If you do not wish to use a Windows environment for the course, you may look into WSL, Linux, or DOSBox. But these methods will not be covered here, as plenty of documentation exists for them on the internet. Documentation is, however, scarce for Windows.
+
+The course will rely heavily on Paul Carter's book: [PC Assembly Language](https://pacman128.github.io/static/pcasm-book.pdf) as reference. His [NASM library](https://pacman128.github.io/pcasm/) will be useful for standardizing our lab exercises. CMSC 131 has a steep learning curve as it introduces a paradigm distinct from other languages you may have encountered before like JavaScript, Python, or Java. Therefore, studying these references ahead of time is encouraged.
 
 ---
 
@@ -32,11 +34,11 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
 7. Select `New` then `Browse`.
 8. Navigate to the directory from #4 (default should be at `C:\Users\User\AppData\Local\bin\NASM`).
 9. To verify installation, open a fresh command line and input:
-   ```bash
+   ```powershell
    nasm -v
    ```
    You should see output like:
-   ```
+   ```powershell
    NASM version 2.16.03 compiled on Apr 17 2024
    ```
 10. Done.
@@ -50,11 +52,11 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
 3. Follow the instructions on the MSYS2 website up to **Step 5**. This will install MSYS2 and update the core system libraries.
 4. Once you see the MSYS2 terminal, **close** it, then go back to the page in #2.
 5. From here, follow the instructions on the aforementioned page. Additionally, install the:
-   ```bash
+   ```powershell
    pacman -S mingw-w64-i686-toolchain
    ```
 6. Verify that `gcc` is visible to Windows. Open a fresh command line and run:
-   ```bash
+   ```powershell
    gcc -v
    gcc -where
    ```
@@ -80,7 +82,40 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
 2. Under the `Extensions` tab, search for `NASM`.
 3. Install the **NASM X86 Assembly Language** extension.
 4. Go to the `pc_asm` folder from earlier.
-5. Create a `.vscode` folder inside it.
+5. To run `first.asm`, input the following lines one by one into the VSCode `powershell`:
+
+```powershell
+nasm -f win32 first.asm -o first.obj
+gcc -m32 -c driver.c -o driver.o
+gcc --% -m32 first.obj asm_io.obj driver.o -o first.exe -Wl,-subsystem,console
+./first.exe
+```
+Let us examine what each command does in our manual build process:
+
+```powershell
+nasm -f win32 first.asm -o first.obj
+```
+- This invokes NASM to **assemble** your assembly source file (`first.asm`) into a 32-bit **COFF object file** (`first.obj`), using the `-f win32` flag.
+
+```powershell
+gcc -m32 -c driver.c -o driver.o
+```
+- This compiles the `driver.c` file (which calls your `_asm_main`) into a 32-bit object file. The `-m32` ensures GCC targets 32-bit code, while `-c` tells it to compile but not link yet.
+
+```powershell
+gcc --% -m32 first.obj asm_io.obj driver.o -o first.exe -Wl,-subsystem,console
+```
+- This links all three object files (`first.obj`, `asm_io.obj`, and `driver.o`) into a final 32-bit **Windows console executable**. The `-Wl,-subsystem,console` tells the linker that this is a command-line (not GUI) program. `--%` is used in PowerShell to prevent argument parsing errors. You may omit this flag if you're using Windows CMD.
+
+```powershell
+./first.exe
+```
+- Runs your freshly built executable. If all went well, this should run your program in the terminal.
+
+While typing these commands every time works, it is error-prone and tedious.
+That is why we will use a **`tasks.json` in VSCode** to automate and standardize this process. With one shortcut (`Ctrl + Shift + B`), VSCode runs all these steps for you reliably, across all future labs. To do this, advance to the following steps.
+
+5. Create a `.vscode` folder inside the `pc_asm` folder.
 6. Inside `.vscode`, create a `tasks.json` file.
 7. Paste in the following:
 
@@ -102,7 +137,7 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
     {
       "label": "GCC Compile Driver (32-bit)",
       "type": "shell",
-      "command": "C:/msys64/mingw32/bin/gcc.exe",
+      "command": "gcc",
       "args": [
         "-m32", "-c",
         "${fileDirname}/driver.c",
@@ -113,7 +148,7 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
     {
       "label": "GCC Link (32-bit Console)",
       "type": "shell",
-      "command": "C:/msys64/mingw32/bin/gcc.exe",
+      "command": "gcc",
       "args": [
         "-m32",
         "${fileDirname}/${fileBasenameNoExtension}.obj",
@@ -151,14 +186,16 @@ The goal is to prepare a developer environment for NASM X86 on Windows using VSC
 }
 ```
 
-8. Save the file.
+How this workflow was constructed from the previous commands is left as an exercise to you, the reader.
+
+8. Save the reusable task.
 9. Open any `.asm` file (e.g. `first.asm`) and press `Ctrl + Shift + B`.
 10. You should see the program build and run.
 11. Done.
 
 ---
 
-## 🏋️ Skeleton for Future Lab Exercises
+## 💀 Skeleton for Future Lab Exercises
 
 1. In the `pc_asm` folder, create a subfolder named `skeleton`.
 2. Extract the following files from the Paul Carter archive into this folder:
@@ -199,11 +236,11 @@ _asm_main:
         pusha
 
 ;
-; code is put in the text segment. Do not modify the code before
-; or after this comment.
+; code is put in the text segment, but do not modify the code
+; before this comment.
 ;
 
-        mov     eax, hello_msg    ; store the address of the "Hello, world!" string in the eax register
+        mov     eax, hello_msg    ; store the "Hello, world!" string in the eax register
         call    print_string      ; print "Hello, world!"
 
         call print_nl             ; prints out a new line
