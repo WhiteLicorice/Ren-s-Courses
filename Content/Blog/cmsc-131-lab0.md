@@ -1,6 +1,6 @@
 ---
-title: CMSC-131-Lab-0
-lead: Creating a developer environment for NASM on Windows with Visual Studio Code.
+title: Creating a Developer Environment for NASM on Windows
+lead: Welcome to the abyss.
 published: 2025-07-21
 tags: [cmsc-131, cmsc-131-lab, assembly]
 authors:
@@ -259,12 +259,3 @@ _asm_main:
 5. Once the contents of your `skel.asm` match the code above, press `Ctrl + Shift + B` to build and run.
 6. You should see `Hello, world!` printed.
 7. Done.
-
----
-
-## 📤 For Submission
-
-1. Zip up your `skeleton` folder and take a screenshot of your terminal showing `Hello, world!` output.
-2. Submit the archive.
-3. (Bonus points!) Create a GitHub repo from your `skeleton` folder and submit the link instead.
-4. Done.
