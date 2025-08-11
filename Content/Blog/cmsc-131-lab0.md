@@ -2,7 +2,7 @@
 title: Creating a Developer Environment for NASM on Windows
 lead: Welcome to the abyss.
 published: 2025-07-21
-tags: [cmsc-131, cmsc-131-lab, assembly]
+tags: [cmsc-131, cmsc-131-lab, assembly, lab-0]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"

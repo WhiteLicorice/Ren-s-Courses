@@ -2,7 +2,7 @@
 title: Future post
 lead: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui.
 published: 3000-06-28
-tags: [cmsc-11]
+tags: [cmsc-124-lab]
 authors:
     - name: "Jan Tesař"
       gitHubUserName: "tesar-tech"
