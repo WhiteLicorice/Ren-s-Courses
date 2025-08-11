@@ -1,8 +1,8 @@
 ---
 title: Creating a Developer Environment for NASM on Windows
 lead: Welcome to the abyss.
-published: 2025-07-21
-tags: [cmsc-131, cmsc-131-lab, assembly, lab-0]
+published: 2025-08-01
+tags: [cmsc-131, cmsc-131-lab, assembly, cmsc-131-lab-0]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
@@ -25,7 +25,7 @@ CMSC 131 has a steep learning curve as it introduces a paradigm distinct from ot
 
 ---
 
-## 💾 Installing NASM for Windows
+## Installing NASM for Windows
 
 1. Go to the [NASM](https://www.nasm.us/) website.
 2. Download the stable build by clicking on `stable` and navigating to the `/pub/nasm/releasebuilds/2.16.03/win64` directory.
@@ -48,7 +48,7 @@ NASM version 2.16.03 compiled on Apr 17 2024
 
 ---
 
-## 🛠️ Installing GCC for Windows
+## Installing GCC for Windows
 
 1. Go to the [MinGW-64](https://www.mingw-w64.org/) website.
 2. Open the `Getting Started` directory and select `MSYS2 (GCC)`.
@@ -71,7 +71,7 @@ If you find another (stray) GCC installation, edit your PATH so that `C:/msys64/
 
 ---
 
-## 📂 Fetching Paul Carter's Library for NASM
+## Fetching Paul Carter's Library for NASM
 
 1. Go to the [pcasm](https://pacman128.github.io/pcasm/) website.
 2. Scroll down to the **Example Code** section.
@@ -185,7 +185,7 @@ For reference, here's the complete `tasks.json` content:
 
 ---
 
-## 💀 Skeleton for Future Lab Exercises
+## Skeleton for Future Lab Exercises
 
 1. In the `pc_asm` folder, create a subfolder named `skeleton`.
 2. Extract the following files from the Paul Carter archive into this folder:
