@@ -233,8 +233,8 @@ _asm_main:
         mov     eax, hello_msg    ; eax = "Hello, world!"
         call    print_string      ; print(eax)
 
-        call    print_nl             ; print("\n")
-        call    print_nl             ; print("\n")
+        call    print_nl          ; print("\n")
+        call    print_nl          ; print("\n")
 
 ;
 ; return to C driver. Do not modify the code
