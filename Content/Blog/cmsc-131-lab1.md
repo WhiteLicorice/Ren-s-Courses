@@ -109,13 +109,13 @@ The usage of Large Language Models (e.g. ChatGPT, Claude, Deepseek, etc.) to gen
 
 ---
 
-## Rubric for Programming Exercises (50 pts)
+# Rubric for Programming Exercises (50 pts)
 
 | **Criteria (10 Points Each)** | **Excellent (9-10)** | **Good (6-8)** | **Fair (3-5)** | **Poor (0-2)** |
 |---|---|---|---|---|
-| **Program Execution** | Program executes correctly with no syntax or runtime errors | Program executes with minor (easily fixed) errors | Program executes with major (not easily fixed) errors | Program does not execute at all or does not meet specs |
-| **Output Correctness** | Program displays correct output with no errors | Output has minor errors | Output has multiple errors | Output is incorrect |
-| **Logical Design** | Program is logically well-designed | Program has slight logic errors that do not significantly affect the results | Program has significant logic errors | Program is incorrect |
+| **Program Correctness** | Program executes correctly with no syntax or runtime errors, meets/exceeds specifications, and displays correct output | Program executes and outputs with minor errors, yet meets specifications | Program executes and outputs with major errors, yet somehow meets specifications | Program does not execute or does not meet specs |
+| **Logical Design** | Program is logically well-designed with excellent structure and flow | Program has slight logic errors that do not significantly affect the results | Program has significant logic errors affecting functionality | Program logic is fundamentally incorrect |
+| **Code Mastery** | Programmer demonstrates excellent mastery over the program's code | Programmer demonstrates adequate mastery over the program's code | Programmer demonstrates fair mastery over the program's code | Programmer demonstrates poor mastery over the program's code |
 | **Engineering Standards** | Program is stylistically well designed from an engineering standpoint | Slight inappropriate design choices (i.e., poor variable names, improper indentation) | Severe inappropriate design choices (i.e., code repetition, redundancy) | Program is poorly written |
 | **Documentation*** | Program is well-documented: comments exist for clarity, not redundancy | Missing one required comment or some redundant comments | Missing two or more required comments or many redundant comments | Most documentation missing or most documentation is redundant |
 
