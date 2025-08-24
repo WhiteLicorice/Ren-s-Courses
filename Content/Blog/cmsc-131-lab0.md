@@ -1,7 +1,7 @@
 ---
 title: Creating a Developer Environment for NASM on Windows
 lead: Welcome to the abyss.
-published: 2025-09-01
+published: 2025-08-23
 tags: [cmsc-131, cmsc-131-lab, assembly, cmsc-131-lab-0]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
@@ -247,4 +247,3 @@ _asm_main:
 ```
 
 6. Once the contents of your `skel.asm` match the code above, press `Ctrl + Shift + B` to build and run. You should see `Hello, world!` printed.
-7. For submission, you may take a **screenshot of your working NASM Development Environment**. Zip this up together with the **contents of your `skeleton` folder** and submit in the the shared drive.

@@ -89,14 +89,6 @@ Test your program with various temperature inputs to ensure accuracy:
 
 A Python validation script is provided to verify your results against expected outputs.
 
-## Submission
-
-Submit a ZIP file containing:
-
-1. Your completed assembly file (`surname_lab1.asm`)
-2. Screenshot of your program running successfully
-3. Brief reflection (1-2 paragraphs in a `.txt` file) on challenges encountered and lessons learned during this laboratory assignment (how was your experience?)
-
 ## Laboratory Defense
 
 The instructor will be available during scheduled laboratory hours in the assigned room for defense or consultation. You will be catered to at a first-come first-serve basis. It is mandatory to present your code, answer inquiries, and perform live programming if the instructor deems it necessary to further check your understanding.
