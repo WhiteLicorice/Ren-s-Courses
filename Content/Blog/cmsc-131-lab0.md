@@ -80,7 +80,7 @@ If you find another (stray) GCC installation, edit your PATH so that `C:/msys64/
 
 ---
 
-## 🔧 Prepping Visual Studio Code for NASM Development
+## Prepping Visual Studio Code for NASM Development
 
 1. Open up **Visual Studio Code**.
 2. Under the `Extensions` tab, search for `NASM`.
