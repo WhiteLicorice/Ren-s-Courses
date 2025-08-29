@@ -44,5 +44,5 @@ public static class WebsiteKeys
     public const string X = "https://x.com/";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "This is a a collection of materials for CS courses under the University of the Philippines Visayas curriculum.";
+    public const string BlogLead = "This is a collection of materials for CS courses under the University of the Philippines Visayas curriculum.";
 }
