@@ -1,12 +1,16 @@
 ---
 title: Creating a Kotlin Development Environment
-lead: Setting up a development environment for Kotlin programming, with Git for version control.
+lead: CMSC 124 Lab 0 - Setting up a development environment for Kotlin programming, with Git for version control.
 published: 2025-08-23
-tags: [cmsc-124, cmsc-124-lab, kotlin, git, github, cmsc-124-lab-0]
+tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       xUserName: 1YBKzxHefD1Y647dN7Q6i4NgC_mmsht1Y
+---
+
+CMSC 124 Lab Manual 0
+
 ---
 
 As preparation for the laboratory of CMSC 124, the following steps must be accomplished. **Remember to take a screenshot of each task you accomplish for later submission.**

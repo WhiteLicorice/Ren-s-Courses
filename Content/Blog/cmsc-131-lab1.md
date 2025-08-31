@@ -1,15 +1,15 @@
 ---
 title: Cyclic Temperature Conversion in NASM
-lead: Register operations in assembly.
+lead: CMSC 131 Lab 1 - Register operations in assembly.
 published: 2025-09-01
-tags: [cmsc-131, cmsc-131-lab, assembly, cmsc-131-lab-1]
+tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       xUserName: 1JQZNyg12Kgo3qpoR-PL6sIwnlnn48yhF
 ---
 
-# Cyclic Temperature Conversion in NASM
+CMSC 131 Lab Manual 1
 
 ---
 
