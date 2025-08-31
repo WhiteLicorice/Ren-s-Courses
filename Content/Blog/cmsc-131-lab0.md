@@ -9,7 +9,7 @@ authors:
       xUserName: 1EIsMlkyVN3iCtcpuxu_23g_aO6qNrovo
 ---
 
-CMSC 131 Lab Manual 0
+# CMSC 131 Lab Manual 0
 
 ---
 

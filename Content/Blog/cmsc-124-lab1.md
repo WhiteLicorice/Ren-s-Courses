@@ -9,7 +9,7 @@ authors:
       xUserName: 1Vg5JWeJ8pUdwBfxMZoCDDOtVlXOWvYwD
 ---
 
-CMSC 124 Lab Manual 1
+# CMSC 124 Lab Manual 1
 
 ---
 
