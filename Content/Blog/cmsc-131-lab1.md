@@ -9,10 +9,6 @@ authors:
       xUserName: 1JQZNyg12Kgo3qpoR-PL6sIwnlnn48yhF
 ---
 
-# CMSC 131 Lab Manual 1
-
----
-
 This laboratory assignment introduces basic arithmetic operations, register manipulation, and input/output handling in the NASM assembly language. You will implement a temperature conversion program that converts between Celsius, Fahrenheit, and Kelvin temperature scales.
 
 ## Learning Objectives

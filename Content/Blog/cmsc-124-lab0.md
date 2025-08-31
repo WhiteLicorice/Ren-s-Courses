@@ -9,10 +9,6 @@ authors:
       xUserName: 1YBKzxHefD1Y647dN7Q6i4NgC_mmsht1Y
 ---
 
-# CMSC 124 Lab Manual 0
-
----
-
 As preparation for the laboratory of CMSC 124, the following steps must be accomplished. **Remember to take a screenshot of each task you accomplish for later submission.**
 
 ---

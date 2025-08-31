@@ -9,10 +9,6 @@ authors:
       xUserName: 1Vg5JWeJ8pUdwBfxMZoCDDOtVlXOWvYwD
 ---
 
-# CMSC 124 Lab Manual 1
-
----
-
 For this laboratory activity, your task is to build a **lexical scanner**. A programming language needs three components, at the very least, so that your machine can run it: a scanner, a parser, and an interpreter. Of course, like in most things, we will begin with the first one.
 
 Source code is typically stored in text files. A computer machine needs some way to transform this source code into machine code. The scanner is our first stop in the pipeline. It takes some text and attempts to turn the letters and numbers in it into **tokens** that are relevant to some programming language. You can think of a scanner as the "frontend" of our source-to-machine code pipeline.

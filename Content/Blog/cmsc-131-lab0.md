@@ -9,12 +9,6 @@ authors:
       xUserName: 1EIsMlkyVN3iCtcpuxu_23g_aO6qNrovo
 ---
 
-# CMSC 131 Lab Manual 0
-
----
-
-# A NASM Development Environment
-
 CMSC 131 is often the first foray of a CS student into the dark domain of command line usage, workflow orchestration, and low-level programming. To alleviate frustration, the instructor has taken the liberty of diving into the abyss and charting a course.
 
 The following steps require patience, a flexible adherence to instructions, and a good internet connection.
