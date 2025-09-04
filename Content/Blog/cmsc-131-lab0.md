@@ -246,4 +246,6 @@ _asm_main:
 
 6. Once the contents of your `skel.asm` match the code above, press `Ctrl + Shift + B` to build and run. You should see `Hello, world!` printed.
 
+---
+
 *See the laboratory manual for submission instructions.*
