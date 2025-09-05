@@ -1,7 +1,7 @@
 ---
 title: Creating a Developer Environment for NASM on Windows
 lead: CMSC 131 Lab 0 - Welcome to the abyss.
-published: 2025-08-23
+published: 2025-08-24
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

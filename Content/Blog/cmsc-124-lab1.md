@@ -1,7 +1,7 @@
 ---
 title: Scanner
 lead: CMSC 124 Lab 1 - Building a lexical scanner for a simple programming language in Kotlin.
-published: 2025-08-30
+published: 2025-08-31
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

@@ -1,7 +1,7 @@
 ---
 title: Creating a Kotlin Development Environment
 lead: CMSC 124 Lab 0 - Setting up a development environment for Kotlin programming, with Git for version control.
-published: 2025-08-23
+published: 2025-08-24
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

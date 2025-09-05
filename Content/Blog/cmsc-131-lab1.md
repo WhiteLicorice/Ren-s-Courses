@@ -1,7 +1,7 @@
 ---
 title: Cyclic Temperature Conversion in NASM
 lead: CMSC 131 Lab 1 - Register operations in assembly.
-published: 2025-09-01
+published: 2025-09-04
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
