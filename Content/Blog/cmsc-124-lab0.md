@@ -126,4 +126,4 @@ Doing the rest of the sections in Kotlin Koans will not be necessary for our lab
 
 ---
 
-*See the laboratory manual for submission instructions.*
+*See the laboratory manual for submission requirements.*

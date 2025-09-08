@@ -248,4 +248,4 @@ _asm_main:
 
 ---
 
-*See the laboratory manual for submission instructions.*
+*See the laboratory manual for submission requirements.*
