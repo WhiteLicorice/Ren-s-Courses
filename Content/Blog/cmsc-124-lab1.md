@@ -1,6 +1,6 @@
 ---
 title: Scanner
-lead: CMSC 124 Lab 1 - Building a lexical scanner for a simple programming language in Kotlin.
+lead: CMSC 124 Lab 1 - Tokenizing in Kotlin.
 published: 2025-08-31
 tags: [cmsc-124]
 authors:
