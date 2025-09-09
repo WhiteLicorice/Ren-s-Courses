@@ -5,7 +5,7 @@ published: 2025-08-31
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
-      gitHubUserName:  "WhiteLicorice"
+      gitHubUserName: "WhiteLicorice"
       xUserName: 1Vg5JWeJ8pUdwBfxMZoCDDOtVlXOWvYwD
 ---
 
