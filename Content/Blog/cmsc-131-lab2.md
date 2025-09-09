@@ -132,4 +132,4 @@ The usage of Large Language Models (e.g. ChatGPT, Claude, Deepseek, etc.) to gen
 
 ---
 
-*See the laboratory manual for submission requirements.*
+*See the [laboratory manual](https://drive.google.com/file/d/1jE53YlIXn4dQ2bYNlsvtNM-1Wzi8YBiz/view?usp=drive_link) for submission requirements.*
