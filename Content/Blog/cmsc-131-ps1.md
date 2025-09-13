@@ -19,7 +19,7 @@ Answer all problems on sheets of 1-whole yellow pad paper. Copy the original ite
 
 ## Part A (20 points)
 
-Convert the following IEEE-754 binary representations to their decimal equivalents. **Show complete solution (1 point)** and **box your final answer (1 point)**.
+Convert the following IEEE-754 binary representations to their decimal equivalents. **Show complete solution (1pt)** and **box your final answer (1pt)**.
 
 1. 0 10000010 01000000000000000000000
 2. 1 01111110 10000000000000000000000
@@ -34,7 +34,7 @@ Convert the following IEEE-754 binary representations to their decimal equivalen
 
 ## Part B (20 points)
 
-Convert the following decimal numbers to IEEE-754 32-bit binary representation. **Show complete solution (1 point)** and **box your final answer (1 point)**.
+Convert the following decimal numbers to IEEE-754 32-bit binary representation. **Show complete solution (1pt)** and **box your final answer (1pt)**.
 
 1. 12.5
 2. -7.25
