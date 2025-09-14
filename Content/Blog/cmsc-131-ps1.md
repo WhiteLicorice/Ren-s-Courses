@@ -71,3 +71,5 @@ Complete the following table by tracing the value of the AX register through eac
 | 15 | ROR AH, 6 | | | | |
 
 ---
+
+*You may consult this x86 and amd64 [reference sheet](https://www.felixcloutier.com/x86/) for flags affected per instruction in Part C.*
