@@ -1,7 +1,7 @@
 ---
 title: Parser
 lead: CMSC 124 Lab 2 - From token arrays to expression trees.
-published: 2025-09-23
+published: 2025-09-16
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
