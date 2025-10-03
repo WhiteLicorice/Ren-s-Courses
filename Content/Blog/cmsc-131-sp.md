@@ -1,6 +1,6 @@
 ---
 title: CMSC 131 Special Topics
-lead: Instead of calling it removals, we call it special topics.
+lead: CMSC 131 ST - Instead of calling it removals, we call it special topics.
 published: 2025-10-01
 tags: [cmsc-131]
 authors:
