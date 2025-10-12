@@ -43,5 +43,5 @@ public static class WebsiteKeys
     public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Courses";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "This is a collection of materials for CS courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All material is copyrighted.";
+    public const string BlogLead = "This is a collection of materials for CS courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All material is copyrighted. All rights reserved.";
 }
