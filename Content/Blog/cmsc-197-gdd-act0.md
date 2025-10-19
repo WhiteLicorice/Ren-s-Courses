@@ -36,11 +36,11 @@ Your task is to accomplish **all 27 sections of the GDQuest course** in order. R
 
 ## Laboratory Defense
 
-No laboratory defense is expected for this activity, but you must accomplish the task and submit after **one week** of this assignment. In this course, it is your responsibility to keep abreast of deadlines and pending coursework.
+No laboratory defense is expected for this activity, but you must accomplish the task and submit on or before **our next meeting**. In this course, it is your responsibility to keep abreast of deadlines and pending coursework.
 
 ## In the Future
 
-Since the course does not offer a lecture component, GDD will be comprised of interactive in-class and take-home laboratory activities. Thus, you are encouraged to procure **a laptop that you will bring in attendance**. You must install [Godot](https://godotengine.org/) beforehand (stable release) and verify that it works on your machine. Consult the [Godot System Requirements](https://docs.godotengine.org/en/stable/about/system_requirements.html) to see if your device meets **minimum system requirements** for the **compatibility** setting (don't worry: Godot is lighter than Unity, and Godot runs on potatoes!). However, if no device is available to you or your device does not meet minimum system requirements, you may use the machines in the computer laboratory where we will be holding class. Good luck, and see you on the other side!
+Since the course does not offer a lecture component, GDD will be comprised of interactive in-class activities and challenging take-home machine problems. Thus, you are encouraged to procure **a laptop that you will bring in attendance**. You must install [Godot](https://godotengine.org/) beforehand (stable release) and verify that it works on your machine. Consult the [Godot System Requirements](https://docs.godotengine.org/en/stable/about/system_requirements.html) to see if your device meets **minimum system requirements** for the **compatibility** setting (don't worry: Godot is lighter than Unity, and Godot runs on potatoes!). However, if no device is available to you or your device does not meet minimum system requirements, you may use the machines in the computer laboratory where we will be holding class. Good luck, and see you on the other side!
 
 ---
 
