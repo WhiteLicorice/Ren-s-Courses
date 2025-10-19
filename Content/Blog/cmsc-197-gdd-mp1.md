@@ -1,7 +1,7 @@
 ---
 title: Fly, Flap, and Die!
 lead: CMSC 197 GDD Machine Problem 1 - Yet Another Flappy Bird Clone (YAFBC).
-published: 2026-01-27
+published: 2026-01-30
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
