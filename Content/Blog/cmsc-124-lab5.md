@@ -1,6 +1,6 @@
 ---
 title: Functions
-lead: CMSC 124 Lab 5 - Last leg for Turing-completeness.
+lead: CMSC 124 Lab 5 - Last leg for Turing-completeness!
 published: 2025-11-04
 tags: [cmsc-124]
 authors:
