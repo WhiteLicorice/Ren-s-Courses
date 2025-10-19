@@ -1,6 +1,6 @@
 ---
 title: Link, Start!
-lead: CMSC 197 GDD Lab 0 - GDQuest on.
+lead: CMSC 197 GDD Activity 0 - GDQuest on.
 published: 2026-01-19
 tags: [cmsc-197-gdd]
 authors:
