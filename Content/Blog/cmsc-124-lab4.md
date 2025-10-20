@@ -1,7 +1,7 @@
 ---
 title: Context
 lead: CMSC 124 Lab 4 - Lexical scoping and bindings.
-published: 2025-10-21
+published: 2025-10-28
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
