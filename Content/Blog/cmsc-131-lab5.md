@@ -77,11 +77,10 @@ p: 1
 r: 2
 s: 1
 u: 1
-
 Modal character(s) with frequency 5:
 n: 5
-
-Total unique characters analyzed: 34
+Total unique characters analyzed: 17
+Total characters analyzed: 34
 Modal frequency: 5
 ```
 
