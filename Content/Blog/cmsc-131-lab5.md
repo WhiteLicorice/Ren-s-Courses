@@ -62,29 +62,27 @@ typedef struct ModalCharacter {
 Input a string: programming is fun and challenging
 Character frequencies:
 a: 3
-c: 1  
+c: 1
 d: 1
 e: 1
 f: 1
 g: 4
 h: 1
-i: 2
+i: 3
 l: 2
 m: 2
-n: 7
+n: 5
 o: 1
 p: 1
-r: 3
+r: 2
 s: 1
-t: 1
 u: 1
-v: 1
 
-Modal character(s) with frequency 7:
-n: 7
+Modal character(s) with frequency 5:
+n: 5
 
-Total characters analyzed: 32
-Modal frequency: 7
+Total unique characters analyzed: 34
+Modal frequency: 5
 ```
 
 ---
