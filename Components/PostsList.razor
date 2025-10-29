@@ -5,7 +5,7 @@
 @inject BlazorStaticService blazorStaticService
 
 <ul class="divide-y   divide-gray-700">
-    @foreach(var post in posts.OrderByDescending(x => x.FrontMatter.Published))
+    @foreach (var post in posts.OrderByDescending(x => x.FrontMatter.Published))
     {
         <li class="py-12">
             <article>
@@ -14,7 +14,8 @@
                         <dt class="sr-only">Published on</dt>
                         <dd class="text-base font-medium leading-6 text-gray-400">
 
-                            <time datetime="@post.FrontMatter.Published.ToString("yyyy-MM-ddTHH:mm:ss.fffK", CultureInfo.InvariantCulture)">
+                            <time
+                                datetime="@post.FrontMatter.Published.ToString("yyyy-MM-ddTHH:mm:ss.fffK", CultureInfo.InvariantCulture)">
                                 @post.FrontMatter.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"))
                             </time>
 
@@ -24,12 +25,14 @@
                         <div class="space-y-6">
                             <div>
                                 <h2 class="text-2xl font-bold leading-8 tracking-tight">
-                                    <a class="text-gray-100" href="@blazorStaticContentService.Options.PageUrl/@(post.Url)">@post.FrontMatter.Title</a>
+                                    <a class="text-gray-100"
+                                        href="@blazorStaticContentService.Options.PageUrl/@(post.Url)">@post.FrontMatter.Title</a>
                                 </h2>
                                 <div class="flex flex-wrap">
-                                    @foreach(var tag in post.FrontMatter.Tags)
+                                    @foreach (var tag in post.FrontMatter.Tags)
                                     {
-                                        <a class="text-primary-500 hover:text-primary-400 mr-3 text-sm font-medium uppercase" href="@blazorStaticContentService.Options.Tags.TagsPageUrl/@tag">@tag</a>
+                                        <a class="text-primary-500 hover:text-primary-400 mr-3 text-sm font-medium uppercase"
+                                            href="@blazorStaticContentService.Options.Tags.TagsPageUrl/@tag">@tag</a>
                                     }
                                 </div>
                             </div>
@@ -38,7 +41,8 @@
                             </div>
                         </div>
                         <div class="text-base font-medium leading-6">
-                            <a class="text-primary-500 hover:text-primary-400" aria-label='Read "@(post.FrontMatter.Lead)"' href="@blazorStaticContentService.Options.PageUrl/@(post.Url)">Read more →</a>
+                            <a class="text-primary-500 hover:text-primary-400" aria-label='Read "@(post.FrontMatter.Lead)"'
+                                href="@blazorStaticContentService.Options.PageUrl/@(post.Url)">Read more →</a>
                         </div>
                     </div>
                 </div>
@@ -51,15 +55,34 @@
 @code {
     private List<Post<BlogFrontMatter>> posts = new();
     [Parameter] public List<Post<BlogFrontMatter>>? Posts { get; set; } // Posts delegate
+
+    private HashSet<String> HiddenTags = new HashSet<String> {
+        //"cmsc-125",
+        //"cmsc-131", 
+        //"cmsc-124",
+        //"cmsc-197-gdd"
+    };
+
     protected override void OnInitialized()
-    {   
+    {
         DateTime now = DateTime.UtcNow;
         posts = (Posts ?? blazorStaticContentService.Posts)
-                    .Where(p => !p.FrontMatter.IsDraft
-                            && p.FrontMatter.Published.ToUniversalTime() <= now)
-                    .OrderByDescending(p => p.FrontMatter.Published)
-                    .ToList();
+        .Where(p =>
+        !p.FrontMatter.IsDraft
+        && p.FrontMatter.Published.ToUniversalTime() <= now
+        && !this.HasHiddenTag(p.FrontMatter.Tags))
+        .OrderByDescending(p => p.FrontMatter.Published)
+        .ToList();
 
         base.OnInitialized();
+    }
+
+    private bool HasHiddenTag(List<String> tags) {
+        foreach (String tag in tags) {
+            if (this.HiddenTags.Contains(tag)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
