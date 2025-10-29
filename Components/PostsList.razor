@@ -70,6 +70,7 @@
         .Where(p =>
         !p.FrontMatter.IsDraft
         && p.FrontMatter.Published.ToUniversalTime() <= now
+        && p.FrontMatter.Published.ToUniversalTime().Year == now.Year
         && !this.HasHiddenTag(p.FrontMatter.Tags))
         .OrderByDescending(p => p.FrontMatter.Published)
         .ToList();
