@@ -5,35 +5,84 @@
 @using System.Net
 @inject BlazorStaticContentService<BlogFrontMatter> blazorStaticContentService
 
-@if (TagName == null)
-{
-    <div class="flex flex-wrap justify-evenly gap-1">
-        @{
-            var tagsWithCount = blazorStaticContentService.Posts
-                .SelectMany(x => x.Tags)
-                .GroupBy(x => x)
-                .Select(group => new { Tag = group.Key, Count = group.Count() })
-                .OrderByDescending(x => x.Count);
+<div class="animate-fade-in py-10">
+    
+    @if (TagName == null)
+    {
+        @* VIEW 1: THE TAG CLOUD (Catalog) *@
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
+                <span class="text-red-500">./</span>Materials
+            </h1>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                Browse materials by courses and topics.
+            </p>
+        </div>
 
-            foreach(var tagGroup in tagsWithCount)
-            {
-                <a class="text-primary-500 hover:text-primary-400 mr-3 text-sm font-medium uppercase" href="@($"{blazorStaticContentService.Options.Tags.TagsPageUrl}/{tagGroup.Tag.EncodedName}")">@tagGroup.Tag.Name</a>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            @{
+                // 1. Define "Now" to filter out future posts
+                var now = DateTime.UtcNow;
+
+                // 2. Filter posts FIRST to ensure we don't count hidden materials
+                var visiblePosts = blazorStaticContentService.Posts
+                    .Where(p => !p.FrontMatter.IsDraft 
+                             && p.FrontMatter.Published.ToUniversalTime() <= now);
+
+                // 3. Generate tags from only the visible posts
+                var tagsWithCount = visiblePosts
+                    .SelectMany(x => x.FrontMatter.Tags)
+                    .GroupBy(x => x)
+                    .Select(group => new { Tag = group.Key, Count = group.Count() })
+                    .OrderByDescending(x => x.Count) // Most popular first
+                    .ThenBy(x => x.Tag);             // Then alphabetical
+
+                foreach(var tagGroup in tagsWithCount)
+                {
+                    <a href="@($"{blazorStaticContentService.Options.Tags.TagsPageUrl}/{tagGroup.Tag}")" 
+                       class="group flex items-center justify-between p-4 rounded-lg border border-borderDark bg-cardDark hover:border-red-500/50 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)] transition-all duration-200">
+                        
+                        <span class="font-mono font-medium text-gray-300 group-hover:text-red-400 transition-colors truncate">
+                            <span class="text-gray-600 mr-1 group-hover:text-red-500/50">#</span>@tagGroup.Tag
+                        </span>
+                        
+                        <span class="flex items-center justify-center h-6 min-w-[1.5rem] px-2 rounded bg-bgDark border border-borderDark text-xs text-gray-500 group-hover:text-gray-300 group-hover:border-red-500/30 transition-colors">
+                            @tagGroup.Count
+                        </span>
+                    </a>
+                }
             }
-        }
-    </div>
-    return;
-}
+        </div>
+    }
+    else
+    {
+        @* VIEW 2: SPECIFIC TAG LISTING *@
+        <div>
+            <div class="mb-10 border-b border-borderDark pb-8">
+                <a href="/tags" class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 mb-6 transition-colors group">
+                    <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    All Courses
+                </a>
 
+                <h1 class="font-mono text-3xl font-bold text-gray-100 sm:text-4xl md:text-5xl">
+                    <span class="text-red-500">#</span>@TagName
+                </h1>
+                <p class="mt-3 text-lg text-gray-400">
+                    Found <span class="text-gray-200 font-semibold">@posts?.Count</span> materials.
+                </p>
+            </div>
 
-<div class="divide-y divide-gray-700">
-    <div class="space-y-2 pb-8 pt-6 md:space-y-5">
-        <h1 class="font-sans md:leading-14 text-3xl font-extrabold leading-9 tracking-tight text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl">@TagName</h1>
-        <p class="text-lg leading-7 text-gray-400">
-            Materials under
-            <span class="text-primary-300">@TagName</span>
-        </p>
-    </div>
-    <PostsList Posts="posts"/>
+            <PostsList Posts="posts"/>
+            
+            <div class="mt-16 pt-8 border-t border-borderDark flex justify-center">
+                 <a href="/tags" class="px-6 py-2 rounded border border-borderDark text-sm font-medium text-gray-400 hover:border-red-500 hover:text-white transition-all">
+                     View Other Courses
+                 </a>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -45,7 +94,16 @@
     protected override void OnInitialized()
     {
         if (string.IsNullOrWhiteSpace(TagName)) return;
-        posts = blazorStaticContentService.Posts.Where(x => x.FrontMatter.Tags.Contains(TagName)).ToList();
+        
+        // Also apply the filter here to ensure the "Specific Tag Listing" 
+        // doesn't show hidden posts if accessed directly via URL
+        var now = DateTime.UtcNow;
+        
+        posts = blazorStaticContentService.Posts
+            .Where(x => x.FrontMatter.Tags.Contains(TagName) 
+                     && !x.FrontMatter.IsDraft 
+                     && x.FrontMatter.Published.ToUniversalTime() <= now)
+            .OrderByDescending(x => x.FrontMatter.Published)
+            .ToList();
     }
-
 }
