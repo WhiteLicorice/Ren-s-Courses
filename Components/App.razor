@@ -29,7 +29,7 @@
                                 color: theme('colors.gray.300'),
                                 '--tw-prose-links': theme('colors.red.400'),
                                 '--tw-prose-headings': theme('colors.gray.100'),
-                                '--tw-prose-pre-bg': '#010409', 
+                                '--tw-prose-pre-bg': '#010409',
                                 pre: {
                                     border: '1px solid ' + theme('colors.borderDark'),
                                     borderRadius: '0.5rem',
@@ -51,7 +51,8 @@
     @* END TAILWIND SETUP *@
 
     @* START PRISM SETUP *@
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"></script>
@@ -60,9 +61,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-gdscript.min.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"></script>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" />
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"></script>
 
     @* CUSTOM IDE STYLES *@
     <style>
@@ -71,20 +74,24 @@
             position: relative;
             margin-top: 2rem !important;
             padding-top: 2.5rem !important;
-            background-color: #010409 !important; 
-            overflow: auto; /* Ensure scrolling works */
+            background-color: #010409 !important;
+            overflow: auto;
+            /* Ensure scrolling works */
         }
 
         /* Language Tab Label - Top Left Anchor */
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
-            color: #000; /* High contrast on light grey */
-            background-color: #CFCFCF; /* Restoring your original grey background */
+            color: #000;
+            /* High contrast on light grey */
+            background-color: #CFCFCF;
+            /* Restoring your original grey background */
             width: fit-content;
             white-space: nowrap;
             position: absolute;
             top: 0;
-            left: 0; /* Anchored left */
+            left: 0;
+            /* Anchored left */
             font-family: 'Inter', sans-serif;
             font-size: 0.9em;
             font-weight: 700;
@@ -94,7 +101,7 @@
             z-index: 10;
             text-shadow: none;
         }
-        
+
         /* Fix for code padding to account for the label being on the left */
         pre[class*=language-][data-language] code {
             display: block;
@@ -107,4 +114,5 @@
 <body class="min-h-screen bg-bgDark font-sans text-gray-300 antialiased selection:bg-red-900 selection:text-white">
     <Routes />
 </body>
+
 </html>

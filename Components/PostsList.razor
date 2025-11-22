@@ -7,13 +7,14 @@
 <div class="grid gap-6 sm:grid-cols-2 lg:gap-8 mt-8">
     @foreach (var post in posts.OrderByDescending(x => x.FrontMatter.Published))
     {
-        <article class="group relative flex flex-col justify-between rounded-lg border border-borderDark bg-cardDark p-6 shadow-md transition-all hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:-translate-y-1">
-            
+        <article
+            class="group relative flex flex-col justify-between rounded-lg border border-borderDark bg-cardDark p-6 shadow-md transition-all hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:-translate-y-1">
+
             <div class="flex items-center justify-between text-xs">
                 <time datetime="@post.FrontMatter.Published.ToString("yyyy-MM-dd")" class="text-gray-500">
                     @post.FrontMatter.Published.ToString("MMM d, yyyy", new CultureInfo("en-US"))
                 </time>
-                @if(post.FrontMatter.Tags.Any())
+                @if (post.FrontMatter.Tags.Any())
                 {
                     <span class="font-mono text-red-400 bg-red-500/10 px-2 py-1 rounded">
                         @post.FrontMatter.Tags.First()
@@ -35,7 +36,8 @@
 
             <div class="mt-auto flex items-center border-t border-borderDark pt-4">
                 <span class="font-mono text-sm text-gray-500 group-hover:text-gray-300">
-                    <span class="text-red-500">$</span> ./read.sh <span class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">_</span>
+                    <span class="text-red-500">$</span> ./read.sh <span
+                        class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">_</span>
                 </span>
             </div>
         </article>
@@ -45,7 +47,7 @@
 @code {
     private List<Post<BlogFrontMatter>> posts = new();
     [Parameter] public List<Post<BlogFrontMatter>>? Posts { get; set; }
-    private HashSet<String> HiddenTags = new HashSet<String> {};
+    private HashSet<String> HiddenTags = new HashSet<String> { };
 
     protected override void OnInitialized()
     {
@@ -60,8 +62,10 @@
         base.OnInitialized();
     }
 
-    private bool HasHiddenTag(List<String> tags) {
-        foreach (String tag in tags) {
+    private bool HasHiddenTag(List<String> tags)
+    {
+        foreach (String tag in tags)
+        {
             if (this.HiddenTags.Contains(tag)) return true;
         }
         return false;
