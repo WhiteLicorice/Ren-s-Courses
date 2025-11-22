@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="flex min-h-screen flex-col bg-bgDark">
-    <NavMenu/>
+    <NavMenu />
 
     <main class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0">
         @Body
@@ -10,15 +10,16 @@
     <footer class="mt-16 border-t border-borderDark bg-bgDark">
         <div class="mx-auto flex max-w-5xl flex-col items-center py-8">
             <div class="flex space-x-6 mb-4">
-                <a class="text-gray-500 hover:text-red-500 transition-colors" target="_blank" rel="noopener noreferrer" href="@WebsiteKeys.GitHubRepo">
+                <a class="text-gray-500 hover:text-red-500 transition-colors" target="_blank" rel="noopener noreferrer"
+                    href="@WebsiteKeys.GitHubRepo">
                     <span class="sr-only">github</span>
-                    <Svg Icon="Svg.Icons.Github" SizeClasses="w-6 h-6"/>
+                    <Svg Icon="Svg.Icons.Github" SizeClasses="w-6 h-6" />
                 </a>
             </div>
-            <div class="flex space-x-2 text-sm text-gray-500 font-mono">
-                <div>© @DateTime.Now.Year</div>
-                <div>•</div>
-                <a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-gray-300">BlazorStatic</a>
+            <div class="flex flex-col items-center space-y-1 text-sm text-gray-500 font-mono">
+                <div>© @DateTime.Now.Year Rene Andre Bedonia Jocsing</div>
+                <a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-gray-300">Powered by
+                    BlazorStatic</a>
             </div>
         </div>
     </footer>
