@@ -50,7 +50,7 @@
     </script>
     @* END TAILWIND SETUP *@
 
-    @* START PRISM SETUP (Keep your existing scripts) *@
+    @* START PRISM SETUP *@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"></script>
@@ -72,37 +72,33 @@
             margin-top: 2rem !important;
             padding-top: 2.5rem !important;
             background-color: #010409 !important; 
+            overflow: auto; /* Ensure scrolling works */
         }
 
-        /* Mac Traffic Light Buttons */
-        pre[class*=language-]::after {
-            content: ' ';
-            position: absolute;
-            top: 12px;
-            left: 15px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ff5f56;
-            box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
-        }
-
-        /* Language Tab Label */
+        /* Language Tab Label - Top Left Anchor */
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
-            color: #9ca3af;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-bottom: none;
+            color: #000; /* High contrast on light grey */
+            background-color: #CFCFCF; /* Restoring your original grey background */
+            width: fit-content;
+            white-space: nowrap;
             position: absolute;
             top: 0;
-            right: 1rem;
+            left: 0; /* Anchored left */
             font-family: 'Inter', sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.9em;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0 0 4px 4px;
+            padding: 0 0.5em;
+            border-radius: 0 0 5px 0;
+            z-index: 10;
+            text-shadow: none;
+        }
+        
+        /* Fix for code padding to account for the label being on the left */
+        pre[class*=language-][data-language] code {
+            display: block;
+            padding-top: 1.5em;
         }
     </style>
     <HeadOutlet />
