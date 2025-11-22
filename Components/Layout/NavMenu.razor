@@ -1,6 +1,6 @@
 ﻿@inject NavigationManager Nm
 
-<header id="main-navbar" class="sticky top-0 z-50 w-full border-b border-borderDark bg-bgDark transition-transform duration-300">
+<header id="main-navbar" class="sticky top-0 z-40 w-full border-b border-borderDark bg-bgDark transition-transform duration-300">
     <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0">
         
         <div class="flex lg:w-0 lg:flex-1">
@@ -34,60 +34,81 @@
             </button>
         </div>
     </div>
+</header>
 
-    <div id="mobile-menu" class="hidden fixed inset-0 z-50 bg-bgDark transition-all">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-borderDark">
+<div id="mobile-menu-container" class="hidden fixed inset-0 z-50">
+    
+    <div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div>
+
+    <div class="relative w-full bg-bgDark border-b border-borderDark shadow-2xl transform transition-transform">
+        
+        <div class="flex items-center justify-between px-6 py-4 border-b border-borderDark/50">
             <span class="font-bold text-gray-100">Menu</span>
-            <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500 bg-cardDark rounded-md">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <div class="mt-6 flow-root px-6">
-            <div class="space-y-2 py-6">
-                @foreach (var item in menuItems)
-                {
-                    <NavLink class="block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-100 hover:bg-red-500/10 hover:text-red-400"
-                             href="@item.Link" 
-                             Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)"
-                             target="@item.Target">
-                            <div class="flex items-center gap-2">
-                            @((MarkupString)item.Name)
-                            <Svg Icon="item.Icon" />
-                            </div>
-                    </NavLink>
-                }
-            </div>
+
+        <div class="px-6 py-6 space-y-2">
+            @foreach (var item in menuItems)
+            {
+                <NavLink class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-gray-100 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                         href="@item.Link" 
+                         Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)"
+                         target="@item.Target">
+                        <div class="flex items-center gap-3">
+                        @((MarkupString)item.Name)
+                        <Svg Icon="item.Icon" />
+                        </div>
+                </NavLink>
+            }
         </div>
     </div>
-</header>
+</div>
 
 <script>
-    // Mobile Menu Logic
-    const toggleMobileMenu = () => {
-        const mobileMenu = document.querySelector('#mobile-menu');
-        mobileMenu.classList.toggle('hidden');
-        document.body.classList.toggle('overflow-hidden'); // Prevent body scroll when menu is open
-    };
-    document.querySelector('#toggle-button').addEventListener('click', toggleMobileMenu);
-    document.querySelector('#close-mobile-menu-button').addEventListener('click', toggleMobileMenu);
+    const menuContainer = document.querySelector('#mobile-menu-container');
+    const backdrop = document.querySelector('#mobile-backdrop');
+    const toggleBtn = document.querySelector('#toggle-button');
+    const closeBtn = document.querySelector('#close-mobile-menu-button');
 
-    // Scroll Direction Detection (Hide/Show Navbar)
+    const toggleMobileMenu = () => {
+        const isHidden = menuContainer.classList.contains('hidden');
+        
+        if (isHidden) {
+            // Open
+            menuContainer.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden'); // Lock body scroll
+        } else {
+            // Close
+            menuContainer.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden'); // Unlock body scroll
+        }
+    };
+
+    // Trigger open
+    toggleBtn.addEventListener('click', toggleMobileMenu);
+    
+    // Trigger close (X button)
+    closeBtn.addEventListener('click', toggleMobileMenu);
+
+    // Trigger close (Clicking the Backdrop/Gap)
+    backdrop.addEventListener('click', toggleMobileMenu);
+
+    // Scroll Direction Logic (Hide/Show Navbar)
     let lastScrollTop = 0;
     const navbar = document.getElementById('main-navbar');
     
     window.addEventListener('scroll', function() {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // Prevent negative scrolling (iOS bounce) causing issues
         if (scrollTop < 0) return;
 
-        if (scrollTop > lastScrollTop && scrollTop > 100) {
-            // Scroll DOWN -> Hide Navbar
+        // Only hide navbar if we scroll down AND the mobile menu is NOT open
+        if (scrollTop > lastScrollTop && scrollTop > 100 && menuContainer.classList.contains('hidden')) {
             navbar.classList.add('-translate-y-full');
         } else {
-            // Scroll UP -> Show Navbar
             navbar.classList.remove('-translate-y-full');
         }
         lastScrollTop = scrollTop;
