@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="utf-8" />
@@ -7,114 +7,108 @@
     <base href="/" />
 
     @* START TAILWIND SETUP *@
-
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         primary: tailwind.colors.red,
-                        'github-dark': '#24292e'
+                        bgDark: '#0d1117',   // Deep Github Black
+                        cardDark: '#161b22', // Slightly lighter for cards
+                        borderDark: '#30363d',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-                        serif: ['Merriweather', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
                     },
+                    typography: (theme) => ({
+                        DEFAULT: {
+                            css: {
+                                color: theme('colors.gray.300'),
+                                '--tw-prose-links': theme('colors.red.400'),
+                                '--tw-prose-headings': theme('colors.gray.100'),
+                                '--tw-prose-pre-bg': '#010409', 
+                                pre: {
+                                    border: '1px solid ' + theme('colors.borderDark'),
+                                    borderRadius: '0.5rem',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
+                                },
+                                'code::before': { content: '""' },
+                                'code::after': { content: '""' },
+                                code: {
+                                    color: theme('colors.red.400'),
+                                    fontWeight: '400',
+                                },
+                            },
+                        },
+                    }),
                 },
             },
         }
     </script>
-
     @* END TAILWIND SETUP *@
 
-    @* START PRISM SETUP *@
-
-    @* For setting up Prism.js - syntax highlighting in markdown (blog) files *@
-    @* See: https://cdnjs.com/libraries/prism *@
-    @* CSS library - using Github Dark*@
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
-
-    @* TODO: Fetch language definitions as needed from the Prism CDN provider... *@
-
-    @* Core - JavaScript included *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual
-        integrity="sha512-UOoJElONeUNzQbbKQbjldDf9MwOHqxNz49NNJJ1d90yp+X9edsHyJoAs6O4K19CZGaIdjI5ohK+O2y5lBTW6uQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @* Python *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"
-        integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @* NASM *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"
-        integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @* Bash *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js"
-        integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @* Powershell *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js"
-        integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @* Kotlin *@
+    @* START PRISM SETUP (Keep your existing scripts) *@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script>
-    
-    @* C *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @*GDScript*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-gdscript.min.js"></script>
     
-    @* Show Language Name *@
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css"
-        integrity="sha512-09fmad4VA38AJxIRtkrW3DmKI2PsTsEpx3bfR8ZmkQunfQ9jORIieKVREv6fVLmqdnrFbPkCO5PKTnBIIvswBg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"
-        integrity="sha512-WZeiH/5UJ3HZsxGBbWWIBluPrC/PIHbs/x1GtCP7lky8XbHXEzYfI9PJkL0d7/LdL7DvzHFScNkic8PaNhh+qg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"></script>
 
-    @* Override the CDN's positioning for the language label - fixes the issue on smaller viewports where the tag scrolls along the codebox *@
+    @* CUSTOM IDE STYLES *@
     <style>
-        pre[class=language-] {
+        /* Terminal Window Container */
+        pre[class*=language-] {
             position: relative;
-            overflow: auto;
+            margin-top: 2rem !important;
+            padding-top: 2.5rem !important;
+            background-color: #010409 !important; 
         }
 
-        pre[class*=language-][data-language] code {
-            display: block;
-            padding-top: 1.5em;
+        /* Mac Traffic Light Buttons */
+        pre[class*=language-]::after {
+            content: ' ';
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5f56;
+            box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
         }
 
+        /* Language Tab Label */
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
-            color: #000;
-            background-color: #CFCFCF;
-            width: fit-content;
-            white-space: nowrap;
+            color: #9ca3af;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-bottom: none;
             position: absolute;
             top: 0;
-            left: 0;
-            font-size: .9em;
-            border-radius: 0 0 5px 0;
-            padding: 0 .5em;
-            text-shadow: none;
+            right: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0 0 4px 4px;
         }
     </style>
-    @* END PRISM SETUP *@
-
     <HeadOutlet />
 </head>
 
-<body class="min-h-screen min-h-full bg-github-dark font-serif text-gray-200">
+<body class="min-h-screen bg-bgDark font-sans text-gray-300 antialiased selection:bg-red-900 selection:text-white">
     <Routes />
 </body>
-
 </html>
