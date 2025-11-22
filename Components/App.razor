@@ -51,8 +51,7 @@
     @* END TAILWIND SETUP *@
 
     @* START PRISM SETUP *@
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"></script>
@@ -62,13 +61,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-gdscript.min.js"></script>
 
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" />
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"></script>
 
-    @* CUSTOM IDE STYLES *@
+    @* GLOBAL STYLES *@
     <style>
+        /* ============================== */
+        /* 1. CUSTOM IDE / PRISM STYLES   */
+        /* ============================== */
+        
         /* Terminal Window Container */
         pre[class*=language-] {
             position: relative;
@@ -76,22 +77,18 @@
             padding-top: 2.5rem !important;
             background-color: #010409 !important;
             overflow: auto;
-            /* Ensure scrolling works */
         }
 
         /* Language Tab Label - Top Left Anchor */
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
             color: #000;
-            /* High contrast on light grey */
             background-color: #CFCFCF;
-            /* Restoring your original grey background */
             width: fit-content;
             white-space: nowrap;
             position: absolute;
             top: 0;
             left: 0;
-            /* Anchored left */
             font-family: 'Inter', sans-serif;
             font-size: 0.9em;
             font-weight: 700;
@@ -106,6 +103,66 @@
         pre[class*=language-][data-language] code {
             display: block;
             padding-top: 1.5em;
+        }
+
+        /* ============================== */
+        /* 2. TECHNO GLITCH EFFECTS       */
+        /* ============================== */
+
+        .glitch-target {
+            position: relative;
+        }
+
+        /* Create two pseudo-elements with the same text */
+        .glitch-target::before,
+        .glitch-target::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0d1117; /* Match background color to hide main text during glitch */
+        }
+
+        /* Layer 1: Red/Magenta shift, animates occasionally */
+        .glitch-target::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00c1; /* Retro magenta shadow */
+            clip-path: inset(0 0 0 0);
+            animation: techno-glitch-1 4s infinite linear alternate-reverse;
+            z-index: -1;
+        }
+
+        /* Layer 2: Blue/Cyan shift, animates differently */
+        .glitch-target::after {
+            left: -2px;
+            text-shadow: 2px 0 #00fff9; /* Retro cyan shadow */
+            clip-path: inset(0 0 0 0);
+            animation: techno-glitch-2 3s infinite linear alternate-reverse;
+            z-index: -2;
+        }
+
+        /* NOTE: We use @@keyframes to escape the Razor syntax! */
+        @@keyframes techno-glitch-1 {
+            0% { clip-path: inset(20% 0 50% 0); transform: skew(1deg); }
+            2% { clip-path: inset(10% 0 85% 0); transform: skew(0.5deg); }
+            4% { clip-path: inset(80% 0 5% 0); transform: skew(2deg); }
+            /* Long pause */
+            5%, 95% { clip-path: inset(0 0 0 0); transform: skew(0); text-shadow: none; background: transparent;}
+            /* Quick buzz at the end */
+            96% { clip-path: inset(50% 0 30% 0); transform: skew(1deg); text-shadow: -2px 0 #ff00c1; background: #0d1117;}
+            100% { clip-path: inset(10% 0 60% 0); transform: skew(2deg); }
+        }
+
+        @@keyframes techno-glitch-2 {
+            0% { clip-path: inset(15% 0 60% 0); transform: skew(-2deg); }
+            1% { clip-path: inset(40% 0 30% 0); transform: skew(-1deg); }
+            /* Long pause */
+            2%, 98% { clip-path: inset(0 0 0 0); transform: skew(0); text-shadow: none; background: transparent;}
+            /* Quick buzz at the end */
+            99% { clip-path: inset(5% 0 80% 0); transform: skew(-3deg); text-shadow: 2px 0 #00fff9; background: #0d1117;}
+            100% { clip-path: inset(70% 0 10% 0); transform: skew(-1deg); }
         }
     </style>
     <HeadOutlet />

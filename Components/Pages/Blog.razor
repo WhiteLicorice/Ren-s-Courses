@@ -9,8 +9,10 @@
 @if (string.IsNullOrWhiteSpace(FileName))
 {
     <div class="py-10 sm:py-16 text-center">
-        <h1 class="text-4xl font-extrabold tracking-tight text-gray-100 sm:text-6xl mb-6 font-mono">
-            <span class="text-red-500">>></span> Welcome_Traveler<span class="animate-pulse">_</span>
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-100 sm:text-6xl mb-6 font-mono relative z-10">
+            <span class="text-red-500 animate-pulse">>></span>
+            <span class="glitch-target inline-block" data-text="Welcome_Traveler_">Welcome_Traveler</span>
+            <span class="animate-pulse">_</span>
         </h1>
         <p class="mt-4 text-lg leading-7 text-gray-400 max-w-2xl mx-auto">
             @WebsiteKeys.BlogLead
