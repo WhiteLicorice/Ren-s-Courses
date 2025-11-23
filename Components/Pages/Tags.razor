@@ -3,7 +3,8 @@
 @using BlazorStatic
 @using BlazorStatic.Services
 @using System.Net
-@inject BlazorStaticContentService<BlogFrontMatter> blazorStaticContentService
+@using BlazorStaticMinimalBlog.Models
+@inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 
 <div class="animate-fade-in py-10">
 
@@ -92,7 +93,7 @@
 
     [Parameter] public string? TagName { get; set; }
 
-    List<Post<BlogFrontMatter>>? posts;
+    List<Post<CourseFrontMatter>>? posts;
 
     protected override void OnInitialized()
     {
