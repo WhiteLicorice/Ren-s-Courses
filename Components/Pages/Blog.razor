@@ -4,6 +4,7 @@
 @using BlazorStatic
 @using BlazorStatic.Services
 @inject BlazorStaticContentService<BlogFrontMatter> blazorStaticContentService
+@inject IJSRuntime JSRuntime
 
 @* No filename -> show latest posts (HOME) *@
 @if (string.IsNullOrWhiteSpace(FileName))
@@ -119,5 +120,11 @@
     {
         if (string.IsNullOrWhiteSpace(FileName)) return;
         post = blazorStaticContentService.Posts.FirstOrDefault(x => x.Url == FileName);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Run this every time the component renders (navigation updates)
+        await JSRuntime.InvokeVoidAsync("addCodeFeatures");
     }
 }
