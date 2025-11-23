@@ -1,6 +1,6 @@
 # Ren's Courses
 
-This repository hosts the Headless Learning Management System designed for courses I handle under the **University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.**
+This repository hosts a headless Learning Management System designed for courses I handle under the **University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.**
 
 ---
 
