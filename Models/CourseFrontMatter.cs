@@ -16,4 +16,5 @@ public class CourseFrontMatter : IFrontMatter, IFrontMatterWithTags
     public string Subtitle { get; set; } = "";
     public DateTime? Deadline { get; set; }
     public string? DownloadLink {get; set;}
+    public bool NoDeadline { get; set; } = false;
 }

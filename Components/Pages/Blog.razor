@@ -81,12 +81,11 @@
             <span class="text-gray-600 mx-1">•</span>
 
             <time class="text-gray-500">
-                @post.FrontMatter.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"))
+                @GetDisplayDateRange(post.FrontMatter)
             </time>
         </div>
 
         @* 5. Action Row *@
-        @* Move to its own row to fix hitbox issues and separate concerns *@
         @if (!string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink))
         {
             <div class="mt-8 flex justify-center">
@@ -133,7 +132,36 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Run this every time the component renders (navigation updates)
         await JSRuntime.InvokeVoidAsync("addCodeFeatures");
+    }
+
+    // --- NEW: Date Range Logic ---
+    private string GetDisplayDateRange(CourseFrontMatter fm)
+    {
+        string publishedStr = fm.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"));
+
+        // 1. If "NoDeadline" is explicitly true, return ONLY published date
+        if (fm.NoDeadline)
+        {
+            return publishedStr;
+        }
+
+        DateTime deadlineDate;
+
+        // 2. If Deadline is Explicitly Set -> Use it
+        if (fm.Deadline.HasValue)
+        {
+            deadlineDate = fm.Deadline.Value;
+        }
+        // 3. If Deadline is Implicit (Missing) -> Add 1 Month to Published Month
+        else
+        {
+            deadlineDate = fm.Published.AddMonths(1);
+        }
+
+        string deadlineStr = deadlineDate.ToString("MMMM d, yyyy", new CultureInfo("en-US"));
+
+        // Return Range: "Nov 20, 2025 - Dec 20, 2025"
+        return $"{publishedStr} - {deadlineStr}";
     }
 }
