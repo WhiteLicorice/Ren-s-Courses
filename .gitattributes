@@ -1,5 +1,7 @@
 # Treat .razor / blazor files as C#
 *.razor linguist-language=C#
+# Also treat .md files as C#
+*.md linguist-language=C#
 
 # Auto detect text files and perform LF normalization
 *          text=auto
