@@ -1,12 +1,13 @@
 ---
 title: Scanner
-lead: CMSC 124 Lab 1 - Tokenizing in Kotlin.
+subtitle: CMSC 124 Lab 1
+lead: Tokenizing in Kotlin.
 published: 2025-08-31
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1Vg5JWeJ8pUdwBfxMZoCDDOtVlXOWvYwD
+downloadLink: https://drive.google.com/file/d/1Vg5JWeJ8pUdwBfxMZoCDDOtVlXOWvYwD/view?usp=drive_link
 ---
 
 For this laboratory activity, your task is to build a **lexical scanner**. A programming language needs three components, at the very least, so that your machine can run it: a scanner, a parser, and an interpreter. Of course, like in most things, we will begin with the first one.

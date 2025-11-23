@@ -1,12 +1,13 @@
 ---
 title: Evaluator
-lead: CMSC 124 Lab 3 - Bringing expressions to life.
+subtitle: CMSC 124 Lab 3
+lead: Bringing expressions to life.
 published: 2025-10-07
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1-1zFbGRFIVd-4dBJWAAf993_2btyasBM
+downloadLink: https://drive.google.com/file/d/1-1zFbGRFIVd-4dBJWAAf993_2btyasBM/view?usp=drive_link
 ---
 
 Welcome to the third chapter of your language hacking journey. Your scanner can tokenize source code, your parser can build syntax trees, and now it's time for the grand finale: **evaluation**. This is where your language comes to life—where those abstract syntax trees finally compute actual values.

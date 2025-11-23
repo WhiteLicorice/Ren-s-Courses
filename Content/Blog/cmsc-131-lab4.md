@@ -1,12 +1,13 @@
 ---
 title: The Game of Life
-lead: CMSC 131 Lab 4 - Simulating buffers using 2D arrays.
+subtitle: CMSC 131 Lab 4
+lead: Simulating buffers using 2D arrays.
 published: 2025-10-13
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1YWQp4ffJRZUJ3_PDvxHUrtG5lbQquEO4
+downloadLink: https://drive.google.com/file/d/1YWQp4ffJRZUJ3_PDvxHUrtG5lbQquEO4/view?usp=drive_link
 ---
 
 This laboratory assignment implements Conway's Game of Life using C and Assembly. You will create an idle simulation game that handles multi-dimensional arrays, buffer management, and efficient pattern detection.

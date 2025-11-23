@@ -1,12 +1,14 @@
 ---
 title: Link, Start!
-lead: CMSC 197 GDD Activity 0 - GDQuest on.
+subtitle: CMSC 197 GDD Act 0
+lead: GDQuest on.
 published: 2026-01-19
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1IW6tVZdhn-T2pshkvOopZEu99ip0xtY2
+downloadLink: https://drive.google.com/file/d/1IW6tVZdhn-T2pshkvOopZEu99ip0xtY2/view?usp=drive_link
+isDraft: true
 ---
 
 Welcome to the special topics elective **Game Design and Development (GDD)**. Since we will be using **Godot** for this course, and for most people (if not all) this course will be their first time encountering Godot or even a game engine of any kind, your first laboratory activity is a simple introduction to Godot to get your feet wet. You are tasked to **accomplish the free, interactive GDQuest course** found [on their website](https://gdquest.github.io/learn-gdscript/).

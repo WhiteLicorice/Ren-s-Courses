@@ -1,12 +1,13 @@
 ---
 title: Packet Transfer in Networking
-lead: CMSC 131 Lab 3 - Endianness concepts through network packet simulation.
+subtitle: CMSC 131 Lab 3
+lead: Endianness concepts through network packet simulation.
 published: 2025-09-15
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 18yR2Q0OjQrSR6_3_XlbU0K8q_Smk9v2P
+downloadLink: https://drive.google.com/file/d/18yR2Q0OjQrSR6_3_XlbU0K8q_Smk9v2P/view?usp=drive_link
 ---
 
 This laboratory assignment explores endianness concepts through network packet simulation. You will implement a program that demonstrates proper conversion techniques for cross-architecture network communication.

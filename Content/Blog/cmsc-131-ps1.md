@@ -1,12 +1,13 @@
 ---
-title: CMSC 131 Problem Set 1
-lead: CMSC 131 PS1 - IEEE-754 floating-point representation and x86 register manipulation.
+title: Problem Set
+subtitle: CMSC 131 PS1
+lead: IEEE-754 floating-point representation & x86 register manipulation.
 published: 2025-09-15
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 149y0CPIQsf2WavFriLBwC2tv17ElsVKz
+downloadLink: https://drive.google.com/file/d/149y0CPIQsf2WavFriLBwC2tv17ElsVKz/view?usp=drive_link
 ---
 
 This problem set covers IEEE-754 floating-point representation and x86 register manipulation. It is intended to serve as your review and pointers for the midterms. You are allowed to exhaust whatever resource you have at your disposal in answering this problem set.

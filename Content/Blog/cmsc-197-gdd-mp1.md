@@ -1,12 +1,14 @@
 ---
 title: Fly, Flap, and Die!
-lead: CMSC 197 GDD Machine Problem 1 - Yet Another Flappy Bird Clone (YAFBC).
+subtitle: CMSC 197 GDD MP1 -
+lead: Yet Another Flappy Bird Clone (YAFBC).
 published: 2026-01-30
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1Bwqu2xlrb-1kcZZUXyLqyw0-rh4VaBeB
+downloadLink: https://drive.google.com/file/d/1Bwqu2xlrb-1kcZZUXyLqyw0-rh4VaBeB/view?usp=drive_link
+isDraft: true
 ---
 
 Your first *machine problem* (traditionally, this is what we call take-home labs in GDD), is to create Yet Another Flappy Bird Clone (YAFBC) from scratch in the Godot engine. You may scour the internet for free-to-use art assets, such as the infamous Flappy Bird sprite, but the bespoke implementation and the code must come from you.

@@ -1,12 +1,13 @@
 ---
 title: Character Frequency Analysis
-lead: CMSC 131 Lab 5 - String processing techniques in assembly.
+subtitle: CMSC 131 Lab 5
+lead: String processing techniques.
 published: 2025-10-16
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1av4SxgKhernpJ9NmyyRJ0XkGI6W4-bkZ
+downloadLink: https://drive.google.com/file/d/1av4SxgKhernpJ9NmyyRJ0XkGI6W4-bkZ/view?usp=drive_link
 ---
 
 This laboratory assignment combines string processing, character frequency analysis, and data structure manipulation using both C and Assembly. You will implement a program that analyzes text input to find modal (most frequently occurring) characters, displaying comprehensive statistics.

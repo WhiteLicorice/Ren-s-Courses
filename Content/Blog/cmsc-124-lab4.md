@@ -1,12 +1,13 @@
 ---
 title: Context
-lead: CMSC 124 Lab 4 - Lexical scoping and bindings.
+subtitle: CMSC 124 Lab 4
+lead: Lexical scoping and bindings.
 published: 2025-10-28
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1fHNxkhWvekIqxJ7sN4Weu-NCa4lflMLk
+downloadLink: https://drive.google.com/file/d/1fHNxkhWvekIqxJ7sN4Weu-NCa4lflMLk/view?usp=drive_link
 ---
 
 Congratulations on making it to the fourth lab! Your interpreter can now evaluate expressions, but so far it's been like a very expensive calculator. Real programming languages need more than just arithmetic—they need **statements** and **state**. This is where your language transforms from a toy into something actually useful.

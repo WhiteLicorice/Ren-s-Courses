@@ -1,12 +1,13 @@
 ---
 title: Parser
-lead: CMSC 124 Lab 2 - From token arrays to expression trees.
+subtitle: CMSC 124 Lab 2
+lead: From token arrays to expression trees.
 published: 2025-09-16
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1yK1grI29pnI8_2mIbrHFQB0N_9LQeYbt
+downloadLink: https://drive.google.com/file/d/1yK1grI29pnI8_2mIbrHFQB0N_9LQeYbt/view?usp=drive_link
 ---
 
 Welcome to the second leg of your language hacking journey. Now that your scanner can transform source code into tokens, it's time to build the next component: the **parser**. Think of parsing as the step where we take those tokens and figure out what they actually *mean* in the context of your programming language.
