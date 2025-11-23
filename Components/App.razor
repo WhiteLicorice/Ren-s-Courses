@@ -10,20 +10,25 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
 
     @* START PRISM SETUP *@
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
-    
-    @* Core & Languages *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-nasm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-gdscript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+
     @* GLOBAL STYLES *@
     <style>
         /* ============================== */
@@ -34,7 +39,11 @@
         pre[class*=language-] {
             position: relative;
             margin-top: 2rem !important;
-            padding-top: 2.5rem !important;
+            /* Make room for the label */
+            padding-top: 2rem !important;
+            padding-bottom: 1rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
             background-color: #010409 !important;
             overflow: auto;
         }
@@ -50,19 +59,19 @@
             top: 0;
             left: 0;
             font-family: 'Inter', sans-serif;
-            font-size: 0.9em;
+            font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 0 0.5em;
-            border-radius: 0 0 5px 0;
+            padding: 0.25rem 0.75rem;
+            border-bottom-right-radius: 4px;
             z-index: 10;
             text-shadow: none;
         }
 
-        /* Fix for code padding to account for the label being on the left */
+        /* Reset code padding so it doesn't double up with the pre padding */
         pre[class*=language-][data-language] code {
             display: block;
-            padding-top: 1.5em;
+            padding: 0 !important;
         }
 
         /* ============================== */
@@ -82,7 +91,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #0d1117; /* Match background color to hide main text during glitch */
+            background: #0d1117;
+            /* Match background color to hide main text during glitch */
         }
 
         /* Layer 1: Red/Magenta shift */
@@ -105,22 +115,74 @@
 
         /* NOTE: We use @@keyframes to escape the Razor syntax! */
         @@keyframes techno-glitch-1 {
-            0% { clip-path: inset(20% 0 50% 0); transform: skew(1deg); }
-            2% { clip-path: inset(10% 0 85% 0); transform: skew(0.5deg); }
-            4% { clip-path: inset(80% 0 5% 0); transform: skew(2deg); }
-            5%, 95% { clip-path: inset(0 0 0 0); transform: skew(0); text-shadow: none; background: transparent;}
-            96% { clip-path: inset(50% 0 30% 0); transform: skew(1deg); text-shadow: -2px 0 #ff00c1; background: #0d1117;}
-            100% { clip-path: inset(10% 0 60% 0); transform: skew(2deg); }
+            0% {
+                clip-path: inset(20% 0 50% 0);
+                transform: skew(1deg);
+            }
+
+            2% {
+                clip-path: inset(10% 0 85% 0);
+                transform: skew(0.5deg);
+            }
+
+            4% {
+                clip-path: inset(80% 0 5% 0);
+                transform: skew(2deg);
+            }
+
+            5%,
+            95% {
+                clip-path: inset(0 0 0 0);
+                transform: skew(0);
+                text-shadow: none;
+                background: transparent;
+            }
+
+            96% {
+                clip-path: inset(50% 0 30% 0);
+                transform: skew(1deg);
+                text-shadow: -2px 0 #ff00c1;
+                background: #0d1117;
+            }
+
+            100% {
+                clip-path: inset(10% 0 60% 0);
+                transform: skew(2deg);
+            }
         }
 
         @@keyframes techno-glitch-2 {
-            0% { clip-path: inset(15% 0 60% 0); transform: skew(-2deg); }
-            1% { clip-path: inset(40% 0 30% 0); transform: skew(-1deg); }
+            0% {
+                clip-path: inset(15% 0 60% 0);
+                transform: skew(-2deg);
+            }
+
+            1% {
+                clip-path: inset(40% 0 30% 0);
+                transform: skew(-1deg);
+            }
+
             /* Long pause */
-            2%, 98% { clip-path: inset(0 0 0 0); transform: skew(0); text-shadow: none; background: transparent;}
+            2%,
+            98% {
+                clip-path: inset(0 0 0 0);
+                transform: skew(0);
+                text-shadow: none;
+                background: transparent;
+            }
+
             /* Quick buzz at the end */
-            99% { clip-path: inset(5% 0 80% 0); transform: skew(-3deg); text-shadow: 2px 0 #00fff9; background: #0d1117;}
-            100% { clip-path: inset(70% 0 10% 0); transform: skew(-1deg); }
+            99% {
+                clip-path: inset(5% 0 80% 0);
+                transform: skew(-3deg);
+                text-shadow: 2px 0 #00fff9;
+                background: #0d1117;
+            }
+
+            100% {
+                clip-path: inset(70% 0 10% 0);
+                transform: skew(-1deg);
+            }
         }
     </style>
     <HeadOutlet />
@@ -128,6 +190,36 @@
 
 <body class="min-h-screen bg-bgDark font-sans text-gray-300 antialiased selection:bg-red-900 selection:text-white">
     <Routes />
+
+    @* Generates Language Labels *@
+    <script>
+        // This function runs after the DOM is ready to ensure all <pre> tags exist
+        document.addEventListener("DOMContentLoaded", () => {
+            const langMap = {
+                'cs': 'C#', 'csharp': 'C#',
+                'cpp': 'C++', 'c': 'C',
+                'py': 'PYTHON', 'python': 'PYTHON',
+                'js': 'JS', 'javascript': 'JAVASCRIPT',
+                'ts': 'TS', 'typescript': 'TYPESCRIPT',
+                'html': 'HTML', 'xml': 'XML',
+                'json': 'JSON', 'yaml': 'YAML',
+                'md': 'MARKDOWN',
+                'bash': 'BASH', 'sh': 'SHELL', 'powershell': 'POWERSHELL',
+                'nasm': 'ASSEMBLY', 'asm': 'ASSEMBLY',
+                'gdscript': 'GDSCRIPT'
+            };
+
+            document.querySelectorAll('pre[class*="language-"]').forEach(pre => {
+                const className = [...pre.classList].find(c => c.startsWith('language-'));
+
+                if (className) {
+                    const rawLang = className.replace('language-', '').toLowerCase();
+                    const label = langMap[rawLang] || rawLang.toUpperCase();
+                    pre.setAttribute('data-language', label);
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
