@@ -43,5 +43,5 @@ public static class WebsiteKeys
     public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Courses";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "Headless Learning Management System for CS courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All material is copyrighted. All rights reserved.";
+    public const string BlogLead = "Ren's Courses is a headless Learning Management System for the CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All material is copyrighted. All rights reserved.";
 }
