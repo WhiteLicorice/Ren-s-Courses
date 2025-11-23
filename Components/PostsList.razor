@@ -152,11 +152,11 @@
         // 4. Logic
         if (deadlineEndOfDay < nowPh)
         {
-            return (deadlineBase, "Expired", "border-red-500/30 bg-red-500/10 text-red-500", DeadlineState.Expired);
+            return (deadlineBase, "Exp", "border-red-500/30 bg-red-500/10 text-red-500", DeadlineState.Expired);
         }
         else if (deadlineBase.Date == nowPh.Date)
         {
-            return (deadlineBase, "Due Today", "border-orange-500/30 bg-orange-500/10 text-orange-500 animate-pulse",
+            return (deadlineBase, "Due", "border-orange-500/30 bg-orange-500/10 text-orange-500 animate-pulse",
             DeadlineState.Today);
         }
         else
