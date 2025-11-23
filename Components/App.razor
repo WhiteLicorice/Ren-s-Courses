@@ -40,30 +40,46 @@
             position: relative;
             margin-top: 2rem !important;
             /* Make room for the label */
-            padding-top: 2rem !important;
+            padding-top: 2.2rem !important;
             padding-bottom: 1rem !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
             background-color: #010409 !important;
+            border: 1px solid #30363d;
+            /* Ensure border matches theme */
             overflow: auto;
         }
 
         /* Language Tab Label - Top Left Anchor */
         pre[class*=language-][data-language]::before {
             content: attr(data-language);
-            color: #000;
-            background-color: #CFCFCF;
+
+            /* Modern Aesthetics */
+            color: #8b949e;
+            /* Muted Grey Text */
+            background-color: #161b22;
+            /* Dark Card Background (Subtle Contrast) */
+            border-right: 1px solid #30363d;
+            border-bottom: 1px solid #30363d;
+
+            /* Typography */
+            font-family: 'JetBrains Mono', monospace;
+            /* Use code font */
+            font-size: 0.75rem;
+            /* Smaller text */
+            font-weight: 500;
+            /* Normal weight */
+            text-transform: lowercase;
+            /* Enforce lowercase convention */
+
+            /* Positioning */
             width: fit-content;
             white-space: nowrap;
             position: absolute;
             top: 0;
             left: 0;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
             padding: 0.25rem 0.75rem;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
             z-index: 10;
             text-shadow: none;
         }
@@ -196,17 +212,17 @@
         // This function runs after the DOM is ready to ensure all <pre> tags exist
         document.addEventListener("DOMContentLoaded", () => {
             const langMap = {
-                'cs': 'C#', 'csharp': 'C#',
-                'cpp': 'C++', 'c': 'C',
-                'py': 'PYTHON', 'python': 'PYTHON',
-                'js': 'JS', 'javascript': 'JAVASCRIPT',
-                'ts': 'TS', 'typescript': 'TYPESCRIPT',
-                'html': 'HTML', 'xml': 'XML',
-                'json': 'JSON', 'yaml': 'YAML',
-                'md': 'MARKDOWN',
-                'bash': 'BASH', 'sh': 'SHELL', 'powershell': 'POWERSHELL',
-                'nasm': 'ASSEMBLY', 'asm': 'ASSEMBLY',
-                'gdscript': 'GDSCRIPT'
+                'cs': 'c#', 'csharp': 'c#',
+                'cpp': 'c++', 'c': 'c',
+                'py': 'python', 'python': 'python',
+                'js': 'js', 'javascript': 'js',
+                'ts': 'ts', 'typescript': 'ts',
+                'html': 'html', 'xml': 'xml',
+                'json': 'json', 'yaml': 'yaml',
+                'md': 'markdown',
+                'bash': 'bash', 'sh': 'sh', 'powershell': 'powershell',
+                'nasm': 'asm', 'asm': 'asm',
+                'gdscript': 'gdscript'
             };
 
             document.querySelectorAll('pre[class*="language-"]').forEach(pre => {
@@ -214,7 +230,8 @@
 
                 if (className) {
                     const rawLang = className.replace('language-', '').toLowerCase();
-                    const label = langMap[rawLang] || rawLang.toUpperCase();
+                    // Default to rawLang (already lowercase) if not in map
+                    const label = langMap[rawLang] || rawLang;
                     pre.setAttribute('data-language', label);
                 }
             });

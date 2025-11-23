@@ -58,7 +58,7 @@ typedef struct ModalCharacter {
 
 ### Expected Output
 
-```text
+```
 Input a string: programming is fun and challenging
 Character frequencies:
 a: 3
