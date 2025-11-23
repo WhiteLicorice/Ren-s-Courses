@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BlazorStaticMinimalBlog.Components;
+using BlazorStaticMinimalBlog.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +13,7 @@ builder.WebHost.UseStaticWebAssets();
 builder.Services.AddBlazorStaticService(opt =>
 {
     //opt. //check to change the defaults
-}
-).AddBlazorStaticContentService<BlogFrontMatter>();
+}).AddBlazorStaticContentService<CourseFrontMatter>();
 
 builder.Services.AddRazorComponents();
 
