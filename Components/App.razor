@@ -64,13 +64,9 @@
 
             /* Typography */
             font-family: 'JetBrains Mono', monospace;
-            /* Use code font */
             font-size: 0.75rem;
-            /* Smaller text */
             font-weight: 500;
-            /* Normal weight */
             text-transform: lowercase;
-            /* Enforce lowercase convention */
 
             /* Positioning */
             width: fit-content;
@@ -91,7 +87,29 @@
         }
 
         /* ============================== */
-        /* 2. TECHNO GLITCH EFFECTS       */
+        /* 2. NUCLEAR BACKTICK REMOVAL    */
+        /* ============================== */
+
+        /* Use :not(:where(pre *)) to ensure we ONLY target inline code */
+        .prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *))::before,
+        .prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *))::after {
+            content: "" !important;
+            display: none !important;
+        }
+
+        /* Style ONLY inline code pills (Exclude pre blocks) */
+        .prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *)) {
+            background-color: rgba(239, 68, 68, 0.1);
+            /* Red-500 10% */
+            color: #ef4444;
+            /* Red-500 */
+            border-radius: 0.25rem;
+            padding: 0.125rem 0.375rem;
+            font-weight: 400;
+        }
+
+        /* ============================== */
+        /* 3. TECHNO GLITCH EFFECTS       */
         /* ============================== */
 
         .glitch-target {
