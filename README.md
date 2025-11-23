@@ -1,6 +1,6 @@
 # Ren's Courses
 
-A collection of materials for courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum. All material is copyrighted. All rights reserved.
+A headless learning management system for courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum. All material is copyrighted. All rights reserved.
 
 # Acknowledgments
 
