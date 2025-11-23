@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BlazorStaticMinimalBlog.Components;
+using BlazorStaticMinimalBlog.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +13,7 @@ builder.WebHost.UseStaticWebAssets();
 builder.Services.AddBlazorStaticService(opt =>
 {
     //opt. //check to change the defaults
-}
-).AddBlazorStaticContentService<BlogFrontMatter>();
+}).AddBlazorStaticContentService<CourseFrontMatter>();
 
 builder.Services.AddRazorComponents();
 
@@ -43,5 +43,5 @@ public static class WebsiteKeys
     public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Courses";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "This is a collection of materials for CS courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All material is copyrighted. All rights reserved.";
+    public const string BlogLead = "Headless Learning Management System for CS courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All material is copyrighted. All rights reserved.";
 }

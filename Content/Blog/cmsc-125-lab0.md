@@ -1,12 +1,14 @@
 ---
-title: A UNIX Developer Environment
-lead: CMSC 125 Lab 0 - Welcome to hell.
+title: UNIX Developer Environment on Windows
+subtitle: CMSC 125 Lab 0
+lead: Welcome to hell.
 published: 2026-01-19
 tags: [cmsc-125]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 12QCLa2f1FhAuzmMDFiwNcTwEw6085xIS
+downloadLink: https://drive.google.com/file/d/12QCLa2f1FhAuzmMDFiwNcTwEw6085xIS/view?usp=drive_link
+isDraft: true
 ---
 
 CMSC 125 is often the first deep-dive of a CS student into UNIX-like systems, shell scripting, and systems programming. Like in CMSC 131, the instructor has taken the steps necessary to arm you for the laboratory portion of the course. The goal of this activity is to prepare a developer environment for C programming on Windows using Windows Subsystem for Linux (WSL) and Visual Studio Code.

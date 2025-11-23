@@ -1,12 +1,14 @@
 ---
-title: CMSC 131 Special Topics
-lead: CMSC 131 ST - Instead of calling it removals, we call it special topics.
+title: Special Topics
+subtitle: CMSC 131 ST
+lead: Instead of calling it removals, we call it special topics.
 published: 2025-10-01
+deadline: 2025-10-31
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1Ab8LLVnmTj2HZ6UvijZgN30m-cjmWKHh
+downloadLink: https://drive.google.com/file/d/1Ab8LLVnmTj2HZ6UvijZgN30m-cjmWKHh/view?usp=drive_link
 ---
 
 This manual contains a guide on how to structure a proposal for the **optional** special topics component of CMSC 131. If you choose to undertake a special topic, you are entitled to the **full substitution of your grade** in a regular component of your choice from the following: *Quizzes, Assignments, and Reportings*, *Midterm Exam*, or *Final Exam*. However, if you feel confident in your class standing, you may choose to forego a special topic and (safely) ignore this manual.

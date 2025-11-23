@@ -1,12 +1,13 @@
 ---
-title: Cyclic Temperature Conversion in NASM
-lead: CMSC 131 Lab 1 - Register operations in assembly.
+title: Cyclic Temperature Conversion
+subtitle: CMSC 131 Lab 1
+lead: Baby's first register operations.
 published: 2025-09-04
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1JQZNyg12Kgo3qpoR-PL6sIwnlnn48yhF
+downloadLink: https://drive.google.com/file/d/1JQZNyg12Kgo3qpoR-PL6sIwnlnn48yhF/view?usp=drive_link
 ---
 
 This laboratory assignment introduces basic arithmetic operations, register manipulation, and input/output handling in the NASM assembly language. You will implement a temperature conversion program that converts between Celsius, Fahrenheit, and Kelvin temperature scales.

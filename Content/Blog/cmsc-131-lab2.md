@@ -1,12 +1,13 @@
 ---
 title: Annual Compounding Interest in Banking
-lead: CMSC 131 Lab 2 - Fixed point integers and floating point numbers in assembly.
+subtitle: CMSC 131 Lab 2
+lead: Fixed point integers & floating point numbers.
 published: 2025-09-11
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1jE53YlIXn4dQ2bYNlsvtNM-1Wzi8YBiz
+downloadLink: https://drive.google.com/file/d/1jE53YlIXn4dQ2bYNlsvtNM-1Wzi8YBiz/view?usp=drive_link
 ---
 
 This laboratory assignment introduces fixed point integers and floating point numbers in the NASM assembly language, particularly in the context of banking. You will implement a program that simulates compounding interest over a period of time, using fixed point integer calculations. You will also convert from fixed point representation to floating point representation for output.

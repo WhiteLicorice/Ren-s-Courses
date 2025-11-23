@@ -1,43 +1,91 @@
 @using System.Globalization
 @using BlazorStatic
 @using BlazorStatic.Services
-@inject BlazorStaticContentService<BlogFrontMatter> blazorStaticContentService
+@using BlazorStaticMinimalBlog.Models
+@inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 @inject BlazorStaticService blazorStaticService
 
 <div class="grid gap-6 sm:grid-cols-2 lg:gap-8 mt-8">
-    @foreach (var post in posts.OrderByDescending(x => x.FrontMatter.Published))
+    @foreach (var post in posts)
     {
         <article
             class="group relative flex flex-col justify-between rounded-lg border border-borderDark bg-cardDark p-6 shadow-md transition-all hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:-translate-y-1">
 
+            @* --- TOP META: Date & Tags --- *@
             <div class="flex items-center justify-between text-xs">
                 <time datetime="@post.FrontMatter.Published.ToString("yyyy-MM-dd")" class="text-gray-500">
                     @post.FrontMatter.Published.ToString("MMM d, yyyy", new CultureInfo("en-US"))
                 </time>
+
                 @if (post.FrontMatter.Tags.Any())
                 {
-                    <span class="font-mono text-red-400 bg-red-500/10 px-2 py-1 rounded">
+                    <span class="font-mono text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20">
                         @post.FrontMatter.Tags.First()
                     </span>
                 }
             </div>
 
-            <div class="mt-4 mb-4">
+            <div class="mt-4 mb-4 flex-grow">
+
+                @* --- TITLE --- *@
                 <h3 class="text-lg font-bold text-gray-100 group-hover:text-red-400 transition-colors">
                     <a href="@blazorStaticContentService.Options.PageUrl/@(post.Url)">
                         <span class="absolute inset-0"></span>
                         @post.FrontMatter.Title
                     </a>
                 </h3>
-                <div class="mt-3 line-clamp-2 text-sm text-gray-400">
+
+                @* --- SUBTITLE --- *@
+                @if (!string.IsNullOrWhiteSpace(post.FrontMatter.Subtitle))
+                {
+                    <div class="text-xs font-mono text-gray-500 mt-1 mb-2">
+                        // @post.FrontMatter.Subtitle
+                    </div>
+                }
+
+                @* --- DEADLINE BADGE --- *@
+                @{
+                    var deadlineInfo = GetDeadlineStatus(post.FrontMatter);
+                }
+                @if (deadlineInfo.HasValue)
+                {
+                    <div
+                        class="mt-2 mb-2 inline-flex items-center gap-1.5 rounded border px-2 py-1 text-xs font-medium relative z-10 @deadlineInfo.Value.CssClass">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
+                            @if (deadlineInfo.Value.State == DeadlineState.Expired)
+                            {
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                                    clip-rule="evenodd" />
+                            }
+                            else if (deadlineInfo.Value.State == DeadlineState.Today)
+                            {
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                                    clip-rule="evenodd" />
+                            }
+                            else
+                            {
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
+                                    clip-rule="evenodd" />
+                            }
+                        </svg>
+                        <span>@deadlineInfo.Value.Label: @deadlineInfo.Value.Date.ToString("MMM dd")</span>
+                    </div>
+                }
+
+                @* --- LEAD --- *@
+                <div class="mt-2 line-clamp-2 text-sm text-gray-400">
                     @((MarkupString)post.FrontMatter.Lead)
                 </div>
             </div>
 
+            @* --- FOOTER: Fake Terminal Command --- *@
             <div class="mt-auto flex items-center border-t border-borderDark pt-4">
-                <span class="font-mono text-sm text-gray-500 group-hover:text-gray-300">
-                    <span class="text-red-500">$</span> ./read.sh <span
-                        class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">_</span>
+                <span class="font-mono text-sm text-gray-500 group-hover:text-gray-300 transition-colors">
+                    <span class="text-red-500">$</span> ./read.sh
+                    <span class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">_</span>
                 </span>
             </div>
         </article>
@@ -45,29 +93,75 @@
 </div>
 
 @code {
-    private List<Post<BlogFrontMatter>> posts = new();
-    [Parameter] public List<Post<BlogFrontMatter>>? Posts { get; set; }
+    private List<Post<CourseFrontMatter>> posts = new();
+
+    [Parameter]
+    public List<Post<CourseFrontMatter>>? Posts { get; set; }
+
     private HashSet<String> HiddenTags = new HashSet<String> { };
+
+    private enum DeadlineState { Future, Today, Expired }
 
     protected override void OnInitialized()
     {
-        DateTime now = DateTime.UtcNow;
-        posts = (Posts ?? blazorStaticContentService.Posts)
-        .Where(p => !p.FrontMatter.IsDraft
-        && p.FrontMatter.Published.ToUniversalTime() <= now
-        && p.FrontMatter.Published.ToUniversalTime().Year == now.Year
-        && !this.HasHiddenTag(p.FrontMatter.Tags))
+        var sourcePosts = Posts ?? blazorStaticContentService.Posts;
+
+        // Calculate current PH Time for filtering logic
+        DateTime nowUtc = DateTime.UtcNow;
+        TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
+        DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
+
+        posts = sourcePosts
+        .Where(p =>
+        !p.FrontMatter.IsDraft
+        // Ensure Published comparison is also fair (PH Time vs Published Date)
+        // Published is "Unspecified", effectively treating it as PH local time
+        && p.FrontMatter.Published <= nowPh
+        && p.FrontMatter.Published.Year == nowPh.Year
+        && !HasHiddenTag(p.FrontMatter.Tags)
+        )
         .OrderByDescending(p => p.FrontMatter.Published)
         .ToList();
+
         base.OnInitialized();
     }
 
     private bool HasHiddenTag(List<String> tags)
     {
-        foreach (String tag in tags)
+        return HiddenTags.Overlaps(tags);
+    }
+
+    private (DateTime Date, string Label, string CssClass, DeadlineState State)? GetDeadlineStatus(CourseFrontMatter fm)
+    {
+        if (fm.NoDeadline) return null;
+
+        // 1. Base Date
+        DateTime deadlineBase = fm.Deadline.HasValue
+        ? fm.Deadline.Value
+        : fm.Published.AddMonths(1);
+
+        // 2. End of Day
+        DateTime deadlineEndOfDay = deadlineBase.Date.AddDays(1).AddTicks(-1);
+
+        // 3. Current PH Time
+        DateTime nowUtc = DateTime.UtcNow;
+        // Create custom timezone to ensure it works on Linux/GitHub Runners without crashing on ID lookup
+        TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
+        DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
+
+        // 4. Logic
+        if (deadlineEndOfDay < nowPh)
         {
-            if (this.HiddenTags.Contains(tag)) return true;
+            return (deadlineBase, "Expired", "border-red-500/30 bg-red-500/10 text-red-500", DeadlineState.Expired);
         }
-        return false;
+        else if (deadlineBase.Date == nowPh.Date)
+        {
+            return (deadlineBase, "Due Today", "border-orange-500/30 bg-orange-500/10 text-orange-500 animate-pulse",
+            DeadlineState.Today);
+        }
+        else
+        {
+            return (deadlineBase, "Due", "border-green-500/30 bg-green-500/10 text-green-500", DeadlineState.Future);
+        }
     }
 }

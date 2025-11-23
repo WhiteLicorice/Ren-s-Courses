@@ -1,12 +1,14 @@
 ---
-title: CMSC 131 STDocs
-lead: CMSC 131 STDocs - One last step before ta-ki-ho-mi.
+title: Special Topics Documentation
+subtitle: CMSC 131 STDocs
+lead: One last step before ta-ki-ho-mi.
 published: 2025-11-20
+deadline: 2025-11-28
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
-      xUserName: 1p_8FLydolouzqGgiAvjq4Zi52O8kEBSr
+downloadLink: https://drive.google.com/file/d/1p_8FLydolouzqGgiAvjq4Zi52O8kEBSr/view?usp=drive_link
 ---
 
 This article provides the prescribed template for the special topics documentation. Please check the [PDF version of this article](https://drive.google.com/file/d/1p_8FLydolouzqGgiAvjq4Zi52O8kEBSr/view?usp=drive_link) for a more accurate template. For authors who know LaTeX, please see the [source code of the template](https://www.overleaf.com/project/691ec903077bf8d921bd5882).
