@@ -6,52 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
 
-    @* START TAILWIND SETUP *@
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: tailwind.colors.red,
-                        bgDark: '#0d1117',   // Deep Github Black
-                        cardDark: '#161b22', // Slightly lighter for cards
-                        borderDark: '#30363d',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
-                    },
-                    typography: (theme) => ({
-                        DEFAULT: {
-                            css: {
-                                color: theme('colors.gray.300'),
-                                '--tw-prose-links': theme('colors.red.400'),
-                                '--tw-prose-headings': theme('colors.gray.100'),
-                                '--tw-prose-pre-bg': '#010409',
-                                pre: {
-                                    border: '1px solid ' + theme('colors.borderDark'),
-                                    borderRadius: '0.5rem',
-                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
-                                },
-                                'code::before': { content: '""' },
-                                'code::after': { content: '""' },
-                                code: {
-                                    color: theme('colors.red.400'),
-                                    fontWeight: '400',
-                                },
-                            },
-                        },
-                    }),
-                },
-            },
-        }
-    </script>
-    @* END TAILWIND SETUP *@
+    <link href="/css/app.css" rel="stylesheet" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     @* START PRISM SETUP *@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
+    
+    @* Core & Languages *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" data-manual></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"></script>
@@ -60,16 +24,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-gdscript.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/show-language/prism-show-language.min.js"></script>
-
     @* GLOBAL STYLES *@
     <style>
         /* ============================== */
         /* 1. CUSTOM IDE / PRISM STYLES   */
         /* ============================== */
-        
+
         /* Terminal Window Container */
         pre[class*=language-] {
             position: relative;
@@ -125,19 +85,19 @@
             background: #0d1117; /* Match background color to hide main text during glitch */
         }
 
-        /* Layer 1: Red/Magenta shift, animates occasionally */
+        /* Layer 1: Red/Magenta shift */
         .glitch-target::before {
             left: 2px;
-            text-shadow: -2px 0 #ff00c1; /* Retro magenta shadow */
+            text-shadow: -2px 0 #ff00c1;
             clip-path: inset(0 0 0 0);
             animation: techno-glitch-1 4s infinite linear alternate-reverse;
             z-index: -1;
         }
 
-        /* Layer 2: Blue/Cyan shift, animates differently */
+        /* Layer 2: Blue/Cyan shift */
         .glitch-target::after {
             left: -2px;
-            text-shadow: 2px 0 #00fff9; /* Retro cyan shadow */
+            text-shadow: 2px 0 #00fff9;
             clip-path: inset(0 0 0 0);
             animation: techno-glitch-2 3s infinite linear alternate-reverse;
             z-index: -2;
@@ -148,9 +108,7 @@
             0% { clip-path: inset(20% 0 50% 0); transform: skew(1deg); }
             2% { clip-path: inset(10% 0 85% 0); transform: skew(0.5deg); }
             4% { clip-path: inset(80% 0 5% 0); transform: skew(2deg); }
-            /* Long pause */
             5%, 95% { clip-path: inset(0 0 0 0); transform: skew(0); text-shadow: none; background: transparent;}
-            /* Quick buzz at the end */
             96% { clip-path: inset(50% 0 30% 0); transform: skew(1deg); text-shadow: -2px 0 #ff00c1; background: #0d1117;}
             100% { clip-path: inset(10% 0 60% 0); transform: skew(2deg); }
         }

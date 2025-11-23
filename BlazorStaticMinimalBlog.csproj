@@ -16,11 +16,16 @@
     </None>
   </ItemGroup>
 
-
   <!-- to make hot reload work on .md files -->
   <ItemGroup>
     <Watch Include="Content/**/*" />
   </ItemGroup>
 
-
+  <!--Bundle tailwind css on build-->
+  <Target Name="TailwindBuild" BeforeTargets="Build">
+      <Message Text="Building Tailwind CSS..." Importance="high" />
+      <MakeDir Directories="./wwwroot/css" />
+      <Exec Command="npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --minify" />
+  </Target>
+  
 </Project>

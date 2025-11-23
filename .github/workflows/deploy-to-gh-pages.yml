@@ -28,10 +28,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
       - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v3
         with:
-              dotnet-version: 9.0.x
+             dotnet-version: 9.0.x
 
       - name: Remove launchSettings.json (to not override ASPNETCORE_ENVIRONMENT)
         run: rm  ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
@@ -43,12 +51,14 @@ jobs:
             sed -i 's|<base href="/" />|<base href="/'$REPO_NAME'/" />|g' ${{ env.WEBAPP_PATH }}/Components/App.razor
           fi
           
+      # This step triggers the .csproj <Target>, which runs `npx tailwindcss...`
+      # Since we ran `npm ci` above, this will now succeed!
       - name: Run webapp and generate static files
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}}  --configuration Release
           
       - name: Handle default Jekyll behaviour
-        run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll #folder starting with _ are handled as jekyll. This file will prevent that.  
+        run: touch ${{ env.WEBAPP_PATH }}/output/.nojekyll
 
       - name: HTML/CSS/JS Minifier
         uses: docker://devatherock/minify-js:3.1.0

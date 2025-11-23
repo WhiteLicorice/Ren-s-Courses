@@ -1,0 +1,25 @@
+{
+  "name": "blazorblog",
+  "version": "1.0.0",
+  "description": "A collection of materials for courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum. All material is copyrighted. All rights reserved.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WhiteLicorice/Ren-s-Blazor-Blog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog/issues"
+  },
+  "homepage": "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog#readme",
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "tailwindcss": "^3.4.18"
+  }
+}
