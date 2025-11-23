@@ -3,6 +3,7 @@ title: Character Frequency Analysis
 subtitle: CMSC 131 Lab 5
 lead: String processing techniques.
 published: 2025-10-16
+deadline: 2025-11-27
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

@@ -3,6 +3,7 @@ title: Special Topics
 subtitle: CMSC 131 ST
 lead: Instead of calling it removals, we call it special topics.
 published: 2025-10-01
+deadline: 2025-10-31
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

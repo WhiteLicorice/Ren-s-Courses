@@ -3,6 +3,7 @@ title: Evaluator
 subtitle: CMSC 124 Lab 3
 lead: Bringing expressions to life.
 published: 2025-10-07
+deadline: 2025-11-28
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

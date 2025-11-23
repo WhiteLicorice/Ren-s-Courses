@@ -3,6 +3,7 @@ title: The Game of Life
 subtitle: CMSC 131 Lab 4
 lead: Simulating buffers using 2D arrays.
 published: 2025-10-13
+deadline: 2025-11-27
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

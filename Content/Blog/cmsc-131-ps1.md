@@ -3,6 +3,7 @@ title: Problem Set
 subtitle: CMSC 131 PS1
 lead: IEEE-754 floating-point representation & x86 register manipulation.
 published: 2025-09-15
+deadline: 2025-09-25
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

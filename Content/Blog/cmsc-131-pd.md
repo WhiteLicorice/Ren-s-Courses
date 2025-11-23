@@ -3,6 +3,7 @@ title: Special Topics Documentation
 subtitle: CMSC 131 STDocs
 lead: One last step before ta-ki-ho-mi.
 published: 2025-11-20
+deadline: 2025-11-28
 tags: [cmsc-131]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
