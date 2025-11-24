@@ -64,15 +64,20 @@
         <div class="mt-8 flex flex-col items-center gap-3">
 
             @* Row A: The Byline (Author & Date) *@
-            <div class="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-500 font-mono">
+            @*'flex-col' for mobile, 'sm:flex-row' for tablet/desktop *@
+            <div
+                class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-sm text-gray-500 font-mono">
+
+                @* Authors *@
                 @foreach (var author in post.FrontMatter.Authors)
                 {
                     @if (!string.IsNullOrWhiteSpace(author.GitHubUserName))
                     {
                         <a href="https://github.com/@author.GitHubUserName" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center gap-1.5 text-gray-400 hover:text-red-400 transition-colors group">
-                            <Svg Icon="Svg.Icons.Github" SizeClasses="w-4 h-4 group-hover:text-red-500" />
-                            <span class="font-medium">@author.Name</span>
+                            class="flex items-center gap-2 text-gray-400 hover:text-red-400 transition-colors group">
+                            @* shrink-0 so the icon never squishes if the name wraps *@
+                            <Svg Icon="Svg.Icons.Github" SizeClasses="w-4 h-4 shrink-0 group-hover:text-red-500" />
+                            <span class="font-medium text-center sm:text-left">@author.Name</span>
                         </a>
                     }
                     else
@@ -81,7 +86,8 @@
                     }
                 }
 
-                <span class="text-gray-700 mx-1">•</span>
+                @* Separator: Hidden on mobile (since we stack), visible on desktop *@
+                <span class="hidden sm:inline text-gray-700 mx-1">•</span>
 
                 <time>
                     @post.FrontMatter.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"))
