@@ -66,17 +66,21 @@
             @* Row A: The Byline (Author & Date) *@
             @*'flex-col' for mobile, 'sm:flex-row' for tablet/desktop *@
             <div
-                class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-sm text-gray-500 font-mono">
+                class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-gray-500 font-mono">
 
                 @* Authors *@
                 @foreach (var author in post.FrontMatter.Authors)
                 {
                     @if (!string.IsNullOrWhiteSpace(author.GitHubUserName))
                     {
+                        @* Stack Vertical on Mobile (flex-col), Row on Desktop (sm:flex-row) *@
                         <a href="https://github.com/@author.GitHubUserName" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center gap-2 text-gray-400 hover:text-red-400 transition-colors group">
-                            @* shrink-0 so the icon never squishes if the name wraps *@
-                            <Svg Icon="Svg.Icons.Github" SizeClasses="w-4 h-4 shrink-0 group-hover:text-red-500" />
+                            class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-400 hover:text-red-400 transition-colors group">
+
+                            @* Icon: Slightly larger on mobile for balance *@
+                            <Svg Icon="Svg.Icons.Github"
+                                SizeClasses="w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-red-500" />
+
                             <span class="font-medium text-center sm:text-left">@author.Name</span>
                         </a>
                     }
