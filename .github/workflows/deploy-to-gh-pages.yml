@@ -42,6 +42,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
           cache: true
+          cache-dependency-path: '**/BlazorStaticMinimalBlog.csproj' # Cache our .csproj file instead
 
       - name: Remove launchSettings.json (to not override ASPNETCORE_ENVIRONMENT)
         run: rm  ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
