@@ -59,16 +59,23 @@
         .prose pre {
             margin: 0 !important;
             background-color: transparent !important;
-            /* BG moved to wrapper */
             border: none !important;
             overflow-x: auto;
             /* Allow scrolling */
 
-            /* Padding to accommodate Label (top-left) and Button (top-right) */
-            padding-top: 2.5rem !important;
+            /* DEFAULT PADDING (No Label) */
+            /* Enough top padding to clear the Copy Button (top-right) */
+            padding-top: 1rem !important;
             padding-bottom: 1rem !important;
             padding-left: 1rem !important;
-            padding-right: 1rem !important;
+            padding-right: 3rem !important;
+            /* Right padding clears the button */
+        }
+
+        /* CONDITIONAL PADDING (With Label) */
+        /* If wrapper has data-language, we need more top padding */
+        .code-wrapper[data-language] pre {
+            padding-top: 2.5rem !important;
         }
 
         /* Language Tab Label - Anchored to Wrapper */
@@ -90,7 +97,6 @@
             padding: 0.25rem 0.75rem;
             border-bottom-right-radius: 6px;
             z-index: 10;
-            text-shadow: none;
             pointer-events: none;
             /* Let clicks pass through if needed */
         }
@@ -177,7 +183,6 @@
         /* ============================== */
         /* 4. TECHNO GLITCH EFFECTS       */
         /* ============================== */
-        /* (Glitch CSS preserved exactly as before) */
         .glitch-target {
             position: relative;
         }
