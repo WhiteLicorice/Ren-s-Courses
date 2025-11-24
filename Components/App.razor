@@ -289,6 +289,22 @@
                 transform: skew(-1deg);
             }
         }
+
+        /* ============================== */
+        /* 5. UNSELECTABLE UI ELEMENTS    */
+        /* ============================== */
+        .no-select {
+            -webkit-user-select: none;
+            /* Safari */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* IE10+/Edge */
+            user-select: none;
+            /* Standard */
+            cursor: default;
+            /* Stop the 'text' cursor */
+        }
     </style>
     <HeadOutlet />
 </head>
