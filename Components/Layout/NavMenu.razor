@@ -44,11 +44,12 @@
 <div class="h-16 w-full"></div>
 
 <div id="mobile-menu-container" class="hidden fixed inset-0 z-50">
-    
-    <div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div>
+
+    <div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100">
+    </div>
 
     <div class="relative w-full bg-bgDark border-b border-borderDark shadow-2xl transform transition-transform">
-        
+
         <div class="flex items-center justify-between px-6 py-4 border-b border-borderDark/50">
             <span class="font-bold text-gray-100">Menu</span>
             <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500 bg-cardDark rounded-md">
@@ -83,7 +84,7 @@
 
     const toggleMobileMenu = () => {
         const isHidden = menuContainer.classList.contains('hidden');
-        
+
         if (isHidden) {
             // Open
             menuContainer.classList.remove('hidden');
@@ -97,7 +98,7 @@
 
     // Trigger open
     toggleBtn.addEventListener('click', toggleMobileMenu);
-    
+
     // Trigger close (X button)
     closeBtn.addEventListener('click', toggleMobileMenu);
 
@@ -135,11 +136,13 @@
     [
         new("Home", "", null, "_self"),
         new("Materials", "tags", null, "_self"),
+        new MenuItem("Showcase", "projects", null, "_self"),
         new("Submissions", "https://forms.gle/mRFBXwhuR3LdvSN3A", null, "_blank"),
-        new("Grades", "https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec", null, "_blank"),
+        new("Grades",
+        "https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
+        null, "_blank"),
         new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github, "_blank")
     ];
 
-    // Updated Record to include Target
     record MenuItem(string Name, string Link, Svg.Icons? Icon, string Target);
 }

@@ -6,7 +6,7 @@
 @using BlazorStaticMinimalBlog.Models
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 
-<div class="animate-fade-in py-10">
+<div class="mx-auto max-w-6xl py-10 sm:py-16 animate-fade-in">
 
     @if (TagName == null)
     {
@@ -59,15 +59,17 @@
     {
         @* VIEW 2: SPECIFIC TAG LISTING *@
         <div>
-            <div class="mb-10 border-b border-borderDark pb-8">
-                <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
-                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 mb-6 transition-colors group">
-                    <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    All Materials
-                </a>
+            <div class="text-center mb-12 border-b border-borderDark pb-10">
+                <div class="flex justify-center mb-6">
+                    <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
+                        class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
+                        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        All Materials
+                    </a>
+                </div>
 
                 <h1 class="font-mono text-3xl font-bold text-gray-100 sm:text-4xl md:text-5xl">
                     <span class="text-red-500">#</span>@TagName
@@ -77,7 +79,10 @@
                 </p>
             </div>
 
-            <PostsList Posts="posts" />
+            @* Container to limit width of the list so it doesn't stretch too wide on huge screens *@
+            <div class="max-w-4xl mx-auto">
+                <PostsList Posts="posts" />
+            </div>
 
             <div class="mt-16 pt-8 border-t border-borderDark flex justify-center">
                 <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
@@ -98,8 +103,8 @@
     protected override void OnInitialized()
     {
         if (string.IsNullOrWhiteSpace(TagName)) return;
-        
-        // Also apply the filter here to ensure the "Specific Tag Listing" 
+
+        // Also apply the filter here to ensure the "Specific Tag Listing"
         // doesn't show hidden posts if accessed directly via URL
         var now = DateTime.UtcNow;
 

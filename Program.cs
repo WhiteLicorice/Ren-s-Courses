@@ -13,7 +13,12 @@ builder.WebHost.UseStaticWebAssets();
 builder.Services.AddBlazorStaticService(opt =>
 {
     //opt. //check to change the defaults
-}).AddBlazorStaticContentService<CourseFrontMatter>();
+})
+.AddBlazorStaticContentService<CourseFrontMatter>()
+.AddBlazorStaticContentService<ProjectFrontMatter>(opt =>
+{
+    opt.ContentPath = "Content/Projects";
+}); ;
 
 builder.Services.AddRazorComponents();
 

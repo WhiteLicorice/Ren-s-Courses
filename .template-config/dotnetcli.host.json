@@ -3,7 +3,7 @@
   "symbolInfo": {
     "ExcludeDefaultPosts": {
       "longName": "exclude-default-posts",
-      "shortName": "e",
+      "shortName": "e"
     }
   }
 }
