@@ -7,4 +7,6 @@ abstract: CAScape is a 2D escape platformer game created using GB Studio. The go
 docs: https://drive.google.com/file/d/1T1s6g2MuUexfUvSy5c_Hd3ELNgj5vVY_/view?usp=drive_link
 repository: https://github.com/ChristelHope/CAScape/tree/main
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

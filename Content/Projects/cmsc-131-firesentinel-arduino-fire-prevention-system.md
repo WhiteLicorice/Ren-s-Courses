@@ -7,4 +7,6 @@ abstract: This project presents an Automatic Fire Detection, Extinguishing, and 
 docs: https://drive.google.com/file/d/1e-sUXnRcAHDYGfDRNNQ564YkvmNvJVAU/view?usp=drive_link
 repository: https://github.com/g4biruu/cmsc131_st_firesentinel
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

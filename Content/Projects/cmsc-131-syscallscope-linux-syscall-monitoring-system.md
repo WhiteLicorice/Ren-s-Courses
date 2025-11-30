@@ -7,4 +7,6 @@ abstract: SyscallScope is a lightweight Linux syscall monitoring and detection s
 docs: https://drive.google.com/file/d/1YRXi0I-R5vf9iS669d1ZTBVJwnpJc9-P/view?usp=drive_link
 repository: https://github.com/Hiagyl/syscallscope
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

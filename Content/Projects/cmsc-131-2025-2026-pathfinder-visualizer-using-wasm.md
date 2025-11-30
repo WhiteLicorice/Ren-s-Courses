@@ -7,4 +7,6 @@ abstract: This project presents a Pathfinding Visualizer designed to demonstrate
 docs: https://drive.google.com/file/d/1QY1Y5UG1NBCT0palGtwJB-g_N5lBNdwy/view?usp=drive_link
 repository: https://github.com/renzoupv/Pathfinding-Visualizer
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

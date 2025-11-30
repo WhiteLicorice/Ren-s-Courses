@@ -7,4 +7,6 @@ abstract: After-Exam is a 2D action-platformer Game Boy game developed using GB 
 docs: https://drive.google.com/file/d/1tOjtd9fiX-WUykQj6r02vqHcsUU9usCw/view?usp=drive_link
 repository: https://github.com/jul00/After-Exam.git
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

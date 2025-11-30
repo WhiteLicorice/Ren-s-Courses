@@ -6,4 +6,6 @@ abstract: Arceus Cup is a Playable Pokémon ROM Hack, using Pokémon Emerald as 
 docs: https://drive.google.com/file/d/1q1zaFqDmguyXuykiNXUMJIiAZj5lluDF/view?usp=drive_link
 repository: https://github.com/FakeThird/pokeemerald-arceus-cup
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

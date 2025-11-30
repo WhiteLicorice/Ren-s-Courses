@@ -6,4 +6,6 @@ abstract: Tabok Run is a retro-inspired 2D road-crossing game developed using GB
 docs: https://drive.google.com/file/d/1bXz9-s8wyr4oGAODqzOAzx9KNXY5_vWE/view?usp=drive_link
 repository: https://github.com/lvborbolla/Tabok-Run
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

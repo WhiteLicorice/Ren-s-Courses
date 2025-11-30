@@ -7,4 +7,6 @@ abstract: Shoot the Komsai is a high-performance, retro-futuristic arcade shoote
 docs: https://drive.google.com/file/d/1z3rEUhyQfxbKrxna-A8YkFm3dinanEe0/view?usp=drive_link
 repository: https://github.com/CSTwist/CMSC131_SpecialTopics
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

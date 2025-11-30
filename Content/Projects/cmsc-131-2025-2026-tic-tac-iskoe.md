@@ -7,4 +7,6 @@ abstract: Tic-Tac-ISKOe is a Game Boy–style recreation of the classic tic-tac-
 docs: https://drive.google.com/file/d/1886mmqR4DzjJYIk3haU1wRZNLMLdBBlt/view?usp=drive_link
 repository: https://github.com/janiolangel/131-Special-Topic---Janiola-Ong
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

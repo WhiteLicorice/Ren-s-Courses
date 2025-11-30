@@ -6,4 +6,6 @@ abstract: WODO (WASM-Optimized Do Organizer) is a browser-installable, offline-c
 docs: https://drive.google.com/file/d/1UB4_gyrucmPYKT7_BEL_LwNFcj2nSa5J/view?usp=drive_link
 repository: https://github.com/WaltsCS/WODO-WASM-ToDoList
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

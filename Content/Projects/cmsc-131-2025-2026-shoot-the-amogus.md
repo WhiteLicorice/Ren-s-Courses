@@ -6,4 +6,6 @@ abstract: This project develops a single-level 2D horizontal shooter game for th
 docs: https://drive.google.com/file/d/1cf48EJPQrzTtAmmoad4xtidwhh6FYpIE/view?usp=drive_link
 repository: https://github.com/sizzlingsisig/ShootTheAmogus
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

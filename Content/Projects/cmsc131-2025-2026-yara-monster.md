@@ -7,4 +7,6 @@ abstract: This project presents the development and evaluation of a lightweight 
 docs: https://drive.google.com/file/d/1A9RMn_XzvLmvTXFiSnbigfp4YLIOr8fp/view?usp=drive_link
 repository: https://github.com/stepanmonster/CMSC-131-YARA_Monster
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

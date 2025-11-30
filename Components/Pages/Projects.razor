@@ -9,10 +9,10 @@
     @* Header *@
     <div class="text-center mb-16">
         <h1 class="text-3xl font-extrabold tracking-tight text-gray-100 sm:text-5xl font-mono">
-            <span class="text-red-500">./</span> Showcase
+            <span class="text-red-500">./</span>Showcase
         </h1>
         <p class="mt-4 text-lg text-gray-400 font-mono">
-            Gallery of projects built by my students.
+            Projects built by my students.
         </p>
         <div class="mt-8 mx-auto w-24 h-px bg-red-900/50"></div>
     </div>
@@ -29,22 +29,44 @@
                 @* 1. SUMMARY *@
                 <summary class="flex items-start justify-between p-6 cursor-pointer hover:bg-white/5 transition-colors select-none list-none marker:hidden">
                     
-                    @* Content Left *@
-                    <div class="flex flex-col gap-3 flex-grow min-w-0"> @* min-w-0 enables text truncation/wrapping in flex children *@
+                    <div class="flex flex-col gap-2 flex-grow min-w-0">
                         
+                        @* Tags (Top) *@
+                        @if (project.Tags != null && project.Tags.Any())
+                        {
+                            <div class="flex flex-wrap gap-2 mb-1">
+                                @foreach (var tag in project.Tags)
+                                {
+                                    <span class="font-mono text-xs text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20">
+                                        @tag
+                                    </span>
+                                }
+                            </div>
+                        }
+
                         @* Title *@
                         <h3 class="text-xl font-bold text-gray-100 font-mono group-hover:text-red-400 transition-colors leading-tight">
                             <span class="text-red-500 opacity-50 group-open:opacity-100 transition-opacity mr-2"># </span>@project.Title
                         </h3>
 
-                        @* Authors *@
-                        <div class="flex flex-wrap gap-2 text-xs font-mono text-gray-500">
+                        @* META ROW: Authors + Batch (Unified Line) *@
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-gray-500">
+                            
+                            @* Authors *@
                             @foreach (var author in project.GetAuthorObjects())
                             {
                                 <span class="flex items-center gap-1 pl-1">
                                     <span class="text-red-500">></span> @author.Name
                                 </span>
                             }
+
+                            @* Separator *@
+                            <span class="text-gray-700 mx-1">• </span>
+
+                            @* Batch String *@
+                            <span class="text-gray-600">
+                                @project.GetBatchString()
+                            </span>
                         </div>
                     </div>
 
@@ -79,8 +101,8 @@
                             
                             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 font-mono">Abstract</h4>
                             
-                            @* relying on margin-bottom here *@
-                            <p class="text-sm text-gray-300 leading-relaxed mb-6 font-sans text-justify border-l-2 border-red-900/30 pl-4">
+                            @* relying on margin-bottom here *@                            
+                            <p class="text-sm text-gray-300 leading-relaxed pb-6 font-sans text-justify border-l-2 border-red-900/30 pl-4">
                                 @project.Abstract
                             </p>
 

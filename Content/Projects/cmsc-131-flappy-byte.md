@@ -6,4 +6,6 @@ abstract: Flappy Byte is a Game Boy Advance (GBA) homebrew project that reimagin
 docs: https://drive.google.com/file/d/1U9FeYb_bvvhafgxbVT_nO8VusoZ5ndww/view?usp=drive_link
 repository: https://github.com/jUGo-ai/flappy-byte
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

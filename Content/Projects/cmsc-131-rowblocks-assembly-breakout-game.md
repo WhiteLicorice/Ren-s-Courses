@@ -6,4 +6,6 @@ abstract: RowBlocks is an arcade game that is inspired by Breakout. It runs on 1
 docs: https://drive.google.com/file/d/1Z6ff8npK7yuBDwZut0NCzRfgS1b6ASOo/view?usp=drive_link
 repository: https://github.com/iskwipi/RowBlocks
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

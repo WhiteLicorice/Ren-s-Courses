@@ -7,4 +7,6 @@ abstract: This work presents the design and implementation of a microcontroller-
 docs: https://drive.google.com/file/d/1OookEpWokcqQezx3bYvom1rxMk-VhsJN/view?usp=drive_link
 repository: https://github.com/mika-29/MorsecodeTranslator-_131ST
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---

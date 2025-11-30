@@ -7,4 +7,6 @@ abstract: jocSING is a low-cost, portable, and user-friendly karaoke prototype s
 docs: https://drive.google.com/file/d/1a35ZGbKmBwV4o_iQUkF0d-J323s9wU6M/view?usp=drive_link
 repository: https://github.com/delrosario-nina/jocSING.git
 thumbnail: null
+tags: [cmsc-131]
+published: 2025-11-29
 ---
