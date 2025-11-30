@@ -9,4 +9,5 @@ repository: https://github.com/stepanmonster/CMSC-131-YARA_Monster
 thumbnail: null
 tags: [cmsc-131]
 published: 2025-11-29
+schoolYear: 2025
 ---

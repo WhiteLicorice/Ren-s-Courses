@@ -7,14 +7,12 @@ namespace BlazorStaticMinimalBlog.Models
         public string Title { get; set; } = string.Empty;
         public DateTime Published { get; set; } = DateTime.Now;
         public string Url { get; set; } = string.Empty;
-
-        // YAML properties
         public List<string> Authors { get; set; } = new();
         public string Abstract { get; set; } = string.Empty;
         public string Docs { get; set; } = string.Empty;
         public string Repository { get; set; } = string.Empty;
         public string Thumbnail { get; set; } = string.Empty;
-        public string Year { get; set; } = string.Empty;
+        public int SchoolYear { get; set; } = DateTime.Now.Year;
         public List<string> Tags { get; set; } = new();
 
         public List<ProjectAuthor> GetAuthorObjects()
@@ -22,9 +20,11 @@ namespace BlazorStaticMinimalBlog.Models
             return Authors.Select(x => new ProjectAuthor { Name = x }).ToList();
         }
 
-        public string GetBatchString()
+        public string GetSchoolYear()
         {
-            return $"{Published.Year}-{Published.AddYears(1).Year}";
+            // Schoolyear is always in the format of X-(X+1): e.g., 2025-2026.
+            // This is unlikely to change, so we save a few bytes by doing this, shaving off build time.
+            return $"{SchoolYear}-{SchoolYear + 1}";
         }
     }
 }

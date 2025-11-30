@@ -7,6 +7,7 @@ tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
+      nickname: "Ren"
 downloadLink: https://drive.google.com/file/d/1YBKzxHefD1Y647dN7Q6i4NgC_mmsht1Y/view?usp=drive_link
 ---
 

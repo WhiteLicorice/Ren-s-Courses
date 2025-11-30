@@ -8,4 +8,5 @@ docs: https://drive.google.com/file/d/1IB4uAxjalVzk4VshP5XQNro6EFNphME2/view?usp
 repository: https://github.com/itsShiii16/CMSC131-Special-Project-FitnessAI/
 tags: [cmsc-131]
 published: 2025-11-29
+schoolYear: 2025
 ---

@@ -7,5 +7,6 @@ docs: https://drive.google.com/file/d/1h-qxq1q3qjnZQzyGxfBNDr8d__Zr5xWb/view?usp
 repository: https://github.com/rykonnen/sudoku-wasm
 thumbnail: null
 tags: [cmsc-131]
-published: 2025-11-29
+published: 2025-11-30
+schoolYear: 2025
 ---

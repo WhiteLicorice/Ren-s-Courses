@@ -9,4 +9,5 @@ repository: https://github.com/renzoupv/Pathfinding-Visualizer
 thumbnail: null
 tags: [cmsc-131]
 published: 2025-11-29
+schoolYear: 2025
 ---

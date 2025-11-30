@@ -7,6 +7,7 @@ tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
+      nickname: "Ren"
 downloadLink: https://drive.google.com/file/d/1Bwqu2xlrb-1kcZZUXyLqyw0-rh4VaBeB/view?usp=drive_link
 isDraft: true
 ---
