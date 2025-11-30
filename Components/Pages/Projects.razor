@@ -49,10 +49,12 @@
                             <span class="text-red-500 opacity-50 group-open:opacity-100 transition-opacity mr-2"># </span>@project.Title
                         </h3>
 
-                        @* META ROW: Authors (Left) & Batch (Right) *@
-                        <div class="flex items-end justify-between gap-4 mt-1">
+                        @* META ROW: Responsive Layout *@
+                        @* Mobile: justify-start (Next to each other) *@
+                        @* Desktop (sm): justify-between (Flush edges) *@
+                        <div class="flex flex-wrap sm:flex-nowrap items-end justify-start sm:justify-between gap-x-4 gap-y-2 mt-1">
                             
-                            @* Authors (Left) *@
+                            @* Authors *@
                             <div class="flex flex-wrap gap-2 text-xs font-mono text-gray-500">
                                 @foreach (var author in project.GetAuthorObjects())
                                 {
@@ -62,7 +64,8 @@
                                 }
                             </div>
 
-                            @* SchoolYear String (Right) *@
+                            @* SchoolYear String *@
+                            @* shrink-0 ensures it doesn't get crushed if title is long *@
                             <div class="flex items-center gap-2 text-xs text-gray-600 font-mono shrink-0">
                                 <span>• </span>
                                 @project.GetSchoolYear()

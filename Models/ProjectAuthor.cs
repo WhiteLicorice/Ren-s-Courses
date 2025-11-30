@@ -4,4 +4,6 @@ namespace BlazorStaticMinimalBlog.Models;
 public class ProjectAuthor
 {
     public string Name { get; set; } = string.Empty;
+
+    public const string DEFAULT_NAME = "Author";
 }
