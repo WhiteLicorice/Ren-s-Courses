@@ -14,7 +14,7 @@ builder.Services.AddBlazorStaticService(opt =>
 {
     //opt. //check to change the defaults
 })
-.AddBlazorStaticContentService<CourseFrontMatter>()
+.AddBlazorStaticContentService<CourseFrontMatter>() // FIXME: Seems to be hardcoded to Content/Blog, which is fine? 
 .AddBlazorStaticContentService<ProjectFrontMatter>(opt =>
 {
     opt.ContentPath = "Content/Projects";

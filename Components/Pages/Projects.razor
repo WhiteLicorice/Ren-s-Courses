@@ -49,24 +49,24 @@
                             <span class="text-red-500 opacity-50 group-open:opacity-100 transition-opacity mr-2"># </span>@project.Title
                         </h3>
 
-                        @* META ROW: Authors + Batch (Unified Line) *@
-                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-gray-500">
+                        @* META ROW: Authors (Left) & Batch (Right) *@
+                        <div class="flex items-end justify-between gap-4 mt-1">
                             
-                            @* Authors *@
-                            @foreach (var author in project.GetAuthorObjects())
-                            {
-                                <span class="flex items-center gap-1 pl-1">
-                                    <span class="text-red-500">></span> @author.Name
-                                </span>
-                            }
+                            @* Authors (Left) *@
+                            <div class="flex flex-wrap gap-2 text-xs font-mono text-gray-500">
+                                @foreach (var author in project.GetAuthorObjects())
+                                {
+                                    <span class="flex items-center gap-1 pl-1">
+                                        <span class="text-red-500">></span> @author.Name
+                                    </span>
+                                }
+                            </div>
 
-                            @* Separator *@
-                            <span class="text-gray-700 mx-1">• </span>
-
-                            @* Batch String *@
-                            <span class="text-gray-600">
+                            @* Batch String (Right) *@
+                            <div class="flex items-center gap-2 text-xs text-gray-600 font-mono shrink-0">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gray-700">• </span>
                                 @project.GetBatchString()
-                            </span>
+                            </div>
                         </div>
                     </div>
 
@@ -101,7 +101,6 @@
                             
                             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 font-mono">Abstract</h4>
                             
-                            @* relying on margin-bottom here *@                            
                             <p class="text-sm text-gray-300 leading-relaxed pb-6 font-sans text-justify border-l-2 border-red-900/30 pl-4">
                                 @project.Abstract
                             </p>
