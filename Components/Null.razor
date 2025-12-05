@@ -1,0 +1,19 @@
+@* This page exists solely to satisfy the BlazorStatic engine. Ugh.*@
+@page "/null/{Slug}"
+@page "/null"
+@using BlazorStatic
+@using BlazorStatic.Services
+@using BlazorStaticMinimalBlog.Models
+@inject NavigationManager NavManager
+
+@code {
+    // 🐌🐌🐌
+    [Parameter] public string? Slug { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // If a user somehow lands here, bounce them back to home.
+        // This shit is so ass.
+        NavManager.NavigateTo("");
+    }
+}
