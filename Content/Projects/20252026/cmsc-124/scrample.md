@@ -1,5 +1,5 @@
 ---
-title: Scratch++
+title: SCRAMPLE
 authors:
   - Christian Jave Hulleza
   - Mark Leonel Misola
