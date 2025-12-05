@@ -1,0 +1,38 @@
+@using BlazorStatic
+@typeparam T where T : class, IFrontMatter, IFrontMatterWithTags, new()
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
+    @{
+        // Generic logic to extract tags from any FrontMatter type
+        // Assumes that each FrontMatter type implements a Tags interface!
+        var tagsWithCount = Posts
+        .SelectMany(x => x.FrontMatter.Tags ?? new List<string>())
+        .GroupBy(x => x)
+        .Select(group => new { Tag = group.Key, Count = group.Count() })
+        .OrderBy(x => x.Tag);
+
+        foreach (var tagGroup in tagsWithCount)
+        {
+            <a href="@($"{BaseUrl}/{tagGroup.Tag}")"
+                class="group flex items-center justify-between p-4 rounded-lg border border-borderDark bg-cardDark hover:border-red-500/50 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)] transition-all duration-200">
+
+                <span class="font-mono font-medium text-gray-300 group-hover:text-red-400 transition-colors truncate">
+                    <span class="text-gray-600 mr-1 group-hover:text-red-500/50">#</span>@tagGroup.Tag
+                </span>
+
+                <span
+                    class="flex items-center justify-center h-6 min-w-[1.5rem] px-2 rounded bg-bgDark border border-borderDark text-xs text-gray-500 group-hover:text-gray-300 group-hover:border-red-500/30 transition-colors">
+                    @tagGroup.Count
+                </span>
+            </a>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<Post<T>> Posts { get; set; } = Enumerable.Empty<Post<T>>();
+
+    [Parameter, EditorRequired]
+    public string BaseUrl { get; set; } = string.Empty;
+}

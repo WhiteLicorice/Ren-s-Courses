@@ -1,8 +1,6 @@
-@page "/materials/{tagName}"
-@page "/materials"
+@page "/materials/{TagName?}"
 @using BlazorStatic
 @using BlazorStatic.Services
-@using System.Net
 @using BlazorStaticMinimalBlog.Models
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 
@@ -18,48 +16,17 @@
             <p class="text-gray-400 max-w-2xl mx-auto">
                 Browse materials by courses and topics.
             </p>
+            <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            @{
-                // 1. Define "Now" to filter out future posts
-                var now = DateTime.UtcNow;
-
-                // 2. Filter posts FIRST to ensure we don't count hidden materials
-                var visiblePosts = blazorStaticContentService.Posts
-                .Where(p => !p.FrontMatter.IsDraft
-                && p.FrontMatter.Published.ToUniversalTime() <= now);
-
-                // 3. Generate tags from only the visible posts
-                var tagsWithCount = visiblePosts
-                .SelectMany(x => x.FrontMatter.Tags)
-                .GroupBy(x => x)
-                .Select(group => new { Tag = group.Key, Count = group.Count() })
-                .OrderBy(x => x.Tag); // Alphabetical
-
-                foreach (var tagGroup in tagsWithCount)
-                {
-                    <a href="@($"{blazorStaticContentService.Options.Tags.TagsPageUrl}/{tagGroup.Tag}")"
-                        class="group flex items-center justify-between p-4 rounded-lg border border-borderDark bg-cardDark hover:border-red-500/50 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)] transition-all duration-200">
-
-                        <span class="font-mono font-medium text-gray-300 group-hover:text-red-400 transition-colors truncate">
-                            <span class="text-gray-600 mr-1 group-hover:text-red-500/50">#</span>@tagGroup.Tag
-                        </span>
-
-                        <span
-                            class="flex items-center justify-center h-6 min-w-[1.5rem] px-2 rounded bg-bgDark border border-borderDark text-xs text-gray-500 group-hover:text-gray-300 group-hover:border-red-500/30 transition-colors">
-                            @tagGroup.Count
-                        </span>
-                    </a>
-                }
-            }
-        </div>
+        <CatalogsList T="CourseFrontMatter" Posts="GetVisiblePosts()"
+            BaseUrl="@blazorStaticContentService.Options.Tags.TagsPageUrl" />
     }
     else
     {
         @* VIEW 2: SPECIFIC TAG LISTING *@
         <div>
-            <div class="text-center mb-12 border-b border-borderDark pb-10">
+            <div class="text-center mb-12">
                 <div class="flex justify-center mb-6">
                     <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
                         class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
@@ -71,17 +38,21 @@
                     </a>
                 </div>
 
-                <h1 class="font-mono text-3xl font-bold text-gray-100 sm:text-4xl md:text-5xl">
-                    <span class="text-red-500">#</span>@TagName
-                </h1>
-                <p class="mt-3 text-lg text-gray-400">
-                    Found <span class="text-gray-200 font-semibold">@posts?.Count</span> materials.
-                </p>
+                <div class="text-center mb-12">
+                    <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
+                        <span class="text-red-500">#</span>@TagName
+                    </h1>
+                    <p class="text-gray-400 max-w-2xl mx-auto">
+                        Displaying <span class="text-gray-200 font-semibold">@filteredPosts?.Count</span> materials.
+                    </p>
+                    <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent">
+                    </div>
+                </div>
+
             </div>
 
-            @* Container to limit width of the list so it doesn't stretch too wide on huge screens *@
             <div class="max-w-4xl mx-auto">
-                <PostsList Posts="posts" />
+                <PostsList Posts="filteredPosts" />
             </div>
 
             <div class="mt-16 pt-8 border-t border-borderDark flex justify-center">
@@ -95,24 +66,29 @@
 </div>
 
 @code {
-
     [Parameter] public string? TagName { get; set; }
+    List<Post<CourseFrontMatter>>? filteredPosts;
 
-    List<Post<CourseFrontMatter>>? posts;
+    private IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts()
+    {
+        var now = DateTime.UtcNow;
+        return blazorStaticContentService.Posts
+        .Where(p => !p.FrontMatter.IsDraft && p.FrontMatter.Published.ToUniversalTime() <= now);
+    }
 
     protected override void OnInitialized()
     {
-        if (string.IsNullOrWhiteSpace(TagName)) return;
-
-        // Also apply the filter here to ensure the "Specific Tag Listing"
-        // doesn't show hidden posts if accessed directly via URL
-        var now = DateTime.UtcNow;
-
-        posts = blazorStaticContentService.Posts
-        .Where(x => x.FrontMatter.Tags.Contains(TagName)
-        && !x.FrontMatter.IsDraft
-        && x.FrontMatter.Published.ToUniversalTime() <= now)
-        .OrderByDescending(x => x.FrontMatter.Published)
-        .ToList();
+        if (!string.IsNullOrWhiteSpace(TagName))
+        {
+            // Also apply the filter here to ensure the "Specific Tag Listing"
+            // doesn't show hidden posts if accessed directly via URL
+            var now = DateTime.UtcNow;
+            filteredPosts = blazorStaticContentService.Posts
+            .Where(x => x.FrontMatter.Tags.Contains(TagName)
+            && !x.FrontMatter.IsDraft
+            && x.FrontMatter.Published.ToUniversalTime() <= now)
+            .OrderByDescending(x => x.FrontMatter.Published)
+            .ToList();
+        }
     }
 }
