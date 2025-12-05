@@ -1,5 +1,5 @@
 ---
-title: LSL-League-of-Legends-Script-Language
+title: League of Legends Scripting Language
 authors:
   - Dale Almonia
   - Stefan Niedes
