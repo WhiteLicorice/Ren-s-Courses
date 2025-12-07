@@ -29,7 +29,7 @@ builder.Services.AddBlazorStaticService(opt =>
 .AddBlazorStaticContentService<BookingFrontmatter>(opt =>
 {
     opt.ContentPath = "Content/Bookings";
-    opt.Tags.TagsPageUrl = "bookings";
+    opt.Tags.TagsPageUrl = "null";
     opt.PageUrl = "null";
 });
 
