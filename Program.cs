@@ -16,7 +16,7 @@ builder.Services.AddBlazorStaticService(opt =>
 })
 .AddBlazorStaticContentService<CourseFrontMatter>(opt =>
 {
-    opt.ContentPath = "Content/Materials";  
+    opt.ContentPath = "Content/Materials";
     opt.Tags.TagsPageUrl = "materials";
     opt.PageUrl = "articles";
 })
@@ -24,6 +24,12 @@ builder.Services.AddBlazorStaticService(opt =>
 {
     opt.ContentPath = "Content/Projects";
     opt.Tags.TagsPageUrl = "projects";
+    opt.PageUrl = "null";
+})
+.AddBlazorStaticContentService<BookingFrontmatter>(opt =>
+{
+    opt.ContentPath = "Content/Bookings";
+    opt.Tags.TagsPageUrl = "bookings";
     opt.PageUrl = "null";
 });
 
