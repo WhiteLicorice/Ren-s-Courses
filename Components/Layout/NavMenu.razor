@@ -5,15 +5,20 @@
     class="fixed top-0 left-0 right-0 z-40 w-full border-b border-borderDark bg-bgDark transition-transform duration-300">
     <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0">
 
+        @* Logo *@
         <div class="flex lg:w-0 lg:flex-1">
             <a href="" class="-m-1.5 p-1.5">
-                <div class="text-xl font-bold text-gray-100 hover:text-red-500 transition-colors">@WebsiteKeys.Title
+                <div class="text-xl font-bold text-gray-100 hover:text-red-500 transition-colors">
+                    @WebsiteKeys.Title
                 </div>
             </a>
         </div>
 
-        <nav class="hidden space-x-6 sm:flex">
-            @foreach (var item in menuItems)
+        @* DESKTOP NAV: 3 Items + Hamburger Dropdown *@
+        <nav class="hidden space-x-6 sm:flex items-center">
+
+            @* 1. Render the first 3 items normally *@
+            @foreach (var item in menuItems.Take(3))
             {
                 <NavLink ActiveClass="text-red-400 bg-red-500/10 border border-red-500/20 rounded"
                     class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-300 hover:text-red-400 transition-all"
@@ -26,8 +31,46 @@
                     }
                 </NavLink>
             }
+
+            @* 2. Render Hamburger Dropdown for the rest *@
+            @if (menuItems.Count > 3)
+            {
+                <div class="relative">
+                    <button id="desktop-dropdown-btn" type="button"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors">
+                        <span class="sr-only">More menu</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
+
+                    @* Dropdown Menu *@
+                    <div id="desktop-dropdown-menu"
+                        class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-bgDark border border-borderDark shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                        <div class="py-1 max-h-48 overflow-y-auto">
+                            @foreach (var item in menuItems.Skip(3))
+                            {
+                                <NavLink ActiveClass="text-red-400 bg-red-500/10"
+                                    class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-red-400 transition-colors"
+                                    Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)" href="@item.Link"
+                                    target="@item.Target">
+                                    <div class="flex items-center justify-between">
+                                        <span>@((MarkupString)item.Name)</span>
+                                        @if (item.Icon != null)
+                                        {
+                                            <Svg Icon="item.Icon" SizeClasses="w-3 h-3 opacity-70" />
+                                        }
+                                    </div>
+                                </NavLink>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </nav>
 
+        @* Mobile Toggle Button *@
         <div class="flex flex-1 justify-end sm:hidden">
             <button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-red-500">
                 <span class="sr-only">Open main menu</span>
@@ -40,18 +83,21 @@
     </div>
 </header>
 
-@* Spacer Div: Keeps content from hiding behind the fixed header *@
+@* Spacer Div *@
 <div class="h-16 w-full"></div>
 
+@* MOBILE MENU CONTAINER *@
 <div id="mobile-menu-container" class="hidden fixed inset-0 z-50">
 
     <div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100">
     </div>
 
-    <div class="relative w-full bg-bgDark border-b border-borderDark shadow-2xl transform transition-transform">
+    <div
+        class="relative w-full h-full max-h-screen overflow-y-auto bg-bgDark border-b border-borderDark shadow-2xl transform transition-transform">
 
-        <div class="flex items-center justify-between px-6 py-4 border-b border-borderDark/50">
-            <span class="font-bold text-gray-100">Menu</span>
+        <div
+            class="flex items-center justify-between px-6 py-4 border-b border-borderDark/50 sticky top-0 bg-bgDark z-10">
+            <span class="font-bold text-gray-100">Navigate</span>
             <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500 bg-cardDark rounded-md">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -59,7 +105,7 @@
             </button>
         </div>
 
-        <div class="px-6 py-6 space-y-2">
+        <div class="px-6 py-6 space-y-2 pb-24">
             @foreach (var item in menuItems)
             {
                 <NavLink
@@ -77,6 +123,7 @@
 </div>
 
 <script>
+    // --- Mobile Menu Logic ---
     const menuContainer = document.querySelector('#mobile-menu-container');
     const backdrop = document.querySelector('#mobile-backdrop');
     const toggleBtn = document.querySelector('#toggle-button');
@@ -84,15 +131,12 @@
 
     const toggleMobileMenu = () => {
         const isHidden = menuContainer.classList.contains('hidden');
-
         if (isHidden) {
-            // Open
             menuContainer.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden'); // Lock body scroll
+            document.body.classList.add('overflow-hidden');
         } else {
-            // Close
             menuContainer.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden'); // Unlock body scroll
+            document.body.classList.remove('overflow-hidden');
         }
     };
 
@@ -105,26 +149,59 @@
     // Trigger close (Clicking the Backdrop/Gap)
     backdrop.addEventListener('click', toggleMobileMenu);
 
-    // Scroll Direction Logic (Hide/Show Navbar)
+    // --- Desktop Dropdown Logic ---
+    const desktopBtn = document.getElementById('desktop-dropdown-btn');
+    const desktopMenu = document.getElementById('desktop-dropdown-menu');
+
+    if (desktopBtn && desktopMenu) {
+        // Toggle on click
+        desktopBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            desktopMenu.classList.toggle('hidden');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!desktopMenu.classList.contains('hidden') && !desktopMenu.contains(e.target) && e.target !== desktopBtn) {
+                desktopMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    // --- Navbar Scroll Logic ---
     let lastScrollTop = 0;
     const navbar = document.getElementById('main-navbar');
 
     window.addEventListener('scroll', function () {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-        // Only hide navbar if we scroll down AND the mobile menu is NOT open
-        // Add a buffer (e.g. 64px) so it doesn't twitch at the very top
+        // Always show navbar at the very top
         if (scrollTop <= 64) {
             navbar.classList.remove('-translate-y-full');
             lastScrollTop = scrollTop;
             return;
         }
 
-        if (scrollTop > lastScrollTop && menuContainer.classList.contains('hidden')) {
-            // Downscroll -> Hide
+        if (scrollTop > lastScrollTop) {
+            // DOWN SCROLL -> Hide Navbar
             navbar.classList.add('-translate-y-full');
+
+            // Force close desktop dropdown if open
+            if (desktopMenu && !desktopMenu.classList.contains('hidden')) {
+                desktopMenu.classList.add('hidden');
+            }
+
+            // Logic for mobile menu
+            if (menuContainer.classList.contains('hidden')) {
+                // only hide navbar if mobile menu is CLOSED
+                navbar.classList.add('-translate-y-full');
+            } else {
+                // if mobile menu OPEN, keep navbar visible
+                navbar.classList.remove('-translate-y-full');
+            }
+
         } else {
-            // Upscroll -> Show
+            // UP SCROLL -> Show Navbar
             navbar.classList.remove('-translate-y-full');
         }
         lastScrollTop = scrollTop;
@@ -142,7 +219,7 @@
         new("Grades",
         "https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
         null, "_blank"),
-        new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github, "_blank")
+        //new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github, "_blank")
     ];
 
     record MenuItem(string Name, string Link, Svg.Icons? Icon, string Target);
