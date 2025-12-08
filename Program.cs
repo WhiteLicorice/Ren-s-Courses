@@ -59,6 +59,7 @@ app.Run();
 public static class WebsiteKeys
 {
     public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Courses";
+    public const string AuthorGitHub = "https://github.com/WhiteLicorice";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
     public const string BlogLead = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
