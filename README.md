@@ -20,8 +20,10 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Course Site: Modernize the UX of the core LMS module.
 * [x] Submission Bin: Let students submit their deliverables on the course site itself, instead of email.
 * [x] Grades Viewer: Let students view their grades in real-time.
+* [ ] Booking System: Let students book appointments in advance.
 * [ ] Submission Bin Overhaul: improve UX and hoist this module off to a proper web application.
 * [ ] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
+* [ ] Site Mirror: deploy a live mirror on Netlify for redundancy.
 
 ---
 
