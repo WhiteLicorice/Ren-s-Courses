@@ -62,6 +62,12 @@ jobs:
         run: rm ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
 
       # =================================================================
+      # SIDECAR: GENERATE FEED.JSON
+      # =================================================================
+      - name: Generate feed.json (Python Sidecar)
+        run: python .github/utils/generate_feed.py
+
+      # =================================================================
       # BUILD 1: NETLIFY (Base HREF = "/") -> Branch: netlify-pages
       # =================================================================
       
@@ -73,6 +79,10 @@ jobs:
       - name: Build for Netlify
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release
+
+      # INJECT FEED: Copy the feed.json into the output folder
+      - name: Inject feed.json to Netlify Output
+        run: cp feed.json ${{ env.WEBAPP_PATH }}output/feed.json
 
       - name: Minify Netlify Output
         run: |
@@ -115,6 +125,10 @@ jobs:
       - name: Build for GitHub Pages
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release
+
+      # INJECT FEED: Copy the feed.json into the output folder, again, ugh
+      - name: Inject feed.json to GitHub Output
+        run: cp feed.json ${{ env.WEBAPP_PATH }}output/feed.json
 
       - name: Add .nojekyll
         run: touch ${{ env.WEBAPP_PATH }}output/.nojekyll
