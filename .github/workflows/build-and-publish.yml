@@ -62,7 +62,7 @@ jobs:
         run: rm ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
 
       # =================================================================
-      # SIDECAR: GENERATE FEED.JSON THROUGH PYTHON SIDECAR
+      # SIDECAR: GENERATE RSS FEEDS THROUGH PYTHON SIDECAR
       # =================================================================
       - name: Generate RSS feeds
         run: python .github/utils/generate_feed.py
@@ -83,7 +83,6 @@ jobs:
       # INJECT FEEDS: Copy all generated JSON and XML feeds into the output
       - name: Inject Feeds to Netlify Output
         run: |
-          cp feed.json ${{ env.WEBAPP_PATH }}output/
           cp feed*.xml ${{ env.WEBAPP_PATH }}output/  # Copies feed.xml AND feed-cmsc-124.xml etc.
 
       - name: Minify Netlify Output
@@ -131,7 +130,6 @@ jobs:
       # INJECT FEEDS: Copy all generated JSON and XML feeds into the output
       - name: Inject Feeds to GitHub Output
         run: |
-          cp feed.json ${{ env.WEBAPP_PATH }}output/
           cp feed*.xml ${{ env.WEBAPP_PATH }}output/
 
       - name: Add .nojekyll
