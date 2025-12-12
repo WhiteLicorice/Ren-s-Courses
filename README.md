@@ -1,5 +1,9 @@
 # Ren's Courses
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Live-222222?style=for-the-badge&logo=github&logoColor=white)](https://whitelicorice.github.io/Ren-s-Courses/)
+[![Netlify](https://img.shields.io/badge/Netlify-Mirror-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://renscourses.netlify.app)
+[![Shortlink](https://img.shields.io/badge/Shortlink-bit.ly%2Frenscourses-EE6123?style=for-the-badge&logo=bitly&logoColor=white)](https://bit.ly/renscourses)
+
 This repository hosts a headless Learning Management System designed for courses I handle under the **University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.**
 
 ---
@@ -20,10 +24,10 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Course Site: Modernize the UX of the core LMS module.
 * [x] Submission Bin: Let students submit their deliverables on the course site itself, instead of email.
 * [x] Grades Viewer: Let students view their grades in real-time.
+* [x] Site Mirror: deploy a live mirror on Netlify for redundancy.
 * [ ] Booking System: Let students book appointments in advance.
 * [ ] Submission Bin Overhaul: improve UX and hoist this module off to a proper web application.
 * [ ] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
-* [ ] Site Mirror: deploy a live mirror on Netlify for redundancy.
 
 ---
 
