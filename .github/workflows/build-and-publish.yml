@@ -62,9 +62,9 @@ jobs:
         run: rm ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
 
       # =================================================================
-      # SIDECAR: GENERATE FEED.JSON
+      # SIDECAR: GENERATE FEED.JSON THROUGH PYTHON SIDECAR
       # =================================================================
-      - name: Generate feed.json (Python Sidecar)
+      - name: Generate RSS feeds
         run: python .github/utils/generate_feed.py
 
       # =================================================================

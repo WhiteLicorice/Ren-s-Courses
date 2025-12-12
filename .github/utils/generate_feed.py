@@ -1,10 +1,9 @@
 import os
 import re
-import json
 import datetime
 import html
 from glob import glob
-from typing import TypedDict, List, Optional, Dict
+from typing import TypedDict, List, Optional
 
 # Configuration
 CONTENT_DIR: str = "Content/Materials"
@@ -155,13 +154,7 @@ def generate_feed() -> None:
     # Sort Newest First
     all_posts.sort(key=lambda x: x['date'], reverse=True)
 
-    # 2. OUTPUT JSON
-    # Convert dates to string for JSON serialization
-    json_posts = [{**p, "date": p['date'].isoformat()} for p in all_posts]
-    with open(os.path.join(OUTPUT_DIR, "feed.json"), 'w', encoding='utf-8') as f:
-        json.dump(json_posts, f, indent=2)
-
-    # 3. OUTPUT XML (For MailerLite)
+    # 2. OUTPUT XML FOR RSS FEED
     # A. Master Feed
     with open(os.path.join(OUTPUT_DIR, "feed.xml"), 'w', encoding='utf-8') as f:
         f.write(generate_rss_xml(all_posts))
@@ -179,7 +172,7 @@ def generate_feed() -> None:
                 f.write(generate_rss_xml(tag_posts, title_suffix=f"({tag})"))
             print(f"[FeedGen] Generated {filename}")
 
-    print(f"[FeedGen] Success! Generated feed.json, feed.xml, and {len(unique_tags)} tag feeds.")
+    print(f"[FeedGen] Success! Generated feed.xml and {len(unique_tags)} tag feeds.")
 
 if __name__ == "__main__":
     generate_feed()
