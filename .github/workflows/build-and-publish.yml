@@ -1,0 +1,132 @@
+name: Build and publish
+
+on:
+  push:
+    branches: [ "master" ]
+  schedule:
+    - cron: '12 * * * *'
+    - cron: '42 * * * *'
+  workflow_dispatch:
+
+env:
+  ASPNETCORE_ENVIRONMENT: Production
+  WEBAPP_PATH: ./
+  WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+    steps:
+      # OPTIMIZATION: Shallow fetch (fetch-depth: 1) speeds up checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      # --- FREEZE TIME ---
+      # This ensures both builds use the EXACT same "Now" timestamp
+      - name: Freeze Build Time
+        run: |
+          # Capture current UTC time in ISO 8601 format (e.g., 2025-12-12T08:00:00Z)
+          FROZEN_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Export it to the GitHub Environment so all subsequent steps see it
+          echo "STATIC_GEN_TIME=$FROZEN_TIME" >> $GITHUB_ENV
+          
+          echo "Time frozen at: $FROZEN_TIME"
+
+      # --- SETUP ---
+      # OPTIMIZATION: Enable caching for NPM packages via the action itself
+      - name: Setup Node.js
+        uses: actions/setup-node@v4 # Upgraded to v4
+        with:
+          node-version: '20' 
+          cache: 'npm'
+
+      - name: Install NPM dependencies
+        run: npm ci
+        # NOTE: Add "html-minifier-terser" to your package.json so we can use it later!
+        # RUN: npm install --save-dev html-minifier-terser
+
+      # OPTIMIZATION: Enable caching for NuGet packages
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4  # Upgraded to v4
+        with:
+          dotnet-version: 9.0.x
+          cache: true
+          cache-dependency-path: '**/BlazorStaticMinimalBlog.csproj' # Cache our .csproj file instead
+
+      - name: Remove launchSettings.json
+        run: rm ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
+
+      # =================================================================
+      # BUILD 1: NETLIFY (Base HREF = "/") -> Branch: netlify-pages
+      # =================================================================
+      
+      - name: Set Base HREF to Root (/)
+        run: |
+          # We use a regex to replace whatever is currently there with "/"
+          sed -i 's|<base href="/[^"]*" />|<base href="/" />|g' ${{ env.WEBAPP_PATH }}/Components/App.razor
+
+      - name: Build for Netlify
+        run: |
+          dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release
+
+      - name: Minify Netlify Output
+        run: |
+          npx html-minifier-terser \
+            --input-dir ${{ env.WEBAPP_PATH }}output \
+            --output-dir ${{ env.WEBAPP_PATH }}output \
+            --file-ext html \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true
+
+      - name: Push to 'netlify-pages' branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: netlify-pages
+          folder: ${{ env.WEBAPP_PATH }}output
+          clean: true            # Wipes the branch clean each time
+
+      # =================================================================
+      # BUILD 2: GITHUB PAGES (Base HREF = "/Repo/") -> Branch: gh-pages
+      # =================================================================
+      
+      - name: Clean Output Folder
+        run: rm -rf ${{ env.WEBAPP_PATH }}output
+
+      - name: Set Base HREF to Repo Name
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | awk -F '/' '{print $NF}')
+          if [[ "$REPO_NAME" != *.github.io ]]; then
+            # Since the previous step set href to "/", we can safely target "/" here
+            sed -i 's|<base href="/" />|<base href="/'$REPO_NAME'/" />|g' ${{ env.WEBAPP_PATH }}/Components/App.razor
+          fi
+
+      - name: Build for GitHub Pages
+        run: |
+          dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release
+
+      - name: Add .nojekyll
+        run: touch ${{ env.WEBAPP_PATH }}output/.nojekyll
+
+      - name: Minify GitHub Output
+        run: |
+          npx html-minifier-terser \
+            --input-dir ${{ env.WEBAPP_PATH }}output \
+            --output-dir ${{ env.WEBAPP_PATH }}output \
+            --file-ext html \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true
+
+      - name: Push to 'gh-pages' branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: ${{ env.WEBAPP_PATH }}output
