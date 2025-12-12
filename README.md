@@ -25,7 +25,8 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Submission Bin: Let students submit their deliverables on the course site itself, instead of email.
 * [x] Grades Viewer: Let students view their grades in real-time.
 * [x] Site Mirror: deploy a live mirror on Netlify for redundancy.
-* [ ] Booking System: Let students book appointments in advance.
+* [x] Booking System: Let students book appointments in advance.
+* [ ] Mailing List: email those enrolled in each course as frontmatter is released.
 * [ ] Submission Bin Overhaul: improve UX and hoist this module off to a proper web application.
 * [ ] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
 
