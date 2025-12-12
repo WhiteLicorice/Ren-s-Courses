@@ -3,6 +3,7 @@
 @using BlazorStatic
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
+@using BlazorStaticMinimalBlog.Services
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 
 <div class="mx-auto max-w-6xl py-10 sm:py-16 animate-fade-in">
@@ -72,7 +73,7 @@
 
     private IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts()
     {
-        var now = DateTime.UtcNow;
+        var now = BuildTimeProvider.UtcNow;
         return blazorStaticContentService.Posts
         .Where(p => !p.FrontMatter.IsDraft && p.FrontMatter.Published.ToUniversalTime() <= now);
     }
@@ -83,7 +84,7 @@
         {
             // Also apply the filter here to ensure the "Specific Tag Listing"
             // doesn't show hidden posts if accessed directly via URL
-            var now = DateTime.UtcNow;
+            var now = BuildTimeProvider.UtcNow;
             filteredPosts = blazorStaticContentService.Posts
             .Where(x => x.FrontMatter.Tags.Contains(TagName)
             && !x.FrontMatter.IsDraft

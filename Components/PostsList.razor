@@ -2,6 +2,7 @@
 @using BlazorStatic
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
+@using BlazorStaticMinimalBlog.Services
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 @inject BlazorStaticService blazorStaticService
 
@@ -107,7 +108,7 @@
         var sourcePosts = Posts ?? blazorStaticContentService.Posts;
 
         // Calculate current PH Time for filtering logic
-        DateTime nowUtc = DateTime.UtcNow;
+        DateTime nowUtc = BuildTimeProvider.UtcNow;
         TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
         DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
 
@@ -144,7 +145,7 @@
         DateTime deadlineEndOfDay = deadlineBase.Date.AddDays(1).AddTicks(-1);
 
         // 3. Current PH Time
-        DateTime nowUtc = DateTime.UtcNow;
+        DateTime nowUtc = BuildTimeProvider.UtcNow;
         // Create custom timezone to ensure it works on Linux/GitHub Runners without crashing on ID lookup
         TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
         DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
