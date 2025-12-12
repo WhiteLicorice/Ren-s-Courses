@@ -84,6 +84,10 @@ jobs:
             --remove-comments \
             --minify-css true \
             --minify-js true
+    
+      - name: Stamp Netlify Build
+        run: |
+          echo "Build Time: $STATIC_GEN_TIME" > ${{ env.WEBAPP_PATH }}output/build-metadata.txt
 
       - name: Push to 'netlify-pages' branch
         uses: JamesIves/github-pages-deploy-action@v4
@@ -125,6 +129,10 @@ jobs:
             --remove-comments \
             --minify-css true \
             --minify-js true
+
+      - name: Stamp GitHub Build
+        run: |
+          echo "Build Time: $STATIC_GEN_TIME" > ${{ env.WEBAPP_PATH }}output/build-metadata.txt
 
       - name: Push to 'gh-pages' branch
         uses: JamesIves/github-pages-deploy-action@v4
