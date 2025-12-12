@@ -1,19 +1,21 @@
-from __future__ import annotations
-
 import os
 import re
 import json
 import datetime
+import html
 from glob import glob
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Dict
 
+# Configuration
 CONTENT_DIR: str = "Content/Materials"
-OUTPUT_FILE: str = "feed.json"
+OUTPUT_DIR: str = "." # Root of the repo during build
 
+# Type Definitions
 class PostItem(TypedDict):
     title: str
     url: str
-    date: str
+    date: datetime.datetime
+    abstract: str
     tags: List[str]
 
 def get_current_time() -> datetime.datetime:
@@ -23,7 +25,6 @@ def get_current_time() -> datetime.datetime:
         Returns a timezone-aware UTC datetime.
     """
     frozen_time_str: Optional[str] = os.environ.get("STATIC_GEN_TIME")
-    
     if frozen_time_str:
         try:
             # Parse ISO format (e.g. 2025-12-12T08:00:00Z)
@@ -46,24 +47,53 @@ def parse_date(date_str: str) -> Optional[datetime.datetime]:
         Handles 'YYYY-MM-DD' and 'YYYY-MM-DDTHH:MM:SSZ' formats.
     """
     try:
-        # Clean string
         clean_date = date_str.strip().replace("Z", "+00:00")
-        
-        # Attempt ISO parsing
         dt = datetime.datetime.fromisoformat(clean_date)
-        
-        # Ensure timezone awareness
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=datetime.timezone.utc)
-            
         return dt
     except ValueError as e:
         print(f"[FeedGen] Date parse error for '{date_str}': {e}")
         return None
 
+def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
+    """Generates a valid RSS 2.0 XML string from a list of posts."""
+    
+    # RFC-822 Date Format for RSS (e.g., Wed, 02 Oct 2002 13:00:00 GMT)
+    def to_rfc822(dt: datetime.datetime) -> str:
+        return dt.strftime("%a, %d %b %Y %H:%M:%S %z")
+
+    items_xml = ""
+    for p in posts:
+        # Escape special characters to prevent XML breakage
+        safe_title = html.escape(p['title'])
+        safe_desc = html.escape(p['abstract'])
+        # Absolute URL is required for RSS readers/Email clients
+        full_url = f"https://whitelicorice.github.io/Ren-s-Courses/{p['url']}"
+        
+        items_xml += f"""
+        <item>
+            <title>{safe_title}</title>
+            <link>{full_url}</link>
+            <guid>{full_url}</guid>
+            <pubDate>{to_rfc822(p['date'])}</pubDate>
+            <description>{safe_desc}</description>
+        </item>"""
+
+    return f"""<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses {title_suffix}</title>
+    <link>https://whitelicorice.github.io/Ren-s-Courses/</link>
+    <description>Latest course materials and announcements.</description>
+    <language>en-us</language>
+    {items_xml}
+</channel>
+</rss>"""
+
 def generate_feed() -> None:
     now = get_current_time()
-    posts: List[PostItem] = []
+    all_posts: List[PostItem] = []
 
     # Regex patterns optimized for CourseFrontmatter
     # Matches: title: Scanner OR title: "Scanner"
@@ -74,78 +104,82 @@ def generate_feed() -> None:
     re_draft = re.compile(r'^isdraft:\s*(true|false)', re.MULTILINE | re.IGNORECASE)
     # Matches: tags: [cmsc-124, algo] OR tags: [cmsc-124]
     re_tags = re.compile(r'^tags:\s*\[(.*?)\]', re.MULTILINE | re.IGNORECASE)
+    re_lead = re.compile(r'^lead:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
 
     if not os.path.exists(CONTENT_DIR):
         print(f"[FeedGen] Error: Content directory '{CONTENT_DIR}' not found.")
         return
 
-    # Scan Markdown Files
+    # 1. SCAN
     for filepath in glob(os.path.join(CONTENT_DIR, "*.md")):
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
                 
-                # 1. Extract Metadata
                 title_match = re_title.search(content)
                 date_match = re_date.search(content)
                 draft_match = re_draft.search(content)
                 tags_match = re_tags.search(content)
+                lead_match = re_lead.search(content)
 
-                # Mandatory field check
-                if not date_match: 
-                    continue
+                if not date_match: continue
 
-                # 2. Parse Fields
+                # Parse
                 title = title_match.group(1).strip() if title_match else "Untitled"
-                pub_date_str = date_match.group(1).strip()
+                pub_date = parse_date(date_match.group(1).strip())
+                is_draft = draft_match and draft_match.group(1).lower() == 'true'
+                abstract = lead_match.group(1).strip() if lead_match else "No description."
                 
-                is_draft = False
-                if draft_match and draft_match.group(1).lower() == 'true':
-                    is_draft = True
-                
-                # Parse Tags
-                tags: List[str] = []
+                tags = []
                 if tags_match:
-                    # Split by comma, strip whitespace and quotes
                     raw_tags = tags_match.group(1).split(',')
                     tags = [t.strip().strip("'\"") for t in raw_tags if t.strip()]
 
-                # 3. Date Handling
-                pub_date = parse_date(pub_date_str)
-                if not pub_date:
+                if not pub_date or is_draft or pub_date > now:
                     continue
 
-                # 4. Filtering Logic
-                if is_draft:
-                    continue
-                
-                if pub_date > now:
-                    # Post is scheduled for future
-                    continue 
-
-                # 5. Build URL Slug
                 filename = os.path.basename(filepath)
                 slug = os.path.splitext(filename)[0]
-                url = f"materials/{slug}" 
+                url = f"materials/{slug}"
 
-                posts.append({
+                all_posts.append({
                     "title": title,
                     "url": url,
-                    "date": pub_date.isoformat(),
-                    "tags": tags
+                    "date": pub_date,
+                    "tags": tags,
+                    "abstract": abstract
                 })
-
         except Exception as e:
-            print(f"[FeedGen] Error processing file {filepath}: {e}")
-            continue
+            print(f"[FeedGen] Error parsing {filepath}: {e}")
 
-    # Sort & Save (Newest First)
-    posts.sort(key=lambda x: x['date'], reverse=True)
+    # Sort Newest First
+    all_posts.sort(key=lambda x: x['date'], reverse=True)
 
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        json.dump(posts, f, indent=2)
+    # 2. OUTPUT JSON
+    # Convert dates to string for JSON serialization
+    json_posts = [{**p, "date": p['date'].isoformat()} for p in all_posts]
+    with open(os.path.join(OUTPUT_DIR, "feed.json"), 'w', encoding='utf-8') as f:
+        json.dump(json_posts, f, indent=2)
+
+    # 3. OUTPUT XML (For MailerLite)
+    # A. Master Feed
+    with open(os.path.join(OUTPUT_DIR, "feed.xml"), 'w', encoding='utf-8') as f:
+        f.write(generate_rss_xml(all_posts))
+
+    # B. Tag-Specific Feeds (e.g., cmsc-124.xml)
+    # Find all unique tags
+    unique_tags = set(tag for p in all_posts for tag in p['tags'])
     
-    print(f"[FeedGen] Success! Generated {OUTPUT_FILE} with {len(posts)} items.")
+    for tag in unique_tags:
+        # Filter posts for this tag
+        tag_posts = [p for p in all_posts if tag in p['tags']]
+        if tag_posts:
+            filename = f"feed-{tag}.xml"
+            with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f:
+                f.write(generate_rss_xml(tag_posts, title_suffix=f"({tag})"))
+            print(f"[FeedGen] Generated {filename}")
+
+    print(f"[FeedGen] Success! Generated feed.json, feed.xml, and {len(unique_tags)} tag feeds.")
 
 if __name__ == "__main__":
     generate_feed()
