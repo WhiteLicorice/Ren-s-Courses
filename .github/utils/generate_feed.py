@@ -139,7 +139,7 @@ def generate_feed() -> None:
 
                 filename = os.path.basename(filepath)
                 slug = os.path.splitext(filename)[0]
-                url = f"materials/{slug}"
+                url = f"articles/{slug}"
 
                 all_posts.append({
                     "title": title,
