@@ -68,7 +68,7 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
         safe_title = html.escape(p['title'])
         safe_desc = html.escape(p['abstract'])
         # Absolute URL is required for RSS readers/Email clients
-        full_url = f"https://whitelicorice.github.io/Ren-s-Courses/{p['url']}"
+        full_url = f"https://renscourses.netlify.app/{p['url']}"
         
         items_xml += f"""
         <item>
@@ -83,7 +83,7 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
 <rss version="2.0">
 <channel>
     <title>Ren's Courses {title_suffix}</title>
-    <link>https://whitelicorice.github.io/Ren-s-Courses/</link>
+    <link>https://renscourses.netlify.app/</link>
     <description>Latest course materials and announcements.</description>
     <language>en-us</language>
     {items_xml}
