@@ -91,6 +91,7 @@ jobs:
           branch: netlify-pages
           folder: ${{ env.WEBAPP_PATH }}output
           clean: true            # Wipes the branch clean each time
+          single-commit: true
 
       # =================================================================
       # BUILD 2: GITHUB PAGES (Base HREF = "/Repo/") -> Branch: gh-pages
@@ -130,3 +131,5 @@ jobs:
         with:
           branch: gh-pages
           folder: ${{ env.WEBAPP_PATH }}output
+          single-commit: true
+          clean: true
