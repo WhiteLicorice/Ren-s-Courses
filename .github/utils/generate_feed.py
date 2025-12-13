@@ -118,6 +118,14 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
 
 def generate_feed() -> None:
     now = get_current_time()
+    start = os.environ.get("TERM_START")
+    end = os.environ.get("TERM_END")
+    
+    if not start or not end:
+        raise OSError(f"[FeedGen] Error: TERM_START or TERM_END not configured correctly.")
+    else:
+        start = parse_date(start)
+        end = parse_date(end)
     
     all_posts: List[PostItem] = []
 
@@ -146,7 +154,8 @@ def generate_feed() -> None:
                 tags_match = re_tags.search(content)
                 lead_match = re_lead.search(content)
 
-                if not date_match: continue
+                if not date_match:
+                    continue
 
                 # Parse
                 title = title_match.group(1).strip() if title_match else "Untitled"
@@ -167,7 +176,15 @@ def generate_feed() -> None:
                 if pub_date > now:
                     print(f"Skipping Future Post: {title} ({pub_date} > {now})")
                     continue
-
+                
+                if pub_date < start:
+                    print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
+                    continue
+                
+                if pub_date > end:
+                    print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
+                    continue
+                
                 filename = os.path.basename(filepath)
                 slug = os.path.splitext(filename)[0]
                 url = f"articles/{slug}"
