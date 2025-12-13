@@ -24,6 +24,7 @@ def get_current_time() -> datetime.datetime:
         Returns a timezone-aware UTC datetime.
     """
     frozen_time_str: Optional[str] = os.environ.get("STATIC_GEN_TIME")
+    
     if frozen_time_str:
         try:
             # Parse ISO format (e.g. 2025-12-12T08:00:00Z)
@@ -47,9 +48,29 @@ def parse_date(date_str: str) -> Optional[datetime.datetime]:
     """
     try:
         clean_date = date_str.strip().replace("Z", "+00:00")
-        dt = datetime.datetime.fromisoformat(clean_date)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=datetime.timezone.utc)
+        
+        # 1. Try parsing as full ISO with Timezone (e.g. 2025-12-13T08:00:00Z)
+        try:
+            dt = datetime.datetime.fromisoformat(clean_date)
+            # If ISO string had no offset, assume UTC (standard behavior)
+            if dt.tzinfo is None:
+                 dt = dt.replace(tzinfo=datetime.timezone.utc)
+        except ValueError:
+            # 2. Fallback: Parse as Date Only (e.g. 2025-12-13)
+            # This creates a naive datetime at 00:00:00
+            dt = datetime.datetime.strptime(clean_date, "%Y-%m-%d")
+
+            # Instead of assuming UTC (server time), we assume PHT (Author Time)
+            # PHT is UTC+8. We create a timezone object for it.
+            pht_tz = datetime.timezone(datetime.timedelta(hours=8))
+            
+            # Attach PHT timezone to the date (Midnight PHT)
+            dt = dt.replace(tzinfo=pht_tz)
+            
+            # Now convert it to UTC so it compares correctly with the Frozen Time
+            # Midnight PHT becomes 16:00 UTC previous day
+            dt = dt.astimezone(datetime.timezone.utc)
+            
         return dt
     except ValueError as e:
         print(f"[FeedGen] Date parse error for '{date_str}': {e}")
@@ -92,16 +113,13 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
 
 def generate_feed() -> None:
     now = get_current_time()
+    
     all_posts: List[PostItem] = []
 
     # Regex patterns optimized for CourseFrontmatter
-    # Matches: title: Scanner OR title: "Scanner"
     re_title = re.compile(r'^title:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
-    # Matches: published: 2025-08-31
     re_date = re.compile(r'^published:\s*([\d\-\:T\+Z]+)', re.MULTILINE | re.IGNORECASE)
-    # Matches: isDraft: true
     re_draft = re.compile(r'^isdraft:\s*(true|false)', re.MULTILINE | re.IGNORECASE)
-    # Matches: tags: [cmsc-124, algo] OR tags: [cmsc-124]
     re_tags = re.compile(r'^tags:\s*\[(.*?)\]', re.MULTILINE | re.IGNORECASE)
     re_lead = re.compile(r'^lead:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
 
@@ -134,7 +152,11 @@ def generate_feed() -> None:
                     raw_tags = tags_match.group(1).split(',')
                     tags = [t.strip().strip("'\"") for t in raw_tags if t.strip()]
 
-                if not pub_date or is_draft or pub_date > now:
+                if not pub_date or is_draft:
+                    continue
+
+                if pub_date > now:
+                    print(f"Skipping Future Post: {title} ({pub_date} > {now})")
                     continue
 
                 filename = os.path.basename(filepath)
