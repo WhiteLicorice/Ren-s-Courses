@@ -15,6 +15,7 @@ class PostItem(TypedDict):
     subtitle: str
     url: str
     date: datetime.datetime
+    abstract: str # lead
     tags: List[str]
 
 def get_current_time() -> datetime.datetime:
@@ -88,6 +89,7 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
     for p in posts:
         # Escape special characters to prevent XML breakage
         safe_title = html.escape(p['title'])
+        safe_desc = html.escape(p['abstract'])
         safe_subtitle = html.escape(p['subtitle'])
         # Absolute URL is required for RSS readers/Email clients
         full_url = f"https://renscourses.netlify.app/{p['url']}"
@@ -151,6 +153,7 @@ def generate_feed() -> None:
                 subtitle = subtitle_match.group(1).strip() if subtitle_match else ""
                 pub_date = parse_date(date_match.group(1).strip())
                 is_draft = draft_match and draft_match.group(1).lower() == 'true'
+                abstract = lead_match.group(1).strip() if lead_match else "No description."
                 
                 tags = []
                 if tags_match:
@@ -175,6 +178,7 @@ def generate_feed() -> None:
                     "url": url,
                     "date": pub_date,
                     "tags": tags,
+                    "abstract": abstract
                 })
         except Exception as e:
             print(f"[FeedGen] Error parsing {filepath}: {e}")
