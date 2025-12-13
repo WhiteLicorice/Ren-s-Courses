@@ -71,24 +71,69 @@
     [Parameter] public string? TagName { get; set; }
     List<Post<CourseFrontMatter>>? filteredPosts;
 
+    /// <summary>
+    /// Centralized logic to filter posts based on Draft status, Term Window, and Timezone.
+    /// This ensures both the Tag Cloud and the Specific List Views respect the term dates.
+    /// </summary>
+    private IEnumerable<Post<CourseFrontMatter>> GetBaseFilteredPosts()
+    {
+        var sourcePosts = blazorStaticContentService.Posts;
+
+        // 1. Calculate current PH Time
+        DateTime nowUtc = BuildTimeProvider.UtcNow;
+        TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
+        DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
+
+        // 2. Parse Term Window from Environment Variables
+        string? startEnv = Environment.GetEnvironmentVariable("TERM_START");
+        string? endEnv = Environment.GetEnvironmentVariable("TERM_END");
+
+        DateTime termStart = DateTime.MinValue;
+        DateTime termEnd = DateTime.MaxValue;
+
+        if (!string.IsNullOrEmpty(startEnv))
+        {
+            DateTime.TryParse(startEnv, out termStart);
+        }
+
+        if (!string.IsNullOrEmpty(endEnv))
+        {
+            if (DateTime.TryParse(endEnv, out termEnd))
+            {
+                // Ensure the End Date includes the entire day (up to 23:59:59)
+                termEnd = termEnd.Date.AddDays(1).AddTicks(-1);
+            }
+        }
+
+        // 3. Check if Term has Ended
+        if (nowPh > termEnd)
+        {
+            return Enumerable.Empty<Post<CourseFrontMatter>>();
+        }
+
+        // 4. Return Filtered List
+        return sourcePosts.Where(p =>
+        !p.FrontMatter.IsDraft
+        && p.FrontMatter.Published <= nowPh
+        && p.FrontMatter.Published >= termStart
+        && p.FrontMatter.Published <= termEnd
+        );
+    }
+
     private IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts()
     {
-        var now = BuildTimeProvider.UtcNow;
-        return blazorStaticContentService.Posts
-        .Where(p => !p.FrontMatter.IsDraft && p.FrontMatter.Published.ToUniversalTime() <= now);
+        // View 1: The Tag Cloud
+        return GetBaseFilteredPosts();
     }
 
     protected override void OnInitialized()
     {
         if (!string.IsNullOrWhiteSpace(TagName))
         {
-            // Also apply the filter here to ensure the "Specific Tag Listing"
-            // doesn't show hidden posts if accessed directly via URL
-            var now = BuildTimeProvider.UtcNow;
-            filteredPosts = blazorStaticContentService.Posts
-            .Where(x => x.FrontMatter.Tags.Contains(TagName)
-            && !x.FrontMatter.IsDraft
-            && x.FrontMatter.Published.ToUniversalTime() <= now)
+            // View 2: Specific Tag Listing
+            // We apply the specific Tag filter on top of the Base Filter
+            filteredPosts = GetBaseFilteredPosts()
+            .Where(x => x.FrontMatter.Tags.Contains(TagName))
             .OrderByDescending(x => x.FrontMatter.Published)
             .ToList();
         }
