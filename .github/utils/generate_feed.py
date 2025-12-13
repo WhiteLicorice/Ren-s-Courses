@@ -12,9 +12,9 @@ OUTPUT_DIR: str = "." # Root of the repo during build
 # Type Definitions
 class PostItem(TypedDict):
     title: str
+    subtitle: str
     url: str
     date: datetime.datetime
-    abstract: str
     tags: List[str]
 
 def get_current_time() -> datetime.datetime:
@@ -60,6 +60,7 @@ def parse_date(date_str: str) -> Optional[datetime.datetime]:
             # This creates a naive datetime at 00:00:00
             dt = datetime.datetime.strptime(clean_date, "%Y-%m-%d")
 
+            # Assume PHT (UTC+8) for dateless posts
             # Instead of assuming UTC (server time), we assume PHT (Author Time)
             # PHT is UTC+8. We create a timezone object for it.
             pht_tz = datetime.timezone(datetime.timedelta(hours=8))
@@ -87,13 +88,15 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
     for p in posts:
         # Escape special characters to prevent XML breakage
         safe_title = html.escape(p['title'])
-        safe_desc = html.escape(p['abstract'])
+        safe_subtitle = html.escape(p['subtitle'])
         # Absolute URL is required for RSS readers/Email clients
         full_url = f"https://renscourses.netlify.app/{p['url']}"
         
+        # Inject <subtitle> tag (Custom non-standard tag, but readable by our parser)
         items_xml += f"""
         <item>
             <title>{safe_title}</title>
+            <subtitle>{safe_subtitle}</subtitle>
             <link>{full_url}</link>
             <guid>{full_url}</guid>
             <pubDate>{to_rfc822(p['date'])}</pubDate>
@@ -118,6 +121,7 @@ def generate_feed() -> None:
 
     # Regex patterns optimized for CourseFrontmatter
     re_title = re.compile(r'^title:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
+    re_subtitle = re.compile(r'^subtitle:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
     re_date = re.compile(r'^published:\s*([\d\-\:T\+Z]+)', re.MULTILINE | re.IGNORECASE)
     re_draft = re.compile(r'^isdraft:\s*(true|false)', re.MULTILINE | re.IGNORECASE)
     re_tags = re.compile(r'^tags:\s*\[(.*?)\]', re.MULTILINE | re.IGNORECASE)
@@ -134,6 +138,7 @@ def generate_feed() -> None:
                 content = f.read()
                 
                 title_match = re_title.search(content)
+                subtitle_match = re_subtitle.search(content)
                 date_match = re_date.search(content)
                 draft_match = re_draft.search(content)
                 tags_match = re_tags.search(content)
@@ -143,15 +148,16 @@ def generate_feed() -> None:
 
                 # Parse
                 title = title_match.group(1).strip() if title_match else "Untitled"
+                subtitle = subtitle_match.group(1).strip() if subtitle_match else ""
                 pub_date = parse_date(date_match.group(1).strip())
                 is_draft = draft_match and draft_match.group(1).lower() == 'true'
-                abstract = lead_match.group(1).strip() if lead_match else "No description."
                 
                 tags = []
                 if tags_match:
                     raw_tags = tags_match.group(1).split(',')
                     tags = [t.strip().strip("'\"") for t in raw_tags if t.strip()]
 
+                # Filter Logic
                 if not pub_date or is_draft:
                     continue
 
@@ -165,10 +171,10 @@ def generate_feed() -> None:
 
                 all_posts.append({
                     "title": title,
+                    "subtitle": subtitle,
                     "url": url,
                     "date": pub_date,
                     "tags": tags,
-                    "abstract": abstract
                 })
         except Exception as e:
             print(f"[FeedGen] Error parsing {filepath}: {e}")
