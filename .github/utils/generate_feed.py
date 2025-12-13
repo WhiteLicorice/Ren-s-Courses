@@ -126,6 +126,10 @@ def generate_feed() -> None:
     else:
         start = parse_date(start)
         end = parse_date(end)
+        
+    if now > end:
+        print(f"[FeedGen] Term ended on {end}. Current time is {now}. Skipping feed generation.")
+        return
     
     all_posts: List[PostItem] = []
 

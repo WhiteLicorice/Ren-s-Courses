@@ -135,15 +135,22 @@
             }
         }
 
+        // If current time is past the term end date, show nothing
+        if (nowPh > termEnd)
+        {
+            posts = new();
+            base.OnInitialized();
+            return;
+        }
+        // -----------------------------------------
+
         posts = sourcePosts
         .Where(p =>
         !p.FrontMatter.IsDraft
         // Ensure Published comparison is also fair (PH Time vs Published Date)
-        // Published is "Unspecified", effectively treating it as PH local time
         && p.FrontMatter.Published <= nowPh
         && p.FrontMatter.Published >= termStart
         && p.FrontMatter.Published <= termEnd
-        // ------------------------------
         && !HasHiddenTag(p.FrontMatter.Tags)
         )
         .OrderByDescending(p => p.FrontMatter.Published)
