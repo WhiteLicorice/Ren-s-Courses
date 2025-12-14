@@ -28,7 +28,7 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Booking System: Let students book appointments in advance.
 * [x] Mailing List: Email those enrolled in each course (on a per course basis) as frontmatter is released.
 * [ ] Submission Bin Overhaul: improve UX and hoist this module off to a proper web application.
-* [ ] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
+* [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
 
 ---
 
