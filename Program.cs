@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BlazorStaticMinimalBlog.Components;
 using BlazorStaticMinimalBlog.Models;
+using BlazorStaticMinimalBlog.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.AddBlazorStaticService(opt =>
 });
 
 builder.Services.AddRazorComponents();
+builder.Services.AddSingleton<HolidaysProvider>();
+builder.Services.AddSingleton<CourseContentProvider>();
 
 var app = builder.Build();
 

@@ -11,7 +11,12 @@ public class CourseFrontMatter : IFrontMatter, IFrontMatterWithTags
     public List<ArticleAuthor> Authors { get; set; } = new();
     public List<string> Tags { get; set; } = new();
     public string Subtitle { get; set; } = "";
+
     public DateTime? Deadline { get; set; }
-    public string? DownloadLink { get; set; }
     public bool NoDeadline { get; set; } = false;
+
+    public List<DateTime> ProgressReportDates { get; set; } = new();
+    public List<DateTime> DefenseDates { get; set; } = new();
+
+    public string? DownloadLink { get; set; }
 }

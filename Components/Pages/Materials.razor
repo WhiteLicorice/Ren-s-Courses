@@ -4,7 +4,9 @@
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
 @using BlazorStaticMinimalBlog.Services
+@using BlazorStaticMinimalBlog
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
+@inject CourseContentProvider CourseContentProvider
 
 <div class="mx-auto max-w-6xl py-10 sm:py-16 animate-fade-in">
 
@@ -29,7 +31,21 @@
         @* VIEW 2: SPECIFIC TAG LISTING *@
         <div>
             <div class="text-center mb-12">
-                <div class="flex justify-center mb-6">
+                @* 1. Title *@
+                <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
+                    <span class="text-red-500">#</span>@TagName
+                </h1>
+
+                @* 2. Description *@
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Displaying <span class="text-gray-200 font-semibold">@filteredPosts?.Count</span> materials.
+                </p>
+
+                @* 3. Divider Line *@
+                <div class="mt-12 mb-8 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
+
+                @* 4. Navigation (Moved Here) *@
+                <div class="flex justify-center">
                     <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
                         class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
                         <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
@@ -39,18 +55,6 @@
                         All Materials
                     </a>
                 </div>
-
-                <div class="text-center mb-12">
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
-                        <span class="text-red-500">#</span>@TagName
-                    </h1>
-                    <p class="text-gray-400 max-w-2xl mx-auto">
-                        Displaying <span class="text-gray-200 font-semibold">@filteredPosts?.Count</span> materials.
-                    </p>
-                    <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent">
-                    </div>
-                </div>
-
             </div>
 
             <div class="max-w-4xl mx-auto">
@@ -69,43 +73,13 @@
 
 @code {
     [Parameter] public string? TagName { get; set; }
+
     List<Post<CourseFrontMatter>>? filteredPosts;
-
-    /// <summary>
-    /// Centralized logic to filter posts based on Draft status, Term Window, and Timezone.
-    /// This ensures both the Tag Cloud and the Specific List Views respect the term dates.
-    /// </summary>
-    private IEnumerable<Post<CourseFrontMatter>> GetBaseFilteredPosts()
-    {
-        var sourcePosts = blazorStaticContentService.Posts;
-
-        // 1. Calculate current PH Time
-        DateTime nowUtc = BuildTimeProvider.UtcNow;
-        TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
-        DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
-
-        DateTime termStart = BuildTimeProvider.TermStart;
-        DateTime termEnd = BuildTimeProvider.TermEnd;
-
-        // 3. Check if Term has Ended
-        if (nowPh > termEnd)
-        {
-            return Enumerable.Empty<Post<CourseFrontMatter>>();
-        }
-
-        // 4. Return Filtered List
-        return sourcePosts.Where(p =>
-        !p.FrontMatter.IsDraft
-        && p.FrontMatter.Published <= nowPh
-        && p.FrontMatter.Published >= termStart
-        && p.FrontMatter.Published <= termEnd
-        );
-    }
 
     private IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts()
     {
         // View 1: The Tag Cloud
-        return GetBaseFilteredPosts();
+        return CourseContentProvider.GetVisiblePosts();
     }
 
     protected override void OnInitialized()
@@ -114,9 +88,8 @@
         {
             // View 2: Specific Tag Listing
             // We apply the specific Tag filter on top of the Base Filter
-            filteredPosts = GetBaseFilteredPosts()
+            filteredPosts = CourseContentProvider.GetVisiblePosts()
             .Where(x => x.FrontMatter.Tags.Contains(TagName))
-            .OrderByDescending(x => x.FrontMatter.Published)
             .ToList();
         }
     }

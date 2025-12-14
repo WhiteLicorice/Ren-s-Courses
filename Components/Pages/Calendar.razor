@@ -1,0 +1,356 @@
+@page "/calendar"
+@page "/calendar/{TagName?}"
+@using BlazorStatic
+@using BlazorStatic.Services
+@using BlazorStaticMinimalBlog.Models
+@using BlazorStaticMinimalBlog.Services
+@inject CourseContentProvider ContentProvider
+@inject HolidaysProvider HolidaysProvider
+@inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
+
+<div class="mx-auto max-w-[1400px] py-10 sm:py-16 animate-fade-in select-none px-4">
+
+    @* --- HEADER SECTION --- *@
+    <div class="text-center mb-8">
+        @if (string.IsNullOrEmpty(TagName))
+        {
+            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
+                <span class="text-red-500">./</span>Calendar
+            </h1>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                Displaying schedule for semester: @BuildTimeProvider.TermStart.ToString("MMM d, yyyy") to @BuildTimeProvider.TermEnd.ToString("MMM d, yyyy").
+            </p>
+        }
+        else
+        {
+            <div class="flex justify-center mb-6">
+                <a href="/calendar"
+                   class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
+                    <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    View Full Schedule
+                </a>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
+                <span class="text-red-500">#</span>@TagName
+            </h1>
+             <p class="text-gray-400 max-w-2xl mx-auto">
+                Displaying specific events for <span class="text-gray-200 font-semibold">@TagName</span>.
+            </p>
+        }
+        <div class="mt-8 mb-8 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
+    </div>
+
+    @* --- CONTROLS: TAG FILTERS --- *@
+    <div class="flex flex-wrap justify-center gap-3 mb-8 max-w-5xl mx-auto">
+        @foreach(var tag in ContentProvider.GetAllTags())
+        {
+            var isActive = tag == TagName;
+            <a href="/calendar/@tag" 
+               class="text-xs px-4 py-2 rounded-md border transition-all font-mono font-bold
+                      @(isActive 
+                        ? "bg-red-900/30 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105" 
+                        : "bg-cardDark border-borderDark text-gray-400 hover:border-red-500/50 hover:text-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)]")">
+                #@tag
+            </a>
+        }
+    </div>
+
+    @* --- CALENDAR NAVIGATOR --- *@
+    <div class="flex items-center justify-between bg-cardDark border border-borderDark rounded-t-lg p-4 border-b-0 max-w-full mx-auto">
+         <button onclick="changeMonth(-1)" class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-red-500 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+        </button>
+        
+        <div id="month-label" class="text-center font-bold text-gray-100 font-mono text-2xl tracking-tight uppercase drop-shadow-md">
+            Loading...
+        </div>
+
+        <button onclick="changeMonth(1)" class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-red-500 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    @* --- CALENDAR GRIDS (WALL CALENDAR STYLE) --- *@
+    <div id="calendar-container" class="bg-borderDark border border-borderDark rounded-b-lg overflow-hidden shadow-2xl max-w-full mx-auto">
+        @{
+            var months = GetDynamicTermMonths();
+            int monthIndex = 0; 
+        }
+
+        @foreach (var month in months)
+        {
+            var isCurrent = (BuildTimeProvider.UtcNow >= month && BuildTimeProvider.UtcNow < month.AddMonths(1));
+            if (!months.Any(m => BuildTimeProvider.UtcNow >= m && BuildTimeProvider.UtcNow < m.AddMonths(1)) && monthIndex == 0)
+            {
+                isCurrent = true;
+            }
+
+            <div class="month-view w-full @(isCurrent ? "" : "hidden")" 
+                 data-index="@monthIndex" 
+                 data-label="@month.ToString("MMMM yyyy")">
+                
+                @* 1. Weekday Header *@
+                <div class="grid grid-cols-7 gap-px bg-borderDark text-center text-[11px] uppercase tracking-widest font-bold text-gray-500">
+                    <div class="bg-gray-900 py-4 text-red-500/70">Sun</div>
+                    <div class="bg-gray-900 py-4">Mon</div>
+                    <div class="bg-gray-900 py-4">Tue</div>
+                    <div class="bg-gray-900 py-4">Wed</div>
+                    <div class="bg-gray-900 py-4">Thu</div>
+                    <div class="bg-gray-900 py-4">Fri</div>
+                    <div class="bg-gray-900 py-4 text-red-500/70">Sat</div>
+                </div>
+
+                @* 2. Days Grid *@
+                <div class="grid grid-cols-7 auto-rows-fr gap-px bg-borderDark">
+                    @{
+                        var daysInMonth = DateTime.DaysInMonth(month.Year, month.Month);
+                        var firstDayOfMonth = new DateTime(month.Year, month.Month, 1);
+                        var startOffset = (int)firstDayOfMonth.DayOfWeek;
+                        
+                        // PREVIOUS MONTH FILLER
+                        for (int i = 0; i < startOffset; i++)
+                        {
+                            <div class="bg-cardDark/40 min-h-[140px]"></div>
+                        }
+
+                        // ACTUAL DAYS
+                        for (int day = 1; day <= daysInMonth; day++)
+                        {
+                            var currentDay = new DateTime(month.Year, month.Month, day);
+                            var events = GetEventsForDate(currentDay);
+                            var isToday = currentDay.Date == BuildTimeProvider.UtcNow.Date;
+                            var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
+
+                            <div class="relative bg-cardDark min-h-[140px] p-2 transition-all group flex flex-col gap-2
+                                        hover:bg-red-900/10 hover:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.3)] hover:z-10 cursor-default
+                                        @(isToday ? "bg-red-900/10 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.5)]" : "")">
+                                
+                                @* Date Indicator *@
+                                <div class="flex justify-between items-start">
+                                     <span class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
+                                        @(isToday ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : (isWeekend ? "text-gray-600" : "text-gray-400 group-hover:text-red-400"))">
+                                        @day
+                                    </span>
+                                </div>
+
+                                @* Events List *@
+                                <div class="flex flex-col gap-1.5">
+                                    @foreach (var evt in events)
+                                    {
+                                        if(!string.IsNullOrEmpty(evt.Url))
+                                        {
+                                            <a href="@evt.Url" target="_blank"
+                                               class="block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass" 
+                                               title="@evt.Tooltip">
+                                                <span class="font-medium">@evt.Title</span>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass" 
+                                                 title="@evt.Tooltip">
+                                                <span class="font-medium">@evt.Title</span>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        // NEXT MONTH FILLER
+                        var usedCells = startOffset + daysInMonth;
+                        var totalCellsNeeded = 42; 
+                        var remainingCells = totalCellsNeeded - usedCells;
+                        
+                        for (int i = 0; i < remainingCells; i++)
+                        {
+                             <div class="bg-cardDark/40 min-h-[140px]"></div>
+                        }
+                    }
+                </div>
+            </div>
+            monthIndex++;
+        }
+    </div>
+</div>
+
+@* --- STATIC JAVASCRIPT FOR NAVIGATION --- *@
+<script>
+    (function() {
+        let currentIndex = 0;
+        const months = document.querySelectorAll('.month-view');
+        const label = document.getElementById('month-label');
+
+        function updateView() {
+            months.forEach(m => {
+                if(parseInt(m.dataset.index) === currentIndex) {
+                    m.classList.remove('hidden');
+                    label.innerText = m.dataset.label;
+                } else {
+                    m.classList.add('hidden');
+                }
+            });
+        }
+
+        months.forEach(m => {
+            if(!m.classList.contains('hidden')) {
+                currentIndex = parseInt(m.dataset.index);
+                label.innerText = m.dataset.label;
+            }
+        });
+
+        window.changeMonth = function(direction) {
+            let newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < months.length) {
+                currentIndex = newIndex;
+                updateView();
+            }
+        };
+    })();
+</script>
+
+@code {
+    [Parameter] public string? TagName { get; set; }
+    private List<CalendarEvent> _allEvents = new();
+    
+    protected override void OnInitialized()
+    {
+        LoadEvents();
+    }
+
+    protected override void OnParametersSet()
+    {
+        LoadEvents();
+    }
+
+    private void LoadEvents()
+    {
+        _allEvents.Clear();
+
+        // 1. Load Holidays (Using Provider)
+        var holidays = HolidaysProvider.GetHolidaysForRange(
+            BuildTimeProvider.TermStart, 
+            BuildTimeProvider.TermEnd
+        );
+
+        foreach(var h in holidays)
+        {
+            _allEvents.Add(new CalendarEvent
+            {
+                Title = h.Name,
+                Tooltip = "Holiday: " + h.Name,
+                Date = h.Date,
+                Type = EventType.Holiday,
+                CssClass = "bg-red-500/20 text-red-200 border-red-500",
+                Url = null
+            });
+        }
+
+        // 2. Load Posts (Using Provider)
+        // This ensures the calendar matches the Materials page exactly
+        var posts = ContentProvider.GetVisiblePosts();
+
+        // 3. Apply Tag Filter
+        if (!string.IsNullOrEmpty(TagName))
+        {
+            posts = posts.Where(p => p.FrontMatter.Tags.Contains(TagName));
+        }
+
+        foreach (var post in posts)
+        {
+            var fm = post.FrontMatter;
+            var postUrl = $"{blazorStaticContentService.Options.PageUrl}/{post.Url}";
+
+            // A. Release Date
+            _allEvents.Add(new CalendarEvent
+            {
+                Title = fm.Title,
+                Tooltip = $"Release: {fm.Title}",
+                Date = fm.Published.Date,
+                Type = EventType.Release,
+                CssClass = "bg-blue-900/40 text-blue-200 border-blue-500",
+                Url = postUrl
+            });
+
+            // B. Deadline
+            if (fm.Deadline.HasValue)
+            {
+                _allEvents.Add(new CalendarEvent
+                {
+                    Title = fm.Title,
+                    Tooltip = $"Deadline: {fm.Title}",
+                    Date = fm.Deadline.Value.Date,
+                    Type = EventType.Deadline,
+                    CssClass = "bg-orange-900/40 text-orange-200 border-orange-500 font-bold",
+                    Url = postUrl
+                });
+            }
+
+            // C. Progress
+            if (fm.ProgressReportDates != null)
+            {
+                foreach(var date in fm.ProgressReportDates)
+                {
+                    _allEvents.Add(new CalendarEvent
+                    {
+                        Title = fm.Title,
+                        Tooltip = $"Progress: {fm.Title}",
+                        Date = date.Date,
+                        Type = EventType.Progress,
+                        CssClass = "bg-yellow-900/30 text-yellow-500 border-yellow-500",
+                        Url = postUrl
+                    });
+                }
+            }
+
+            // D. Defense
+            if (fm.DefenseDates != null)
+            {
+                foreach(var date in fm.DefenseDates)
+                {
+                    _allEvents.Add(new CalendarEvent
+                    {
+                        Title = fm.Title,
+                        Tooltip = $"Defense: {fm.Title}",
+                        Date = date.Date,
+                        Type = EventType.Defense,
+                        CssClass = "bg-green-900/30 text-green-400 border-green-500",
+                        Url = postUrl
+                    });
+                }
+            }
+        }
+    }
+
+    private List<DateTime> GetDynamicTermMonths()
+    {
+        var months = new List<DateTime>();
+        var start = BuildTimeProvider.TermStart;
+        var end = BuildTimeProvider.TermEnd;
+
+        var current = new DateTime(start.Year, start.Month, 1);
+        var lastMonth = new DateTime(end.Year, end.Month, 1);
+
+        while (current <= lastMonth)
+        {
+            months.Add(current);
+            current = current.AddMonths(1);
+        }
+        return months;
+    }
+
+    private List<CalendarEvent> GetEventsForDate(DateTime date)
+    {
+        return _allEvents
+            .Where(e => e.Date.Date == date.Date)
+            .OrderBy(e => e.Type)
+            .ToList();
+    }
+}
