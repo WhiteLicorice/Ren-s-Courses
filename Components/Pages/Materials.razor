@@ -84,26 +84,8 @@
         TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
         DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
 
-        // 2. Parse Term Window from Environment Variables
-        string? startEnv = Environment.GetEnvironmentVariable("TERM_START");
-        string? endEnv = Environment.GetEnvironmentVariable("TERM_END");
-
-        DateTime termStart = DateTime.MinValue;
-        DateTime termEnd = DateTime.MaxValue;
-
-        if (!string.IsNullOrEmpty(startEnv))
-        {
-            DateTime.TryParse(startEnv, out termStart);
-        }
-
-        if (!string.IsNullOrEmpty(endEnv))
-        {
-            if (DateTime.TryParse(endEnv, out termEnd))
-            {
-                // Ensure the End Date includes the entire day (up to 23:59:59)
-                termEnd = termEnd.Date.AddDays(1).AddTicks(-1);
-            }
-        }
+        DateTime termStart = BuildTimeProvider.TermStart;
+        DateTime termEnd = BuildTimeProvider.TermEnd;
 
         // 3. Check if Term has Ended
         if (nowPh > termEnd)
