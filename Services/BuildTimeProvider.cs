@@ -27,7 +27,7 @@ public static class BuildTimeProvider
             DateTime.TryParse(staticGenTime, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var parsedDate))
         {
             _frozenTime = parsedDate;
-            Console.WriteLine($"[BuildTimeProvider] SUCCESS: Time frozen at {_frozenTime:O} (UTC)");
+            Console.WriteLine($"[BuildTimeProvider] SUCCESS: Time frozen at {_frozenTime:O}");
         }
         else
         {

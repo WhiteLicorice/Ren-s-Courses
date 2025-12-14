@@ -122,10 +122,13 @@ def generate_feed() -> None:
     end = os.environ.get("TERM_END")
     
     if not start or not end:
-        raise OSError(f"[FeedGen] Error: TERM_START or TERM_END not configured correctly.")
+        raise OSError(f"[FeedGen] Error: TERM_START or TERM_END not configured correctly in the environment.")
     else:
         start = parse_date(start)
         end = parse_date(end)
+        print(f"[FeedGen] Using {start} as TERM_START.")
+        print(f"[FeedGen] Using {end} as TERM_END.")
+
         
     if now > end:
         print(f"[FeedGen] Term ended on {end}. Current time is {now}. Skipping feed generation.")
