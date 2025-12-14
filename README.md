@@ -27,6 +27,7 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Site Mirror: deploy a live mirror on Netlify for redundancy.
 * [x] Booking System: Let students book appointments in advance.
 * [x] Mailing List: Email those enrolled in each course (on a per course basis) as frontmatter is released.
+* [x] PWA Integration: Allow the course site to be installed on machines as an application.
 * [ ] Submission Bin Overhaul: improve UX and hoist this module off to a proper web application.
 * [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
 
