@@ -1,8 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // Point to ALL razor files in the project
   content: [
-    "./**/*.{razor,html,cshtml}",
+    "./Pages/**/*.{razor,html,cshtml}",
+    "./Components/**/*.{razor,html,cshtml}",
+    "./Shared/**/*.{razor,html,cshtml}", // Include if you have a root Shared folder
+    "./wwwroot/**/*.html",
   ],
   darkMode: 'class',
   theme: {
@@ -22,8 +24,8 @@ module.exports = {
           800: '#991b1b',
           900: '#7f1d1d',
         },
-        bgDark: '#0d1117',   
-        cardDark: '#161b22', 
+        bgDark: '#0d1117',
+        cardDark: '#161b22',
         borderDark: '#30363d',
       },
       fontFamily: {
