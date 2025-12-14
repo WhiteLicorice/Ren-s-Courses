@@ -126,8 +126,8 @@ def generate_feed() -> None:
     else:
         start = parse_date(start)
         end = parse_date(end)
-        print(f"[FeedGen] Using {start} as TERM_START.")
-        print(f"[FeedGen] Using {end} as TERM_END.")
+        print(f"[FeedGen] Using Term Start: {start}")
+        print(f"[FeedGen] Using Term End: {end}")
 
         
     if now > end:
