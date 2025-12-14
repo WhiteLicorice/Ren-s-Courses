@@ -1,5 +1,11 @@
 ﻿@inherits LayoutComponentBase
 
+<HeadContent>
+    <link rel="manifest" href="site.webmanifest.json" />
+    <meta name="theme-color" content="#ef4444" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</HeadContent>
+
 <div class="flex min-h-screen flex-col bg-bgDark">
     <NavMenu />
 
@@ -17,10 +23,27 @@
                 </a>
             </div>
             <div class="flex flex-col items-center space-y-1 text-sm text-gray-500 font-mono">
-                <div>© @DateTime.Now.Year <a class="hover:text-red-500 transition-colors" href="@WebsiteKeys.AuthorGitHub" target="_blank">WhiteLicorice</a> </div>
-                <a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-red-500 transition-colors" target="_blank">Powered by
+                <div>© @DateTime.Now.Year <a class="hover:text-red-500 transition-colors"
+                        href="@WebsiteKeys.AuthorGitHub" target="_blank">WhiteLicorice</a> </div>
+                <a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-red-500 transition-colors"
+                    target="_blank">Powered by
                     BlazorStatic</a>
             </div>
         </div>
     </footer>
 </div>
+
+@* For service worker PWA *@
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('PWA ServiceWorker registered: ', registration.scope);
+                })
+                .catch(error => {
+                    console.log('PWA ServiceWorker registration failed: ', error);
+                });
+        });
+    }
+</script>
