@@ -22,86 +22,104 @@
             <p class="text-gray-400 max-w-2xl mx-auto">
                 Schedule for Term: @BuildTimeProvider.TermStart.ToString("MMM d") — @BuildTimeProvider.TermEnd.ToString("MMM d, yyyy")
             </p>
+            <div class="mt-8 mb-8 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
         }
         else
         {
+            @* VIEW 2: FILTERED CALENDAR *@
+            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
+                <span class="text-red-500">#</span>@TagName
+            </h1>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                Displaying specific events for <span class="text-gray-200 font-semibold">@TagName</span>.
+            </p>
+
+            <div class="mt-8 mb-8 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
+
             <div class="flex justify-center mb-6">
                 <a href="/calendar"
-                   class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
+                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
                     <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor">
+                        stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                     View Full Schedule
                 </a>
             </div>
-            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
-                <span class="text-red-500">#</span>@TagName
-            </h1>
-             <p class="text-gray-400 max-w-2xl mx-auto">
-                Displaying specific events for <span class="text-gray-200 font-semibold">@TagName</span>.
-            </p>
         }
-        <div class="mt-8 mb-8 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
     </div>
 
     @* --- CONTROLS: TAG FILTERS --- *@
     <div class="flex flex-wrap justify-center gap-3 mb-8 max-w-5xl mx-auto">
-        @foreach(var tag in ContentProvider.GetAllTags())
+        @foreach (var tag in ContentProvider.GetAllTags())
         {
             var isActive = tag == TagName;
-            <a href="/calendar/@tag" 
-               class="text-xs px-4 py-2 rounded-md border transition-all font-mono font-bold
-                      @(isActive 
-                        ? "bg-red-900/30 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105" 
-                        : "bg-cardDark border-borderDark text-gray-400 hover:border-red-500/50 hover:text-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)]")">
+            <a href="/calendar/@tag"
+                class="text-xs px-4 py-2 rounded-md border transition-all font-mono font-bold
+                              @(isActive
+                                                        ? "bg-red-900/30 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105" 
+                                                        : "bg-cardDark border-borderDark text-gray-400 hover:border-red-500/50 hover:text-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)]")">
                 #@tag
             </a>
         }
     </div>
 
     @* --- CALENDAR NAVIGATOR --- *@
-    <div class="flex items-center justify-between bg-cardDark border border-borderDark rounded-t-lg p-4 border-b-0 max-w-full mx-auto shadow-lg relative z-20">
-         <button onclick="changeMonth(-1)" class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-red-500 transition-colors" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+    <div
+        class="flex items-center justify-between bg-cardDark border border-borderDark rounded-t-lg p-4 border-b-0 max-w-full mx-auto shadow-lg relative z-20">
+        <button onclick="changeMonth(-1)"
+            class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-gray-400 group-hover:text-red-500 transition-colors" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clip-rule="evenodd" />
             </svg>
         </button>
-        
-        <div id="month-label" class="text-center font-bold text-gray-100 font-mono text-xl md:text-2xl tracking-tight uppercase drop-shadow-md">
+
+        <div id="month-label"
+            class="text-center font-bold text-gray-100 font-mono text-xl md:text-2xl tracking-tight uppercase drop-shadow-md">
             Loading...
         </div>
 
-        <button onclick="changeMonth(1)" class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-red-500 transition-colors" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        <button onclick="changeMonth(1)"
+            class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-gray-400 group-hover:text-red-500 transition-colors" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clip-rule="evenodd" />
             </svg>
         </button>
     </div>
 
     @* --- CALENDAR CONTAINER --- *@
-    <div id="calendar-container" class="bg-bgDark border border-borderDark rounded-b-lg overflow-hidden shadow-2xl max-w-full mx-auto min-h-[400px]">
+    <div id="calendar-container"
+        class="bg-bgDark border border-borderDark rounded-b-lg overflow-hidden shadow-2xl max-w-full mx-auto min-h-[400px]">
         @{
             var months = GetDynamicTermMonths();
-            int monthIndex = 0; 
+            int monthIndex = 0;
         }
 
         @foreach (var month in months)
         {
             var isCurrent = (BuildTimeProvider.UtcNow >= month && BuildTimeProvider.UtcNow < month.AddMonths(1));
-            if (!months.Any(m => BuildTimeProvider.UtcNow >= m && BuildTimeProvider.UtcNow < m.AddMonths(1)) && monthIndex == 0)
+            if (!months.Any(m => BuildTimeProvider.UtcNow >= m && BuildTimeProvider.UtcNow < m.AddMonths(1)) && monthIndex
+            == 0)
             {
                 isCurrent = true;
             }
 
-            <div class="month-view w-full @(isCurrent ? "" : "hidden")" 
-                 data-index="@monthIndex" 
-                 data-label="@month.ToString("MMMM yyyy")">
-                
+            <div class="month-view w-full @(isCurrent ? "" : "hidden")" data-index="@monthIndex"
+                data-label="@month.ToString("MMMM yyyy")">
+
                 @* ========================================= *@
                 @* DESKTOP VIEW: GRID LAYOUT (md:grid) *@
                 @* ========================================= *@
-                <div class="hidden md:grid grid-cols-7 gap-px bg-borderDark text-center text-[11px] uppercase tracking-widest font-bold text-gray-500">
+                <div
+                    class="hidden md:grid grid-cols-7 gap-px bg-borderDark text-center text-[11px] uppercase tracking-widest font-bold text-gray-500">
                     <div class="bg-gray-900 py-4 text-red-500/70">Sun</div>
                     <div class="bg-gray-900 py-4">Mon</div>
                     <div class="bg-gray-900 py-4">Tue</div>
@@ -116,7 +134,7 @@
                         var daysInMonth = DateTime.DaysInMonth(month.Year, month.Month);
                         var firstDayOfMonth = new DateTime(month.Year, month.Month, 1);
                         var startOffset = (int)firstDayOfMonth.DayOfWeek;
-                        
+
                         // PREVIOUS MONTH FILLER
                         for (int i = 0; i < startOffset; i++)
                         {
@@ -131,14 +149,16 @@
                             var isToday = currentDay.Date == BuildTimeProvider.UtcNow.Date;
                             var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
 
-                            <div class="relative bg-cardDark min-h-[140px] p-2 transition-all group flex flex-col gap-2
-                                        hover:bg-red-900/10 hover:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.3)] hover:z-10 cursor-default
-                                        @(isToday ? "bg-red-900/10 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.5)]" : "")">
-                                
+                            <div
+                                class="relative bg-cardDark min-h-[140px] p-2 transition-all group flex flex-col gap-2
+                                                                hover:bg-red-900/10 hover:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.3)] hover:z-10 cursor-default
+                                                                @(isToday ? "bg-red-900/10 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.5)]" : "")">
+
                                 @* Date Indicator *@
                                 <div class="flex justify-between items-start">
-                                     <span class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
-                                        @(isToday ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : (isWeekend ? "text-gray-600" : "text-gray-400 group-hover:text-red-400"))">
+                                    <span
+                                        class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
+                                                                @(isToday ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : (isWeekend ? "text-gray-600" : "text-gray-400 group-hover:text-red-400"))">
                                         @day
                                     </span>
                                 </div>
@@ -147,18 +167,18 @@
                                 <div class="flex flex-col gap-1.5">
                                     @foreach (var evt in events)
                                     {
-                                        if(!string.IsNullOrEmpty(evt.Url))
+                                        if (!string.IsNullOrEmpty(evt.Url))
                                         {
                                             <a href="@evt.Url" target="_blank"
-                                               class="block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass" 
-                                               title="@evt.Tooltip">
+                                                class="block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
+                                                title="@evt.Tooltip">
                                                 <span class="font-medium">@evt.Title</span>
                                             </a>
                                         }
                                         else
                                         {
-                                            <div class="text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass" 
-                                                 title="@evt.Tooltip">
+                                            <div class="text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
+                                                title="@evt.Tooltip">
                                                 <span class="font-medium">@evt.Title</span>
                                             </div>
                                         }
@@ -169,12 +189,12 @@
 
                         // NEXT MONTH FILLER
                         var usedCells = startOffset + daysInMonth;
-                        var totalCellsNeeded = 42; 
+                        var totalCellsNeeded = 42;
                         var remainingCells = totalCellsNeeded - usedCells;
-                        
+
                         for (int i = 0; i < remainingCells; i++)
                         {
-                             <div class="bg-cardDark/40 min-h-[140px]"></div>
+                            <div class="bg-cardDark/40 min-h-[140px]"></div>
                         }
                     }
                 </div>
@@ -208,18 +228,18 @@
 
                                     @* Events Column *@
                                     <div class="flex-grow flex flex-col gap-2 pt-1">
-                                        @if(!events.Any())
+                                        @if (!events.Any())
                                         {
                                             <span class="text-xs text-gray-600 italic">No events scheduled.</span>
                                         }
-                                        else 
+                                        else
                                         {
                                             @foreach (var evt in events)
                                             {
-                                                if(!string.IsNullOrEmpty(evt.Url))
+                                                if (!string.IsNullOrEmpty(evt.Url))
                                                 {
                                                     <a href="@evt.Url" target="_blank"
-                                                       class="block text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass hover:brightness-110 active:scale-95 transition-all">
+                                                        class="block text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass hover:brightness-110 active:scale-95 transition-all">
                                                         <span class="font-bold block">@evt.Title</span>
                                                         <span class="text-[10px] opacity-75 block">@evt.Tooltip</span>
                                                     </a>
@@ -228,6 +248,7 @@
                                                 {
                                                     <div class="text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass">
                                                         <span class="font-bold block">@evt.Title</span>
+                                                        @* Tooltip for items without URLs (e.g. Holidays) *@
                                                         <span class="text-[10px] opacity-75 block">@evt.Tooltip</span>
                                                     </div>
                                                 }
@@ -238,7 +259,7 @@
                             }
                         }
 
-                        if(!hasMobileEvents)
+                        if (!hasMobileEvents)
                         {
                             <div class="p-8 text-center text-gray-500 italic">
                                 No events scheduled for this month.
@@ -255,14 +276,14 @@
 
 @* --- STATIC JAVASCRIPT FOR NAVIGATION --- *@
 <script>
-    (function() {
+    (function () {
         let currentIndex = 0;
         const months = document.querySelectorAll('.month-view');
         const label = document.getElementById('month-label');
 
         function updateView() {
             months.forEach(m => {
-                if(parseInt(m.dataset.index) === currentIndex) {
+                if (parseInt(m.dataset.index) === currentIndex) {
                     m.classList.remove('hidden');
                     label.innerText = m.dataset.label;
                 } else {
@@ -272,13 +293,13 @@
         }
 
         months.forEach(m => {
-            if(!m.classList.contains('hidden')) {
+            if (!m.classList.contains('hidden')) {
                 currentIndex = parseInt(m.dataset.index);
                 label.innerText = m.dataset.label;
             }
         });
 
-        window.changeMonth = function(direction) {
+        window.changeMonth = function (direction) {
             let newIndex = currentIndex + direction;
             if (newIndex >= 0 && newIndex < months.length) {
                 currentIndex = newIndex;
@@ -291,7 +312,7 @@
 @code {
     [Parameter] public string? TagName { get; set; }
     private List<CalendarEvent> _allEvents = new();
-    
+
     protected override void OnInitialized()
     {
         LoadEvents();
@@ -308,16 +329,16 @@
 
         // 1. Load Holidays (Using Provider)
         var holidays = HolidaysProvider.GetHolidaysForRange(
-            BuildTimeProvider.TermStart, 
-            BuildTimeProvider.TermEnd
+        BuildTimeProvider.TermStart,
+        BuildTimeProvider.TermEnd
         );
 
-        foreach(var h in holidays)
+        foreach (var h in holidays)
         {
             _allEvents.Add(new CalendarEvent
             {
                 Title = h.Name,
-                Tooltip = "Holiday", 
+                Tooltip = "Holiday",
                 Date = h.Date,
                 Type = EventType.Holiday,
                 CssClass = "bg-red-500/20 text-red-200 border-red-500",
@@ -367,7 +388,7 @@
             // C. Progress
             if (fm.ProgressReportDates != null)
             {
-                foreach(var date in fm.ProgressReportDates)
+                foreach (var date in fm.ProgressReportDates)
                 {
                     _allEvents.Add(new CalendarEvent
                     {
@@ -384,7 +405,7 @@
             // D. Defense
             if (fm.DefenseDates != null)
             {
-                foreach(var date in fm.DefenseDates)
+                foreach (var date in fm.DefenseDates)
                 {
                     _allEvents.Add(new CalendarEvent
                     {
@@ -420,8 +441,8 @@
     private List<CalendarEvent> GetEventsForDate(DateTime date)
     {
         return _allEvents
-            .Where(e => e.Date.Date == date.Date)
-            .OrderBy(e => e.Type)
-            .ToList();
+        .Where(e => e.Date.Date == date.Date)
+        .OrderBy(e => e.Type)
+        .ToList();
     }
 }
