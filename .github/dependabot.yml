@@ -23,7 +23,7 @@ updates:
 
   # 4. Maintain Python Dependencies
   - package-ecosystem: "pip"
-    directory: ".github/utils"
+    directory: "/.github/utils"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 5
