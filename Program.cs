@@ -1,12 +1,3 @@
-using BlazorStatic;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using BlazorStaticMinimalBlog.Components;
-using BlazorStaticMinimalBlog.Models;
-using BlazorStaticMinimalBlog.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
@@ -17,21 +8,21 @@ builder.Services.AddBlazorStaticService(opt =>
 })
 .AddBlazorStaticContentService<CourseFrontMatter>(opt =>
 {
-    opt.ContentPath = "Content/Materials";
-    opt.Tags.TagsPageUrl = "materials";
-    opt.PageUrl = "articles";
+    opt.ContentPath = WebsiteKeys.Materials.SourcePath;
+    opt.Tags.TagsPageUrl = WebsiteKeys.Materials.TagPageUrl;
+    opt.PageUrl = WebsiteKeys.Materials.UrlPrefix;
 })
 .AddBlazorStaticContentService<ProjectFrontMatter>(opt =>
 {
-    opt.ContentPath = "Content/Projects";
-    opt.Tags.TagsPageUrl = "projects";
-    opt.PageUrl = "null";
+    opt.ContentPath = WebsiteKeys.Projects.SourcePath;
+    opt.Tags.TagsPageUrl = WebsiteKeys.Projects.TagPageUrl;
+    opt.PageUrl = WebsiteKeys.Disabled;
 })
 .AddBlazorStaticContentService<BookingFrontmatter>(opt =>
 {
-    opt.ContentPath = "Content/Bookings";
-    opt.Tags.TagsPageUrl = "null";
-    opt.PageUrl = "null";
+    opt.ContentPath = WebsiteKeys.Bookings.SourcePath;
+    opt.Tags.TagsPageUrl = WebsiteKeys.Disabled;
+    opt.PageUrl = WebsiteKeys.Disabled;
 });
 
 builder.Services.AddRazorComponents();
@@ -65,9 +56,32 @@ app.Run();
 
 public static class WebsiteKeys
 {
+    // --- GLOBAL SETTINGS ---
     public const string GitHubRepo = "https://github.com/WhiteLicorice/Ren-s-Courses";
     public const string AuthorGitHub = "https://github.com/WhiteLicorice";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
     public const string BlogLead = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
+
+    // Use this constant when you need to pass the literal string "null"
+    public const string Disabled = "null";
+
+    // --- DOMAIN SPECIFIC KEYS ---
+    public static class Materials
+    {
+        public const string SourcePath = "Content/Materials";
+        public const string TagPageUrl = "materials";
+        public const string UrlPrefix = "articles";
+    }
+
+    public static class Projects
+    {
+        public const string SourcePath = "Content/Projects";
+        public const string TagPageUrl = "projects";
+    }
+
+    public static class Bookings
+    {
+        public const string SourcePath = "Content/Bookings";
+    }
 }
