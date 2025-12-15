@@ -4,10 +4,12 @@
 @using BlazorStatic
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
+@using BlazorStaticMinimalBlog.Services
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 @inject IJSRuntime JSRuntime
+@inject FrontmatterStatusService StatusService
 
-@* No filename -> show latest posts (HOME) *@
+@* --- VIEW 1: HOME PAGE --- *@
 @if (string.IsNullOrWhiteSpace(FileName))
 {
     <div class="py-10 sm:py-16 text-center">
@@ -29,119 +31,139 @@
     return;
 }
 
-@* Show specific post *@
+@* --- VIEW 2: ARTICLE PAGE --- *@
 @if (post == null)
 {
-    <div>404 - Post not found</div>
+    <div class="text-center py-20 text-gray-500 font-mono">404 - Post not found</div>
     return;
 }
 
-<article class="mx-auto max-w-4xl animate-fade-in">
+@* CONTAINER: Full width to allow sidebar to reach edges *@
+<div class="w-full px-4 animate-fade-in">
 
-    <header class="border-b border-borderDark pb-10 pt-10 text-center">
+    @* PERFECT CENTER GRID STRATEGY:
+       1. Mobile/Tablet/Laptop (< xl): Single centered column. Sidebar hidden.
+       2. Desktop (>= xl): 3 Columns. [1fr Spacer] [Content 65ch] [1fr Sidebar].
+          This ensures the middle column is DEAD CENTER relative to the viewport.
+    *@
+    <div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto">
 
-        @* 1. Tags *@
-        <div class="mb-6 flex justify-center gap-2">
-            @foreach (var tag in post.FrontMatter.Tags)
-            {
-                <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl/@tag"
-                    class="rounded border border-red-900/50 bg-red-900/10 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500 hover:text-white transition-colors uppercase tracking-wider">
-                    @tag
-                </a>
-            }
-        </div>
+        @* === LEFT SPACER (Desktop Only) === *@
+        @* Keeps the grid symmetric *@
+        <div class="hidden xl:block"></div>
 
-        @* 2. Title *@
-        <h1 class="text-3xl font-bold text-gray-100 sm:text-5xl font-mono">@post.FrontMatter.Title</h1>
+        @* === MAIN CONTENT (Center) === *@
+        <article class="min-w-0 w-full mx-auto max-w-[65ch]">
 
-        @* 3. Subtitle *@
-        @if (!string.IsNullOrWhiteSpace(post.FrontMatter.Subtitle))
-        {
-            <p class="mt-3 text-xl text-gray-400 font-mono">@post.FrontMatter.Subtitle</p>
-        }
-
-        @* 4. Metadata & Action Area *@
-        <div class="mt-8 flex flex-col items-center gap-3">
-
-            @* Row A: The Byline (Author & Date) *@
-            @*'flex-col' for mobile, 'sm:flex-row' for tablet/desktop *@
-            <div
-                class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-gray-500 font-mono">
-
-                @* Authors *@
-                @foreach (var author in post.FrontMatter.Authors)
-                {
-                    @if (!string.IsNullOrWhiteSpace(author.GitHubUserName))
+            <header class="border-b border-borderDark pb-10 pt-10 text-center">
+                @* 1. Tags *@
+                <div class="mb-6 flex justify-center gap-2">
+                    @foreach (var tag in post.FrontMatter.Tags)
                     {
-                        @* Stack Vertical on Mobile (flex-col), Row on Desktop (sm:flex-row) *@
-                        <a href="https://github.com/@author.GitHubUserName" target="_blank" rel="noopener noreferrer"
-                            class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-400 hover:text-red-400 transition-colors group">
-
-                            @* Icon: Slightly larger on mobile for balance *@
-                            <Svg Icon="Svg.Icons.Github"
-                                SizeClasses="w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-red-500" />
-                            @{
-                                string displayName = ArticleAuthor.DEFAULT_NAME;
-                                if (!string.IsNullOrWhiteSpace(author.Nickname))
-                                {
-                                    displayName = author.Nickname;
-                                }
-                                else if (!string.IsNullOrWhiteSpace(author.Name))
-                                {
-                                    displayName = author.Name;
-                                }
-                            }
-                            <span class="font-medium text-center sm:text-left">@displayName</span>
+                        <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl/@tag"
+                            class="rounded border border-red-900/50 bg-red-900/10 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500 hover:text-white transition-colors uppercase tracking-wider">
+                            @tag
                         </a>
                     }
-                    else
-                    {
-                        <span class="font-medium text-gray-400">@author.Name</span>
-                    }
+                </div>
+
+                @* 2. Title *@
+                <h1 class="text-3xl font-bold text-gray-100 sm:text-5xl font-mono">@post.FrontMatter.Title</h1>
+
+                @* 3. Subtitle *@
+                @if (!string.IsNullOrWhiteSpace(post.FrontMatter.Subtitle))
+                {
+                    <p class="mt-3 text-xl text-gray-400 font-mono">@post.FrontMatter.Subtitle</p>
                 }
 
-                @* Separator: Hidden on mobile (since we stack), visible on desktop *@
-                <span class="hidden sm:inline text-gray-700 mx-1">•</span>
+                @* 4. Metadata *@
+                <div class="mt-8 flex flex-col items-center gap-3">
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-gray-500 font-mono">
+                        @foreach (var author in post.FrontMatter.Authors)
+                        {
+                            @if (!string.IsNullOrWhiteSpace(author.GitHubUserName))
+                            {
+                                <a href="https://github.com/@author.GitHubUserName" target="_blank" rel="noopener noreferrer"
+                                    class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-400 hover:text-red-400 transition-colors group">
+                                    <Svg Icon="Svg.Icons.Github"
+                                        SizeClasses="w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-red-500" />
+                                    <span class="font-medium">@(author.Nickname ?? author.Name ??
+                                                                        ArticleAuthor.DEFAULT_NAME)</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="font-medium text-gray-400">@author.Name</span>
+                            }
+                        }
+                        <span class="hidden sm:inline text-gray-700 mx-1">•</span>
+                        <time>@post.FrontMatter.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"))</time>
+                    </div>
 
-                <time>
-                    @post.FrontMatter.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"))
-                </time>
+                    @if (!string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink))
+                    {
+                        <a href="@post.FrontMatter.DownloadLink" target="_blank" rel="noopener noreferrer"
+                            class="flex items-center gap-2 text-red-400 hover:text-white transition-colors group text-sm font-medium mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="w-4 h-4 transition-transform group-hover:translate-y-0.5">
+                                <path
+                                    d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+                                <path
+                                    d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                            </svg>
+                            <span class="border-b border-red-400/30 group-hover:border-white pb-0.5">Download
+                                Materials</span>
+                        </a>
+                    }
+                </div>
+            </header>
+
+            @* === MOBILE TOC (< xl) === *@
+            @* We show this on LG screens now to ensure article stays centered *@
+            <div class="xl:hidden mt-8 mb-4">
+                <details class="group bg-cardDark border border-borderDark rounded-lg overflow-hidden">
+                    <summary
+                        class="flex items-center justify-between p-4 cursor-pointer list-none text-gray-300 font-mono text-sm font-bold">
+                        <span><span class="text-red-500 mr-2">>></span>Table of Contents</span>
+                        <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </summary>
+                    <div class="p-4 pt-0 border-t border-borderDark/50">
+                        <nav id="mobile-toc-content"></nav>
+                    </div>
+                </details>
             </div>
 
-            @* Row B: The Utility (Download) *@
-            @* Separating this gives it visual weight without needing size *@
-            @if (!string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink))
-            {
-                <a href="@post.FrontMatter.DownloadLink" target="_blank" rel="noopener noreferrer"
-                    class="flex items-center gap-2 text-red-400 hover:text-white transition-colors group text-sm font-medium mt-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                        class="w-4 h-4 transition-transform group-hover:translate-y-0.5">
-                        <path
-                            d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
-                        <path
-                            d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
-                    </svg>
-                    <span class="border-b border-red-400/30 group-hover:border-white pb-0.5">Download</span>
+            @* CONTENT *@
+            <div class="prose prose-invert prose-red max-w-none py-10">
+                @((MarkupString)post.HtmlContent)
+            </div>
+
+            <div class="border-t border-borderDark pt-8 pb-12">
+                <a href=""
+                    class="group flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-red-400 transition-colors">
+                    <span>&larr;</span> Home
                 </a>
-            }
-        </div>
+            </div>
 
-    </header>
+        </article>
 
-    <div class="prose prose-invert prose-red max-w-none py-10">
-        @((MarkupString)post.HtmlContent)
+        @* === RIGHT SIDEBAR (Desktop Only >= xl) === *@
+        <aside class="hidden xl:block relative">
+            <div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8">
+                @* TOC Container *@
+                <nav id="toc-content"></nav>
+            </div>
+        </aside>
+
     </div>
+</div>
 
-    <div class="border-t border-borderDark pt-8 pb-12">
-        <a href=""
-            class="group flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-red-400 transition-colors">
-            <span>&larr;</span> Home
-        </a>
-    </div>
-
-</article>
-
-@* Has to be called here to fix a DOM issue. *@
+@* Script Triggers *@
 <script>Prism.highlightAll();</script>
 
 @code {
@@ -157,5 +179,6 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeVoidAsync("addCodeFeatures");
+        await JSRuntime.InvokeVoidAsync("generateTOC");
     }
 }
