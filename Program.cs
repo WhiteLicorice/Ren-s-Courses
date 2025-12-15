@@ -1,3 +1,13 @@
+using BlazorStatic;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using BlazorStaticMinimalBlog.Components;
+using BlazorStaticMinimalBlog.Models;
+using BlazorStaticMinimalBlog.Services;
+// YES, THESE ARE NECESSARY.
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
