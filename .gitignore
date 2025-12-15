@@ -1,3 +1,6 @@
+# Ignore utilities
+utils/
+
 # Ignore generated Tailwind CSS
 wwwroot/css/app.css
 
