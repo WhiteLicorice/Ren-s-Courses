@@ -83,7 +83,15 @@ window.generateTOC = () => {
 
     if (!prose || (!tocContainer && !mobileTocContainer)) return;
 
-    const headers = prose.querySelectorAll('h1, h2, h3');
+    // 1. Get Main Title (Outside Prose)
+    const mainTitle = document.querySelector('article h1'); // Selects the page title
+
+    // 2. Get Content Headers (Inside Prose)
+    const contentHeaders = Array.from(prose.querySelectorAll('h1, h2, h3'));
+
+    // Combine them (Title first)
+    const headers = mainTitle ? [mainTitle, ...contentHeaders] : contentHeaders;
+
     if (headers.length === 0) return;
 
     const createList = () => {
@@ -91,6 +99,7 @@ window.generateTOC = () => {
         ul.className = 'flex flex-col gap-2 font-mono text-xs text-gray-500';
 
         headers.forEach((header, index) => {
+            // Generate ID if missing (Critical for scrolling)
             if (!header.id) {
                 header.id = header.innerText
                     .toLowerCase()
@@ -110,20 +119,25 @@ window.generateTOC = () => {
 
             // HIERARCHY LOGIC
             if (header.tagName === 'H1') {
-                a.classList.add('font-bold', 'text-gray-300', 'mb-2');
+                a.classList.add('border-l', 'border-gray-800');
             }
             else if (header.tagName === 'H2') {
                 a.classList.add('border-l', 'border-gray-800');
-                a.style.paddingLeft = '12px'; // Explicit indent for H2
+                a.style.paddingLeft = '12px';
             }
             else if (header.tagName === 'H3') {
                 a.classList.add('border-l', 'border-gray-800');
-                a.style.paddingLeft = '24px'; // Double indent for H3
+                a.style.paddingLeft = '24px';
             }
 
             a.addEventListener('click', (e) => {
                 e.preventDefault();
-                header.scrollIntoView({ behavior: 'smooth' });
+                // Smooth scroll to top for Title, or element for others
+                if (header === mainTitle) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    header.scrollIntoView({ behavior: 'smooth' });
+                }
                 history.pushState(null, null, `#${header.id}`);
             });
 
