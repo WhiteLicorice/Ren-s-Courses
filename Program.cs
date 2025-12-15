@@ -42,6 +42,7 @@ await holidaysProvider.InitializeAsync();
 builder.Services.AddSingleton(holidaysProvider);
 
 builder.Services.AddSingleton<CourseContentProvider>();
+builder.Services.AddSingleton<FrontmatterStatusService>();
 
 var app = builder.Build();
 
