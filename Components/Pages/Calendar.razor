@@ -105,9 +105,8 @@
 
         @foreach (var month in months)
         {
-            var isCurrent = (BuildTimeProvider.UtcNow >= month && BuildTimeProvider.UtcNow < month.AddMonths(1));
-            if (!months.Any(m => BuildTimeProvider.UtcNow >= m && BuildTimeProvider.UtcNow < m.AddMonths(1)) && monthIndex
-            == 0)
+            var isCurrent = (BuildTimeProvider.LocalNow >= month && BuildTimeProvider.LocalNow < month.AddMonths(1));
+            if (!months.Any(m => BuildTimeProvider.UtcNow >= m && BuildTimeProvider.UtcNow < m.AddMonths(1)) && monthIndex == 0)
             {
                 isCurrent = true;
             }
@@ -146,7 +145,7 @@
                         {
                             var currentDay = new DateTime(month.Year, month.Month, day);
                             var events = GetEventsForDate(currentDay);
-                            var isToday = currentDay.Date == BuildTimeProvider.UtcNow.Date;
+                            var isToday = currentDay.Date == BuildTimeProvider.LocalNow.Date;
                             var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
 
                             <div
@@ -212,8 +211,7 @@
                         {
                             var currentDay = new DateTime(month.Year, month.Month, day);
                             var events = GetEventsForDate(currentDay);
-                            var isToday = currentDay.Date == BuildTimeProvider.UtcNow.Date;
-
+                            var isToday = currentDay.Date == BuildTimeProvider.LocalNow.Date;
                             if (events.Any() || isToday)
                             {
                                 hasMobileEvents = true;

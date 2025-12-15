@@ -137,9 +137,7 @@
         DateTime deadlineEndOfDay = deadlineBase.Date.AddDays(1).AddTicks(-1);
 
         // 3. Current PH Time
-        DateTime nowUtc = BuildTimeProvider.UtcNow;
-        TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
-        DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
+        DateTime nowPh = BuildTimeProvider.LocalNow;
 
         // 4. Badge Logic
         if (deadlineEndOfDay < nowPh)

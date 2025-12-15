@@ -21,13 +21,11 @@ public class CourseContentProvider
         var sourcePosts = _staticService.Posts;
 
         // 1. Get Time/Term constants in UTC
-        DateTime nowUtc = BuildTimeProvider.UtcNow;
         DateTime termStart = BuildTimeProvider.TermStart;
         DateTime termEnd = BuildTimeProvider.TermEnd;
 
         // 2. Prepare PH Timezone for comparison
-        TimeZoneInfo phTimeZone = TimeZoneInfo.CreateCustomTimeZone("PH", TimeSpan.FromHours(8), "Philippine Time", "Philippine Time");
-        DateTime nowPh = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, phTimeZone);
+        DateTime nowPh = BuildTimeProvider.LocalNow;
 
         // 3. Short Circuit if Term Ended
         if (nowPh > termEnd)

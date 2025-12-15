@@ -1,4 +1,5 @@
 namespace BlazorStaticMinimalBlog.Services;
+
 using System.Globalization;
 
 public static class BuildTimeProvider
@@ -10,17 +11,25 @@ public static class BuildTimeProvider
     public static DateTime TermEnd => _termEnd;
     private static readonly DateTime _termStart;
     private static readonly DateTime _termEnd;
+    public static TimeZoneInfo LocalTimeZone { get; private set; }
+    public static DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(UtcNow, LocalTimeZone);
 
     static BuildTimeProvider()
     {
         Console.WriteLine("--------------------------------------------------");
         Console.WriteLine("[BuildTimeProvider] Initializing...");
 
+        // 1. Initialize TimeZone (Defined once here)
+        // If we change this later, it propagates everywhere.
+        LocalTimeZone = TimeZoneInfo.CreateCustomTimeZone(
+            "PH",
+            TimeSpan.FromHours(8),
+            "Philippine Time",
+            "Philippine Time"
+        );
 
-        // STATIC_GEN_TIME is undefined in dev since we expect it to be set to current time.
-        // Just let it fall through!
+        // 2. Initialize Frozen Time
         var staticGenTime = Environment.GetEnvironmentVariable("STATIC_GEN_TIME");
-
         Console.WriteLine($"[BuildTimeProvider] Raw STATIC_GEN_TIME env var: '{staticGenTime ?? "NULL"}'");
 
         if (!string.IsNullOrEmpty(staticGenTime) &&
@@ -36,7 +45,7 @@ public static class BuildTimeProvider
             Console.WriteLine($"[BuildTimeProvider] FALLBACK: Using current machine time: {_frozenTime:O} (UTC)");
         }
 
-        // We use AdjustToUniversal to ensure the 'Z' in the config is respected as UTC.
+        // 3. Initialize Term Dates
         _termStart = DateTime.Parse(
             Environment.GetEnvironmentVariable("TERM_START")!,
             CultureInfo.InvariantCulture,
@@ -49,7 +58,6 @@ public static class BuildTimeProvider
             CultureInfo.InvariantCulture,
             DateTimeStyles.AdjustToUniversal
         );
-
         Console.WriteLine($"[BuildTimeProvider] SUCCESS: Set TermEnd to {_termEnd:O}");
 
         Console.WriteLine("--------------------------------------------------");
