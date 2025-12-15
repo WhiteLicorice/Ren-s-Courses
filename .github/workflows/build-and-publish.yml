@@ -12,8 +12,8 @@ env:
   ASPNETCORE_ENVIRONMENT: Production
   WEBAPP_PATH: ./
   WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
-  TERM_START: "2026-01-19T00:00:00Z"
-  TERM_END: "2026-05-23T23:59:59Z"
+  TERM_START: "2025-08-01T00:00:00Z"
+  TERM_END: "2025-12-31T23:59:59Z"
 
 jobs:
   build-and-deploy:
