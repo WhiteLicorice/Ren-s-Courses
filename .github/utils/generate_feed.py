@@ -1,9 +1,11 @@
 import os
-import re
 import datetime
 import html
 from glob import glob
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Union
+
+# pip install python-frontmatter
+import frontmatter 
 
 # Configuration
 CONTENT_DIR: str = "Content/Materials"
@@ -45,52 +47,67 @@ def get_current_time() -> datetime.datetime:
     print(f"[FeedGen] No frozen time found. Using UTC Now: {now}")
     return now
 
-def parse_date(date_str: str) -> Optional[datetime.datetime]:
+def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Optional[datetime.datetime]:
     """
-        Robustly parses a date string into a timezone-aware datetime object.
-        Handles 'YYYY-MM-DD' and 'YYYY-MM-DDTHH:MM:SSZ' formats.
+    Robustly parses a date input into a timezone-aware UTC datetime object.
+    Accepts Strings (classic regex path) OR native datetime objects (YAML auto-parsed).
     """
-    try:
-        clean_date = date_str.strip().replace("Z", "+00:00")
-        
-        # 1. Try parsing as full ISO (e.g. 2025-12-13T08:00:00Z)
+    dt = None
+
+    # A. Handle Native Objects
+    if isinstance(date_obj, (datetime.date, datetime.datetime)):
+        # If it's just a date (naive), convert to datetime at midnight
+        if not isinstance(date_obj, datetime.datetime):
+            dt = datetime.datetime.combine(date_obj, datetime.time.min)
+        else:
+            dt = date_obj
+
+        # If it's naive (no timezone), assign LMS_TZ (PHT) logic
+        if dt.tzinfo is None:
+             dt = dt.replace(tzinfo=LMS_TZ)
+
+    # B. Handle Strings (Fallback if YAML loaded it as a string)
+    elif isinstance(date_obj, str):
         try:
-            dt = datetime.datetime.fromisoformat(clean_date)
-            if dt.tzinfo is None:
-                 dt = dt.replace(tzinfo=datetime.timezone.utc)
-        except ValueError:
-            # 2. Fallback: Parse as Date Only (e.g. 2025-12-13)
-            # LOGIC: We assume a date without a time is Midnight in the Philippines.
-            dt = datetime.datetime.strptime(clean_date, "%Y-%m-%d")
+            clean_date = date_obj.strip().replace("Z", "+00:00")
             
-            # Apply PHT (Midnight PH)
-            dt = dt.replace(tzinfo=LMS_TZ)
-            
-            # Convert to UTC for consistent comparison with 'now'
-            dt = dt.astimezone(datetime.timezone.utc)
-            
-        return dt
-    except ValueError as e:
-        print(f"[FeedGen] Date parse error for '{date_str}': {e}")
-        return None
+            # 1. Try parsing as full ISO 
+            try:
+                dt = datetime.datetime.fromisoformat(clean_date)
+                if dt.tzinfo is None:
+                     dt = dt.replace(tzinfo=datetime.timezone.utc)
+            except ValueError:
+                # 2. Fallback: Parse as Date Only (e.g. 2025-12-13)
+                dt = datetime.datetime.strptime(clean_date, "%Y-%m-%d")
+                # Apply PHT (Midnight PH)
+                dt = dt.replace(tzinfo=LMS_TZ)
+        except ValueError as e:
+             print(f"[FeedGen] Date parse error for string '{date_obj}': {e}")
+             return None
+
+    # C. Final Conversion to UTC
+    if dt:
+        return dt.astimezone(datetime.timezone.utc)
+    
+    return None
 
 def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
     """Generates a valid RSS 2.0 XML string from a list of posts."""
     
-    # RFC-822 Date Format for RSS (e.g., Wed, 02 Oct 2002 13:00:00 GMT)
+    # RFC-822 Date Format for RSS
     def to_rfc822(dt: datetime.datetime) -> str:
         return dt.strftime("%a, %d %b %Y %H:%M:%S %z")
 
     items_xml = ""
     for p in posts:
         # Escape special characters to prevent XML breakage
-        safe_title = html.escape(p['title'])
-        safe_desc = html.escape(p['abstract'])
-        safe_subtitle = html.escape(p['subtitle'])
+        safe_title = html.escape(str(p['title']))
+        safe_desc = html.escape(str(p['abstract']))
+        safe_subtitle = html.escape(str(p['subtitle']))
         # Absolute URL is required for RSS readers/Email clients
         full_url = f"https://renscourses.netlify.app/{p['url']}"
         
-        # Inject <subtitle> tag (Custom non-standard tag, but readable by our parser)
+        # Inject <subtitle> tag
         items_xml += f"""
         <item>
             <title>{safe_title}</title>
@@ -133,73 +150,66 @@ def generate_feed() -> None:
     
     all_posts: List[PostItem] = []
 
-    # Regex patterns
-    re_title = re.compile(r'^title:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
-    re_subtitle = re.compile(r'^subtitle:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
-    re_date = re.compile(r'^published:\s*([\d\-\:T\+Z]+)', re.MULTILINE | re.IGNORECASE)
-    re_draft = re.compile(r'^isdraft:\s*(true|false)', re.MULTILINE | re.IGNORECASE)
-    re_tags = re.compile(r'^tags:\s*\[(.*?)\]', re.MULTILINE | re.IGNORECASE)
-    re_lead = re.compile(r'^lead:\s*["\']?(.*?)["\']?\s*$', re.MULTILINE | re.IGNORECASE)
-
     if not os.path.exists(CONTENT_DIR):
         print(f"[FeedGen] Error: Content directory '{CONTENT_DIR}' not found.")
         return
 
+    # 1. SCAN (Replaced Regex loop with python-frontmatter)
     for filepath in glob(os.path.join(CONTENT_DIR, "*.md")):
         try:
+            # Load file and parse FrontMatter automatically
             with open(filepath, 'r', encoding='utf-8') as f:
-                content = f.read()
-                
-                date_match = re_date.search(content)
-                if not date_match:
-                    continue
+                post: frontmatter.Post = frontmatter.load(f)
+            
+            metadata = post.metadata
+            
+            # Safely access fields (dict.get handles missing keys)
+            # We skip if 'published' is missing entirely
+            if 'published' not in metadata:
+                continue
 
-                # Parse Frontmatter
-                title_match = re_title.search(content)
-                subtitle_match = re_subtitle.search(content)
-                draft_match = re_draft.search(content)
-                tags_match = re_tags.search(content)
-                lead_match = re_lead.search(content)
+            pub_date = parse_date(metadata.get('published'))
+            
+            # --- FILTERING LOGIC ---
+            is_draft = str(metadata.get('IsDraft', 'false')).lower() == 'true'
 
-                title = title_match.group(1).strip() if title_match else "Untitled"
-                subtitle = subtitle_match.group(1).strip() if subtitle_match else ""
-                pub_date = parse_date(date_match.group(1).strip())
-                is_draft = draft_match and draft_match.group(1).lower() == 'true'
-                abstract = lead_match.group(1).strip() if lead_match else "No description."
-                
-                tags = []
-                if tags_match:
-                    raw_tags = tags_match.group(1).split(',')
-                    tags = [t.strip().strip("'\"") for t in raw_tags if t.strip()]
+            if not pub_date or is_draft:
+                continue
 
-                # --- FILTERING LOGIC ---
-                if not pub_date or is_draft:
-                    continue
+            title = metadata.get('title', 'Untitled')
+            
+            if pub_date > now:
+                print(f"Skipping Future Post: {title} ({pub_date} > {now})")
+                continue
+            
+            if pub_date < start:
+                print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
+                continue
+            
+            if pub_date > end:
+                print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
+                continue
+            
+            # Prepare Data
+            filename = os.path.basename(filepath)
+            slug = os.path.splitext(filename)[0]
+            url = f"articles/{slug}"
+            
+            # Handle Tags: YAML parser gives us a List or None. Ensure List.
+            tags = metadata.get('tags', [])
+            if not isinstance(tags, list):
+                # Fallback if someone wrote tags: "tag1, tag2" string
+                tags = [str(tags)] 
 
-                if pub_date > now:
-                    print(f"Skipping Future Post: {title} ({pub_date} > {now})")
-                    continue
-                
-                if pub_date < start:
-                    print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
-                    continue
-                
-                if pub_date > end:
-                    print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
-                    continue
-                
-                filename = os.path.basename(filepath)
-                slug = os.path.splitext(filename)[0]
-                url = f"articles/{slug}"
+            all_posts.append({
+                "title": title,
+                "subtitle": metadata.get('subtitle', ''),
+                "url": url,
+                "date": pub_date,
+                "tags": [str(t) for t in tags], # Ensure strings
+                "abstract": metadata.get('lead', 'No description.')
+            })
 
-                all_posts.append({
-                    "title": title,
-                    "subtitle": subtitle,
-                    "url": url,
-                    "date": pub_date,
-                    "tags": tags,
-                    "abstract": abstract
-                })
         except Exception as e:
             print(f"[FeedGen] Error parsing {filepath}: {e}")
 

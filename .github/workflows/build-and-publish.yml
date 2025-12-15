@@ -23,7 +23,7 @@ jobs:
     steps:
       # OPTIMIZATION: Shallow fetch (fetch-depth: 1) speeds up checkout
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
       
@@ -31,61 +31,70 @@ jobs:
       # This ensures both builds use the EXACT same "Now" timestamp
       - name: Freeze Build Time
         run: |
-          # Capture current UTC time in ISO 8601 format (e.g., 2025-12-12T08:00:00Z)
           FROZEN_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          # Export it to the GitHub Environment so all subsequent steps see it
           echo "STATIC_GEN_TIME=$FROZEN_TIME" >> $GITHUB_ENV
-          
           echo "Time frozen at: $FROZEN_TIME"
 
-      # --- SETUP ---
-      # OPTIMIZATION: Enable caching for NPM packages via the action itself
+      # --- SETUP NODE ---
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # Upgraded to v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20' 
+          node-version: '25.2.1'
           cache: 'npm'
 
       - name: Install NPM dependencies
         run: npm ci
-        # NOTE: Add "html-minifier-terser" to your package.json so we can use it later!
-        # RUN: npm install --save-dev html-minifier-terser
 
-      # OPTIMIZATION: Enable caching for NuGet packages
+      # --- SETUP DOTNET ---
       - name: Setup .NET 9 SDK
-        uses: actions/setup-dotnet@v4  # Upgraded to v4
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
           cache: true
-          cache-dependency-path: '**/BlazorStaticMinimalBlog.csproj' # Cache our .csproj file instead
+          cache-dependency-path: '**/BlazorStaticMinimalBlog.csproj'
 
       - name: Remove launchSettings.json
         run: rm ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
 
       # =================================================================
-      # SIDECAR: GENERATE RSS FEEDS THROUGH PYTHON SIDECAR
+      # SIDECAR SETUP: PYTHON
+      # =================================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          # Explicitly point to the subfolder so caching works:
+          cache-dependency-path: .github/utils/requirements.txt
+
+      - name: Install Python Dependencies
+        run: |
+          pip install -r .github/utils/requirements.txt
+
+      # =================================================================
+      # SIDECAR: GENERATE RSS FEEDS
       # =================================================================
       - name: Generate RSS feeds
         run: python .github/utils/generate_feed.py
+        env:
+          STATIC_GEN_TIME: ${{ env.STATIC_GEN_TIME }}
+          TERM_START: ${{ env.TERM_START }}
+          TERM_END: ${{ env.TERM_END }}
 
       # =================================================================
       # BUILD 1: NETLIFY (Base HREF = "/") -> Branch: netlify-pages
       # =================================================================
-      
       - name: Set Base HREF to Root (/)
         run: |
-          # We use a regex to replace whatever is currently there with "/"
           sed -i 's|<base href="/[^"]*" />|<base href="/" />|g' ${{ env.WEBAPP_PATH }}/Components/App.razor
 
       - name: Build for Netlify
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release
 
-      # INJECT FEEDS: Copy all generated JSON and XML feeds into the output
       - name: Inject Feeds to Netlify Output
         run: |
-          cp feed*.xml ${{ env.WEBAPP_PATH }}output/  # Copies feed.xml AND feed-cmsc-124.xml etc.
+          cp feed*.xml ${{ env.WEBAPP_PATH }}output/
 
       - name: Minify Netlify Output
         run: |
@@ -107,13 +116,12 @@ jobs:
         with:
           branch: netlify-pages
           folder: ${{ env.WEBAPP_PATH }}output
-          clean: true            # Wipes the branch clean each time
+          clean: true
           single-commit: true
 
       # =================================================================
       # BUILD 2: GITHUB PAGES (Base HREF = "/Repo/") -> Branch: gh-pages
       # =================================================================
-      
       - name: Clean Output Folder
         run: rm -rf ${{ env.WEBAPP_PATH }}output
 
@@ -121,7 +129,6 @@ jobs:
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | awk -F '/' '{print $NF}')
           if [[ "$REPO_NAME" != *.github.io ]]; then
-            # Since the previous step set href to "/", we can safely target "/" here
             sed -i 's|<base href="/" />|<base href="/'$REPO_NAME'/" />|g' ${{ env.WEBAPP_PATH }}/Components/App.razor
           fi
 
@@ -129,7 +136,6 @@ jobs:
         run: |
           dotnet run --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release
 
-      # INJECT FEEDS: Copy all generated JSON and XML feeds into the output
       - name: Inject Feeds to GitHub Output
         run: |
           cp feed*.xml ${{ env.WEBAPP_PATH }}output/

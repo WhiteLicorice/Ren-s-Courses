@@ -37,7 +37,7 @@ builder.Services.AddBlazorStaticService(opt =>
 builder.Services.AddRazorComponents();
 
 var holidaysProvider = new HolidaysProvider();
-await holidaysProvider.InitializeAsync(); 
+await holidaysProvider.InitializeAsync();
 builder.Services.AddSingleton(holidaysProvider);
 
 builder.Services.AddSingleton<CourseContentProvider>();
