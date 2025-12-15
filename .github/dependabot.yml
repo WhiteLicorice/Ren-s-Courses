@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # 1. Maintain GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+
+  # 2. Maintain NPM Dependencies (Node.js)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+
+  # 3. Maintain NuGet Dependencies (.NET)
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+
+  # 4. Maintain Python Dependencies
+  - package-ecosystem: "pip"
+    directory: ".github/utils"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
