@@ -3,23 +3,26 @@ const ASSETS_TO_CACHE = [
     './',
     'index.html',
     'css/app.css',
-    'site.webmanifest.json',
+    'css/site.css',
+    'js/site.js',
+    'site.webmanifest',
     'android-chrome-192x192.png',
     'android-chrome-512x512.png',
     'apple-touch-icon.png'
 ];
 
-// 1. INSTALL: Cache critical assets immediately
+// 1. INSTALL
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
+            console.log('[SW] Caching app shell');
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    self.skipWaiting(); // Activate worker immediately
+    self.skipWaiting();
 });
 
-// 2. ACTIVATE: Clean up old caches
+// 2. ACTIVATE
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -35,32 +38,33 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// 3. FETCH: Network First, Fallback to Cache
+// 3. FETCH
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // Allow the current origin OR specific CDNs
+    // Filter allowed domains
     const allowedDomains = [
-        self.location.hostname,        // Website
-        'fonts.googleapis.com',        // Fonts CSS
-        'fonts.gstatic.com',           // Font Files
-        'cdn.jsdelivr.net',            // Prism Theme
-        'cdnjs.cloudflare.com'         // Prism Scripts
+        self.location.hostname,
+        'fonts.googleapis.com',
+        'fonts.gstatic.com',
+        'cdn.jsdelivr.net',
+        'cdnjs.cloudflare.com'
     ];
 
-    // If the request isn't in our allowed list, let the browser handle it normally
     if (!allowedDomains.some(domain => url.hostname.includes(domain))) {
         return;
     }
 
+    // NETWORK FIRST, FALLBACK TO CACHE
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Check if we got a valid response
+                // Check if valid response
                 if (!response || response.status !== 200 || response.type !== 'basic' && response.type !== 'cors') {
                     return response;
                 }
 
+                // Clone and Cache
                 const responseToCache = response.clone();
                 caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, responseToCache);
@@ -68,7 +72,18 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(() => {
-                return caches.match(event.request);
+                // OFFLINE STRATEGY
+                return caches.match(event.request).then((response) => {
+                    if (response) {
+                        return response; // Return cached file
+                    }
+
+                    // If not in cache, and it's a page navigation, return Home/Index
+                    // This prevents the "No Internet" dinosaur screen.
+                    if (event.request.mode === 'navigate') {
+                        return caches.match('index.html');
+                    }
+                });
             })
     );
 });
