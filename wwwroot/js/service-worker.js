@@ -1,9 +1,12 @@
-const CACHE_NAME = 'ren-courses-v1';
+const CACHE_NAME = 'ren-courses-online-first-v1';
+
+// ONLY cache local files. 
+// This ensures the SW installs successfully 100% of the time.
 const ASSETS_TO_CACHE = [
     './',
     'index.html',
     'css/app.css',
-    'css/site.css',
+    'css/code-styles.css',
     'js/site.js',
     'site.webmanifest',
     'android-chrome-192x192.png',
@@ -13,13 +16,13 @@ const ASSETS_TO_CACHE = [
 
 // 1. INSTALL
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[SW] Caching app shell');
+            console.log('[SW] Caching local shell...');
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    self.skipWaiting();
 });
 
 // 2. ACTIVATE
@@ -38,52 +41,19 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// 3. FETCH
+// 3. FETCH (Network Only, with specific exclusions)
 self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-
-    // Filter allowed domains
-    const allowedDomains = [
-        self.location.hostname,
-        'fonts.googleapis.com',
-        'fonts.gstatic.com',
-        'cdn.jsdelivr.net',
-        'cdnjs.cloudflare.com'
-    ];
-
-    if (!allowedDomains.some(domain => url.hostname.includes(domain))) {
+    // If it's a navigation request (HTML), try network first, then cache (for the shell)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).catch(() => {
+                return caches.match('index.html');
+            })
+        );
         return;
     }
 
-    // NETWORK FIRST, FALLBACK TO CACHE
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // Check if valid response
-                if (!response || response.status !== 200 || response.type !== 'basic' && response.type !== 'cors') {
-                    return response;
-                }
-
-                // Clone and Cache
-                const responseToCache = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseToCache);
-                });
-                return response;
-            })
-            .catch(() => {
-                // OFFLINE STRATEGY
-                return caches.match(event.request).then((response) => {
-                    if (response) {
-                        return response; // Return cached file
-                    }
-
-                    // If not in cache, and it's a page navigation, return Home/Index
-                    // This prevents the "No Internet" dinosaur screen.
-                    if (event.request.mode === 'navigate') {
-                        return caches.match('index.html');
-                    }
-                });
-            })
-    );
+    // For everything else (CSS/JS/Images), just let the browser handle it.
+    // We do NOT intercept CDN requests here, avoiding the CORS/Opaque response issues.
+    return;
 });
