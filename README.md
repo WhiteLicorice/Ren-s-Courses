@@ -28,7 +28,6 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Booking System: Let students book appointments in advance.
 * [x] Mailing List: Email those enrolled in each course (on a per course basis) as frontmatter is released.
 * [x] PWA Integration: Allow the course site to be installed on machines as an application.
-* [ ] Submission Bin Overhaul: improve UX and hoist this module off to a proper web application.
 * [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
 
 ---
@@ -41,6 +40,6 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 
 * The Grades Viewer module utilizes an L2 and L1 cache for speedy grade lookups. However, this means that cached grade sheets may be stale versus their live counterparts until the cache expires: 15 minutes for L1 and 60 minutes for L2. This is insignificant in practice as the live sheets are rarely updated...
 
-* The Submission Bin module runs on an external Google Forms, but it works as intended, and is sufficient for my purposes. Perhaps I will hoist this off to a proper web module in the future.
+* The Submission Bin module runs on an external Google Forms, but it works as intended, and is sufficient for my purposes. Perhaps I will hoist this off to a proper web module in the future. However, no free-forever solution exists for independent developers. As the issue is simply UI, then this probably won't be addressed.
 
 * A proper Dashboard will probably be never implemented due to architecture constraints. Instead, all managerial tasks will have to be done programmatically (I do not like Dashboards, anyway).
