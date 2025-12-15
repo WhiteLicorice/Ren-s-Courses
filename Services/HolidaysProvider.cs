@@ -26,7 +26,7 @@ public class HolidaysProvider
             try
             {
                 // Attempt to fetch from Nager.Date API
-                var json = await client.GetStringAsync($"https://date.nager.at/api/v3/PublicHolidays/{year}/TIMEZONE_STR");
+                var json = await client.GetStringAsync($"https://date.nager.at/api/v3/PublicHolidays/{year}/{TIMEZONE_STR}");
                 var apiHolidays = JsonSerializer.Deserialize<List<NagerHoliday>>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
