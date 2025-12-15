@@ -23,7 +23,7 @@ jobs:
     steps:
       # OPTIMIZATION: Shallow fetch (fetch-depth: 1) speeds up checkout
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
       
