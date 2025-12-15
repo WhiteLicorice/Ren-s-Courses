@@ -108,26 +108,14 @@
 
 @code {
     private List<Post<CourseFrontMatter>> posts = new();
-
     [Parameter]
     public List<Post<CourseFrontMatter>>? Posts { get; set; }
-
-    private HashSet<String> HiddenTags = new HashSet<String> { };
-
     protected override void OnInitialized()
     {
         var sourcePosts = Posts ?? ContentProvider.GetVisiblePosts();
-
         posts = sourcePosts
-        .Where(p => !HasHiddenTag(p.FrontMatter.Tags))
         .OrderByDescending(p => p.FrontMatter.Published)
         .ToList();
-
         base.OnInitialized();
-    }
-
-    private bool HasHiddenTag(List<String> tags)
-    {
-        return HiddenTags.Overlaps(tags);
     }
 }
