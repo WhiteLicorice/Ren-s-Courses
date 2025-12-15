@@ -112,8 +112,7 @@
                                 <path
                                     d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
                             </svg>
-                            <span class="border-b border-red-400/30 group-hover:border-white pb-0.5">Download
-                                Materials</span>
+                            <span class="border-b border-red-400/30 group-hover:border-white pb-0.5">Download</span>
                         </a>
                     }
                 </div>
@@ -133,7 +132,7 @@
                         </svg>
                     </summary>
                     <div class="p-4 pt-0 border-t border-borderDark/50">
-                        <nav id="mobile-toc-content"></nav>
+                        <nav id="mobile-toc-content" class="mt-2"></nav>
                     </div>
                 </details>
             </div>
@@ -163,6 +162,15 @@
     </div>
 </div>
 
+@* === SCROLL TO TOP BUTTON === *@
+<button id="scroll-btn" 
+        class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-red-600/90 text-white shadow-lg shadow-red-900/40 hover:bg-red-500 hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm"
+        aria-label="Scroll to top">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+        <path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd" />
+    </svg>
+</button>
+
 @* Script Triggers *@
 <script>Prism.highlightAll();</script>
 
@@ -180,5 +188,6 @@
     {
         await JSRuntime.InvokeVoidAsync("addCodeFeatures");
         await JSRuntime.InvokeVoidAsync("generateTOC");
+        await JSRuntime.InvokeVoidAsync("initScrollButton");
     }
 }

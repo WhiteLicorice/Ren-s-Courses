@@ -178,7 +178,57 @@ window.generateTOC = () => {
     }
 };
 
+window.initScrollButton = () => {
+    const btn = document.getElementById('scroll-btn');
+    if (!btn) return;
+
+    let lastScrollY = window.scrollY;
+    let isScrolling;
+
+    const updateButton = () => {
+        const currentScrollY = window.scrollY;
+        const showThreshold = 300; // Must be at least 300px down to ever show
+
+        // 1. If near the top, ALWAYS hide (regardless of direction)
+        if (currentScrollY < showThreshold) {
+            btn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            btn.classList.remove('opacity-100', 'translate-y-0');
+        }
+        // 2. If deep in the page, check direction
+        else {
+            // If current < last, we are scrolling UP -> SHOW
+            if (currentScrollY < lastScrollY) {
+                btn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                btn.classList.add('opacity-100', 'translate-y-0');
+            }
+            // If current > last, we are scrolling DOWN -> HIDE
+            else {
+                btn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                btn.classList.remove('opacity-100', 'translate-y-0');
+            }
+        }
+
+        // Update tracker (prevent negative values for iOS bounce)
+        lastScrollY = currentScrollY > 0 ? currentScrollY : 0;
+    };
+
+    window.addEventListener('scroll', () => {
+        if (!isScrolling) {
+            window.requestAnimationFrame(() => {
+                updateButton();
+                isScrolling = false;
+            });
+            isScrolling = true;
+        }
+    });
+
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+};
+
 document.addEventListener("DOMContentLoaded", () => {
     window.addCodeFeatures();
     window.generateTOC();
+    window.initScrollButton();
 });
