@@ -5,7 +5,6 @@ on:
     branches: [ "master" ]
   schedule:
     - cron: '12 * * * *'
-    - cron: '42 * * * *'
   workflow_dispatch:
 
 env:
