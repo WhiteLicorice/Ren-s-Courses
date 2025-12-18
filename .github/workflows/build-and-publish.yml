@@ -11,6 +11,7 @@ env:
   ASPNETCORE_ENVIRONMENT: Production
   WEBAPP_PATH: ./
   WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
+  # TODO: Configure these at the start of every academic year.
   TERM_START: "2026-01-19T00:00:00Z"
   TERM_END: "2026-05-23T23:59:59Z"
 
@@ -71,7 +72,7 @@ jobs:
           pip install -r .github/utils/requirements.txt
 
       # =================================================================
-      # SIDECAR: GENERATE RSS FEEDS
+      # GENERATE RSS FEEDS
       # =================================================================
       - name: Generate RSS feeds
         run: python .github/utils/generate_feed.py
@@ -117,6 +118,8 @@ jobs:
           folder: ${{ env.WEBAPP_PATH }}output
           clean: true
           single-commit: true
+          git-config-name: github-actions[bot]
+          git-config-email: 41898282+github-actions[bot]@users.noreply.github.com
 
       # =================================================================
       # BUILD 2: GITHUB PAGES (Base HREF = "/Repo/") -> Branch: gh-pages
@@ -164,3 +167,5 @@ jobs:
           folder: ${{ env.WEBAPP_PATH }}output
           single-commit: true
           clean: true
+          git-config-name: github-actions[bot]
+          git-config-email: 41898282+github-actions[bot]@users.noreply.github.com
