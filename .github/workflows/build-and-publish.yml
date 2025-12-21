@@ -118,7 +118,7 @@ jobs:
           folder: ${{ env.WEBAPP_PATH }}output
           clean: true
           single-commit: true
-          git-config-name: github-actions[bot]
+          git-config-name: github-actions
           git-config-email: 41898282+github-actions[bot]@users.noreply.github.com
 
       # =================================================================
@@ -167,5 +167,5 @@ jobs:
           folder: ${{ env.WEBAPP_PATH }}output
           single-commit: true
           clean: true
-          git-config-name: github-actions[bot]
+          git-config-name: github-actions
           git-config-email: 41898282+github-actions[bot]@users.noreply.github.com
