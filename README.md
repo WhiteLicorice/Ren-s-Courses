@@ -29,6 +29,8 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Mailing List: Email those enrolled in each course (on a per course basis) as frontmatter is released.
 * [x] PWA Integration: Allow the course site to be installed on machines as an application.
 * [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
+* [ ] Calendar Local Holidays: Look for an API that serves local holidays.
+* [ ] Calendar Custom Events: Provide an API for defining custom events on the calendar beyond holidays and frontmatter.
 
 ---
 
