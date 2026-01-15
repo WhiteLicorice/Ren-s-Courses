@@ -31,6 +31,7 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
 * [ ] Calendar Local Holidays: Look for an API that serves local holidays.
 * [ ] Calendar Custom Events: Provide an API for defining custom events on the calendar beyond holidays and frontmatter.
+* [ ] Search system: somehow integrate a search engine that parses generic frontmatter.
 
 ---
 
