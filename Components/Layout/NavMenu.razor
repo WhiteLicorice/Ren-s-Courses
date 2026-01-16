@@ -2,7 +2,7 @@
 
 @* 'fixed' to lock it to the viewport strictly *@
 <header id="main-navbar"
-    class="fixed top-0 left-0 right-0 z-40 w-full border-b border-borderDark bg-bgDark transition-transform duration-300">
+    class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-dark bg-bg-dark transition-transform duration-300">
     <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0">
 
         @* Logo *@
@@ -47,7 +47,7 @@
 
                     @* Dropdown Menu *@
                     <div id="desktop-dropdown-menu"
-                        class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-bgDark border border-borderDark shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                        class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-bg-dark border border-border-dark shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                         <div class="py-1 max-h-48 overflow-y-auto">
                             @foreach (var item in menuItems.Skip(3))
                             {
@@ -93,12 +93,12 @@
     </div>
 
     <div
-        class="relative w-full h-full max-h-screen overflow-y-auto bg-bgDark border-b border-borderDark shadow-2xl transform transition-transform">
+        class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-dark border-b border-border-dark shadow-2xl transform transition-transform">
 
         <div
-            class="flex items-center justify-between px-6 py-4 border-b border-borderDark/50 sticky top-0 bg-bgDark z-10">
+            class="flex items-center justify-between px-6 py-4 border-b border-border-dark/50 sticky top-0 bg-bg-dark z-10">
             <span class="font-bold text-gray-100">Navigate</span>
-            <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500 bg-cardDark rounded-md">
+            <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500 bg-card-dark rounded-md">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -211,17 +211,17 @@
 @code {
     List<MenuItem> menuItems =
     [
-        new("Home", "", null, "_self"),
-        new("Materials", "materials", null, "_self"),
-        new MenuItem("Showcase", "projects", null, "_self"),
-        new(Name: "Submissions", "https://forms.gle/mRFBXwhuR3LdvSN3A", null, "_blank"),
-        new(Name: "Bookings", "bookings", null, "_self"),
-        new(Name: "Calendar", "calendar", null, "_self"),
-        new("Grades",
-        "https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
-        null, "_blank"),
-        //new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github, "_blank")
-    ];
+    new("Home", "", null, "_self"),
+new("Materials", "materials", null, "_self"),
+new MenuItem("Showcase", "projects", null, "_self"),
+new(Name: "Submissions", "https://forms.gle/mRFBXwhuR3LdvSN3A", null, "_blank"),
+new(Name: "Bookings", "bookings", null, "_self"),
+new(Name: "Calendar", "calendar", null, "_self"),
+new("Grades",
+"https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
+null, "_blank"),
+//new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github, "_blank")
+];
 
     record MenuItem(string Name, string Link, Svg.Icons? Icon, string Target);
 }

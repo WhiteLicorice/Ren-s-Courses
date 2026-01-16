@@ -11,7 +11,7 @@
     @foreach (var post in posts)
     {
         <article
-            class="group relative flex flex-col justify-between rounded-lg border border-borderDark bg-cardDark p-6 shadow-md transition-all hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:-translate-y-1">
+            class="group relative flex flex-col justify-between rounded-lg border border-border-dark bg-card-dark p-6 shadow-md transition-all hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:-translate-y-1">
 
             @* --- TOP META: Date & Tags --- *@
             <div class="flex items-center justify-between text-xs">
@@ -96,7 +96,7 @@
             </div>
 
             @* --- FOOTER --- *@
-            <div class="mt-auto flex items-center border-t border-borderDark pt-4">
+            <div class="mt-auto flex items-center border-t border-border-dark pt-4">
                 <span class="font-mono text-sm text-gray-500 group-hover:text-gray-300 transition-colors">
                     <span class="text-red-500">$</span> ./read.sh
                     <span class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">_</span>
