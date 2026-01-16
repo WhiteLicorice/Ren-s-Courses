@@ -23,9 +23,9 @@
 
   <!--Bundle tailwind css on build-->
   <Target Name="TailwindBuild" BeforeTargets="Build">
-      <Message Text="Building Tailwind CSS..." Importance="high" />
+      <Message Text="Building Tailwind CSS v4..." Importance="high" />
       <MakeDir Directories="./wwwroot/css" />
-      <Exec Command="npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app.css --minify" />
+      <Exec Command="npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/app.css --minify" />
   </Target>
   
 </Project>
