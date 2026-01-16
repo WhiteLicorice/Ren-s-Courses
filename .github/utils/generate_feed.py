@@ -171,7 +171,9 @@ def generate_feed() -> None:
             pub_date = parse_date(metadata.get('published'))
             
             # --- FILTERING LOGIC ---
+            # FIXME: This does not seem to respect the IsDraft flag as intended. See logs later!
             is_draft = str(metadata.get('IsDraft', 'false')).lower() == 'true'
+            print(is_draft, filepath)
 
             if not pub_date or is_draft:
                 continue
