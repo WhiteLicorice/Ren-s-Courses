@@ -2,7 +2,7 @@
 title: Pre-Jamming
 subtitle: CMSC 197 GDD Activity 0
 lead: Pre-game, boss?
-published: 2026-01-19
+published: 2026-01-16
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

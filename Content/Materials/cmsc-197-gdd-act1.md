@@ -2,7 +2,7 @@
 title: Link, Start!
 subtitle: CMSC 197 GDD Activity 1
 lead: GDQuest on!
-published: 2026-01-26
+published: 2026-01-16
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"

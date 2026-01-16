@@ -2,7 +2,7 @@
 title: Fly, Flap, and Die!
 subtitle: CMSC 197 GDD MP1 -
 lead: Yet Another Flappy Bird Clone (YAFBC).
-published: 2026-02-02
+published: 2026-01-16
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
