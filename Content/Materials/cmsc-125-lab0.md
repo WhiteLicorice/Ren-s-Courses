@@ -9,7 +9,7 @@ authors:
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
 downloadLink: https://drive.google.com/file/d/12QCLa2f1FhAuzmMDFiwNcTwEw6085xIS/view?usp=drive_link
-isDraft: true
+isDraft: false
 ---
 
 CMSC 125 is often the first deep-dive of a CS student into UNIX-like systems, shell scripting, and systems programming. Like in CMSC 131, the instructor has taken the steps necessary to arm you for the laboratory portion of the course. The goal of this activity is to prepare a developer environment for C programming on Windows using Windows Subsystem for Linux (WSL) and Visual Studio Code.
