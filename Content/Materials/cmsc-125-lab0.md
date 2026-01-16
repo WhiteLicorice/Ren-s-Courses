@@ -1,8 +1,8 @@
 ---
 title: UNIX Developer Environment on Windows
 subtitle: CMSC 125 Lab 0
-lead: Welcome to hell.
-published: 2026-01-19
+lead: Welcome.
+published: 2026-01-30
 tags: [cmsc-125]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
@@ -14,11 +14,11 @@ isDraft: true
 
 CMSC 125 is often the first deep-dive of a CS student into UNIX-like systems, shell scripting, and systems programming. Like in CMSC 131, the instructor has taken the steps necessary to arm you for the laboratory portion of the course. The goal of this activity is to prepare a developer environment for C programming on Windows using Windows Subsystem for Linux (WSL) and Visual Studio Code.
 
-If you already use a native Linux distribution or macOS, you may skip WSL installation and proceed directly to verifying your C toolchain for the course. However, this manual focuses on Windows users (which is 99% of the class), the WSL setup often requires careful configuration.
+If you already use a native Linux distribution or macOS, you may skip WSL installation and proceed directly to verifying your C toolchain for the course. However, this manual focuses on Windows users (which is 99% of the class), since WSL setup often requires careful configuration.
 
 WSL allows you to run a genuine Linux distribution directly on Windows without dual-booting or virtual machines. This environment will be essential for understanding concepts throughout the course.
 
-CMSC 125 has a steep learning curve—though not as steep like in CMSC 131—because it introduces systems-level programming and POSIX/UNIX concepts distinct from higher-level application development. Therefore, studying the course materials ahead of time is encouraged. Again, like in CMSC 131, the concepts and assignments in this course cannot be crammed overnight (beware of 1-item open-notes exams!).
+CMSC 125 has a steep learning curve—though not as steep as the one in CMSC 131?—because it introduces systems-level programming and POSIX/UNIX concepts distinct from higher-level application development. Therefore, studying the course materials ahead of time is encouraged. Again, like in CMSC 131, the concepts and assignments in this course cannot be crammed overnight (beware of one-item open-notes exams).
 
 ---
 
@@ -34,7 +34,7 @@ wsl --install
 ```
 
 5. Restart your computer, if prompted.  
-6. After a possible restart, Ubuntu will automatically launch and complete installation.  
+6. After a (possible) restart, Ubuntu will automatically launch and complete installation.  
 7. Create a UNIX username and password when prompted. **Remember these credentials.**  
 8. To verify installation, open a fresh command line and input the following:
 
@@ -85,7 +85,7 @@ You should see version information for GCC.
 6. Press `Ctrl + Shift + P` to open the command palette.  
 7. Type `WSL: Connect to WSL` and press Enter.  
 8. Visual Studio Code will reopen connected to your WSL environment.  
-9. Alternatively, you can navigate to your working folder through Windows File Explorer, open WSL in the directory, then type:
+9. Alternatively, you can try to navigate to your working folder through Windows File Explorer, open WSL in the directory, then type:
 
 ```bash
 code .
