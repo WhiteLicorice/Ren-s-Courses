@@ -3,7 +3,7 @@ name: Build and publish
 on:
   push:
     branches: [ "master" ]
-  schedule:
+  schedule: 
     - cron: '12 * * * *'
   workflow_dispatch:
 
@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '25.2.1'
+          node-version: '25.3.0'
           cache: 'npm'
 
       - name: Install NPM dependencies
