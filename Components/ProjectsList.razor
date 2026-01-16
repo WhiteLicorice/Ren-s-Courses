@@ -12,7 +12,7 @@
         bool hasThumbnail = !string.IsNullOrWhiteSpace(project.Thumbnail);
 
         <details
-            class="group bg-cardDark border border-borderDark rounded-lg overflow-hidden hover:border-red-500/50 transition-all duration-300">
+            class="group bg-card-dark border border-border-dark rounded-lg overflow-hidden hover:border-red-500/50 transition-all duration-300">
 
             @* 1. SUMMARY *@
             <summary
@@ -74,7 +74,7 @@
             </summary>
 
             @* 2. EXPANDED CONTENT *@
-            <div class="border-t border-borderDark bg-bgDark/30 animate-fade-in">
+            <div class="border-t border-border-dark bg-bg-dark/30 animate-fade-in">
                 <div class="grid grid-cols-1 @(hasThumbnail ? "md:grid-cols-3" : "") gap-8 p-6">
 
                     @* Image Area *@
@@ -82,7 +82,7 @@
                     {
                         <div class="md:col-span-1">
                             <div
-                                class="aspect-video w-full overflow-hidden rounded border border-borderDark relative group/img">
+                                class="aspect-video w-full overflow-hidden rounded border border-border-dark relative group/img">
                                 <div
                                     class="absolute inset-0 bg-red-900/10 group-hover/img:bg-transparent transition-colors z-10">
                                 </div>
@@ -104,7 +104,7 @@
                         </p>
 
                         @* Links Footer *@
-                        <div class="mt-auto flex gap-6 text-sm font-mono pt-4 border-t border-borderDark/50">
+                        <div class="mt-auto flex gap-6 text-sm font-mono pt-4 border-t border-border-dark/50">
                             @if (!string.IsNullOrWhiteSpace(project.Docs))
                             {
                                 <a href="@project.Docs" target="_blank" rel="noopener noreferrer"

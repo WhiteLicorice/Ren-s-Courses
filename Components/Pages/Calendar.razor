@@ -56,9 +56,9 @@
             var isActive = tag == TagName;
             <a href="/calendar/@tag"
                 class="text-xs px-4 py-2 rounded-md border transition-all font-mono font-bold
-                              @(isActive
-                                                        ? "bg-red-900/30 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105" 
-                                                        : "bg-cardDark border-borderDark text-gray-400 hover:border-red-500/50 hover:text-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)]")">
+                            @(isActive
+                                                    ? "bg-red-900/30 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105" 
+                                                    : "bg-card-dark border-border-dark text-gray-400 hover:border-red-500/50 hover:text-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.1)]")">
                 #@tag
             </a>
         }
@@ -66,7 +66,7 @@
 
     @* --- CALENDAR NAVIGATOR --- *@
     <div
-        class="flex items-center justify-between bg-cardDark border border-borderDark rounded-t-lg p-4 border-b-0 max-w-full mx-auto shadow-lg relative z-20">
+        class="flex items-center justify-between bg-card-dark border border-border-dark rounded-t-lg p-4 border-b-0 max-w-full mx-auto shadow-lg relative z-20">
         <button onclick="changeMonth(-1)"
             class="group p-2 rounded-md hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/30">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +97,7 @@
 
     @* --- CALENDAR CONTAINER --- *@
     <div id="calendar-container"
-        class="bg-bgDark border border-borderDark rounded-b-lg overflow-hidden shadow-2xl max-w-full mx-auto min-h-[400px]">
+        class="bg-bg-dark border border-border-dark rounded-b-lg overflow-hidden shadow-2xl max-w-full mx-auto min-h-[400px]">
         @{
             var months = GetDynamicTermMonths();
             int monthIndex = 0;
@@ -118,7 +118,7 @@
                 @* DESKTOP VIEW: GRID LAYOUT (md:grid) *@
                 @* ========================================= *@
                 <div
-                    class="hidden md:grid grid-cols-7 gap-px bg-borderDark text-center text-[11px] uppercase tracking-widest font-bold text-gray-500">
+                    class="hidden md:grid grid-cols-7 gap-px bg-border-dark text-center text-[11px] uppercase tracking-widest font-bold text-gray-500">
                     <div class="bg-gray-900 py-4 text-red-500/70">Sun</div>
                     <div class="bg-gray-900 py-4">Mon</div>
                     <div class="bg-gray-900 py-4">Tue</div>
@@ -128,7 +128,7 @@
                     <div class="bg-gray-900 py-4 text-red-500/70">Sat</div>
                 </div>
 
-                <div class="hidden md:grid grid-cols-7 auto-rows-fr gap-px bg-borderDark">
+                <div class="hidden md:grid grid-cols-7 auto-rows-fr gap-px bg-border-dark">
                     @{
                         var daysInMonth = DateTime.DaysInMonth(month.Year, month.Month);
                         var firstDayOfMonth = new DateTime(month.Year, month.Month, 1);
@@ -137,7 +137,7 @@
                         // PREVIOUS MONTH FILLER
                         for (int i = 0; i < startOffset; i++)
                         {
-                            <div class="bg-cardDark/40 min-h-[140px]"></div>
+                            <div class="bg-card-dark/40 min-h-[140px]"></div>
                         }
 
                         // ACTUAL DAYS
@@ -149,15 +149,15 @@
                             var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
 
                             <div
-                                class="relative bg-cardDark min-h-[140px] p-2 transition-all group flex flex-col gap-2
-                                                                hover:bg-red-900/10 hover:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.3)] hover:z-10 cursor-default
-                                                                @(isToday ? "bg-red-900/10 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.5)]" : "")">
+                                class="relative bg-card-dark min-h-[140px] p-2 transition-all group flex flex-col gap-2
+                                                                                        hover:bg-red-900/10 hover:shadow-[inset_0_0_0_1px_rgba(239,68,68,0.3)] hover:z-10 cursor-default
+                                                                                        @(isToday ? "bg-red-900/10 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.5)]" : "")">
 
                                 @* Date Indicator *@
                                 <div class="flex justify-between items-start">
                                     <span
                                         class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
-                                                                @(isToday ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : (isWeekend ? "text-gray-600" : "text-gray-400 group-hover:text-red-400"))">
+                                                                                                        @(isToday ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : (isWeekend ? "text-gray-600" : "text-gray-400 group-hover:text-red-400"))">
                                         @day
                                     </span>
                                 </div>
@@ -193,7 +193,7 @@
 
                         for (int i = 0; i < remainingCells; i++)
                         {
-                            <div class="bg-cardDark/40 min-h-[140px]"></div>
+                            <div class="bg-card-dark/40 min-h-[140px]"></div>
                         }
                     }
                 </div>
@@ -201,7 +201,7 @@
                 @* ========================================= *@
                 @* MOBILE VIEW: VERTICAL LIST (md:hidden) *@
                 @* ========================================= *@
-                <div class="md:hidden flex flex-col divide-y divide-borderDark bg-cardDark">
+                <div class="md:hidden flex flex-col divide-y divide-border-dark bg-card-dark">
                     @{
                         // Only show days that actually have events OR are today
                         var mobileDaysInMonth = DateTime.DaysInMonth(month.Year, month.Month);

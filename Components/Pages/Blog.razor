@@ -55,7 +55,7 @@
         @* === MAIN CONTENT (Center) === *@
         <article class="min-w-0 w-full mx-auto max-w-[65ch]">
 
-            <header class="border-b border-borderDark pb-10 pt-10 text-center">
+            <header class="border-b border-border-dark pb-10 pt-10 text-center">
                 @* 1. Tags *@
                 <div class="mb-6 flex justify-center gap-2">
                     @foreach (var tag in post.FrontMatter.Tags)
@@ -89,7 +89,7 @@
                                     <Svg Icon="Svg.Icons.Github"
                                         SizeClasses="w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-red-500" />
                                     <span class="font-medium">@(author.Nickname ?? author.Name ??
-                                                                        ArticleAuthor.DEFAULT_NAME)</span>
+                                        ArticleAuthor.DEFAULT_NAME)</span>
                                 </a>
                             }
                             else
@@ -121,7 +121,7 @@
             @* === MOBILE TOC (< xl) === *@
             @* We show this on LG screens now to ensure article stays centered *@
             <div class="xl:hidden mt-8 mb-4">
-                <details class="group bg-cardDark border border-borderDark rounded-lg overflow-hidden">
+                <details class="group bg-card-dark border border-border-dark rounded-lg overflow-hidden">
                     <summary
                         class="flex items-center justify-between p-4 cursor-pointer list-none text-gray-300 font-mono text-sm font-bold">
                         <span><span class="text-red-500 mr-2">>></span>Table of Contents</span>
@@ -131,7 +131,7 @@
                             </path>
                         </svg>
                     </summary>
-                    <div class="p-4 pt-0 border-t border-borderDark/50">
+                    <div class="p-4 pt-0 border-t border-border-dark/50">
                         <nav id="mobile-toc-content" class="mt-2"></nav>
                     </div>
                 </details>
@@ -142,7 +142,7 @@
                 @((MarkupString)post.HtmlContent)
             </div>
 
-            <div class="border-t border-borderDark pt-8 pb-12">
+            <div class="border-t border-border-dark pt-8 pb-12">
                 <a href=""
                     class="group flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-red-400 transition-colors">
                     <span>&larr;</span> Home
