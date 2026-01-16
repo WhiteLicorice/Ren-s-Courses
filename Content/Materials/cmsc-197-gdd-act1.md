@@ -1,6 +1,6 @@
 ---
 title: Link, Start!
-subtitle: CMSC 197 GDD Act 1
+subtitle: CMSC 197 GDD Activity 1
 lead: GDQuest on!
 published: 2026-01-16
 tags: [cmsc-197-gdd]
@@ -10,7 +10,7 @@ authors:
       nickname: "Ren"
 downloadLink: https://drive.google.com/file/d/1htSE3m-x90K4kJ2nlfyjv2KokiZtnvOH/view?usp=drive_link
 isDraft: false
-noDeadline: true
+deadline: 2026-01-27
 ---
 
 Welcome to **CMSC 197: Game Design and Development**. This course uses the **Godot Engine** and its integrated scripting language, **GDScript**. Your first activity introduces you to GDScript fundamentals through GDQuest's interactive tutorial.
