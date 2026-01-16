@@ -1,3 +1,46 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Custom Primary Palette */
+  --color-primary-50: #fef2f2;
+  --color-primary-100: #fee2e2;
+  --color-primary-200: #fecaca;
+  --color-primary-300: #fca5a5;
+  --color-primary-400: #f87171;
+  --color-primary-500: #ef4444;
+  --color-primary-600: #dc2626;
+  --color-primary-700: #b91c1c;
+  --color-primary-800: #991b1b;
+  --color-primary-900: #7f1d1d;
+
+  /* Custom Semantic Colors */
+  --color-bg-dark: #0d1117;
+  --color-card-dark: #161b22;
+  --color-border-dark: #30363d;
+
+  /* Fonts */
+  --font-sans: "Inter", "system-ui", "sans-serif";
+  --font-mono: "JetBrains Mono", "Fira Code", "Consolas", "monospace";
+
+  /* Typography Overrides */
+  --typography-body: var(--color-gray-300);
+  --typography-headings: var(--color-gray-100);
+  --typography-links: var(--color-primary-400);
+  --typography-pre-bg: #010409;
+}
+
+/* Custom Typography Tweaks (Replacing your JS theme logic) */
+@utility prose {
+  pre {
+    border: 1px solid var(--color-border-dark);
+  }
+  code {
+    color: var(--color-primary-400);
+    font-weight: 400;
+  }
+}
+
+/* Enable 'class' based dark mode */
+@variant dark (&:where(.dark, .dark *));
