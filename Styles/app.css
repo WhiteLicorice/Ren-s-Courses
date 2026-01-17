@@ -1,46 +1,134 @@
 @import "tailwindcss";
-
 @plugin "@tailwindcss/typography";
 
+/* --- 1. TAILWIND CONFIGURATION --- */
 @theme {
-  /* Custom Primary Palette */
-  --color-primary-50: #fef2f2;
-  --color-primary-100: #fee2e2;
-  --color-primary-200: #fecaca;
-  --color-primary-300: #fca5a5;
-  --color-primary-400: #f87171;
-  --color-primary-500: #ef4444;
-  --color-primary-600: #dc2626;
-  --color-primary-700: #b91c1c;
-  --color-primary-800: #991b1b;
-  --color-primary-900: #7f1d1d;
-
-  /* Custom Semantic Colors */
-  --color-bg-dark: #0d1117;
-  --color-card-dark: #161b22;
-  --color-border-dark: #30363d;
-
   /* Fonts */
   --font-sans: "Inter", "system-ui", "sans-serif";
   --font-mono: "JetBrains Mono", "Fira Code", "Consolas", "monospace";
 
-  /* Typography Overrides */
-  --typography-body: var(--color-gray-300);
-  --typography-headings: var(--color-gray-100);
-  --typography-links: var(--color-primary-400);
-  --typography-pre-bg: #010409;
+  /* Semantic Color Abstractions */
+  --color-bg-base: var(--bg-base);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-muted: var(--border-muted);
+  
+  --color-text-main: var(--text-main);
+  --color-text-dim: var(--text-dim);
+  
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+
+  /* Typography Plugin Overrides */
+  --typography-body: var(--text-dim);
+  --typography-headings: var(--text-main);
+  --typography-links: var(--accent);
+  --typography-bold: var(--text-main);
+  --typography-quotes: var(--text-dim);
+  --typography-code: var(--accent);
+  --typography-pre-bg: var(--surface);
+  --typography-pre-code: var(--text-main);
 }
 
-/* Custom Typography Tweaks (Replacing your JS theme logic) */
+/* --- 2. GLOBAL RESET (THIS WAS MISSING) --- */
+/* This ensures that even text NOT in a prose block gets the right color */
+body {
+  background-color: var(--bg-base);
+  color: var(--text-dim);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- 3. UTILITY OVERRIDES --- */
 @utility prose {
+  /* FORCE the color to match exactly, ignoring plugin opacity defaults */
+  color: var(--text-dim); 
+
+  /* Fix code blocks to look like cards */
   pre {
-    border: 1px solid var(--color-border-dark);
+    border: 1px solid var(--border-muted);
+    background-color: var(--surface);
   }
+
+  /* Inline code styling */
   code {
-    color: var(--color-primary-400);
-    font-weight: 400;
+    font-weight: 500;
+  }
+
+  /* Blockquote styling */
+  blockquote {
+    border-left-color: var(--accent);
+    font-style: normal;
+    color: var(--text-dim); /* Force quote color too */
+    opacity: 0.9; /* Increased opacity for readability */
+  }
+  
+  strong {
+    color: var(--text-main);
+  }
+  
+  h1, h2, h3, h4 {
+    color: var(--text-main);
   }
 }
 
-/* Enable 'class' based dark mode */
-@variant dark (&:where(.dark, .dark *));
+/* --- 4. THEME DEFINITIONS --- */
+
+/* === DEFAULT LIGHT === */
+:root {
+  --bg-base: #ffffff;
+  --surface: #f3f4f6;
+  --surface-hover: #e5e7eb;
+  --border-muted: #d1d5db;
+  
+  --text-main: #111827;
+  --text-dim: #374151; /* Gray-700 */
+  
+  --accent: #dc2626;
+  --accent-dim: #fef2f2;
+}
+
+/* === DEFAULT DARK (GitHub Dark Mode) === */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-base: #0d1117;
+    --surface: #161b22;
+    --surface-hover: #21262d;
+    --border-muted: #30363d;
+    
+    --text-main: #f0f6fc;
+    /* Brightened Text Dim significantly to c9d1d9 (Gray-300 equivalent) */
+    --text-dim: #c9d1d9; 
+    
+    --accent: #f87171;
+    --accent-dim: #3f181a;
+  }
+}
+
+/* === DRACULA === */
+[data-theme='dracula'] {
+  --bg-base: #282a36;
+  --surface: #44475a;
+  --surface-hover: #6272a4;
+  --border-muted: #6272a4;
+  
+  --text-main: #f8f8f2;
+  --text-dim: #dedede; /* Very bright gray/white */
+  
+  --accent: #ff5555;
+  --accent-dim: #4d2a45;
+}
+
+/* === NORD === */
+[data-theme='nord'] {
+  --bg-base: #2e3440;
+  --surface: #3b4252;
+  --surface-hover: #434c5e;
+  --border-muted: #4c566a;
+  
+  --text-main: #eceff4;
+  --text-dim: #e5e9f0; /* Snow Storm 5 (Bright) */
+  
+  --accent: #88c0d0;
+  --accent-dim: #293a46;
+}
