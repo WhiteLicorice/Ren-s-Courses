@@ -11,13 +11,13 @@
      (We map these to variables, but we DO NOT define the values here anymore.
       site.css will provide the values.) */
   --color-bg-base: var(--bg-base);
-  --color-surface: var(--bg-surface); /* Updated to match site.css variable name */
+  --color-surface: var(--bg-surface);
   --color-surface-hover: var(--surface-hover);
   --color-border-muted: var(--border-muted);
-  
+
   --color-text-main: var(--text-main);
   --color-text-dim: var(--text-dim);
-  
+
   --color-accent: var(--accent);
   --color-accent-dim: var(--accent-dim);
 
@@ -26,6 +26,8 @@
   --typography-headings: var(--text-main);
   --typography-links: var(--accent);
   --typography-bold: var(--text-main);
+
+  /* Keep quotes and code comments dim for contrast */
   --typography-quotes: var(--text-dim);
   --typography-code: var(--accent);
   --typography-pre-bg: var(--bg-surface);
@@ -35,15 +37,14 @@
 /* --- 2. GLOBAL RESET --- */
 body {
   background-color: var(--bg-base);
-  color: var(--text-dim);
+  color: var(--text-main);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 /* --- 3. UTILITY OVERRIDES --- */
 @utility prose {
-  /* Prose defaults */
-  color: var(--text-dim); 
+  color: var(--text-main);
 
   /* Inline code styling */
   code {
@@ -57,12 +58,15 @@ body {
     color: var(--text-dim);
     opacity: 0.9;
   }
-  
+
   strong {
     color: var(--text-main);
   }
-  
-  h1, h2, h3, h4 {
+
+  h1,
+  h2,
+  h3,
+  h4 {
     color: var(--text-main);
   }
 }
