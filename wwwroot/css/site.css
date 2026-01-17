@@ -2,7 +2,15 @@
 /* 0. THEME VARIABLES             */
 /* ============================== */
 :root {
-    /* Default (Dark Mode - GitHub Dark Dimmed/High Contrast style) */
+    /* --- MAIN THEME (DARK / DEFAULT) --- */
+    --bg-base: #0d1117;         /* GitHub Dark Dimmed Background */
+    --text-main: #c9d1d9;       /* Primary Text */
+    --text-dim: #8b949e;        /* Secondary Text */
+    --accent: #58a6ff;          /* GitHub Blue Accent */
+    --border-muted: #30363d;    /* Dark Borders */
+    --bg-surface: #161b22;      /* Cards/Headers */
+
+    /* --- CODEBOX THEME (DARK) --- */
     --code-bg: #010409;
     --code-border: #30363d;
     --label-bg: #161b22;
@@ -14,7 +22,15 @@
 }
 
 [data-theme="light"] {
-    /* Light Mode (GitHub Light style) */
+    /* --- MAIN THEME (LIGHT) - ADDED THIS SECTION --- */
+    --bg-base: #ffffff;         /* GitHub Light Background */
+    --text-main: #24292f;       /* Primary Text */
+    --text-dim: #57606a;        /* Secondary Text */
+    --accent: #0969da;          /* GitHub Blue Accent */
+    --border-muted: #d0d7de;    /* Light Borders */
+    --bg-surface: #f6f8fa;      /* Cards/Headers */
+
+    /* --- CODEBOX THEME (LIGHT) --- */
     --code-bg: #fafafa;
     --code-border: #d0d7de;
     --label-bg: #f6f8fa;
