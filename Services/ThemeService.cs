@@ -14,17 +14,9 @@ public class ThemeService
 
     public async Task SetTheme(string themeName)
     {
-        // If "default", we remove the attribute so system preference takes over
-        if (themeName == "default")
-        {
-            await _js.InvokeVoidAsync("document.documentElement.removeAttribute", "data-theme");
-            await _js.InvokeVoidAsync("localStorage.removeItem", "user-theme");
-        }
-        else
-        {
-            await _js.InvokeVoidAsync("document.documentElement.setAttribute", "data-theme", themeName);
-            await _js.InvokeVoidAsync("localStorage.setItem", "user-theme", themeName);
-        }
+        // Hand off ALL logic to JavaScript to ensure CSS and Attributes stay in sync.
+        // We do not manipulate the DOM or localStorage here anymore to prevent race conditions.
+        await _js.InvokeVoidAsync("switchPrismTheme", themeName);
 
         OnThemeChanged?.Invoke();
     }
