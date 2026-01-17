@@ -2,13 +2,13 @@
 
 @* 'fixed' to lock it to the viewport strictly *@
 <header id="main-navbar"
-    class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-dark bg-bg-dark transition-transform duration-300">
+    class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300">
     <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0">
 
         @* Logo *@
         <div class="flex lg:w-0 lg:flex-1">
             <a href="" class="-m-1.5 p-1.5">
-                <div class="text-xl font-bold text-gray-100 hover:text-red-500 transition-colors">
+                <div class="text-xl font-bold text-text-main hover:text-accent transition-colors">
                     @WebsiteKeys.Title
                 </div>
             </a>
@@ -20,8 +20,9 @@
             @* 1. Render the first 3 items normally *@
             @foreach (var item in menuItems.Take(3))
             {
-                <NavLink ActiveClass="text-red-400 bg-red-500/10 border border-red-500/20 rounded"
-                    class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-300 hover:text-red-400 transition-all"
+                @* CHANGED: ActiveClass uses accent and accent-dim for background *@
+                <NavLink ActiveClass="text-accent bg-accent-dim border border-accent/20 rounded"
+                    class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all"
                     Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)" href="@item.Link"
                     target="@item.Target">
                     @((MarkupString)item.Name)
@@ -37,7 +38,7 @@
             {
                 <div class="relative">
                     <button id="desktop-dropdown-btn" type="button"
-                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors">
+                        class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors">
                         <span class="sr-only">More menu</span>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -47,12 +48,12 @@
 
                     @* Dropdown Menu *@
                     <div id="desktop-dropdown-menu"
-                        class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-bg-dark border border-border-dark shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                        class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                         <div class="py-1 max-h-48 overflow-y-auto">
                             @foreach (var item in menuItems.Skip(3))
                             {
-                                <NavLink ActiveClass="text-red-400 bg-red-500/10"
-                                    class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-red-400 transition-colors"
+                                <NavLink ActiveClass="text-accent bg-accent-dim"
+                                    class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"
                                     Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)" href="@item.Link"
                                     target="@item.Target">
                                     <div class="flex items-center justify-between">
@@ -72,7 +73,7 @@
 
         @* Mobile Toggle Button *@
         <div class="flex flex-1 justify-end sm:hidden">
-            <button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-red-500">
+            <button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent">
                 <span class="sr-only">Open main menu</span>
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -93,12 +94,12 @@
     </div>
 
     <div
-        class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-dark border-b border-border-dark shadow-2xl transform transition-transform">
+        class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform">
 
         <div
-            class="flex items-center justify-between px-6 py-4 border-b border-border-dark/50 sticky top-0 bg-bg-dark z-10">
-            <span class="font-bold text-gray-100">Navigate</span>
-            <button id="close-mobile-menu-button" class="p-2 text-gray-400 hover:text-red-500 bg-card-dark rounded-md">
+            class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10">
+            <span class="font-bold text-text-main">Navigate</span>
+            <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -109,7 +110,7 @@
             @foreach (var item in menuItems)
             {
                 <NavLink
-                    class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-gray-100 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                    class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"
                     href="@item.Link" Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)"
                     target="@item.Target">
                     <div class="flex items-center gap-3">

@@ -2,30 +2,33 @@
 
 <HeadContent>
     <link rel="manifest" href="site.webmanifest.json" />
+    @* TODO: Make this dynamic via JS later, as it forces the browser bar to 
+    be Red even if the theme is Blue/Sepia. *@
     <meta name="theme-color" content="#ef4444" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </HeadContent>
 
-<div class="flex min-h-screen flex-col bg-bg-dark">
+<div class="flex min-h-screen flex-col bg-bg-base">
     <NavMenu />
 
     <main class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0">
         @Body
     </main>
 
-    <footer class="mt-16 border-t border-border-dark bg-bg-dark">
+    <footer class="mt-16 border-t border-border-muted bg-bg-base">
         <div class="mx-auto flex max-w-5xl flex-col items-center py-8">
             <div class="flex space-x-6 mb-4">
-                <a class="text-gray-500 hover:text-red-500 transition-colors" target="_blank" rel="noopener noreferrer"
+                <a class="text-text-dim hover:text-accent transition-colors" target="_blank" rel="noopener noreferrer"
                     href="@WebsiteKeys.GitHubRepo">
                     <span class="sr-only">github</span>
                     <Svg Icon="Svg.Icons.Github" SizeClasses="w-6 h-6" />
                 </a>
             </div>
-            <div class="flex flex-col items-center space-y-1 text-sm text-gray-500 font-mono">
-                <div>© @DateTime.Now.Year <a class="hover:text-red-500 transition-colors"
+            <div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono">
+                @* CHANGED: hover:text-red-500 -> hover:text-accent *@
+                <div>© @DateTime.Now.Year <a class="hover:text-accent transition-colors"
                         href="@WebsiteKeys.AuthorGitHub" target="_blank">WhiteLicorice</a> </div>
-                <a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-red-500 transition-colors"
+                <a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors"
                     target="_blank">Powered by
                     BlazorStatic</a>
             </div>

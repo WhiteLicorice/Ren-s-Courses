@@ -1,0 +1,35 @@
+@using BlazorStaticMinimalBlog.Services
+@inject ThemeService ThemeService
+
+<div class="flex gap-2">
+    @foreach (var theme in _themes)
+    {
+        <button @onclick="() => SetTheme(theme)"
+                class="px-3 py-1 rounded text-xs font-mono border transition-all
+                       @(currentTheme == theme 
+                           ? "border-accent text-accent bg-accent-dim" 
+                           : "border-border-muted text-text-dim hover:text-text-main")">
+            @theme
+        </button>
+    }
+</div>
+
+@code {
+    private string currentTheme = "default";
+    private string[] _themes = { "default", "nord", "dracula", "sepia" };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            currentTheme = await ThemeService.GetCurrentTheme();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetTheme(string theme)
+    {
+        currentTheme = theme;
+        await ThemeService.SetTheme(theme);
+    }
+}
