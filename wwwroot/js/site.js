@@ -7,8 +7,8 @@ window.switchPrismTheme = (theme) => {
 
     // Use Absolute Paths (Start with /) to ensure it works on all pages
     const themes = {
-        dark: "/css/prism-dark.css",
-        light: "/css/prism-light.css"
+        dark: "css/prism-dark.css",
+        light: "css/prism-light.css"
     };
 
     let targetMode = 'dark';
