@@ -15,7 +15,7 @@
 
 [data-theme="light"] {
     /* Light Mode (GitHub Light style) */
-    --code-bg: #ffffff;
+    --code-bg: #fafafa;
     --code-border: #d0d7de;
     --label-bg: #f6f8fa;
     --label-text: #57606a;
