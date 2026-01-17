@@ -43,6 +43,7 @@ builder.Services.AddSingleton(holidaysProvider);
 
 builder.Services.AddSingleton<CourseContentProvider>();
 builder.Services.AddSingleton<FrontmatterStatusService>();
+builder.Services.AddScoped<ThemeService>();
 
 var app = builder.Build();
 

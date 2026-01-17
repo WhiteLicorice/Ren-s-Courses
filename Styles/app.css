@@ -1,46 +1,72 @@
 @import "tailwindcss";
-
 @plugin "@tailwindcss/typography";
 
+/* --- 1. TAILWIND CONFIGURATION --- */
 @theme {
-  /* Custom Primary Palette */
-  --color-primary-50: #fef2f2;
-  --color-primary-100: #fee2e2;
-  --color-primary-200: #fecaca;
-  --color-primary-300: #fca5a5;
-  --color-primary-400: #f87171;
-  --color-primary-500: #ef4444;
-  --color-primary-600: #dc2626;
-  --color-primary-700: #b91c1c;
-  --color-primary-800: #991b1b;
-  --color-primary-900: #7f1d1d;
-
-  /* Custom Semantic Colors */
-  --color-bg-dark: #0d1117;
-  --color-card-dark: #161b22;
-  --color-border-dark: #30363d;
-
   /* Fonts */
   --font-sans: "Inter", "system-ui", "sans-serif";
   --font-mono: "JetBrains Mono", "Fira Code", "Consolas", "monospace";
 
-  /* Typography Overrides */
-  --typography-body: var(--color-gray-300);
-  --typography-headings: var(--color-gray-100);
-  --typography-links: var(--color-primary-400);
-  --typography-pre-bg: #010409;
+  /* Semantic Color Abstractions 
+     (We map these to variables, but we DO NOT define the values here anymore.
+      site.css will provide the values.) */
+  --color-bg-base: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-muted: var(--border-muted);
+
+  --color-text-main: var(--text-main);
+  --color-text-dim: var(--text-dim);
+
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+
+  /* Typography Plugin Overrides */
+  --typography-body: var(--text-dim);
+  --typography-headings: var(--text-main);
+  --typography-links: var(--accent);
+  --typography-bold: var(--text-main);
+
+  /* Keep quotes and code comments dim for contrast */
+  --typography-quotes: var(--text-dim);
+  --typography-code: var(--accent);
+  --typography-pre-bg: var(--bg-surface);
+  --typography-pre-code: var(--text-main);
 }
 
-/* Custom Typography Tweaks (Replacing your JS theme logic) */
+/* --- 2. GLOBAL RESET --- */
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- 3. UTILITY OVERRIDES --- */
 @utility prose {
-  pre {
-    border: 1px solid var(--color-border-dark);
-  }
+  color: var(--text-main);
+
+  /* Inline code styling */
   code {
-    color: var(--color-primary-400);
-    font-weight: 400;
+    font-weight: 500;
+  }
+
+  /* Blockquote styling */
+  blockquote {
+    border-left-color: var(--accent);
+    font-style: normal;
+    color: var(--text-dim);
+    opacity: 0.9;
+  }
+
+  strong {
+    color: var(--text-main);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--text-main);
   }
 }
-
-/* Enable 'class' based dark mode */
-@variant dark (&:where(.dark, .dark *));

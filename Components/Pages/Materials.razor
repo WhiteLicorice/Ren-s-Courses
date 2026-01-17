@@ -14,13 +14,13 @@
     {
         @* VIEW 1: THE TAG CLOUD (Catalog) *@
         <div class="text-center mb-12">
-            <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
-                <span class="text-red-500">./</span>Materials
+            <h1 class="text-3xl font-bold tracking-tight text-text-main sm:text-5xl mb-4 font-mono">
+                <span class="text-accent">./</span>Materials
             </h1>
-            <p class="text-gray-400 max-w-2xl mx-auto">
+            <p class="text-text-dim max-w-2xl mx-auto">
                 Browse materials by courses and topics.
             </p>
-            <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
+            <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
         </div>
 
         <CatalogsList T="CourseFrontMatter" Posts="GetVisiblePosts()"
@@ -32,22 +32,22 @@
         <div>
             <div class="text-center mb-12">
                 @* 1. Title *@
-                <h1 class="text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl mb-4 font-mono">
-                    <span class="text-red-500">#</span>@TagName
+                <h1 class="text-3xl font-bold tracking-tight text-text-main sm:text-5xl mb-4 font-mono">
+                    <span class="text-accent">#</span>@TagName
                 </h1>
 
                 @* 2. Description *@
-                <p class="text-gray-400 max-w-2xl mx-auto">
-                    Displaying <span class="text-gray-200 font-semibold">@filteredPosts?.Count</span> materials.
+                <p class="text-text-dim max-w-2xl mx-auto">
+                    Displaying <span class="text-text-main font-semibold">@filteredPosts?.Count</span> materials.
                 </p>
 
                 @* 3. Divider Line *@
-                <div class="mt-12 mb-8 w-full h-px bg-gradient-to-r from-transparent via-red-900/50 to-transparent"></div>
+                <div class="mt-12 mb-8 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
 
                 @* 4. Navigation (Moved Here) *@
                 <div class="flex justify-center">
                     <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
-                        class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-red-400 transition-colors group">
+                        class="inline-flex items-center gap-2 text-sm text-text-dim hover:text-accent transition-colors group">
                         <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -61,10 +61,9 @@
                 <PostsList Posts="filteredPosts" />
             </div>
 
-            @* CHANGED: border-borderDark -> border-border-dark *@
-            <div class="mt-16 pt-8 border-t border-border-dark flex justify-center">
+            <div class="mt-16 pt-8 border-t border-border-muted flex justify-center">
                 <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
-                    class="px-6 py-2 rounded border border-border-dark text-sm font-medium text-gray-400 hover:border-red-500 hover:text-white transition-all">
+                    class="px-6 py-2 rounded border border-border-muted text-sm font-medium text-text-dim hover:border-accent hover:text-accent transition-all">
                     View Other Materials
                 </a>
             </div>

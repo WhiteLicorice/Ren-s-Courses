@@ -11,17 +11,17 @@
     @foreach (var post in posts)
     {
         <article
-            class="group relative flex flex-col justify-between rounded-lg border border-border-dark bg-card-dark p-6 shadow-md transition-all hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:-translate-y-1">
+            class="group relative flex flex-col justify-between rounded-lg border border-border-muted bg-surface p-6 shadow-md transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-accent/15 hover:-translate-y-1">
 
             @* --- TOP META: Date & Tags --- *@
             <div class="flex items-center justify-between text-xs">
-                <time datetime="@post.FrontMatter.Published.ToString("yyyy-MM-dd")" class="text-gray-500">
+                <time datetime="@post.FrontMatter.Published.ToString("yyyy-MM-dd")" class="text-text-dim">
                     @post.FrontMatter.Published.ToString("MMM d, yyyy", new CultureInfo("en-US"))
                 </time>
 
                 @if (post.FrontMatter.Tags.Any())
                 {
-                    <span class="font-mono text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20">
+                    <span class="font-mono text-accent bg-accent-dim px-2 py-1 rounded border border-accent/20">
                         @post.FrontMatter.Tags.First()
                     </span>
                 }
@@ -29,7 +29,7 @@
 
             <div class="mt-4 mb-4 flex-grow">
                 @* --- TITLE --- *@
-                <h3 class="text-lg font-bold text-gray-100 group-hover:text-red-400 transition-colors">
+                <h3 class="text-lg font-bold text-text-main group-hover:text-accent transition-colors">
                     <a href="@blazorStaticContentService.Options.PageUrl/@(post.Url)">
                         <span class="absolute inset-0"></span>
                         @post.FrontMatter.Title
@@ -39,7 +39,7 @@
                 @* --- SUBTITLE --- *@
                 @if (!string.IsNullOrWhiteSpace(post.FrontMatter.Subtitle))
                 {
-                    <div class="text-xs font-mono text-gray-500 mt-1 mb-2">
+                    <div class="text-xs font-mono text-text-dim mt-1 mb-2">
                         // @post.FrontMatter.Subtitle
                     </div>
                 }
@@ -53,6 +53,7 @@
                 @if (status != FrontmatterStatus.None)
                 {
                     // Visual mapping based on Status Enum
+                    // Keeping standard semantic colors for status (Red/Orange/Green) as they denote state better than theme colors
                     string badgeClass = status switch
                     {
                         FrontmatterStatus.Expired => "border-red-500/30 bg-red-500/10 text-red-500",
@@ -90,16 +91,16 @@
                 }
 
                 @* --- LEAD --- *@
-                <div class="mt-2 line-clamp-2 text-sm text-gray-400">
+                <div class="mt-2 line-clamp-2 text-sm text-text-dim">
                     @((MarkupString)post.FrontMatter.Lead)
                 </div>
             </div>
 
             @* --- FOOTER --- *@
-            <div class="mt-auto flex items-center border-t border-border-dark pt-4">
-                <span class="font-mono text-sm text-gray-500 group-hover:text-gray-300 transition-colors">
-                    <span class="text-red-500">$</span> ./read.sh
-                    <span class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">_</span>
+            <div class="mt-auto flex items-center border-t border-border-muted pt-4">
+                <span class="font-mono text-sm text-text-dim group-hover:text-text-main transition-colors">
+                    <span class="text-accent">$</span> ./read.sh
+                    <span class="text-accent opacity-0 group-hover:opacity-100 transition-opacity">_</span>
                 </span>
             </div>
         </article>
