@@ -12,32 +12,46 @@
     <link rel="manifest" href="site.webmanifest">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-    @* --- CRITICAL THEME SCRIPT (ANTI-FLASH) --- *@
-    @* This must be in the head to apply the theme before the body paints *@
-    <script>
-        (function () {
-            try {
-                var localTheme = localStorage.getItem('user-theme');
-                if (localTheme) {
-                    document.documentElement.setAttribute('data-theme', localTheme);
-                }
-            } catch (e) { }
-        })();
-    </script>
-
-    @* --- CORE STYLES --- *@
-    <link href="css/app.css" rel="stylesheet" />
-    <link href="css/site.css" rel="stylesheet" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    @* --- STYLES --- *@
+    <link href="/css/app.css" rel="stylesheet" />
+    <link href="/css/site.css" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
 
-    @* --- PRISM JS & THEME --- *@
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/katorlys/prism-theme-github/themes/prism-theme-github-dark.css">
+    @* --- PRISM THEMES --- *@
+    @* Use absolute paths (/) to prevent 404s on article pages *@
+    <link rel="preload" href="/css/prism-dark.css" as="style">
+    <link rel="preload" href="/css/prism-light.css" as="style">
+
+    @* Default Link *@
+    <link id="prism-theme-link" rel="stylesheet" href="/css/prism-dark.css">
+
+    @* --- BOOT SCRIPT --- *@
+    <script>
+        (function () {
+            // Check System Preference
+            var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            // Check Saved Preference
+            var savedTheme = localStorage.getItem('user-theme');
+
+            // Resolve effective mode
+            var mode = 'dark';
+
+            if (savedTheme === 'light') mode = 'light';
+            else if (savedTheme === 'dark') mode = 'dark';
+            else mode = systemDark ? 'dark' : 'light'; // Default to System
+
+            // Apply Variables
+            document.documentElement.setAttribute('data-theme', mode);
+
+            // Apply Codebox Theme
+            if (mode === 'light') {
+                document.getElementById('prism-theme-link').href = "/css/prism-light.css";
+            }
+        })();
+    </script>
 
     @* Core Prism *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>

@@ -1,38 +1,43 @@
-// /**
-//  * CRITICAL THEME INITIALIZATION (IIFE)
-//  * * Executed immediately when the script is parsed, blocking the main thread 
-//  * briefly to apply the user's preferred theme before the DOM fully renders.
-//  * * Purpose: Prevents the "Flash of Unstyled Content" (FOUC) where the 
-//  * default theme flashes before the saved theme loads.
-//  */
-// (function () {
-//     try {
-//         var localTheme = localStorage.getItem('user-theme');
-//         if (localTheme) {
-//             document.documentElement.setAttribute('data-theme', localTheme);
-//         }
-//     } catch (e) {
-//         console.warn("localStorage is disabled.")
-//         // Silently fail if localStorage is disabled/inaccessible, ugh.
-//     }
-// })();
-
 /**
- * PWA SERVICE WORKER REGISTRATION
- * * Registers the service worker to enable Progressive Web App features 
- * (offline caching, installability) if the browser supports it.
+ * DYNAMIC PRISM THEME SWAPPER
  */
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('js/service-worker.js')
-            .then(registration => {
-                console.log('PWA ServiceWorker registered: ', registration.scope);
-            })
-            .catch(error => {
-                console.log('PWA ServiceWorker registration failed: ', error);
-            });
-    });
-}
+window.switchPrismTheme = (theme) => {
+    const link = document.getElementById('prism-theme-link');
+    if (!link) return;
+
+    // Use Absolute Paths (Start with /) to ensure it works on all pages
+    const themes = {
+        dark: "/css/prism-dark.css",
+        light: "/css/prism-light.css"
+    };
+
+    let targetMode = 'dark';
+
+    // 1. Resolve Mode
+    if (theme === 'light') targetMode = 'light';
+    else if (theme === 'dark') targetMode = 'dark';
+    else {
+        // 'default' -> Check System
+        targetMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    // 2. Swap CSS (Force update)
+    const newHref = themes[targetMode];
+    link.href = newHref;
+
+    // 3. Update DOM
+    document.documentElement.setAttribute('data-theme', targetMode);
+    
+    // 4. Clean Storage (Since you rely on System Settings, we keep storage clean)
+    if (theme === 'default') {
+        localStorage.removeItem('user-theme');
+    } else {
+        localStorage.setItem('user-theme', theme);
+    }
+};
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    window.switchPrismTheme('default');
+});
 
 /**
  * ENHANCE MARKDOWN CODE BLOCKS
