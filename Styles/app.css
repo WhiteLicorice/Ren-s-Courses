@@ -7,9 +7,11 @@
   --font-sans: "Inter", "system-ui", "sans-serif";
   --font-mono: "JetBrains Mono", "Fira Code", "Consolas", "monospace";
 
-  /* Semantic Color Abstractions */
+  /* Semantic Color Abstractions 
+     (We map these to variables, but we DO NOT define the values here anymore.
+      site.css will provide the values.) */
   --color-bg-base: var(--bg-base);
-  --color-surface: var(--surface);
+  --color-surface: var(--bg-surface); /* Updated to match site.css variable name */
   --color-surface-hover: var(--surface-hover);
   --color-border-muted: var(--border-muted);
   
@@ -26,12 +28,11 @@
   --typography-bold: var(--text-main);
   --typography-quotes: var(--text-dim);
   --typography-code: var(--accent);
-  --typography-pre-bg: var(--surface);
+  --typography-pre-bg: var(--bg-surface);
   --typography-pre-code: var(--text-main);
 }
 
-/* --- 2. GLOBAL RESET (THIS WAS MISSING) --- */
-/* This ensures that even text NOT in a prose block gets the right color */
+/* --- 2. GLOBAL RESET --- */
 body {
   background-color: var(--bg-base);
   color: var(--text-dim);
@@ -41,14 +42,8 @@ body {
 
 /* --- 3. UTILITY OVERRIDES --- */
 @utility prose {
-  /* FORCE the color to match exactly, ignoring plugin opacity defaults */
+  /* Prose defaults */
   color: var(--text-dim); 
-
-  /* Fix code blocks to look like cards */
-  pre {
-    border: 1px solid var(--border-muted);
-    background-color: var(--surface);
-  }
 
   /* Inline code styling */
   code {
@@ -59,8 +54,8 @@ body {
   blockquote {
     border-left-color: var(--accent);
     font-style: normal;
-    color: var(--text-dim); /* Force quote color too */
-    opacity: 0.9; /* Increased opacity for readability */
+    color: var(--text-dim);
+    opacity: 0.9;
   }
   
   strong {
@@ -70,65 +65,4 @@ body {
   h1, h2, h3, h4 {
     color: var(--text-main);
   }
-}
-
-/* --- 4. THEME DEFINITIONS --- */
-
-/* === DEFAULT LIGHT === */
-:root {
-  --bg-base: #ffffff;
-  --surface: #f3f4f6;
-  --surface-hover: #e5e7eb;
-  --border-muted: #d1d5db;
-  
-  --text-main: #111827;
-  --text-dim: #374151; /* Gray-700 */
-  
-  --accent: #dc2626;
-  --accent-dim: #fef2f2;
-}
-
-/* === DEFAULT DARK (GitHub Dark Mode) === */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg-base: #0d1117;
-    --surface: #161b22;
-    --surface-hover: #21262d;
-    --border-muted: #30363d;
-    
-    --text-main: #f0f6fc;
-    /* Brightened Text Dim significantly to c9d1d9 (Gray-300 equivalent) */
-    --text-dim: #c9d1d9; 
-    
-    --accent: #f87171;
-    --accent-dim: #3f181a;
-  }
-}
-
-/* === DRACULA === */
-[data-theme='dracula'] {
-  --bg-base: #282a36;
-  --surface: #44475a;
-  --surface-hover: #6272a4;
-  --border-muted: #6272a4;
-  
-  --text-main: #f8f8f2;
-  --text-dim: #dedede; /* Very bright gray/white */
-  
-  --accent: #ff5555;
-  --accent-dim: #4d2a45;
-}
-
-/* === NORD === */
-[data-theme='nord'] {
-  --bg-base: #2e3440;
-  --surface: #3b4252;
-  --surface-hover: #434c5e;
-  --border-muted: #4c566a;
-  
-  --text-main: #eceff4;
-  --text-dim: #e5e9f0; /* Snow Storm 5 (Bright) */
-  
-  --accent: #88c0d0;
-  --accent-dim: #293a46;
 }

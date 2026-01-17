@@ -6,7 +6,7 @@
     --bg-base: #0d1117;         /* GitHub Dark Dimmed Background */
     --text-main: #c9d1d9;       /* Primary Text */
     --text-dim: #8b949e;        /* Secondary Text */
-    --accent: #58a6ff;          /* GitHub Blue Accent */
+    --accent: #ef4444;          /* GitHub Blue Accent */
     --border-muted: #30363d;    /* Dark Borders */
     --bg-surface: #161b22;      /* Cards/Headers */
 
@@ -26,7 +26,7 @@
     --bg-base: #ffffff;         /* GitHub Light Background */
     --text-main: #24292f;       /* Primary Text */
     --text-dim: #57606a;        /* Secondary Text */
-    --accent: #0969da;          /* GitHub Blue Accent */
+    --accent: #ef4444;          /* GitHub Blue Accent */
     --border-muted: #d0d7de;    /* Light Borders */
     --bg-surface: #f6f8fa;      /* Cards/Headers */
 
