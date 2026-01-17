@@ -1,4 +1,31 @@
 /* ============================== */
+/* 0. THEME VARIABLES             */
+/* ============================== */
+:root {
+    /* Default (Dark Mode - GitHub Dark Dimmed/High Contrast style) */
+    --code-bg: #010409;
+    --code-border: #30363d;
+    --label-bg: #161b22;
+    --label-text: #8b949e;
+    --btn-bg: rgba(255, 255, 255, 0.05);
+    --btn-border: #30363d;
+    --btn-hover-bg: #21262d;
+    --btn-hover-text: #f0f6fc;
+}
+
+[data-theme="light"] {
+    /* Light Mode (GitHub Light style) */
+    --code-bg: #ffffff;
+    --code-border: #d0d7de;
+    --label-bg: #f6f8fa;
+    --label-text: #57606a;
+    --btn-bg: rgba(0, 0, 0, 0.05);
+    --btn-border: #d0d7de;
+    --btn-hover-bg: #eaeef2;
+    --btn-hover-text: #24292f;
+}
+
+/* ============================== */
 /* 1. CUSTOM IDE / PRISM STYLES   */
 /* ============================== */
 
@@ -7,10 +34,13 @@
     position: relative;
     margin-top: 2rem !important;
     margin-bottom: 2rem !important;
-    background-color: #010409 !important;
-    border: 1px solid #30363d;
+    
+    background-color: var(--code-bg) !important;
+    border: 1px solid var(--code-border);
+    
     border-radius: 0.375rem;
     overflow: hidden;
+    transition: background-color 0.2s, border-color 0.2s; /* Smooth transition */
 }
 
 /* The Scrollable Code Area */
@@ -34,10 +64,12 @@
 /* Language Tab Label - Anchored to Wrapper */
 .code-wrapper[data-language]::before {
     content: attr(data-language);
-    color: #8b949e;
-    background-color: #161b22;
-    border-right: 1px solid #30363d;
-    border-bottom: 1px solid #30363d;
+    
+    color: var(--label-text);
+    background-color: var(--label-bg);
+    border-right: 1px solid var(--code-border);
+    border-bottom: 1px solid var(--code-border);
+    
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
     font-weight: 500;
@@ -51,6 +83,7 @@
     border-bottom-right-radius: 6px;
     z-index: 10;
     pointer-events: none;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 /* Reset code padding */
@@ -91,9 +124,11 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    color: #8b949e;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid #30363d;
+    
+    color: var(--label-text);
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    
     border-radius: 0.375rem;
     cursor: pointer;
     opacity: 0;
@@ -107,9 +142,9 @@
 }
 
 .copy-button:hover {
-    background-color: #21262d;
-    color: #f0f6fc;
-    border-color: #8b949e;
+    background-color: var(--btn-hover-bg);
+    color: var(--btn-hover-text);
+    border-color: var(--label-text);
 }
 
 .copy-button svg {
