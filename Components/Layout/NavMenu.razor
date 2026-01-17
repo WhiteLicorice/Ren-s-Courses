@@ -14,13 +14,12 @@
             </a>
         </div>
 
-        @* DESKTOP NAV: 3 Items + Hamburger Dropdown *@
+        @* DESKTOP NAV: Items + Dropdown + Theme Toggle *@
         <nav class="hidden space-x-6 sm:flex items-center">
 
             @* 1. Render the first 3 items normally *@
             @foreach (var item in menuItems.Take(3))
             {
-                @* CHANGED: ActiveClass uses accent and accent-dim for background *@
                 <NavLink ActiveClass="text-accent bg-accent-dim border border-accent/20 rounded"
                     class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all"
                     Match="@(item.Link == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)" href="@item.Link"
@@ -69,6 +68,24 @@
                     </div>
                 </div>
             }
+
+            @* 3. THEME TOGGLE (DESKTOP) *@
+            @* We use a common class 'theme-toggle-btn' for JS targeting *@
+            <button type="button"
+                class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md"
+                aria-label="Toggle Theme">
+                <svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                </svg>
+                <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+            </button>
+
         </nav>
 
         @* Mobile Toggle Button *@
@@ -99,11 +116,30 @@
         <div
             class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10">
             <span class="font-bold text-text-main">Navigate</span>
-            <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+
+            <div class="flex items-center gap-2">
+                @* THEME TOGGLE (MOBILE) *@
+                <button type="button"
+                    class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted">
+                    <svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                    <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                </button>
+
+                <button id="close-mobile-menu-button"
+                    class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <div class="px-6 py-6 space-y-2 pb-24">
@@ -169,6 +205,62 @@
         });
     }
 
+    // --- THEME TOGGLE LOGIC ---
+    function initThemeToggle() {
+        const btns = document.querySelectorAll('.theme-toggle-btn');
+
+        // Helper to update icons based on current theme
+        const updateIcons = (theme) => {
+            btns.forEach(btn => {
+                const sun = btn.querySelector('.icon-sun');
+                const moon = btn.querySelector('.icon-moon');
+
+                if (theme === 'light') {
+                    // In Light mode, show Moon (to switch to Dark)
+                    sun.classList.add('hidden');
+                    moon.classList.remove('hidden');
+                } else {
+                    // In Dark mode, show Sun (to switch to Light)
+                    moon.classList.add('hidden');
+                    sun.classList.remove('hidden');
+                }
+            });
+        };
+
+        // 1. Initial Icon State
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        updateIcons(currentTheme);
+
+        // 2. Click Handler
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'light' ? 'dark' : 'light';
+
+                // Call your existing site.js function
+                if (window.switchPrismTheme) {
+                    window.switchPrismTheme(next);
+                    updateIcons(next);
+                }
+            });
+        });
+
+        // 3. Listen for changes (e.g. if System toggles)
+        // This ensures the button icon updates if the system preference changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
+                    updateIcons(document.documentElement.getAttribute('data-theme'));
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+    }
+
+    // Initialize immediately
+    initThemeToggle();
+
+
     // --- Navbar Scroll Logic ---
     let lastScrollTop = 0;
     const navbar = document.getElementById('main-navbar');
@@ -221,7 +313,6 @@ new(Name: "Calendar", "calendar", null, "_self"),
 new("Grades",
 "https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
 null, "_blank"),
-//new("", WebsiteKeys.GitHubRepo, Svg.Icons.Github, "_blank")
 ];
 
     record MenuItem(string Name, string Link, Svg.Icons? Icon, string Target);

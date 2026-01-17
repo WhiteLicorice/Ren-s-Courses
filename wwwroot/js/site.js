@@ -28,7 +28,7 @@ window.switchPrismTheme = (theme) => {
     // 3. Update DOM
     document.documentElement.setAttribute('data-theme', targetMode);
     
-    // 4. Clean Storage (Since you rely on System Settings, we keep storage clean)
+    // 4. Clean Storage (Since we rely on System Settings, we keep storage clean)
     if (theme === 'default') {
         localStorage.removeItem('user-theme');
     } else {
