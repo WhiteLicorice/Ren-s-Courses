@@ -14,6 +14,7 @@ public static class BuildTimeProvider
     public static TimeZoneInfo LocalTimeZone { get; private set; }
     public static DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(UtcNow, LocalTimeZone);
 
+    // FIXME: C# thinks that the term starts 8 hours into the day lmao.
     static BuildTimeProvider()
     {
         Console.WriteLine("--------------------------------------------------");
