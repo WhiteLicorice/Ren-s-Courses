@@ -32,7 +32,8 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [ ] Calendar Local Holidays: Look for an API that serves local holidays.
 * [ ] Calendar Custom Events: Provide an API for defining custom events on the calendar beyond holidays and frontmatter.
 * [ ] Search system: somehow integrate a search engine that parses generic frontmatter.
-* [ ] Theming. Adaptive themes and controls.
+* [x] Theming. Adaptive themes and controls.
+* [ ] Custom themes. Add more themes and provide an API to extend these themes.
 
 ---
 
