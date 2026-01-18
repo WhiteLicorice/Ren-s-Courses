@@ -74,13 +74,17 @@ def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Option
             # 1. Try parsing as full ISO 
             try:
                 dt = datetime.datetime.fromisoformat(clean_date)
+                
+                # Treat naive strings (like "2026-01-19") as PHT, just like Native Objects above.
                 if dt.tzinfo is None:
-                     dt = dt.replace(tzinfo=datetime.timezone.utc)
+                     dt = dt.replace(tzinfo=LMS_TZ)
+                     
             except ValueError:
                 # 2. Fallback: Parse as Date Only (e.g. 2025-12-13)
                 dt = datetime.datetime.strptime(clean_date, "%Y-%m-%d")
                 # Apply PHT (Midnight PH)
                 dt = dt.replace(tzinfo=LMS_TZ)
+
         except ValueError as e:
              print(f"[FeedGen] Date parse error for string '{date_obj}': {e}")
              return None

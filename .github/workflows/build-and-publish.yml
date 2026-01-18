@@ -12,8 +12,8 @@ env:
   WEBAPP_PATH: ./
   WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
   # TODO: Configure these at the start of every academic year.
-  TERM_START: "2026-01-19T00:00:00Z"
-  TERM_END: "2026-05-23T23:59:59Z"
+  TERM_START: "2026-01-19"
+  TERM_END: "2026-05-23"
 
 jobs:
   build-and-deploy:
