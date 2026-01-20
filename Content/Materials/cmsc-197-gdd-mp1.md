@@ -1,6 +1,6 @@
 ---
 title: Fly, Flap, and Die!
-subtitle: CMSC 197 GDD MP1 -
+subtitle: CMSC 197 GDD Machine Problem 1
 lead: Yet Another Flappy Bird Clone (YAFBC).
 published: 2026-02-02
 tags: [cmsc-197-gdd]

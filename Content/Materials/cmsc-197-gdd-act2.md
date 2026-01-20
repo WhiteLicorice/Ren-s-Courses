@@ -1,6 +1,6 @@
 ---
 title: Coin Dash Pt. 1
-subtitle: CMSC 197 Activity 2
+subtitle: CMSC 197 GDD Activity 2
 lead: Building the Player Scene.
 published: 2026-01-30
 tags: [cmsc-197-gdd]
