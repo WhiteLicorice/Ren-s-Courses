@@ -46,6 +46,17 @@ body {
 @utility prose {
   color: var(--text-main);
 
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
   /* Inline code styling */
   code {
     font-weight: 500;
