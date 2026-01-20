@@ -11,6 +11,7 @@ authors:
 downloadLink: https://drive.google.com/file/d/1htSE3m-x90K4kJ2nlfyjv2KokiZtnvOH/view?usp=drive_link
 isDraft: false
 deadline: 2026-01-27
+noDeadline: true
 ---
 
 Welcome to **CMSC 197: Game Design and Development**. This course uses the **Godot Engine** and its integrated scripting language, **GDScript**. Your first activity introduces you to GDScript fundamentals through GDQuest's interactive tutorial.
