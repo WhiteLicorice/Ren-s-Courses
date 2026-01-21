@@ -2,7 +2,7 @@
 title: Fly, Flap, and Die!
 subtitle: CMSC 197 GDD Machine Problem 1
 lead: Yet Another Flappy Bird Clone (YAFBC).
-published: 2026-02-02
+published: 2026-02-03
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
@@ -10,175 +10,271 @@ authors:
       nickname: "Ren"
 downloadLink: https://drive.google.com/file/d/1Bwqu2xlrb-1kcZZUXyLqyw0-rh4VaBeB/view?usp=drive_link
 isDraft: false
+deadline: 2026-02-27
+progressReportDates: [2026-02-06, 2026-02-10, 2026-02-17, 2026-02-24]
+defenseDates: [2026-03-03]
 ---
 
-Your first *machine problem* (traditionally, this is what we call take-home labs in GDD), is to create Yet Another Flappy Bird Clone (YAFBC) from scratch in the Godot engine. You may scour the internet for free-to-use art assets, such as the infamous Flappy Bird sprite, but the bespoke implementation and the code must come from you.
+Your first machine problem is to create Yet Another Flappy Bird Clone (YAFBC) from scratch in Godot. You may use free-to-use art and sound assets, but the implementation and code must come from you.
 
 ## Learning Objectives
 
-By the end of this machine problem, you should be able to:
+By accomplishing this machine problem, you should be able to:
 
 - Navigate the Godot engine interface and understand its node-based architecture
 - Implement basic 2D game mechanics including physics, collision detection, and input handling
-- Manage game state transitions (idle, flapping, dying, etc.)
-- Work with sprites, animations, and sounds
-- Implement simple procedural generation
+- Apply finite state machines to manage game state transitions
+- Work with sprites, animations, and audio integration
+- Implement simple procedural generation systems
+- Demonstrate professional architecture using design patterns
 - Apply fundamental game design principles to create a playable experience
 
 ---
 
 ## Why Flappy Bird?
 
-Flappy Bird is deceptively simple. On the surface, it's just a bird that flaps when you tap the screen, avoiding pipes that scroll endlessly. But underneath that simplicity lies a surprisingly complete game development challenge that forces you to grapple with the fundamentals: physics, collision detection, procedural generation, game state management, and the elusive concept of “feel.”
+Flappy Bird is deceptively simple. On the surface, it's just a bird that flaps when you tap the screen, avoiding pipes that scroll endlessly. But underneath that simplicity lies a surprisingly complete gamedev challenge that forces you to grapple with the fundamentals: physics, collision detection, procedural generation, game state management, and the elusive concept of "feel".
 
-More importantly, Flappy Bird is small enough to finish in a reasonable timeframe while being complex enough to matter. You're not just moving a sprite around the screen — you're building a complete game loop, from the moment the player launches the game to the moment they inevitably crash into a pipe and see their score.
+More importantly, Flappy Bird is small enough to finish in a reasonable timeframe while being complex enough to matter. You're not just moving a sprite around the screen—you're building a complete game loop, from the moment the player launches the game to the moment they inevitably crash into a pipe and see their score.
 
 This is the sweet spot for our first machine problem. It's large enough that you can't brute-force your way through without understanding what you're doing, but small enough that you won't get lost in the weeds of a sprawling codebase. By the time you're done, you'll have touched every major system that modern games rely on, even if in miniature form.
 
 ---
 
-## Core Mechanics
+## The Original Mechanics
 
 ### The Bird
 
-Your bird (or whatever flying object you choose) must respond to player input with a single mechanic: flapping. Each flap applies an upward impulse, fighting against gravity. The bird continuously falls due to gravity, and the player must time their flaps to navigate through a series of infinite obstacles.
+Your bird (or whatever flying object you choose) must respond to player input with a single mechanic: flapping. Each flap applies an upward impulse, fighting against gravity. The bird continuously falls due to gravity, and the player must time their flaps to navigate through a series of obstacles.
 
-The physics here matter more than you think. If gravity is too strong, the game becomes frustrating. Too weak, and it becomes trivial. The same goes for flap strength. Finding the right balance between these values is your first lesson in “feel” — the intangible quality that makes a game satisfying to play.
+The physics here matter more than you think. If gravity is too strong, the game becomes frustrating. Too weak, and it becomes trivial. The same goes for flap strength. Finding the right balance between these values is your first lesson in game feel—the intangible quality that makes a game satisfying to play.
 
-For aesthetics, your bird should also rotate slightly based on its vertical velocity. When falling, it tilts downward. When flapping upward, it tilts up. This small detail provides crucial visual feedback to the player about their current trajectory. Visual feedback is critical for reducing *cognitive load* in high-pressure physics-based games like Flappy Bird.
+For aesthetics, your bird should also rotate slightly based on its vertical velocity. When falling, it tilts downward. When flapping upward, it tilts up. This small detail provides crucial visual feedback to the player about their current trajectory. Visual feedback is critical for reducing cognitive load in high-pressure physics-based games.
 
 ### The Pipes
 
-Pipes (or whatever obstacles you choose) spawn at regular intervals and scroll across the screen from right to left. Each pipe pair has a gap that the bird must fly through. The vertical position of this gap should vary randomly within reasonable bounds — you don't want it spawning at the very top or bottom of the screen where it's impossible to reach.
+Pipes (or whatever obstacles you choose) spawn at regular intervals and scroll across the screen from right to left. Each pipe pair has a gap that the bird must fly through. The vertical position of this gap should vary randomly within reasonable bounds—you don't want it spawning at the very top or bottom of the screen where it's impossible to reach.
 
-As pipes scroll off the left side of the screen, they should be removed from the scene to avoid accumulating objects in memory. This is called *object pooling* in more sophisticated implementations, but for now, simply destroying off-screen pipes and spawning new ones is sufficient. Feel free to implement object pooling if you wish to test your programming chops.
+As pipes scroll off the left side of the screen, they should be removed from the scene to avoid accumulating objects in memory. This is called object pooling in more sophisticated implementations, but for now, simply destroying off-screen pipes and spawning new ones is sufficient. Advanced students may implement object pooling for additional credit.
 
-In any case, collision with a pipe ends the game immediately. The hitboxes for collision detection should be fair — players should never feel cheated by a collision that didn't visually make sense. If you wish, you may also introduce other types of obstacles, like moving pipes or floating bombs for extra challenge!
+Collision with a pipe ends the game immediately. The hitboxes for collision detection should be fair—players should never feel cheated by a collision that didn't visually make sense. You may introduce other types of obstacles (moving pipes, floating bombs, etc.) as part of your mechanical twist.
 
 ### Scoring
 
-The player scores one point for each pipe pair they successfully pass through. A simple way to implement this: when the bird's x-coordinate crosses the center of a pipe's gap, increment the score — but there are more clever ways to go about this. However you do it, make sure you only award the point once per pipe pair.
+The player scores one point for each pipe pair they successfully pass through. A simple implementation: when the bird's x-coordinate crosses the center of a pipe's gap, increment the score. However you implement it, ensure you only award the point once per pipe pair.
 
-Display the current score prominently during gameplay. When the player collides with a pipe and “dies,” reset both the score and the game. Resetting the game should avoid memory leaks and unreferenced objects (i.e., stray pipes). The game shouldn't lag no matter how long it runs.
+Display the current score prominently during gameplay. When the player dies, the game should reset cleanly without memory leaks or unreferenced objects. The game shouldn't lag no matter how long it runs.
 
 ### Game States
 
-Your game needs at least three distinct states:
+Your game needs at least three distinct states managed via a finite state machine:
 
-- **Idle State** — The initial state the player sees. This is where the bird is just flying (or technically falling).
-- **Flapping State** — The bird responds to input and flaps upward, fighting against gravity.
-- **Dying State** — Triggered when the bird collides with a pipe or the ground/ceiling. Restart both the player's score and the game state.
+- **Menu/Idle State**: The initial state before gameplay begins
+- **Playing State**: Active gameplay with input response and physics
+- **Game Over State**: Triggered on collision, displays score and restart option
 
-Proper state management prevents bugs like the bird continuing to respond to input after dying or the score incrementing while dead.
+Proper state management prevents bugs like the bird continuing to respond to input after dying, or the score incrementing while dead. Review your FSM implementation from Coin Dash.
+
+---
+
+## Your Original Mechanics
+
+**What Makes a Valid Twist?**
+
+Your clone must include a **unique mechanical twist (or several)** that meaningfully changes gameplay. This is NOT cosmetic.
+
+**Valid Examples:**
+- Gravity reverses on each tap
+- Power-ups temporarily change pipe behavior or bird abilities
+- Multiplayer racing mode (split-screen or multiple birds?)
+- Momentum-based physics (bird accelerates/decelerates)
+- Dynamic difficulty scaling based on performance
+
+**Invalid Examples:**
+- Different sprites or visual theme only
+- Background music or sound effect changes
+- UI/menu styling variations
+
+**Ask yourself:** Does this change how I play the game, or just how it looks or sounds? Will I get struck for copyright infringement if I publish this on Steam or on Google Playstore?
+
+**You may deviate from the Technical Requirements section if and only if: it benefits or is crucial to your original mechanics, or is architecturally sound with justification!**
 
 ---
 
 ## Technical Requirements
 
+### Architecture
+
+- **Strong typing:** All function signatures and class members must be type-annotated (whether explicitly through Kotlin-style typehints or implicitly through Python-style walrus operators)
+- **State machine:** Use enum-based FSM for game states (idle/playing/gameover)
+- **Scene composition:** Separate scenes for Player, Pipe, UI, Main, etc.
+- **Signal-driven:** Use signals for decoupled communication (score updates, state changes, etc.)
+- **Separation of concerns:** Movement, collision, scoring in distinct methods, and nodes composited into distinct scenes
+
+**Common Pitfalls**
+
+**Spaghetti code will cap your grade at 3.00** regardless of gameplay quality. Architecture is heavily weighted in grading. Code that works but lacks proper organization, design patterns, or architectural integrity will receive a maximum grade of 3.00 for this deliverable.
+
 ### Input Handling
 
-The game must respond to at least one input method (keyboard, mouse click, or touch if testing on mobile). The input should be simple — one button to flap. When pressed, apply an upward impulse to the bird.
+The game must respond to at least one input method (keyboard, mouse click, or touch). The input should be simple. When pressed, apply some movement(s) to the bird.
 
-Don't allow input buffering or repeated flapping from holding the button down. Each press should correspond to exactly one flap. This is crucial for the game's difficulty curve.
+Don't allow input buffering or repeated movements from holding the button down. Each press should correspond to exactly one flap. This is crucial for the game's difficulty curve.
 
 ### Collision Detection
 
 Implement collision detection between:
-
 - The bird and pipes
 - The bird and the ground
-- The bird and the ceiling (optional, but recommended)
+- The bird and the ceiling
 
-Godot provides several collision detection systems. For this project, `Area2D` nodes with collision shapes are sufficient. Make sure your collision shapes match the visual sprites closely enough that collisions feel “fair” to the player.
+Use Area2D nodes with collision shapes. Ensure collision shapes match visual sprites closely enough that collisions feel fair to the player.
 
 ### Procedural Generation
 
-Pipes should spawn automatically at regular intervals. Each pipe pair should have a randomly positioned gap. You can implement this with a `Timer` node that triggers a pipe spawning function.
-
-Parameters to consider:
+Pipes should spawn automatically at regular intervals. Each pipe pair should have a randomly positioned gap. Consider these parameters:
 
 - Spawn interval (how often new pipes appear)
 - Pipe gap size (distance between top and bottom pipes)
 - Gap position variance (how much the gap's vertical position can vary)
 - Pipe scroll speed
 
-These values significantly affect difficulty. You'll need to experiment to find settings that create a challenging but fair experience.
+These values significantly affect difficulty. Experiment to find settings that create a challenging but fair experience.
 
 ### Visual and Audio Feedback
 
 At minimum, your game should include:
-
 - Sprites for the bird, pipes, background, and ground
-- A flapping animation for the bird (at least 2–3 frames)
+- A flapping animation for the bird (at least 2-3 frames)
 - Sound effects for flapping, scoring, and dying
-- Background music (optional but recommended)
+- Background music for different game states
 
-You can find free assets on sites like [OpenGameArt.org](https://opengameart.org), [itch.io](https://itch.io), [Kenney.nl](https://kenney.nl), or GitHub. Make sure any assets you use have appropriate licenses for educational use. Don't forget to credit the assets you use in your `README.md`!
+Free assets available at: OpenGameArt.org, itch.io, Kenney.nl. Ensure assets have appropriate licenses for educational use. Credit all assets in CREDITS.md.
 
 ---
 
 ## Deliverables
 
-### The Game
+### 1. The Game
 
-A playable Godot project that implements all core mechanics and technical requirements listed above. The game should be stable — no crashes, no game-breaking bugs. Minor polish issues are acceptable, but the core loop of idle → flap → die → restart must work flawlessly.
+An original playable Godot 4 project based on Flappy Bird (this is your prompt), implementing all core mechanics and technical requirements. The game should be stable—no crashes, no game-breaking bugs. Minor polish issues are acceptable, but the core loop must work flawlessly.
 
-### Source Code Repository
+### 2. GitHub Repository
 
-Your complete Godot project must be hosted in a GitHub repository. The repository should include:
+Your complete Godot project must be hosted in a GitHub repository with clean commit history. Include:
 
 - All Godot project files and scenes
-- All assets (sprites, sounds, fonts) with proper attribution in a `CREDITS.txt` file
-- A `README.md` file with:
-  - Brief description of your game and any unique features or variations you added
-  - Controls (which keys/buttons do what)
+- All assets with proper attribution in CREDITS.txt
+- README.md containing:
+  - Game description and mechanical twist explanation
+  - Controls documentation
   - Known issues or limitations
   - Asset credits and licenses
-  - A built game in the *releases* section
-- A short `POSTMORTEM.md` reflecting on:
-  - What went well during development
-  - What challenges you encountered and how you solved them
-  - What you would do differently if you started over
-  - What you learned from this project
+- Built game binary zipped in GitHub Releases section
 
-**Invite [me](https://github.com/WhiteLicorice) as a collaborator on your repository. This will serve as your submission.** Use meaningful commit messages that describe what each commit accomplishes. Your commit history tells a story about your development process — make it a good one.
+**Invite [the instructor](https://github.com/WhiteLicorice) as a collaborator.** Use semantic commit messages following the conventions from the syllabus.
 
----
+### 3. Presentation (15 minutes)
 
-## Grading Notes
+Prepare a jam-style presentation covering:
+- Live gameplay demonstration
+- Architecture decisions and design patterns used
+- Explanation of your mechanical twist
+- Challenges faced and solutions
+- Q&A from classmates and instructor
 
-This is not a competition to create the most polished or feature-rich version of Flappy Bird. The goal is to demonstrate that you understand the fundamental systems that make games work. A simple but well-implemented game will score better than an ambitious but buggy one. Recall your state machines from CMSC 141 and your object-oriented programming from CMSC 22!
-
-Focus on making the core mechanics feel good. A bird that responds predictably to input, pipes that provide a fair challenge, and collision detection that works correctly are more important than particle effects or elaborate menus. That said, if you finish the core requirements early and want to add extra features (power-ups, different game modes, procedurally generated backgrounds, etc.), go for it. Just make sure the foundation is solid first.
-
-**Code quality matters.** Your code doesn't need to be perfect, but it should be readable and organized. Use meaningful variable names. Break complex functions into smaller ones. Add comments where your intent isn't obvious.
+Class will vote on: Best Architecture, Best Twist, Best Polish. Winners receive +5% extra credit per category. This can stack up to +15%!
 
 ---
 
-## Laboratory Defense
+## Weekly Progress Reports
 
-The instructor will be available during scheduled laboratory hours in the assigned room for defense or consultation. You will be catered to on a first-come, first-served basis. It is mandatory to present your code, answer inquiries, and perform live programming if the instructor deems it necessary to further check your understanding.
+Weekly progress reports during consultation hours are **strongly encouraged**. Groups that attend receive:
+- Ongoing feedback on architecture
+- Early detection of design issues
+- Code review and refactoring guidance
+- Up to +5% extra credit for consistent attendance
 
-If a laboratory defense for an activity fails to be conducted within **one month** of its assignment, the instructor will be forced to give a failing grade. Scoring will be done during the laboratory defense (*no defense, no grade* policy). Extensions may be granted due to extraordinary circumstances but ultimately remain up to the judgment of the instructor.
+Groups that skip progress reports accept the risk of discovering major flaws during final presentations when fixes are costly or impossible, as well as forfeit the extra credit.
+
+---
+
+## Grading Philosophy
+
+This is not a competition to create the fanciest version of Flappy Bird (though you're welcome to be as fancy as you want). The goal is to demonstrate understanding of fundamental game systems, game design, and professional software architecture.
+
+**A simple but well-architected game will score better than an ambitious but poorly architected one.**
+
+Focus on:
+- Clean, maintainable code with proper design patterns
+- Correct implementation of core mechanics
+- Meaningful mechanical twist
+- Professional commit history and documentation
+- Excellent game "feel"
+
+Extra features (particle effects, elaborate menus, etc.) are welcome after the foundation is solid, but will not compensate for poor architecture.
+
+---
+
+## Pair Programming Expectations
+
+- Both members must contribute to code and design
+- Use Git branches, pull requests, code review
+- Maintain clear communication and regular check-ins
+- Document design notes in README.md
+- Both members must speak during presentation
+
+Individual accountability assessed through:
+- GitHub commit history
+- Presentation participation
+- Consultation session involvement
+- Peer evaluation (if issues arise)
+
+*See the syllabus for more details regarding the pair programming format.*
 
 ---
 
 ## Academic Honesty
 
-The usage of Large Language Models (e.g., ChatGPT, Claude, Deepseek, etc.) to generate code is considered cheating. As cheating is against the university's code of ethics, it is subject to failure in the course and harsh disciplinary action.
+The usage of Large Language Models (e.g., ChatGPT, Claude, Deepseek) to generate code is considered cheating. As cheating is against the university's code of ethics, it is subject to failure in the course and harsh disciplinary action.
+
+You are expected to write your own code and understand every line you submit. During presentations and consultations, you must be able to explain and defend your architectural decisions and implementation choices.
 
 ---
 
-## Rubric for Programming Exercises (50 pts)
+## Important Dates
 
-| **Criteria (10 Points Each)** | **Excellent (9–10)** | **Good (6–8)** | **Fair (3–5)** | **Poor (0–2)** |
-|--------------------------------|----------------------|----------------|----------------|----------------|
-| **Program Correctness** | Executes correctly with no syntax or runtime errors; meets/exceeds specs; displays correct output | Executes with minor errors but meets specs | Executes with major errors but partially meets specs | Does not execute or fails to meet specs |
-| **Logical Design** | Logically well-designed with excellent structure and flow | Minor logic errors not affecting results significantly | Major logic errors affecting functionality | Fundamentally incorrect logic |
-| **Code Mastery** | Excellent mastery of code | Adequate mastery | Fair mastery | Poor mastery |
-| **Engineering Standards** | Stylistically well designed and engineered | Minor poor design choices | Severe poor design choices | Poorly written |
-| **Documentation*** | Well-documented; comments exist for clarity, not redundancy | Missing one required or redundant comment | Missing several comments or overly redundant | Missing or poor documentation |
+### Weekly Progress Reports
 
-*Remember: "Code tells you how, comments tell you why." — Jeff Atwood, co-founder of Stack Overflow and Discourse*
+Progress reports are conducted during office hours on a first-come, first-served basis. Attendance is optional but **strongly encouraged**, and can earn up to +5% extra credit for the machine problem.
 
-***Note:** This rubric evaluates your ability to implement and integrate game systems, not your artistic ability. Programmer art is perfectly acceptable as long as the game is playable and the mechanics are clear.*
+- **Week 1:** February 6, 2026
+- **Week 2:** February 10, 2026
+- **Week 3:** February 17, 2026
+- **Week 4:** February 24, 2026
+
+### Submission of GitHub Repository
+
+The GitHub repository for the machine problem must be submitted (with completed code and release build) on **February 27, 2026**. To submit, simply invite the [instructor](https://github.com/WhiteLicorice) as a collaborator. Late submissions will be penalized with a -25\% deduction. Commits dated after the deadline will not be considered during evaluation.
+
+### Final Presentation
+
+Machine problem presentations will be conducted in a jam-style format during regular class hours. Both team members must be present and participate.
+
+- **Presentation Date:** Tuesday, March 3, 2026
+- **Duration:** 15 minutes per team (demo + Q&A)
+- **Format:** Live gameplay demo, architecture showcase and explanation, voting
+
+*Note: Machine problems that are functional but exhibit significant architectural issues (e.g., spaghetti code, no FSM, hard-coded values, tight coupling) will receive a maximum grade of 3.00 (60/100) regardless of gameplay quality or presentation performance. Professional game development prioritizes maintainable, scalable systems over short-term functionality.*
+
+## Grading Rubric
+
+| **Criteria** | **Excellent (90-100%)** | **Good (75-89%)** | **Fair (60-74%)** | **Poor (0-59%)** |
+|--------------|-------------------------|-------------------|-------------------|------------------|
+| **Architecture & Design (25%)** | Clean separation of concerns, proper FSM implementation, signal-driven architecture, demonstrates sound design patterns | Minor architectural issues, most patterns implemented correctly, consistent structure | Significant architectural problems, inconsistent pattern usage, unclear structure | Spaghetti code, no clear architecture, violates OOP principles |
+| **Mechanical Twist (20%)** | Creative, meaningful gameplay innovation, seamlessly integrated into core loop | Valid twist that changes gameplay meaningfully, decent integration | Minimal twist or poorly integrated, superficial changes | Cosmetic only, missing, or breaks core mechanics |
+| **Code Quality (10%)** | Strongly typed signatures and members, excellent naming conventions, well-documented using Godot conventions | Mostly typed, good naming, adequate documentation | Inconsistent typing/naming, sparse documentation | Poor typing, unclear code, missing documentation |
+| **Individual Contributions* (20%)** | Equitable commits with semantic messages, clear authorship, professional Git workflow (branches, PRs) | Mostly balanced contributions, adequate commit messages, basic Git usage | Uneven contributions visible in history, poor commit messages | One member dominates commits, nonsemantic messages, commit noise |
+| **Presentation* (25%)** | Professional demo with smooth gameplay, clear architecture explanation, both members articulate design decisions, handles Q&A confidently and pitches game well | Good demo, adequate explanations of implementation, both members participate meaningfully, pitch is good | Rough demo with bugs, unclear explanations, uneven participation, struggles with questions, pitch is questionable | Unprepared, can't explain code or architecture, one member dominates, uncertain responses, pitch needs revision |
+
+**Score may vary individually for component.*
