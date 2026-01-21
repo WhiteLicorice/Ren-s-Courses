@@ -278,3 +278,5 @@ Machine problem presentations will be conducted in a jam-style format during reg
 | **Presentation* (25%)** | Professional demo with smooth gameplay, clear architecture explanation, both members articulate design decisions, handles Q&A confidently and pitches game well | Good demo, adequate explanations of implementation, both members participate meaningfully, pitch is good | Rough demo with bugs, unclear explanations, uneven participation, struggles with questions, pitch is questionable | Unprepared, can't explain code or architecture, one member dominates, uncertain responses, pitch needs revision |
 
 **Score may vary individually for component.*
+
+***Remember: "Code tells you how, comments tell you why."** — Jeff Atwood, co-founder of Stack Overflow and Discourse
