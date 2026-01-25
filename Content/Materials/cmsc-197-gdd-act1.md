@@ -2,7 +2,7 @@
 title: Link, Start!
 subtitle: CMSC 197 GDD Activity 1
 lead: GDQuest on!
-published: 2026-01-26
+published: 2026-01-27
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
@@ -11,7 +11,6 @@ authors:
 downloadLink: https://drive.google.com/file/d/1htSE3m-x90K4kJ2nlfyjv2KokiZtnvOH/view?usp=drive_link
 isDraft: false
 deadline: 2026-01-27
-noDeadline: true
 ---
 
 Welcome to **CMSC 197: Game Design and Development**. This course uses the **Godot Engine** and its integrated scripting language, **GDScript**. Your first activity introduces you to GDScript fundamentals through GDQuest's interactive tutorial.
