@@ -12,6 +12,7 @@ downloadLink: https://drive.google.com/file/d/1CVfIMnWxD1W-usztFejScGAhW81okdNw/
 isDraft: false
 progressReportDates: [2026-02-06, 2026-02-27, 2026-03-20, 2026-05-08]
 defenseDates: [2026-04-17, 2026-05-15]
+deadline: 2026-05-21
 ---
 
 The portfolio project is your semester-long original game, developed from concept to deployment. This document is **living**—it evolves with your game. What starts as a 1-page pitch in Week 2 becomes a comprehensive design document tracking your architecture, mechanics, and technical decisions by Week 16.
