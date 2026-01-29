@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses (cmsc-197-gdd)</title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>Latest course materials and announcements.</description>
+    <language>en-us</language>
+    
+        <item>
+            <title>Portfolio Project</title>
+            <subtitle>CMSC 197 GDD Final Output</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-livdocs</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-livdocs</guid>
+            <pubDate>Wed, 28 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Gamedev from concept to deployment.</description>
+        </item>
+        <item>
+            <title>Link, Start!</title>
+            <subtitle>CMSC 197 GDD Activity 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act1</guid>
+            <pubDate>Mon, 26 Jan 2026 16:00:00 +0000</pubDate>
+            <description>GDQuest on!</description>
+        </item>
+        <item>
+            <title>Pre-Jamming</title>
+            <subtitle>CMSC 197 GDD Activity 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act0</guid>
+            <pubDate>Sun, 18 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Pre-game, boss?</description>
+        </item>
+</channel>
+</rss>
