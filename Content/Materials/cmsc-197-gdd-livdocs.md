@@ -60,6 +60,7 @@ Game development is iterative. Your Week 2 vision will change by Week 8. Mechani
 ### Week 2: Living Concept Document (10%)
 
 **Length:** 1 page
+
 **Purpose:** Establish vision and feasibility
 
 **Required Sections:**
@@ -87,11 +88,13 @@ Game development is iterative. Your Week 2 vision will change by Week 8. Mechani
 Define your MVP as "the smallest version that demonstrates the core hook." If your hook is "type-based combat," MVP is one level with 3 creature types. NOT a full campaign with all 151 original Pokemon.
 
 **Good scope:** Core mechanic + 1-2 levels + basic UI
+
 **Bad scope:** Full campaign, achievements, multiplayer, modding support
 
 ### Week 5: First Playable Prototype (20%)
 
 **Document Update:** Expand to 2-3 pages
+
 **Deliverable:** Playable build demonstrating core loop
 
 **New Sections to Add:**
@@ -120,6 +123,7 @@ Define your MVP as "the smallest version that demonstrates the core hook." If yo
 ### Week 8: Alpha Check-In (5%)
 
 **Document Update:** Expand to 3-4 pages
+
 **Purpose:** Catch architectural issues early
 
 **New Sections to Add:**
@@ -149,6 +153,7 @@ Define your MVP as "the smallest version that demonstrates the core hook." If yo
 ### Week 12: Midterm Presentation (20%)
 
 **Document Update:** Expand to 5-7 pages
+
 **Deliverable:** 20-minute presentation + Q&A
 
 **New Sections to Add:**
@@ -179,6 +184,7 @@ Define your MVP as "the smallest version that demonstrates the core hook." If yo
 ### Week 15: Beta Check-In (5%)
 
 **Document Update:** Minor additions (stay 5-7 pages)
+
 **Purpose:** Feature lock, focus on polish
 
 **Sections to Update:**
@@ -205,6 +211,7 @@ Define your MVP as "the smallest version that demonstrates the core hook." If yo
 ### Week 16: Final Presentation (40%)
 
 **Document Final:** 8-10 pages
+
 **Deliverable:** 20-minute presentation + polished game
 
 **Final Sections to Add:**
