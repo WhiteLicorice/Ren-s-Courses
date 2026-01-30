@@ -10,7 +10,7 @@ authors:
       nickname: "Ren"
 downloadLink: https://drive.google.com/file/d/1IW6tVZdhn-T2pshkvOopZEu99ip0xtY2/view?usp=drive_link
 isDraft: false
-deadline: 2026-01-23
+noDeadline: true
 ---
 
 Before we dive into the technicalities of nodes, signals, and state machines, we must first establish a **technical baseline**. Game development is a multidisciplinary field that requires a synthesis of software engineering, mathematics, and creative design. As seniors, you already possess a robust toolkit from previous courses. This activity serves to audit that toolkit and align your ambitions with the reality of the semester.
