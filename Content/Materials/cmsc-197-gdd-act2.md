@@ -13,7 +13,7 @@ isDraft: false
 noDeadline: true
 ---
 
-**Session Objectives**
+## Session Objectives
 
 - Understand Area2D-based collision detection
 - Implement input-driven movement with proper delta timing
