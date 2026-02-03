@@ -60,7 +60,7 @@ Make collectible hitboxes slightly **larger** than the sprite. This reduces play
 
 1. Frames: New SpriteFrames
 2. Create animation (any name, default is fine)
-3. Navigate to `res://assets/coin/coin.png` (or coin)
+3. Navigate to `res://assets/coin`
 4. Drag frames into the animation
 5. Set Speed: 6 FPS, Looping: Off (we will randomize our timings)
 6. Scale sprite: `(0.4, 0.4)`
@@ -126,9 +126,9 @@ Powerups use identical architecture to coins but with different visuals and effe
 ### Update Animation
 
 * AnimatedSprite2D, Frames: Use existing SpriteFrames
-* Delete cherry frames
-* Add frames from `res://assets/sprites/gem.png`
-* Verify HFrames: 5, Speed: 6 FPS
+* Delete coin frames
+* Add frames from `res://assets/sprites/pow`
+* Verify frame Speed: 6 FPS
 
 ### Modify Script
 
