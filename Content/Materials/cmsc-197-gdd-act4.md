@@ -2,7 +2,7 @@
 title: Coin Dash Pt. 3
 subtitle: CMSC 197 GDD Activity 4
 lead: Building the HUD.
-published: 2026-02-10
+published: 2026-02-06
 tags: [cmsc-197-gdd]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
