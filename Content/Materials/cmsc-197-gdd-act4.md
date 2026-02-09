@@ -28,7 +28,7 @@ The HUD displays score, timer, and messages during gameplay.
 ### Scene Structure
 
 **Node Hierarchy:**
-```gdscript
+```bash
 HUD (CanvasLayer)
 |-- Timer
 |-- MarginContainer
@@ -36,7 +36,6 @@ HUD (CanvasLayer)
 |   `-- Time (Label)
 |-- Message (Label)
 `-- StartButton (Button)
-
 ```
 
 ### Build Steps
@@ -339,11 +338,10 @@ Create obstacles that end the game when touched.
 
 **Scene Setup:**
 
-```
+```bash
 Obstacle (Area2D)
 |-- Sprite2D
 `-- CollisionShape2D
-
 ```
 
 **Configuration:**
