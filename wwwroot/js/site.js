@@ -27,7 +27,7 @@ window.switchPrismTheme = (theme) => {
 
     // 3. Update DOM
     document.documentElement.setAttribute('data-theme', targetMode);
-    
+
     // 4. Clean Storage (Since we rely on System Settings, we keep storage clean)
     if (theme === 'default') {
         localStorage.removeItem('user-theme');
@@ -142,6 +142,12 @@ window.generateTOC = () => {
         const ul = document.createElement('ul');
         ul.className = 'flex flex-col gap-2 font-mono text-xs text-text-dim';
 
+        // 1. Add "On this page" Header (Seems ugly lol)
+        //const tocHeader = document.createElement('li');
+        //tocHeader.className = 'mb-2 font-bold uppercase tracking-wider text-text-dim';
+        //tocHeader.innerText = 'On this page';
+        //ul.appendChild(tocHeader);
+
         headers.forEach((header, index) => {
             // Generate ID if missing (required for anchor links)
             if (!header.id) {
@@ -156,7 +162,14 @@ window.generateTOC = () => {
             const a = document.createElement('a');
 
             a.href = `#${header.id}`;
-            a.innerText = header.innerText;
+
+            // 2. Handle Long Headers
+            // Truncate text strictly to ~35 chars to prevent sidebar blowout,
+            // but add a 'title' tooltip so the full text is visible on hover.
+            const rawText = header.innerText;
+            a.innerText = rawText.length > 35 ? rawText.substring(0, 35) + '...' : rawText;
+            a.title = rawText;
+
             a.className = 'block truncate transition-colors duration-200 hover:text-accent';
             a.dataset.target = header.id;
 
