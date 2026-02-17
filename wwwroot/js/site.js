@@ -1,3 +1,5 @@
+// wwwroot/js/site.js
+
 /**
  * DYNAMIC PRISM THEME SWAPPER
  */

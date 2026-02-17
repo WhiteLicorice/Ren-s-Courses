@@ -1,3 +1,5 @@
+// wwwroot/js/service-worker.js
+
 const CACHE_NAME = 'ren-courses-online-first-v1';
 
 // ONLY cache local files. 
