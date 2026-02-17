@@ -1,4 +1,4 @@
-// wwwroot/js/calendar.js
+// wwwroot/calendar.js
 
 /**
  * CALENDAR FILTERING LOGIC
@@ -88,7 +88,8 @@ window.initCalendarNav = () => {
         }
     });
 
-    // Expose the change function to the global scope so HTML buttons can call it
+    // Expose the change function to the global scope so HTML buttons can call it.
+    // We attach it here because it relies on the 'currentIndex' closure above.
     window.changeMonth = function (direction) {
         let newIndex = currentIndex + direction;
         if (newIndex >= 0 && newIndex < months.length) {
@@ -97,9 +98,3 @@ window.initCalendarNav = () => {
         }
     };
 };
-
-// MAIN ENTRY POINT for Static Site Generation
-// This ensures the "Loading..." text is replaced immediately on page load
-document.addEventListener("DOMContentLoaded", () => {
-    window.initCalendarNav();
-});
