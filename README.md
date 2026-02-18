@@ -48,3 +48,35 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * The Submission Bin module runs on an external Google Forms, but it works as intended, and is sufficient for my purposes. Perhaps I will hoist this off to a proper web module in the future. However, no free-forever solution exists for independent developers. As the issue is simply UI, then this probably won't be addressed.
 
 * A proper Dashboard will probably be never implemented due to architecture constraints. Instead, all managerial tasks will have to be done programmatically (I do not like Dashboards, anyway).
+
+## Contributing
+
+Contributions are welcome, but take note that your code will fall under the terms of the license. Please follow these guidelines to keep the project organized.
+
+### Workflow
+
+1. Fork the repository.
+2. Create a new branch for your changes. Use a prefix that describes the type of change, followed by a specific name:
+* `feat/` for new features
+* `fix/` for bug fixes
+* `refactor/` for code restructuring
+* `docs/` for documentation updates
+* Example: `feat/vite-plugin-monkey`
+3. Make your changes and test them using `npm run dev`.
+4. Submit a Pull Request.
+
+### Commit Messages
+
+This project follows semantic commits. Start your commit message with a type, followed by a colon and a brief description.
+
+* `feat:` A new feature
+* `fix:` A bug fix
+* `ux:` User interface or user experience improvements
+* `docs:` Documentation only changes
+* `style:` Changes that do not affect the meaning of the code (formatting, missing semi-colons, etc)
+* `refactor:` A code change that neither fixes a bug nor adds a feature, but makes the codebase better
+* `chore:` Build process or auxiliary tool changes
+* `meta:` License, metadata, dependency changes, etc.
+* `debug/test:` Testing, scaffolding, and debugging.
+* Example: `feat: add markdown export to doc manager`
+
