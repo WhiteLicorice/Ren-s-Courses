@@ -7,6 +7,7 @@
 @inject CourseContentProvider ContentProvider
 @inject HolidaysProvider HolidaysProvider
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
+@inject BlazorStaticContentService<CalendarEventFrontmatter> calendarEventService
 @inject IJSRuntime JSRuntime
 
 <div class="mx-auto max-w-[1400px] py-10 sm:py-16 animate-fade-in select-none px-4">
@@ -296,7 +297,30 @@
             });
         }
 
-        // 2. Load Posts (Using Provider)
+        // 2. Load Custom Calendar Events (Using CalendarEventFrontmatter)
+        var customEvents = calendarEventService.Posts
+            .Where(p => p.FrontMatter.Date >= BuildTimeProvider.TermStart && 
+                       p.FrontMatter.Date <= BuildTimeProvider.TermEnd);
+
+        foreach (var evt in customEvents)
+        {
+            var fm = evt.FrontMatter;
+            
+            // Use custom CSS class if provided, otherwise use default based on event type
+            string cssClass = fm.CssClass ?? GetDefaultCssForEventType(fm.EventType);
+
+            _allEvents.Add(new CalendarEvent
+            {
+                Title = fm.Title,
+                Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
+                Date = fm.Date,
+                Type = fm.EventType,
+                CssClass = cssClass,
+                Url = fm.Url
+            });
+        }
+
+        // 3. Load Posts (Using Provider)
         var posts = ContentProvider.GetVisiblePosts();
 
         foreach (var post in posts)
@@ -394,5 +418,22 @@
         .Where(e => e.Date.Date == date.Date)
         .OrderBy(e => e.Type)
         .ToList();
+    }
+
+    /// <summary>
+    /// Returns default CSS classes for a given event type.
+    /// Maintains parity with existing event styling.
+    /// </summary>
+    private string GetDefaultCssForEventType(EventType eventType)
+    {
+        return eventType switch
+        {
+            EventType.Holiday => "bg-accent/10 text-accent border-accent",
+            EventType.Release => "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500",
+            EventType.Deadline => "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500 font-bold",
+            EventType.Progress => "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500",
+            EventType.Defense => "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500",
+            _ => "bg-accent/10 text-accent border-accent"
+        };
     }
 }
