@@ -7,6 +7,7 @@
 @inject CourseContentProvider ContentProvider
 @inject HolidaysProvider HolidaysProvider
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
+@inject BlazorStaticContentService<CalendarEventFrontmatter> calendarEventService
 @inject IJSRuntime JSRuntime
 
 <div class="mx-auto max-w-[1400px] py-10 sm:py-16 animate-fade-in select-none px-4">
@@ -135,23 +136,40 @@
                             var events = GetEventsForDate(currentDay);
                             var isToday = currentDay.Date == BuildTimeProvider.LocalNow.Date;
                             var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
+                            var cellId = $"cell-{month.Year}-{month.Month}-{day}";
+                            var visibleEvents = events.Take(3).ToList();
+                            var hiddenCount = events.Count - 3;
 
                             <div class="relative bg-surface min-h-[140px] p-2 transition-all group flex flex-col gap-2
                                 hover:bg-surface-hover hover:ring-1 hover:ring-inset hover:ring-accent/50 hover:z-10 cursor-default
                                 @(isToday ? "bg-accent/5 ring-1 ring-inset ring-accent/50" : "")">
 
-                                @* Date Indicator *@
+                                @* Date Indicator with Show More Button *@
                                 <div class="flex justify-between items-start">
                                     <span
                                         class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
                                         @(isToday ? "bg-accent text-white shadow-lg shadow-accent/20" : (isWeekend ? "text-text-dim" : "text-text-dim group-hover:text-accent"))">
                                         @day
                                     </span>
+
+                                    @* Show More Button - opens floating popover instead of expanding cell *@
+                                    @if (hiddenCount > 0)
+                                    {
+                                        <button type="button"
+                                                onclick="openEventPopover('@cellId', this)"
+                                                class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors"
+                                                data-cell="@cellId"
+                                                aria-expanded="false"
+                                                aria-haspopup="true"
+                                                aria-label="Show @hiddenCount more events for @currentDay.ToString("MMMM d")">
+                                            + @hiddenCount more
+                                        </button>
+                                    }
                                 </div>
 
-                                @* Events List *@
-                                <div class="flex flex-col gap-1.5">
-                                    @foreach (var evt in events)
+                                @* Visible Events (up to 3) *@
+                                <div id="@cellId" class="flex flex-col gap-1.5">
+                                    @foreach (var evt in visibleEvents)
                                     {
                                         if (!string.IsNullOrEmpty(evt.Url))
                                         {
@@ -170,6 +188,31 @@
                                         }
                                     }
                                 </div>
+
+                                @* Overflow events - hidden from view, used as data source for the popover *@
+                                @if (hiddenCount > 0)
+                                {
+                                    <div class="overflow-events" data-date="@currentDay.ToString("dddd, MMMM d")" style="display: none;">
+                                        @foreach (var evt in events.Skip(3))
+                                        {
+                                            if (!string.IsNullOrEmpty(evt.Url))
+                                            {
+                                                <a href="@evt.Url" target="_blank"
+                                                       class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
+                                                       title="@evt.Tooltip">
+                                                    <span class="font-medium">@evt.Title</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
+                                                     title="@evt.Tooltip">
+                                                    <span class="font-medium">@evt.Title</span>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                }
                             </div>
                         }
 
@@ -257,6 +300,32 @@
             monthIndex++;
         }
     </div>
+
+    @* --- CALENDAR EVENT POPOVER --- *@
+    @* Shared floating popover for overflow events. Populated and positioned by JS.
+       Uses position:fixed to float above the grid without affecting cell/row dimensions. *@
+    <div id="calendar-popover"
+         class="fixed z-50 hidden min-w-[200px] max-w-[280px] bg-surface border border-border-muted rounded-lg shadow-xl overflow-hidden"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="calendar-popover-title">
+
+        @* Popover Header *@
+        <div class="flex justify-between items-center px-3 py-2 border-b border-border-muted bg-surface-hover">
+            <span id="calendar-popover-title" class="text-[11px] font-bold text-text-main font-mono uppercase tracking-wide"></span>
+            <button type="button"
+                    onclick="closeEventPopover()"
+                    class="text-text-dim hover:text-text-main transition-colors ml-2 flex-shrink-0"
+                    aria-label="Close popover">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        @* Popover Events List *@
+        <div id="calendar-popover-events" class="flex flex-col gap-1.5 p-2 max-h-[240px] overflow-y-auto"></div>
+    </div>
 </div>
 
 @code {
@@ -296,7 +365,40 @@
             });
         }
 
-        // 2. Load Posts (Using Provider)
+        // 2. Load Custom Calendar Events (Using CalendarEventFrontmatter)
+        var customEvents = calendarEventService.Posts;
+
+        foreach (var evt in customEvents)
+        {
+            var fm = evt.FrontMatter;
+            
+            // Skip if no dates are defined
+            if (fm.Dates == null || !fm.Dates.Any())
+                continue;
+            
+            // Use custom CSS class if provided, otherwise use default based on event type
+            string cssClass = fm.CssClass ?? GetDefaultCssForEventType(fm.EventType);
+
+            // Create a calendar event for each date in the Dates list
+            foreach (var date in fm.Dates)
+            {
+                // Only add events within the term range
+                if (date >= BuildTimeProvider.TermStart && date <= BuildTimeProvider.TermEnd)
+                {
+                    _allEvents.Add(new CalendarEvent
+                    {
+                        Title = fm.Title,
+                        Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
+                        Date = date,
+                        Type = fm.EventType,
+                        CssClass = cssClass,
+                        Url = fm.Url
+                    });
+                }
+            }
+        }
+
+        // 3. Load Posts (Using Provider)
         var posts = ContentProvider.GetVisiblePosts();
 
         foreach (var post in posts)
@@ -394,5 +496,23 @@
         .Where(e => e.Date.Date == date.Date)
         .OrderBy(e => e.Type)
         .ToList();
+    }
+
+    /// <summary>
+    /// Returns default CSS classes for a given event type.
+    /// Maintains parity with existing event styling.
+    /// </summary>
+    private string GetDefaultCssForEventType(EventType eventType)
+    {
+        return eventType switch
+        {
+            EventType.Holiday => "bg-accent/10 text-accent border-accent",
+            EventType.Custom => "bg-accent/10 text-accent border-accent",
+            EventType.Release => "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500",
+            EventType.Deadline => "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500 font-bold",
+            EventType.Progress => "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500",
+            EventType.Defense => "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500",
+            _ => "bg-accent/10 text-accent border-accent"
+        };
     }
 }
