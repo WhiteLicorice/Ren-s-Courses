@@ -100,34 +100,101 @@ window.initCalendarNav = () => {
 };
 
 /**
- * CALENDAR CELL EXPANSION LOGIC
- * Toggles the expansion of calendar cells to show all events.
- * When a cell has more than 3 events, clicking "+X more" expands it.
+ * CALENDAR EVENT POPOVER
+ * Opens a floating popover showing overflow events for a given cell.
+ * Uses position:fixed to avoid affecting grid cell or row dimensions.
+ * Called by the "+X more" button on calendar cells with >3 events.
  */
-window.toggleCellExpansion = (cellId) => {
+window.openEventPopover = (cellId, buttonEl) => {
     const cell = document.getElementById(cellId);
-    const btn = document.querySelector(`button[data-cell="${cellId}"]`);
-    const hiddenEvents = cell ? cell.querySelector('.hidden-events') : null;
-    
-    if (!cell || !btn || !hiddenEvents) return;
-    
-    // Check if already expanded (hidden events are visible)
-    const isExpanded = hiddenEvents.style.display === 'block';
-    
-    if (isExpanded) {
-        // Collapse
-        hiddenEvents.style.display = 'none';
-        cell.style.maxHeight = '100px';
-        btn.setAttribute('aria-expanded', 'false');
-        // Update button text back to "+ X more"
-        const hiddenCount = hiddenEvents.querySelectorAll('.calendar-event').length;
-        btn.textContent = `+ ${hiddenCount} more`;
-    } else {
-        // Expand
-        hiddenEvents.style.display = 'block';
-        cell.style.maxHeight = 'none';
-        btn.setAttribute('aria-expanded', 'true');
-        // Update button text to "- Show less"
-        btn.textContent = '- Show less';
+    const popover = document.getElementById('calendar-popover');
+    const titleEl = document.getElementById('calendar-popover-title');
+    const eventsEl = document.getElementById('calendar-popover-events');
+
+    if (!cell || !popover || !titleEl || !eventsEl || !buttonEl) return;
+
+    // The overflow-events div is a sibling of the events list inside the cell wrapper
+    const overflowDiv = cell.parentElement.querySelector('.overflow-events');
+    if (!overflowDiv) return;
+
+    // Set the date label from the data attribute (e.g. "Tuesday, February 3")
+    titleEl.textContent = overflowDiv.dataset.date || '';
+
+    // Clone overflow event nodes into the popover events list
+    eventsEl.innerHTML = '';
+    Array.from(overflowDiv.children).forEach(child => {
+        eventsEl.appendChild(child.cloneNode(true));
+    });
+
+    // Position the popover using fixed coordinates from the button's bounding rect.
+    // Prefer to open below-left; flip left/up if near viewport edges.
+    const POPOVER_WIDTH = 280;
+    const POPOVER_EST_HEIGHT = 280;
+    const MARGIN = 8;
+    const btnRect = buttonEl.getBoundingClientRect();
+
+    let top = btnRect.bottom + MARGIN;
+    let left = btnRect.left;
+
+    if (left + POPOVER_WIDTH > window.innerWidth - MARGIN) {
+        left = btnRect.right - POPOVER_WIDTH;
     }
+    if (left < MARGIN) {
+        left = MARGIN;
+    }
+    if (top + POPOVER_EST_HEIGHT > window.innerHeight - MARGIN) {
+        top = btnRect.top - POPOVER_EST_HEIGHT - MARGIN;
+    }
+    if (top < MARGIN) {
+        top = MARGIN;
+    }
+
+    popover.style.top = `${top}px`;
+    popover.style.left = `${left}px`;
+    popover.classList.remove('hidden');
+    popover.dataset.activeCell = cellId;
+
+    // Update button ARIA state
+    buttonEl.setAttribute('aria-expanded', 'true');
+};
+
+/**
+ * Closes the calendar event popover and resets ARIA state on the trigger button.
+ */
+window.closeEventPopover = () => {
+    const popover = document.getElementById('calendar-popover');
+    if (!popover) return;
+
+    // Reset the trigger button's ARIA state
+    const cellId = popover.dataset.activeCell;
+    if (cellId) {
+        const btn = document.querySelector(`button[data-cell="${cellId}"]`);
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+
+    popover.classList.add('hidden');
+    popover.dataset.activeCell = '';
+};
+
+/**
+ * INITIALIZE CALENDAR POPOVER BEHAVIOUR
+ * Sets up document-level listeners for closing the popover on outside click or Escape.
+ */
+window.initCalendarExpansion = () => {
+    // Close on click outside the popover (but not on a show-more-btn, which opens it)
+    document.addEventListener('click', function (e) {
+        const popover = document.getElementById('calendar-popover');
+        if (!popover || popover.classList.contains('hidden')) return;
+
+        const clickedInsidePopover = popover.contains(e.target);
+        const clickedShowMore = e.target.closest('.show-more-btn');
+        if (!clickedInsidePopover && !clickedShowMore) {
+            closeEventPopover();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeEventPopover();
+    });
 };
