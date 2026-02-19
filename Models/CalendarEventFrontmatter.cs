@@ -14,9 +14,10 @@ public class CalendarEventFrontmatter : IFrontMatter
     public string Title { get; set; } = "";
 
     /// <summary>
-    /// The date when this custom event occurs.
+    /// The dates when this custom event occurs.
+    /// Supports single or multiple dates for events spanning multiple days.
     /// </summary>
-    public DateTime Date { get; set; }
+    public List<DateTime> Dates { get; set; } = new();
 
     /// <summary>
     /// Optional tooltip/description for the event.
@@ -24,10 +25,10 @@ public class CalendarEventFrontmatter : IFrontMatter
     public string Tooltip { get; set; } = "";
 
     /// <summary>
-    /// The type of event (Holiday, Release, Deadline, Progress, Defense).
+    /// The type of event (Holiday, Release, Deadline, Progress, Defense, Custom).
     /// Determines the visual styling on the calendar.
     /// </summary>
-    public EventType EventType { get; set; } = EventType.Holiday;
+    public EventType EventType { get; set; } = EventType.Custom;
 
     /// <summary>
     /// Optional URL to link to when the event is clicked.

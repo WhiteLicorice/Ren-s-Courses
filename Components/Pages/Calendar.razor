@@ -299,8 +299,8 @@
 
         // 2. Load Custom Calendar Events (Using CalendarEventFrontmatter)
         var customEvents = calendarEventService.Posts
-            .Where(p => p.FrontMatter.Date >= BuildTimeProvider.TermStart && 
-                       p.FrontMatter.Date <= BuildTimeProvider.TermEnd);
+            .Where(p => p.FrontMatter.Dates.Any(d => d >= BuildTimeProvider.TermStart && 
+                       d <= BuildTimeProvider.TermEnd));
 
         foreach (var evt in customEvents)
         {
@@ -309,15 +309,23 @@
             // Use custom CSS class if provided, otherwise use default based on event type
             string cssClass = fm.CssClass ?? GetDefaultCssForEventType(fm.EventType);
 
-            _allEvents.Add(new CalendarEvent
+            // Create a calendar event for each date in the Dates list
+            foreach (var date in fm.Dates)
             {
-                Title = fm.Title,
-                Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
-                Date = fm.Date,
-                Type = fm.EventType,
-                CssClass = cssClass,
-                Url = fm.Url
-            });
+                // Only add events within the term range
+                if (date >= BuildTimeProvider.TermStart && date <= BuildTimeProvider.TermEnd)
+                {
+                    _allEvents.Add(new CalendarEvent
+                    {
+                        Title = fm.Title,
+                        Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
+                        Date = date,
+                        Type = fm.EventType,
+                        CssClass = cssClass,
+                        Url = fm.Url
+                    });
+                }
+            }
         }
 
         // 3. Load Posts (Using Provider)
@@ -429,6 +437,7 @@
         return eventType switch
         {
             EventType.Holiday => "bg-accent/10 text-accent border-accent",
+            EventType.Custom => "bg-accent/10 text-accent border-accent",
             EventType.Release => "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500",
             EventType.Deadline => "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500 font-bold",
             EventType.Progress => "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500",

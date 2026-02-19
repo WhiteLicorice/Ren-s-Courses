@@ -9,9 +9,9 @@ Create a markdown file (`.md`) in this directory with the following frontmatter 
 ```yaml
 ---
 title: Event Name
-date: 2026-03-15
+dates: [2026-03-15]
 tooltip: Description shown on hover
-eventType: Holiday
+eventType: Custom
 url: https://example.com
 cssClass: bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500
 ---
@@ -23,14 +23,16 @@ Optional content describing the event in detail.
 
 ### Required Fields
 - **title**: The name of the event (string)
-- **date**: The date when this event occurs (DateTime, format: `YYYY-MM-DD`)
+- **dates**: Array of dates when this event occurs (DateTime array, format: `[YYYY-MM-DD]` or `[YYYY-MM-DD, YYYY-MM-DD, ...]`)
+  - Single day event: `dates: [2026-03-15]`
+  - Multi-day event: `dates: [2026-02-25, 2026-02-26, 2026-02-27, 2026-02-28]`
 
 ### Optional Fields
 - **tooltip**: Description shown when hovering over the event (string)
   - If not provided, defaults to the event type name
 - **eventType**: The type of event, determines default styling (enum)
-  - Options: `Holiday`, `Release`, `Deadline`, `Progress`, `Defense`
-  - Default: `Holiday`
+  - Options: `Holiday`, `Release`, `Deadline`, `Progress`, `Defense`, `Custom`
+  - Default: `Custom`
 - **url**: Link to open when the event is clicked (string)
   - If not provided, the event is non-clickable
 - **cssClass**: Custom Tailwind CSS classes for styling (string)
@@ -39,6 +41,7 @@ Optional content describing the event in detail.
 ## Event Type Default Styles
 
 - **Holiday**: Accent color (configurable theme color)
+- **Custom**: Accent color (same as Holiday)
 - **Release**: Blue
 - **Deadline**: Orange, bold
 - **Progress**: Yellow
@@ -50,10 +53,20 @@ Optional content describing the event in detail.
 ```yaml
 ---
 title: University Week
-date: 2026-02-16
+dates: [2026-02-16]
 tooltip: Annual University Week celebration
-eventType: Holiday
+eventType: Custom
 url: https://upv.edu.ph
+---
+```
+
+### Multi-Day Event
+```yaml
+---
+title: IIARS Conference
+dates: [2026-02-25, 2026-02-26, 2026-02-27, 2026-02-28]
+tooltip: 4th International Conference on ICT Applications in Research
+eventType: Custom
 ---
 ```
 
@@ -61,9 +74,9 @@ url: https://upv.edu.ph
 ```yaml
 ---
 title: Faculty Development Day
-date: 2026-04-10
+dates: [2026-04-10]
 tooltip: No classes - faculty professional development
-eventType: Holiday
+eventType: Custom
 cssClass: bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500
 ---
 ```
@@ -72,7 +85,7 @@ cssClass: bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-50
 ```yaml
 ---
 title: Midterm Examination Period
-date: 2026-03-15
+dates: [2026-03-15]
 tooltip: University-wide midterm exam period begins
 eventType: Deadline
 ---
@@ -83,4 +96,5 @@ eventType: Deadline
 - Events are automatically filtered to only show during the configured term period
 - Events appear in both desktop grid view and mobile list view
 - Multiple events can occur on the same day
+- Multi-day events will appear on each date in the `dates` array
 - The content below the frontmatter is optional and not displayed on the calendar
