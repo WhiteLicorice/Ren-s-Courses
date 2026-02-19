@@ -11,5 +11,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.generateTOC) window.generateTOC();
     if (window.initScrollButton) window.initScrollButton();
     if (window.initCalendarNav) window.initCalendarNav();
-    if (window.initCalendarExpansion) window.initCalendarExpansion();
 });

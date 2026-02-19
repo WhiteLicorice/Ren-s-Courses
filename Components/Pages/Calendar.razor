@@ -156,6 +156,7 @@
                                     @if (hiddenCount > 0)
                                     {
                                         <button type="button" 
+                                                onclick="toggleCellExpansion('@cellId')"
                                                 class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors"
                                                 data-cell="@cellId"
                                                 aria-expanded="false"

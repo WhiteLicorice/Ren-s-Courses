@@ -131,19 +131,3 @@ window.toggleCellExpansion = (cellId) => {
         btn.textContent = '- Show less';
     }
 };
-
-/**
- * INITIALIZE CALENDAR EXPANSION BUTTONS
- * Attach event listeners to all "+X more" buttons
- */
-window.initCalendarExpansion = () => {
-    const buttons = document.querySelectorAll('.show-more-btn');
-    buttons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const cellId = this.getAttribute('data-cell');
-            if (cellId) {
-                toggleCellExpansion(cellId);
-            }
-        });
-    });
-};
