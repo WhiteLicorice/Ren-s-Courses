@@ -30,7 +30,7 @@ This project is **NOT free to clone, fork, or distribute.** The source code and 
 * [x] PWA Integration: Allow the course site to be installed on machines as an application.
 * [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
 * [ ] Calendar Local Holidays: Look for an API that serves local holidays.
-* [ ] Calendar Custom Events: Provide an API for defining custom events on the calendar beyond holidays and frontmatter.
+* [x] Calendar Custom Events: Provide an API for defining custom events on the calendar beyond holidays and frontmatter.
 * [ ] Search system: somehow integrate a search engine that parses generic frontmatter.
 * [x] Theming. Adaptive themes and controls.
 * [ ] Custom themes. Add more themes and provide an API to extend these themes.
