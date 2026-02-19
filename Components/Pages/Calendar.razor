@@ -203,9 +203,12 @@
                                 @* Show More Link *@
                                 @if (hiddenCount > 0)
                                 {
-                                    <button onclick="toggleCellExpansion('@cellId')"
+                                    <button type="button" 
+                                            onclick="toggleCellExpansion('@cellId')"
                                             class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors mt-1 text-left"
-                                            data-cell="@cellId">
+                                            data-cell="@cellId"
+                                            aria-expanded="false"
+                                            aria-label="Show @hiddenCount more events">
                                         + @hiddenCount more
                                     </button>
                                 }

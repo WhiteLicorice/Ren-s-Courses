@@ -111,13 +111,14 @@ window.toggleCellExpansion = (cellId) => {
     
     if (!cell || !btn || !hiddenEvents) return;
     
-    // Check if already expanded
-    const isExpanded = hiddenEvents.style.display !== 'none';
+    // Check if already expanded (hidden events are visible)
+    const isExpanded = hiddenEvents.style.display === 'block';
     
     if (isExpanded) {
         // Collapse
         hiddenEvents.style.display = 'none';
         cell.style.maxHeight = '100px';
+        btn.setAttribute('aria-expanded', 'false');
         // Update button text back to "+ X more"
         const hiddenCount = hiddenEvents.querySelectorAll('.calendar-event').length;
         btn.textContent = `+ ${hiddenCount} more`;
@@ -125,6 +126,7 @@ window.toggleCellExpansion = (cellId) => {
         // Expand
         hiddenEvents.style.display = 'block';
         cell.style.maxHeight = 'none';
+        btn.setAttribute('aria-expanded', 'true');
         // Update button text to "- Show less"
         btn.textContent = '- Show less';
     }
