@@ -98,3 +98,34 @@ window.initCalendarNav = () => {
         }
     };
 };
+
+/**
+ * CALENDAR CELL EXPANSION LOGIC
+ * Toggles the expansion of calendar cells to show all events.
+ * When a cell has more than 3 events, clicking "+X more" expands it.
+ */
+window.toggleCellExpansion = (cellId) => {
+    const cell = document.getElementById(cellId);
+    const btn = document.querySelector(`button[data-cell="${cellId}"]`);
+    const hiddenEvents = cell.querySelector('.hidden-events');
+    
+    if (!cell || !btn || !hiddenEvents) return;
+    
+    // Check if already expanded
+    const isExpanded = hiddenEvents.style.display !== 'none';
+    
+    if (isExpanded) {
+        // Collapse
+        hiddenEvents.style.display = 'none';
+        cell.style.maxHeight = '100px';
+        // Update button text back to "+ X more"
+        const hiddenCount = hiddenEvents.querySelectorAll('.calendar-event').length;
+        btn.textContent = `+ ${hiddenCount} more`;
+    } else {
+        // Expand
+        hiddenEvents.style.display = 'block';
+        cell.style.maxHeight = 'none';
+        // Update button text to "- Show less"
+        btn.textContent = '- Show less';
+    }
+};

@@ -136,6 +136,9 @@
                             var events = GetEventsForDate(currentDay);
                             var isToday = currentDay.Date == BuildTimeProvider.LocalNow.Date;
                             var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
+                            var cellId = $"cell-{month.Year}-{month.Month}-{day}";
+                            var visibleEvents = events.Take(3).ToList();
+                            var hiddenCount = events.Count - 3;
 
                             <div class="relative bg-surface min-h-[140px] p-2 transition-all group flex flex-col gap-2
                                 hover:bg-surface-hover hover:ring-1 hover:ring-inset hover:ring-accent/50 hover:z-10 cursor-default
@@ -151,8 +154,8 @@
                                 </div>
 
                                 @* Events List *@
-                                <div class="flex flex-col gap-1.5">
-                                    @foreach (var evt in events)
+                                <div id="@cellId" class="flex flex-col gap-1.5 overflow-hidden max-h-[100px] transition-all duration-300">
+                                    @foreach (var evt in visibleEvents)
                                     {
                                         if (!string.IsNullOrEmpty(evt.Url))
                                         {
@@ -170,7 +173,42 @@
                                             </div>
                                         }
                                     }
+                                    
+                                    @* Hidden events (initially hidden) *@
+                                    @if (hiddenCount > 0)
+                                    {
+                                        <div class="hidden-events" style="display: none;">
+                                            @foreach (var evt in events.Skip(3))
+                                            {
+                                                if (!string.IsNullOrEmpty(evt.Url))
+                                                {
+                                                    <a href="@evt.Url" target="_blank"
+                                                           class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
+                                                           title="@evt.Tooltip">
+                                                        <span class="font-medium">@evt.Title</span>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
+                                                         title="@evt.Tooltip">
+                                                        <span class="font-medium">@evt.Title</span>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
                                 </div>
+                                
+                                @* Show More Link *@
+                                @if (hiddenCount > 0)
+                                {
+                                    <button onclick="toggleCellExpansion('@cellId')"
+                                            class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors mt-1 text-left"
+                                            data-cell="@cellId">
+                                        + @hiddenCount more
+                                    </button>
+                                }
                             </div>
                         }
 
