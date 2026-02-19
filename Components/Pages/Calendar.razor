@@ -298,13 +298,15 @@
         }
 
         // 2. Load Custom Calendar Events (Using CalendarEventFrontmatter)
-        var customEvents = calendarEventService.Posts
-            .Where(p => p.FrontMatter.Dates.Any(d => d >= BuildTimeProvider.TermStart && 
-                       d <= BuildTimeProvider.TermEnd));
+        var customEvents = calendarEventService.Posts;
 
         foreach (var evt in customEvents)
         {
             var fm = evt.FrontMatter;
+            
+            // Skip if no dates are defined
+            if (fm.Dates == null || !fm.Dates.Any())
+                continue;
             
             // Use custom CSS class if provided, otherwise use default based on event type
             string cssClass = fm.CssClass ?? GetDefaultCssForEventType(fm.EventType);
