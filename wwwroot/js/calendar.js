@@ -107,7 +107,7 @@ window.initCalendarNav = () => {
 window.toggleCellExpansion = (cellId) => {
     const cell = document.getElementById(cellId);
     const btn = document.querySelector(`button[data-cell="${cellId}"]`);
-    const hiddenEvents = cell.querySelector('.hidden-events');
+    const hiddenEvents = cell ? cell.querySelector('.hidden-events') : null;
     
     if (!cell || !btn || !hiddenEvents) return;
     
@@ -130,4 +130,20 @@ window.toggleCellExpansion = (cellId) => {
         // Update button text to "- Show less"
         btn.textContent = '- Show less';
     }
+};
+
+/**
+ * INITIALIZE CALENDAR EXPANSION BUTTONS
+ * Attach event listeners to all "+X more" buttons
+ */
+window.initCalendarExpansion = () => {
+    const buttons = document.querySelectorAll('.show-more-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const cellId = this.getAttribute('data-cell');
+            if (cellId) {
+                toggleCellExpansion(cellId);
+            }
+        });
+    });
 };

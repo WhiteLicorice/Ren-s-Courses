@@ -144,13 +144,25 @@
                                 hover:bg-surface-hover hover:ring-1 hover:ring-inset hover:ring-accent/50 hover:z-10 cursor-default
                                 @(isToday ? "bg-accent/5 ring-1 ring-inset ring-accent/50" : "")">
 
-                                @* Date Indicator *@
+                                @* Date Indicator with Show More Button *@
                                 <div class="flex justify-between items-start">
                                     <span
                                         class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
                                         @(isToday ? "bg-accent text-white shadow-lg shadow-accent/20" : (isWeekend ? "text-text-dim" : "text-text-dim group-hover:text-accent"))">
                                         @day
                                     </span>
+                                    
+                                    @* Show More Link - positioned to the right of date *@
+                                    @if (hiddenCount > 0)
+                                    {
+                                        <button type="button" 
+                                                class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors"
+                                                data-cell="@cellId"
+                                                aria-expanded="false"
+                                                aria-label="Show @hiddenCount more events">
+                                            + @hiddenCount more
+                                        </button>
+                                    }
                                 </div>
 
                                 @* Events List *@
@@ -199,19 +211,6 @@
                                         </div>
                                     }
                                 </div>
-                                
-                                @* Show More Link *@
-                                @if (hiddenCount > 0)
-                                {
-                                    <button type="button" 
-                                            onclick="toggleCellExpansion('@cellId')"
-                                            class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors mt-1 text-left"
-                                            data-cell="@cellId"
-                                            aria-expanded="false"
-                                            aria-label="Show @hiddenCount more events">
-                                        + @hiddenCount more
-                                    </button>
-                                }
                             </div>
                         }
 
@@ -313,6 +312,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeVoidAsync("initCalendarNav");
+        await JSRuntime.InvokeVoidAsync("initCalendarExpansion");
     }
 
     private void LoadEvents()
