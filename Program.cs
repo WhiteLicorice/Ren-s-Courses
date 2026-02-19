@@ -105,6 +105,6 @@ public static class WebsiteKeys
 
     public static class CalendarEvents
     {
-        public const string SourcePath = "Content/CalendarEvents";
+        public const string SourcePath = "Content/Events";
     }
 }
