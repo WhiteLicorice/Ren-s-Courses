@@ -2,7 +2,7 @@
 title: Jungle Jump Pt. 2
 subtitle: CMSC 197 GDD Activity 6
 lead: Platformer Movement
-published: 2026-03-03
+published: 2026-03-17
 tags: [cmsc-197-gdd]
 authors:
     - name: Rene Andre B. Jocsing

@@ -2,7 +2,7 @@
 title: Jungle Jump Pt. 1
 subtitle: CMSC 197 GDD Activity 5
 lead: Animation Players and State Machines.
-published: 2026-02-24
+published: 2026-03-10
 tags: [cmsc-197-gdd]
 authors:
     - name: Rene Andre B. Jocsing
