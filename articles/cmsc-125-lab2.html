@@ -1,0 +1,340 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/Ren-s-Courses/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css" rel="stylesheet"><link href="css/site.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="preload" href="css/prism-dark.css" as="style"><link rel="preload" href="css/prism-light.css" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css"><script>!function(){var e=window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("user-theme"),m="dark";m="light"===t?"light":"dark"===t||e?"dark":"light",document.documentElement.setAttribute("data-theme",m),"light"===m&&(document.getElementById("prism-theme-link").href="css/prism-light.css")}()</script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js" integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js" integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="manifest" href="site.webmanifest.json"><meta name="theme-color" content="#ef4444"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex lg:w-0 lg:flex-1"><a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="materials" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Materials</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><div class="relative"><button id="desktop-dropdown-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors"><span class="sr-only">More menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto"><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Submissions</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Toggle Theme"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Submissions</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>const menuContainer=document.querySelector("#mobile-menu-container"),backdrop=document.querySelector("#mobile-backdrop"),toggleBtn=document.querySelector("#toggle-button"),closeBtn=document.querySelector("#close-mobile-menu-button"),toggleMobileMenu=()=>{menuContainer.classList.contains("hidden")?(menuContainer.classList.remove("hidden"),document.body.classList.add("overflow-hidden")):(menuContainer.classList.add("hidden"),document.body.classList.remove("overflow-hidden"))};toggleBtn.addEventListener("click",toggleMobileMenu),closeBtn.addEventListener("click",toggleMobileMenu),backdrop.addEventListener("click",toggleMobileMenu);const desktopBtn=document.getElementById("desktop-dropdown-btn"),desktopMenu=document.getElementById("desktop-dropdown-menu");function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{e.forEach(e=>{const n=e.querySelector(".icon-sun"),o=e.querySelector(".icon-moon");"light"===t?(n.classList.add("hidden"),o.classList.remove("hidden")):(o.classList.add("hidden"),n.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}desktopBtn&&desktopMenu&&(desktopBtn.addEventListener("click",e=>{e.stopPropagation(),desktopMenu.classList.toggle("hidden")}),document.addEventListener("click",e=>{desktopMenu.classList.contains("hidden")||desktopMenu.contains(e.target)||e.target===desktopBtn||desktopMenu.classList.add("hidden")})),initThemeToggle();let lastScrollTop=0;const navbar=document.getElementById("main-navbar");window.addEventListener("scroll",function(){let e=window.pageYOffset||document.documentElement.scrollTop;if(e<=64)return navbar.classList.remove("-translate-y-full"),void(lastScrollTop=e);e>lastScrollTop?(navbar.classList.add("-translate-y-full"),desktopMenu&&!desktopMenu.classList.contains("hidden")&&desktopMenu.classList.add("hidden"),menuContainer.classList.contains("hidden")?navbar.classList.add("-translate-y-full"):navbar.classList.remove("-translate-y-full")):navbar.classList.remove("-translate-y-full"),lastScrollTop=e})</script><main class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-125" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-125</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">CPU Scheduling</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 125 Lab 2</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>February 26, 2026</time></div></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><p>This laboratory assignment focuses on implementing CPU scheduling in C. You will build a discrete-event simulator that demonstrates how operating systems make scheduling decisions to optimize system performance. Through this exercise, you will gain hands-on experience with the algorithms covered in lectures and develop insight into the tradeoffs between different scheduling policies.</p><hr><h2 id="background">Background</h2><p>CPU scheduling is one of the most fundamental responsibilities of an operating system. When multiple processes compete for CPU time, the scheduler must decide which process runs next and for how long. Different scheduling algorithms optimize for different metrics—some prioritize fairness, others minimize turnaround time or response time, and some attempt to balance multiple objectives simultaneously.</p><p>Your simulator will accept a workload specification (a set of processes with arrival times and burst times) and simulate how each scheduling algorithm would handle that workload. The simulator will compute key performance metrics and allow comparison between algorithms.</p><hr><h2 id="learning-objectives">Learning Objectives</h2><p>By the end of this laboratory exercise, students should be able to:</p><ul><li>Implement fundamental CPU scheduling algorithms: FCFS, SJF, STCF, and RR</li><li>Design and implement a Multi-Level Feedback Queue (MLFQ) scheduler</li><li>Calculate scheduling metrics: turnaround time, response time, and waiting time</li><li>Analyze the performance characteristics and tradeoffs of different algorithms</li><li>Work with discrete-event simulation and priority queues in C</li><li>Generate and interpret Gantt charts from scheduling simulations</li><li>Apply data structures (linked lists, queues, heaps) to systems problems</li><li>Make informed design decisions and justify them with empirical evidence</li></ul><hr><h2 id="task">Task</h2><p>Build a CPU scheduling simulator (<code>schedsim</code>) that:</p><ul><li>Reads process workloads from input files or command-line arguments</li><li>Implements four classic scheduling algorithms: FCFS, SJF, STCF, RR</li><li>Implements a Multi-Level Feedback Queue of your own design</li><li>Calculates and reports scheduling metrics for each algorithm</li><li>Outputs Gantt charts showing process execution timelines</li><li>Supports configurable parameters (time quantum for RR, MLFQ configuration)</li><li>Provides comparative analysis across algorithms</li></ul><hr><h2 id="required-features">Required Features</h2><h3 id="input-format">Input Format</h3><p>Your simulator must accept workloads in the following format:</p><pre><code class="language-bash"># Process workload specification
+# Format: PID ArrivalTime BurstTime
+A 0 240
+B 10 180
+C 20 150
+D 25 80
+E 30 130
+</code></pre><p>Lines beginning with <code>#</code> are comments. Each process is specified by:</p><ul><li><strong>PID</strong>: Process identifier (string or integer)</li><li><strong>ArrivalTime</strong>: Time when process enters the ready queue (integer)</li><li><strong>BurstTime</strong>: Total CPU time required (integer)</li></ul><p><strong>Important note on BurstTime:</strong> While your input format includes BurstTime for simulation purposes, your <strong>MLFQ implementation must not read or use this value</strong>. MLFQ must dynamically determine a process's behavior (short vs. long-running) through observation during execution. This is the fundamental difference between MLFQ and algorithms like SJF/STCF that require knowing burst times in advance. The BurstTime field is only used by your simulator to know when a process completes. But MLFQ scheduling decisions must be made without consulting this value.</p><p>Your simulator should also accept workloads via command-line arguments:</p><pre><code class="language-bash">$ ./schedsim --algorithm=FCFS --processes=&quot;A:0:240,B:10:180,C:20:150&quot;
+</code></pre><p>Hence, it must also be callable as a compiled binary using your Unix Shell from Lab 1.</p><h3 id="algorithm-implementation">Algorithm Implementation</h3><h4 id="first-come-first-serve-fcfs">First-Come First-Serve (FCFS)</h4><p>Implement non-preemptive FCFS scheduling:</p><ul><li>Processes execute in order of arrival</li><li>Once a process starts, it runs to completion</li><li>Simple queue-based implementation</li></ul><pre><code class="language-bash">$ ./schedsim --algorithm=FCFS --input=workload.txt
+Running FCFS Scheduler...
+
+=== Gantt Chart ===
+[A--------------][B--------][C------]
+Time: 0        240       420      570
+
+=== Metrics ===
+Process | AT  | BT  | FT  | TT  | WT  | RT  
+--------|-----|-----|-----|-----|-----|-----
+A       |   0 | 240 | 240 | 240 |   0 |   0
+B       |  10 | 180 | 420 | 410 | 230 | 230
+C       |  20 | 150 | 570 | 550 | 400 | 400
+--------|-----|-----|-----|-----|-----|-----
+Average |     |     |     | 400 | 210 | 210
+
+Convoy effect detected: Process B waited 230 time units
+</code></pre><h4 id="shortest-job-first-sjf">Shortest Job First (SJF)</h4><p>Implement non-preemptive SJF:</p><ul><li>Select process with shortest burst time from ready queue</li><li>Once selected, runs to completion</li><li>Optimal for average turnaround time (non-preemptive case)</li><li>Requires sorting or priority queue (which is better?)</li></ul><h4 id="shortest-time-to-completion-first-stcf">Shortest Time-to-Completion First (STCF)</h4><p>Implement preemptive SJF (STCF):</p><ul><li>Always run process with shortest remaining time</li><li>Preempt current process if new arrival has shorter remaining time</li><li>Optimal for average turnaround time (preemptive case)</li><li>Track remaining burst time for each process</li></ul><pre><code class="language-bash">$ ./schedsim --algorithm=STCF --input=workload.txt
+
+=== Gantt Chart ===
+[A][C---][D--][E---][B----][A----------]
+Time: 0 10   100  150   250     400    570
+
+Process A was preempted at t=10 (remaining: 230)
+Process A resumed at t=400
+</code></pre><h4 id="round-robin-rr">Round Robin (RR)</h4><p>Implement preemptive round-robin scheduling:</p><ul><li>Each process gets fixed time quantum <code>q</code></li><li>After quantum expires, process moves to end of ready queue</li><li>Fair allocation of CPU time</li><li>Configurable time quantum (default: 30)</li><li>Note that queues must run in isolation during quantums (recall: lecture nuance)</li></ul><pre><code class="language-bash">$ ./schedsim --algorithm=RR --quantum=50 --input=workload.txt
+
+Using time quantum q=50
+
+=== Gantt Chart ===
+[A-][B-][C-][D-][E-][A-][B-][C-]...
+Time: 0  50 100 150 200 250 300 350
+
+Total context switches: 18
+Average response time: 45.2
+</code></pre><h4 id="multi-level-feedback-queue-mlfq">Multi-Level Feedback Queue (MLFQ)</h4><p>Design and implement your own MLFQ scheduler with the following requirements:</p><ul><li><strong>Minimum 3 priority levels</strong> (you may use more)</li><li><strong>Configurable time quantum per level</strong> (must decrease or stay constant at lower priorities)</li><li><strong>Priority boost mechanism</strong> after period <code>S</code></li><li><strong>Allotment tracking</strong> to prevent gaming via yielding</li><li><strong>Downward demotion</strong> when process exhausts time allotment</li><li><strong>No knowledge of BurstTime</strong>: Your MLFQ must <em>not</em> read the BurstTime field from the input. It must infer whether a process is interactive (short) or compute-intensive (long) through observation alone. This is the key insight of MLFQ—it adapts to process behavior without requiring <em>a priori</em> knowledge.</li><li><strong>Justification</strong> of your design parameters in documentation</li></ul><p>Example MLFQ configuration:</p><pre><code class="language-bash"># Multi-Level Feedback Queue Configuration
+# Format: QueueID TimeQuantum Allotment
+
+# High priority (interactive jobs)
+Q0 10 50
+
+# Medium priority (mixed workloads)
+Q1 30 150
+
+# Low priority (batch jobs) - FCFS
+Q2 -1 -1
+
+# Priority boost period
+BOOST_PERIOD 200
+</code></pre><pre><code class="language-bash">$ ./schedsim --algorithm=MLFQ --mlfq-config=mlfq_config.txt \
+             --input=workload.txt
+
+=== MLFQ Configuration ===
+Queue 0: q=10, allotment=50 (highest priority)
+Queue 1: q=30, allotment=150
+Queue 2: FCFS (lowest priority)
+Boost period: 200
+
+=== Execution Trace ===
+t=0:   Process A enters Q0
+t=10:  Process A -&gt; Q1 (exhausted Q0 allotment)
+t=50:  Priority boost: all processes -&gt; Q0
+t=60:  Process B completes in Q0
+...
+
+=== Analysis ===
+Interactive job (short burst) behavior: 
+  - Process D stayed in Q0 (completed in 80 time units)
+  - Average response time: 5.0
+
+Long-running job behavior:
+  - Process A demoted to Q2 after 200 time units
+  - Turnaround time: 570 (fair for its burst time)
+
+Your MLFQ successfully balanced responsiveness and fairness.
+</code></pre><h3 id="metrics-calculation">Metrics Calculation</h3><p>For each algorithm, compute and display:</p><ul><li><strong>Finish Time (FT)</strong>: When process completes</li><li><strong>Turnaround Time (TT)</strong>: FT - ArrivalTime</li><li><strong>Waiting Time (WT)</strong>: Time spent in ready queue</li><li><strong>Response Time (RT)</strong>: Time until first execution from arrival time</li></ul><p>Calculate both per-process and average metrics. Your output should clearly show the formula used:</p><pre><code class="language-bash">Process A:
+  Arrival Time:     0
+  Burst Time:       240
+  Finish Time:      240
+  Turnaround Time:  240 - 0 = 240
+  Waiting Time:     240 - 240 = 0
+  Response Time:    0 - 0 = 0
+</code></pre><h3 id="gantt-chart-generation">Gantt Chart Generation</h3><p>Generate ASCII Gantt charts showing process execution over time:</p><ul><li>Represent each time unit with a character</li><li>Use different symbols/letters for different processes</li><li>Show time markers at regular intervals</li><li>Scale appropriately for long simulations</li></ul><p>For long simulations, provide a scaled view:</p><pre><code class="language-bash">Each char = 10 time units:
+[AAAA][BBB][CCC][DD][EEE]
+Time: 0  100 180 250 280 350
+</code></pre><h3 id="comparative-analysis">Comparative Analysis</h3><p>Provide a comparison mode that runs all algorithms on the same workload:</p><pre><code class="language-bash">$ ./schedsim --compare --input=workload.txt
+
+=== Algorithm Comparison for workload.txt ===
+
+Algorithm | Avg TT | Avg WT | Avg RT | Context Switches
+----------|--------|--------|--------|------------------
+FCFS      |  400.0 |  210.0 |  210.0 |        0
+SJF       |  340.0 |  150.0 |  150.0 |        0
+STCF      |  280.0 |   90.0 |   25.0 |       12
+RR (q=30) |  385.0 |  195.0 |   45.0 |       28
+MLFQ      |  310.0 |  120.0 |   38.0 |       15
+</code></pre><hr><h2 id="technical-requirements">Technical Requirements</h2><h3 id="process-execution-model">Process Execution Model</h3><p><strong>Important:</strong> Your simulator must be designed to run as a child process spawned via <code>fork()</code> and <code>exec()</code>. When invoked from the command line or by another program, it should function correctly as a standalone executable. This mimics how real operating systems launch processes, and you will be testing this during defense using your Unix Shell from Lab 1.</p><p>Example expected behavior:</p><pre><code class="language-c">// From parent process (e.g., your shell or test harness)
+pid_t pid = fork();
+if (pid == 0) {
+    // Child process
+    char *args[] = {&quot;./schedsim&quot;, &quot;--algorithm=FCFS&quot;, 
+                    &quot;--input=workload.txt&quot;, NULL};
+    execvp(args[0], args);
+    perror(&quot;exec failed&quot;);
+    exit(1);
+} else {
+    // Parent waits for simulator to complete
+    int status;
+    waitpid(pid, &amp;status, 0);
+    if (WIFEXITED(status)) {
+        printf(&quot;Simulator exited with code %d\n&quot;, WEXITSTATUS(status));
+    }
+}
+</code></pre><p>This design ensures your simulator:</p><ul><li>Functions correctly as a standalone executable</li><li>Can be launched by other programs (including your Lab 1 shell)</li><li>Returns appropriate exit codes (0 for success, non-zero for errors)</li><li>Properly handles command-line arguments via <code>argv</code></li><li>Works with standard I/O streams (stdin, stdout, stderr)</li></ul><h3 id="data-structures">Data Structures</h3><p>Design appropriate data structures to represent processes and scheduling state:</p><pre><code class="language-c">typedef struct {
+    char pid[16];           // Process identifier
+    int arrival_time;       // When process arrives
+    int burst_time;         // Total CPU time needed
+    int remaining_time;     // For preemptive algorithms
+    int start_time;         // When first executed (for RT)
+    int finish_time;        // When completed (for TT)
+    int waiting_time;       // Time spent waiting
+    int priority;           // For MLFQ
+    int time_in_queue;      // For MLFQ allotment tracking
+} Process;
+</code></pre><pre><code class="language-c">typedef struct {
+    int level;              // Queue priority level (0 = highest)
+    int time_quantum;       // Time slice for this queue (-1 for FCFS)
+    int allotment;          // Max time before demotion (-1 for infinite)
+    Process *queue;         // Array or linked list of processes
+    int size;               // Current queue size
+} MLFQQueue;
+
+typedef struct {
+    MLFQQueue *queues;      // Array of queues
+    int num_queues;         // Number of priority levels
+    int boost_period;       // Period for priority boost (S)
+    int last_boost;         // Last boost time
+} MLFQScheduler;
+</code></pre><h3 id="scheduling-algorithms-as-functions">Scheduling Algorithms as Functions</h3><p>Implement each algorithm as a separate function with a consistent interface. This ensures scalability should expansion of scheduler algorithms be required in the future:</p><pre><code class="language-c">typedef struct {
+    Process *processes;     // Array of all processes
+    int num_processes;      // Number of processes
+    int current_time;       // Current simulation time
+    // ... additional fields for metrics, Gantt chart, etc.
+    // Recall: CMSC 141
+} SchedulerState;
+
+// Return 0 on success, -1 on error (command line etiquette)
+int schedule_fcfs(SchedulerState *state);
+int schedule_sjf(SchedulerState *state);
+int schedule_stcf(SchedulerState *state);
+int schedule_rr(SchedulerState *state, int quantum);
+int schedule_mlfq(SchedulerState *state, MLFQConfig *config);
+</code></pre><h3 id="simulation-engine">Simulation Engine</h3><p>Implement a discrete-event simulation engine:</p><pre><code class="language-c">typedef enum {
+    EVENT_ARRIVAL,
+    EVENT_COMPLETION,
+    EVENT_QUANTUM_EXPIRE,
+    EVENT_PRIORITY_BOOST
+} EventType;
+
+typedef struct Event {
+    int time;
+    EventType type;
+    Process *process;
+    struct Event *next;
+} Event;
+
+void simulate_scheduler(SchedulerState *state, 
+                       SchedulingAlgorithm algorithm) {
+    Event *event_queue = initialize_events(state);
+    
+    while (event_queue != NULL) {
+        Event *current = pop_event(&amp;event_queue);
+        state-&gt;current_time = current-&gt;time;
+        
+        switch (current-&gt;type) {
+            case EVENT_ARRIVAL:
+                handle_arrival(state, current-&gt;process);
+                break;
+            case EVENT_COMPLETION:
+                handle_completion(state, current-&gt;process);
+                break;
+            // ... handle other events
+        }
+        
+        free(current);
+    }
+    
+    calculate_metrics(state);
+    print_results(state);
+}
+</code></pre><h3 id="code-organization">Code Organization</h3><p>Structure your project with clear separation of concerns:</p><pre><code class="language-bash">schedsim/
+|-- Makefile
+|-- README.md
+|-- include/
+|   |-- process.h           # Process data structures
+|   |-- scheduler.h         # Scheduler interfaces
+|   |-- metrics.h           # Metrics calculation
+|   +-- gantt.h             # Gantt chart generation
+|-- src/
+|   |-- main.c              # CLI and main loop
+|   |-- process.c           # Process management
+|   |-- fcfs.c              # FCFS implementation
+|   |-- sjf.c               # SJF implementation
+|   |-- stcf.c              # STCF implementation
+|   |-- rr.c                # Round Robin implementation
+|   |-- mlfq.c              # MLFQ implementation
+|   |-- metrics.c           # Metrics calculation
+|   |-- gantt.c             # Gantt chart rendering
+|   +-- utils.c             # Utility functions
+|-- tests/
+|   |-- workload1.txt       # Test workloads
+|   |-- workload2.txt
+|   +-- test_suite.sh       # Automated test script
++-- docs/
+    +-- mlfq_design.md      # Your MLFQ design justification
+</code></pre><hr><h2 id="implementation-notes">Implementation Notes</h2><h3 id="discrete-event-simulation">Discrete-Event Simulation</h3><p>Your simulator operates in discrete time steps. At each time unit:</p><ol><li>Check for process arrivals</li><li>Update running process (decrement remaining time)</li><li>Handle process completion or quantum expiration</li><li>Select next process according to algorithm</li><li>Record state for Gantt chart</li></ol><pre><code class="language-c">for (int t = 0; !all_complete(processes); t++) {
+    // Handle arrivals at time t
+    for (int i = 0; i &lt; num_processes; i++) {
+        if (processes[i].arrival_time == t) {
+            enqueue_ready(&amp;ready_queue, &amp;processes[i]);
+            if (processes[i].start_time == -1) {
+                processes[i].start_time = t;  // For response time
+            }
+        }
+    }
+    
+    // Run current process for 1 time unit
+    if (current_process != NULL) {
+        current_process-&gt;remaining_time--;
+        gantt_chart[t] = current_process-&gt;pid;
+        
+        if (current_process-&gt;remaining_time == 0) {
+            current_process-&gt;finish_time = t + 1;
+            current_process = NULL;
+        }
+    }
+    
+    // Select next process (algorithm-specific)
+    if (current_process == NULL &amp;&amp; !is_empty(ready_queue)) {
+        current_process = select_next_process(&amp;ready_queue);
+    }
+}
+</code></pre><h3 id="metrics-calculation-1">Metrics Calculation</h3><p>Calculate metrics after simulation completes:</p><pre><code class="language-c">void calculate_metrics(Process *processes, int n) {
+    for (int i = 0; i &lt; n; i++) {
+        Process *p = &amp;processes[i];
+        
+        // Turnaround time = Finish time - Arrival time
+        p-&gt;turnaround_time = p-&gt;finish_time - p-&gt;arrival_time;
+        
+        // Waiting time = Turnaround time - Burst time
+        p-&gt;waiting_time = p-&gt;turnaround_time - p-&gt;burst_time;
+        
+        // Response time = Start time - Arrival time
+        p-&gt;response_time = p-&gt;start_time - p-&gt;arrival_time;
+    }
+}
+
+double calculate_average_turnaround(Process *processes, int n) {
+    double sum = 0.0;
+    for (int i = 0; i &lt; n; i++) {
+        sum += processes[i].turnaround_time;
+    }
+    return sum / n;
+}
+</code></pre><h3 id="mlfq-implementation-strategy">MLFQ Implementation Strategy</h3><p>For your MLFQ implementation, consider this approach:</p><ol><li>New processes enter the highest-priority queue (Q0)</li><li>Each queue has its own time quantum and allotment</li><li>Track how much time a process has used in its current queue</li><li>When allotment is exhausted, demote to next lower queue</li><li>Implement priority boost by moving all processes to Q0 after period S (ensure processes cannot game the system by implementing T, maximum time in each queue, for better accounting)</li><li>Use essentially FCFS for the lowest queue (infinite time quantum)</li></ol><pre><code class="language-c">void mlfq_adjust_priority(MLFQScheduler *scheduler, Process *p) {
+    MLFQQueue *current_queue = &amp;scheduler-&gt;queues[p-&gt;priority];
+    
+    // Check if process exhausted its allotment
+    if (p-&gt;time_in_queue &gt;= current_queue-&gt;allotment) {
+        // Demote to lower priority
+        if (p-&gt;priority &lt; scheduler-&gt;num_queues - 1) {
+            remove_from_queue(current_queue, p);
+            p-&gt;priority++;
+            p-&gt;time_in_queue = 0;  // Reset allotment
+            add_to_queue(&amp;scheduler-&gt;queues[p-&gt;priority], p);
+        }
+    }
+}
+
+void mlfq_priority_boost(MLFQScheduler *scheduler, int current_time) {
+    if (current_time - scheduler-&gt;last_boost &gt;= scheduler-&gt;boost_period) {
+        // Move all processes to highest priority
+        for (int i = 1; i &lt; scheduler-&gt;num_queues; i++) {
+            MLFQQueue *queue = &amp;scheduler-&gt;queues[i];
+            while (queue-&gt;size &gt; 0) {
+                Process *p = dequeue(queue);
+                p-&gt;priority = 0;
+                p-&gt;time_in_queue = 0;
+                enqueue(&amp;scheduler-&gt;queues[0], p);
+            }
+        }
+        scheduler-&gt;last_boost = current_time;
+    }
+}
+</code></pre><h3 id="design-justification-for-mlfq">Design Justification for MLFQ</h3><p>Your <code>docs/mlfq_design.md</code> must justify your MLFQ parameters:</p><ul><li><strong>Number of queues</strong>: Why did you choose 3, 4, or more levels?</li><li><strong>Time quantum per level</strong>: How did you decide quantum sizes?</li><li><strong>Maximum time per level</strong>: How did you decide the time a process is allowed on each queue?</li><li><strong>Boost period</strong>: How often should priority boosts occur?</li><li><strong>Allotment values</strong>: What reasoning led to your allotment choices?</li><li><strong>Empirical testing</strong>: Show test results supporting your design</li></ul><p>Example justification:</p><blockquote><p>&quot;We chose 4 priority levels because our test workloads showed a clear distinction between very short interactive jobs (&lt;50 time units), medium-length jobs (50-200), long batch jobs (200-500), and very long computations (&gt;500). Using quantum sizes of 10, 30, 100, and FCFS allowed short jobs to complete in Q0-Q1 with minimal context switching, while preventing long jobs from monopolizing the CPU. A boost period of 300 was selected after testing showed this prevented starvation while maintaining good responsiveness for new arrivals.&quot;</p></blockquote><hr><h2 id="common-pitfalls">Common Pitfalls</h2><ul><li><p><strong>Off-by-one errors:</strong> Be careful with time boundaries. Does a process that arrives at t=10 and runs for 5 units complete at t=15 or t=14?</p></li><li><p><strong>Start time tracking:</strong> Response time requires knowing when a process <em>first</em> executes, not when it arrives. Track this separately.</p></li><li><p><strong>STCF preemption:</strong> When a new process arrives with shorter remaining time, preemption should happen immediately, not after current quantum.</p></li><li><p><strong>RR quantum expiration:</strong> Process moves to end of queue even if it has &lt;q remaining time. Don't give it another quantum if it's about to complete.</p></li><li><p><strong>MLFQ allotment tracking:</strong> Allotment persists across quantum expirations within the same queue. Reset only on demotion.</p></li><li><p><strong>MLFQ using BurstTime:</strong> Your MLFQ implementation must NOT read or use the BurstTime field. It should only track remaining_time (decremented as the process runs) to know when a process completes. All scheduling decisions must be based on observed behavior (time in queue, allotment exhaustion) not on knowing the total burst time upfront.</p></li><li><p><strong>Priority boost timing:</strong> Boost should happen at regular intervals, not triggered by specific process events.</p></li><li><p><strong>Waiting time calculation:</strong> Waiting time = (Turnaround time) - (Burst time), not just time in ready queue. Be careful with context switches.</p></li><li><p><strong>Memory management:</strong> Free all dynamically allocated structures (queues, event lists, Gantt chart data).</p></li></ul><hr><h2 id="testing-strategy">Testing Strategy</h2><h3 id="unit-testing">Unit Testing</h3><p>Test individual components:</p><ul><li><strong>Process arrival:</strong> Verify processes enter ready queue at correct time</li><li><strong>Queue operations:</strong> Test enqueue, dequeue, sorting for SJF/STCF</li><li><strong>Metrics calculation:</strong> Hand-calculate expected values for small workloads</li><li><strong>MLFQ transitions:</strong> Test priority changes, boosts, allotment exhaustion</li></ul><h3 id="algorithm-verification">Algorithm Verification</h3><p>Use the workloads from lecture quizzes to verify correctness:</p><pre><code class="language-bash"># Quiz 3 workload from lesson3.md
+# Expected results from lecture
+A 0 240
+B 10 180
+C 20 150
+D 25 80
+E 30 130
+
+# FCFS average TT should be 515
+# SJF average TT should be 461
+# STCF average TT should be 393
+# RR (q=30) average TT should be 627
+</code></pre><p>If your results don't match the lecture examples, your implementation has bugs (or the quiz has typos).</p><h3 id="edge-cases">Edge Cases</h3><ul><li><strong>Single process:</strong> All algorithms should behave identically</li><li><strong>Simultaneous arrivals:</strong> Test tie-breaking (alphabetical by PID?)</li><li><strong>Zero-time processes:</strong> Process with burst time = 0 (should complete immediately)</li><li><strong>Very long workloads:</strong> Test with 100+ processes, ensure no memory issues</li><li><strong>Identical burst times:</strong> All processes have same burst time (SJF becomes FCFS)</li><li><strong>Staircase arrivals:</strong> Processes arrive at t = 0, 1, 2, 3, ...</li></ul><h3 id="performance-analysis">Performance Analysis</h3><p>Test your MLFQ against different workload patterns:</p><ul><li><strong>All short jobs:</strong> Most processes have burst time &lt; 50</li><li><strong>All long jobs:</strong> Most processes have burst time &gt; 200</li><li><strong>Mixed workload:</strong> Half short, half long</li><li><strong>Bimodal:</strong> Many very short jobs and a few very long jobs</li><li><strong>I/O-bound simulation:</strong> Short CPU bursts with gaps (simulate I/O)</li></ul><p>For each workload, analyze:</p><ul><li>Average turnaround time vs. optimal (SJF or STCF)</li><li>Average response time vs. RR</li><li>Fairness: variance in waiting times</li><li>Queue distribution: what % of time spent in each queue?</li></ul><h3 id="automated-testing">Automated Testing</h3><p>Create a test script that verifies all algorithms:</p><pre><code class="language-bash">#!/bin/bash
+# test_suite.sh
+
+echo &quot;Running CMSC 125 Lab 2 Test Suite...&quot;
+
+# Test 1: Verify against lecture examples
+echo &quot;Test 1: Lecture Quiz 3 Workload&quot;
+./schedsim --algorithm=FCFS --input=tests/quiz3.txt &gt; /tmp/fcfs.txt
+if grep -q &quot;Average.*515&quot; /tmp/fcfs.txt; then
+    echo &quot;  FCFS: PASS&quot;
+else
+    echo &quot;  FCFS: FAIL (expected avg TT = 515)&quot;
+fi
+
+# Test 2: Edge cases
+echo &quot;Test 2: Edge Cases&quot;
+./schedsim --algorithm=STCF --processes=&quot;A:0:0&quot; &gt; /dev/null
+if [ $? -eq 0 ]; then
+    echo &quot;  Zero burst time: PASS&quot;
+else
+    echo &quot;  Zero burst time: FAIL&quot;
+fi
+
+echo &quot;Test suite complete.&quot;
+echo &quot;Note: Memory leaks will be checked via code review during defense.&quot;
+</code></pre><hr><h2 id="deliverables">Deliverables</h2><p>Your group's GitHub repository, in addition to a clean, incremental commit history showing individual commits, must contain:</p><ol><li>All source files (<code>.c</code> and <code>.h</code> files) with proper documentation</li><li><code>Makefile</code> with targets:<ul><li><code>all</code>: Compile the simulator</li><li><code>clean</code>: Remove binaries and object files</li><li><code>test</code>: Run automated test suite</li></ul></li><li><code>README.md</code> with:<ul><li><strong>Complete names</strong> of group members</li><li>Compilation and usage instructions</li><li>List of implemented features and algorithms</li><li>Example usage commands with expected output</li><li>Known limitations or assumptions</li></ul></li><li><code>docs/mlfq_design.md</code> containing:<ul><li>Detailed justification of your MLFQ design</li><li>Parameter choices (number of queues, quantums, allotments, boost period)</li><li>Empirical testing results supporting your design</li><li>Comparison with standard 3-level MLFQ</li><li>Discussion of tradeoffs in your design</li></ul></li><li><code>tests/</code> directory with:<ul><li>Test workload files (including lecture examples)</li><li>Automated test script</li><li>Expected output files for verification</li></ul></li><li>Screenshots or output logs demonstrating:<ul><li>Each algorithm running successfully</li><li>Gantt charts for different workloads</li><li>Comparative analysis across algorithms</li><li>Your MLFQ handling different workload types</li></ul></li></ol><p>To submit, simply invite the <a href="https://github.com/WhiteLicorice">instructor</a> as a collaborator. Commits after the instructor has already graded the repository will not be considered.</p><p>Then, submit the following, <strong>individually</strong>, through email:</p><ol><li>A short <code>reflection.txt</code> containing a brief summary of lessons learned, challenges encountered during the activity, and insights gained about CPU scheduling.</li><li>If in a group: a short <code>peer.txt</code> containing your thoughts about the work and conduct of your peers in the group during the activity.</li><li>The link to your GitHub repository (for verification)</li></ol><p>Adhere to the following subject line: <code>[CMSC 125 Lab] Lab 2: Surname, Initials</code>.</p><p>For example: <code>[CMSC 125 Lab] Lab 2: Sanchez, SM</code>.</p><hr><h2 id="academic-honesty">Academic Honesty</h2><p>The usage of Large Language Models (e.g. ChatGPT, Claude, Deepseek, etc.) to generate code is considered cheating. As cheating is against the university's code of ethics, it is subject to failure in the course and harsh disciplinary action.</p><hr><h2 id="important-dates">Important Dates</h2><p>Progress reports and laboratory defense may be booked only during the dates and hours defined in the syllabus. It is mandatory to book appointments ahead of time on the <a href="https://cal.com/renscourses/cmsc125lab">course's booking page</a> (also accessible on the course site).</p><table><thead><tr><th><strong>Activity</strong></th><th style="text-align:center"><strong>Monday</strong></th><th style="text-align:center"><strong>Wednesday</strong></th><th style="text-align:center"><strong>Thursday</strong></th></tr></thead><tbody><tr><td>Week 1 Progress Report</td><td style="text-align:center">Mar 2</td><td style="text-align:center">Mar 4</td><td style="text-align:center">Mar 5</td></tr><tr><td>Week 2 Progress Report</td><td style="text-align:center">Mar 9</td><td style="text-align:center">Mar 11</td><td style="text-align:center">Mar 12</td></tr><tr><td>Week 3 Progress Report</td><td style="text-align:center">Mar 16</td><td style="text-align:center">Mar 18</td><td style="text-align:center">Mar 19</td></tr><tr><td><strong>Week 4 Laboratory Defense</strong></td><td style="text-align:center"><strong>Mar 23</strong></td><td style="text-align:center"><strong>Mar 25</strong></td><td style="text-align:center"><strong>Mar 26</strong></td></tr></tbody></table><p>The instructor must verify appointments ahead of time before they can be considered valid. See the syllabus for proper hours and more details.</p><hr><h2 id="laboratory-grading-rubric">Laboratory Grading Rubric</h2><table><thead><tr><th><strong>Criteria</strong></th><th><strong>Excellent (90–100%)</strong></th><th><strong>Good (75–89%)</strong></th><th><strong>Fair (60–74%)</strong></th><th><strong>Poor (0–59%)</strong></th></tr></thead><tbody><tr><td><strong>System Architecture (25%)</strong></td><td>Modular design with clean separation of concerns; robust data structures; efficient resource usage.</td><td>Mostly modular; logic is functional but slightly coupled; data structures are appropriate.</td><td>Significant logic sprawl; monolithic functions; inconsistent data handling or hard-coded limits.</td><td>Spaghetti code; no modularity; violates basic systems programming principles.</td></tr><tr><td><strong>Robustness (20%)</strong></td><td>Handles complex edge cases and race conditions; perfect resource lifecycle; graceful error recovery.</td><td>Handles core features well; minor issues with fringe edge cases or synchronization logic.</td><td>Basic features work, but system is unstable; frequent resource leaks or intermittent errors.</td><td>Fails core logic; program crashes on unexpected input; incorrect usage of fundamental syscalls.</td></tr><tr><td><strong>Code Engineering (10%)</strong></td><td>No memory leaks; all syscalls check return codes; uses <code>perror</code> appropriately; safe pointer usage.</td><td>Minor leaks or missing checks on non-critical syscalls; mostly safe pointer arithmetic.</td><td>Inconsistent error handling; frequent unsafe operations; significant leaks or lack of bounds checking.</td><td>Frequent segmentation faults; silent failures of syscalls; no evidence of memory management.</td></tr><tr><td><strong>Collaboration (20%)</strong></td><td>Professional Git usage: atomic, semantic commits; use of feature branches; evidence of team collaboration.</td><td>Consistent use of version control; adequate commit messages; evidence of a structured team workflow.</td><td>Inconsistent Git usage; large code dumps instead of incremental progress; vague commit messages.</td><td>Minimal use of version control; repository lacks history or shows no evidence of teamwork.</td></tr><tr><td><strong>Technical Defense (25%)</strong></td><td>Both members articulate the low-level mechanics; handles what-if scenarios and code-tracing confidently.</td><td>Clear architectural explanation; both members participate meaningfully; logic delivery is sound.</td><td>Unclear explanations of system mechanics; uneven participation; struggles with logic-flow questions.</td><td>Unprepared; cannot explain system flow or syscall interactions; unable to defend design decisions.</td></tr></tbody></table></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script></main><footer class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js"></script><script src="js/calendar.js"></script><script src="js/code-features.js"></script><script src="js/scroll-button.js"></script><script src="js/toc.js"></script><script src="js/site.js"></script></body></html>
