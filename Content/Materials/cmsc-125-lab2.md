@@ -1,7 +1,7 @@
 ---
 title: CPU Scheduling
 subtitle: CMSC 125 Lab 2
-lead: CPU Scheduling
+lead: CPU virtualization simulator.
 published: 2026-02-26
 tags: [cmsc-125]
 authors:
