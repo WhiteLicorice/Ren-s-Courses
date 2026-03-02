@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css" rel="stylesheet"><link href="css/site.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="preload" href="css/prism-dark.css" as="style"><link rel="preload" href="css/prism-light.css" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css"><script>!function(){var e=window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("user-theme"),m="dark";m="light"===t?"light":"dark"===t||e?"dark":"light",document.documentElement.setAttribute("data-theme",m),"light"===m&&(document.getElementById("prism-theme-link").href="css/prism-light.css")}()</script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js" integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js" integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="manifest" href="site.webmanifest.json"><meta name="theme-color" content="#ef4444"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex lg:w-0 lg:flex-1"><a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="materials" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Materials</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><div class="relative"><button id="desktop-dropdown-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors"><span class="sr-only">More menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto"><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Submissions</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Toggle Theme"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Submissions</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>const menuContainer=document.querySelector("#mobile-menu-container"),backdrop=document.querySelector("#mobile-backdrop"),toggleBtn=document.querySelector("#toggle-button"),closeBtn=document.querySelector("#close-mobile-menu-button"),toggleMobileMenu=()=>{menuContainer.classList.contains("hidden")?(menuContainer.classList.remove("hidden"),document.body.classList.add("overflow-hidden")):(menuContainer.classList.add("hidden"),document.body.classList.remove("overflow-hidden"))};toggleBtn.addEventListener("click",toggleMobileMenu),closeBtn.addEventListener("click",toggleMobileMenu),backdrop.addEventListener("click",toggleMobileMenu);const desktopBtn=document.getElementById("desktop-dropdown-btn"),desktopMenu=document.getElementById("desktop-dropdown-menu");function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{e.forEach(e=>{const n=e.querySelector(".icon-sun"),o=e.querySelector(".icon-moon");"light"===t?(n.classList.add("hidden"),o.classList.remove("hidden")):(o.classList.add("hidden"),n.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}desktopBtn&&desktopMenu&&(desktopBtn.addEventListener("click",e=>{e.stopPropagation(),desktopMenu.classList.toggle("hidden")}),document.addEventListener("click",e=>{desktopMenu.classList.contains("hidden")||desktopMenu.contains(e.target)||e.target===desktopBtn||desktopMenu.classList.add("hidden")})),initThemeToggle();let lastScrollTop=0;const navbar=document.getElementById("main-navbar");window.addEventListener("scroll",function(){let e=window.pageYOffset||document.documentElement.scrollTop;if(e<=64)return navbar.classList.remove("-translate-y-full"),void(lastScrollTop=e);e>lastScrollTop?(navbar.classList.add("-translate-y-full"),desktopMenu&&!desktopMenu.classList.contains("hidden")&&desktopMenu.classList.add("hidden"),menuContainer.classList.contains("hidden")?navbar.classList.add("-translate-y-full"):navbar.classList.remove("-translate-y-full")):navbar.classList.remove("-translate-y-full"),lastScrollTop=e})</script><main class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-197-gdd" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-197-gdd</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">Jungle Jump Pt. 2</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 197 GDD Activity 6</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>March 17, 2026</time></div><a href="https://drive.google.com/file/d/1MHzwuGHm786vk2l1age9ePi0DuNVmDVT/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-accent hover:text-text-main transition-colors group text-sm font-medium mt-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-y-0.5"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"></path><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"></path></svg> <span class="border-b border-accent/30 group-hover:border-text-main pb-0.5">Download</span></a></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><h2 id="session-objectives">Session Objectives</h2><ul><li>Implement player movement with velocity-based physics</li><li>Complete finite state machine with state transitions</li><li>Integrate animation system with state machine</li><li>Add gravity and jump mechanics</li><li>Create player health system with damage response</li></ul><hr><h2 id="recap-from-pt.1">Recap from Pt. 1</h2><p>Last session, you created the Player scene with:</p><ul><li>CharacterBody2D root node with proper collision layers</li><li>AnimationPlayer with all movement animations</li><li>Camera2D for viewport control</li><li>Basic FSM skeleton with enum states</li></ul><p>Today, you'll bring the player to life with movement, state transitions, and a health system.</p><hr><h2 id="player-movement-implementation">Player Movement Implementation</h2><h3 id="input-processing">Input Processing</h3><p>The player needs three controls: left, right, and jump. Create a <code>get_input()</code> function that processes inputs and determines state transitions.</p><p><strong>Add to player.gd (after change_state function):</strong></p><pre><code class="language-gdscript">func get_input() -&gt; void:
+    var right: bool = Input.is_action_pressed(&quot;right&quot;)
+    var left: bool = Input.is_action_pressed(&quot;left&quot;)
+    var jump: bool = Input.is_action_just_pressed(&quot;jump&quot;)
+    
+    # Movement occurs in all states
+    velocity.x = 0
+    if right:
+        velocity.x += run_speed
+        $Sprite2D.flip_h = false
+    if left:
+        velocity.x -= run_speed
+        $Sprite2D.flip_h = true
+    
+    # Only allow jumping when on the ground
+    if jump and is_on_floor():
+        change_state(JUMP)
+        velocity.y = jump_speed
+    
+    # IDLE transitions to RUN when moving
+    if state == IDLE and velocity.x != 0:
+        change_state(RUN)
+    
+    # RUN transitions to IDLE when standing still
+    if state == RUN and velocity.x == 0:
+        change_state(IDLE)
+    
+    # Transition to JUMP when in the air
+    if state in [IDLE, RUN] and not is_on_floor():
+        change_state(JUMP)
+</code></pre><h4 id="design-pattern-velocity-reset">Design Pattern: Velocity Reset</h4><p><code>velocity.x = 0</code> at the start of <code>get_input()</code> ensures the player stops immediately when no keys are pressed. Without this, the player would continue sliding due to retained velocity.</p><p>This differs from RigidBody2D where friction gradually reduces velocity. For platformers, instant response feels better.</p><h3 id="input-method-comparison">Input Method Comparison</h3><table><thead><tr><th><strong>Method</strong></th><th><strong>Behavior</strong></th></tr></thead><tbody><tr><td><code>is_action_pressed()</code></td><td>Returns <code>true</code> continuously while key is held</td></tr><tr><td><code>is_action_just_pressed()</code></td><td>Returns <code>true</code> only on the frame the key was pressed</td></tr></tbody></table><p><strong>Jump uses <code>is_action_just_pressed()</code>:</strong> Players must press jump each time. Holding the key doesn't create continuous jumps. This prevents accidental double-jumping and provides precise control.</p><h3 id="sprite-flipping">Sprite Flipping</h3><pre><code class="language-gdscript">$Sprite2D.flip_h = false  # Face right
+$Sprite2D.flip_h = true   # Face left
+</code></pre><p><strong>Rationale:</strong> Instead of rotating the sprite or creating separate left/right animations, we flip the sprite horizontally. This saves memory and animation effort while maintaining visual correctness.</p><hr><h2 id="physics-processing">Physics Processing</h2><h3 id="the-physics-loop">The Physics Loop</h3><p>Add the <code>_physics_process()</code> function to handle gravity, input, and movement:</p><pre><code class="language-gdscript">func _physics_process(delta: float) -&gt; void:
+    velocity.y += gravity * delta
+    get_input()
+    move_and_slide()
+    
+    # JUMP ends when landing
+    if state == JUMP and is_on_floor():
+        change_state(IDLE)
+    
+    # Switch to falling animation
+    if state == JUMP and velocity.y &gt; 0:
+        $AnimationPlayer.play(&quot;jump_down&quot;)
+</code></pre><h4 id="architecture-note-physics-frame-independence">Architecture Note: Physics Frame Independence</h4><p><strong>Why multiply by delta?</strong></p><p><code>delta</code> is the time elapsed since the last frame (typically ~0.016s for 60 FPS).</p><p>Without delta: <code>velocity.y += 750</code> would add 750 pixels/frame</p><ul><li>60 FPS: 750 * 60 = 45,000 pixels/second</li><li>30 FPS: 750 * 30 = 22,500 pixels/second</li></ul><p>With delta: <code>velocity.y += 750 * delta</code></p><ul><li>60 FPS: 750 * 0.016 * 60 = 750 pixels/second</li><li>30 FPS: 750 * 0.033 * 30 = 750 pixels/second</li></ul><p>Result: Consistent physics regardless of framerate.</p><p><em>Can you prove this using Riemann Sums? Recall Math 54 and Physics 71 (Euler's Method and the definition of an integral, alongside the definition of a derivative with respect to acceleration and velocity).</em></p><p><code>The proof is trivial and is left as an exercise to the reader.</code></p><h3 id="understanding-move_and_slide">Understanding move_and_slide()</h3><p><code>move_and_slide()</code> performs three critical operations:</p><ol><li><strong>Moves the body</strong> by the current <code>velocity</code> vector</li><li><strong>Detects collisions</strong> with other physics bodies</li><li><strong>Slides along surfaces</strong> when collisions occur</li></ol><p>Additionally, because <code>Up Direction</code> is set to <code>(0, -1)</code>:</p><ul><li>Collisions below the player = floor</li><li><code>is_on_floor()</code> returns <code>true</code> when standing on surfaces</li><li><code>is_on_ceiling()</code> detects overhead collisions</li></ul><h4 id="common-pitfalls">Common Pitfalls</h4><p><strong>Common mistake: Calling move_and_slide() multiple times</strong></p><p>Each call moves the character. Multiple calls in one frame = multiple movements = incorrect physics.</p><p>Always call <code>move_and_slide()</code> exactly once per <code>_physics_process()</code> frame.</p><h3 id="jump-animation-transition">Jump Animation Transition</h3><pre><code class="language-gdscript">if state == JUMP and velocity.y &gt; 0:
+    $AnimationPlayer.play(&quot;jump_down&quot;)
+</code></pre><p><strong>Logic:</strong></p><ul><li><code>velocity.y &lt; 0</code>: Moving upward (ascending)</li><li><code>velocity.y &gt; 0</code>: Moving downward (falling)</li></ul><p>When velocity transitions from negative to positive, switch from <code>jump_up</code> to <code>jump_down</code> animation. This creates a natural jump arc visual.</p><h3 id="state-transition-rules">State Transition Rules</h3><table><thead><tr><th><strong>From State</strong></th><th><strong>To State</strong></th><th><strong>Condition</strong></th></tr></thead><tbody><tr><td>IDLE</td><td>RUN</td><td>velocity.x ≠ 0</td></tr><tr><td>RUN</td><td>IDLE</td><td>velocity.x == 0</td></tr><tr><td>IDLE/RUN</td><td>JUMP</td><td>Jump pressed and is_on_floor()</td></tr><tr><td>IDLE/RUN</td><td>JUMP</td><td>not is_on_floor() (fell off edge)</td></tr><tr><td>JUMP</td><td>IDLE</td><td>is_on_floor()</td></tr></tbody></table><h4 id="design-pattern-state-transition-validation">Design Pattern: State Transition Validation</h4><p>Notice that jumps only trigger when <code>is_on_floor()</code> is <code>true</code>. This prevents mid-air jumping (unless you want double-jump mechanics).</p><p>The <code>state in [IDLE, RUN]</code> check ensures players can't transition to JUMP from HURT or DEAD states—a critical gameplay constraint.</p><hr><h2 id="testing-the-movement">Testing the Movement</h2><p>Before adding more features, verify the movement works correctly.</p><h3 id="test-scene-setup">Test Scene Setup</h3><p>You should still have the Main scene from last session with a StaticBody2D platform. If not:</p><ol><li>Open Main.tscn (or create new scene with Node root)</li><li>Add Player instance (if not present)</li><li>Add StaticBody2D with RectangleShape2D collision</li><li>Stretch collision shape horizontally</li><li>Position platform below player</li></ol><h3 id="enable-collision-visualization">Enable Collision Visualization</h3><p><strong>Menu: Debug → Visible Collision Shapes</strong></p><p>This debug setting draws collision shapes during gameplay. Essential for troubleshooting physics issues.</p><h3 id="testing-checklist">Testing Checklist</h3><p>Press <strong>F6</strong> (Play Scene) and verify:</p><ol><li>Player falls and stops on platform (gravity works)</li><li><code>idle</code> animation plays when standing still</li><li>Left/Right movement works, sprite flips correctly</li><li><code>run</code> animation plays while moving</li><li>Space bar makes player jump</li><li><code>jump_up</code> animation plays while ascending</li><li><code>jump_down</code> animation plays while falling</li><li>Player returns to <code>idle</code> after landing</li><li>Walking off platform edge triggers JUMP state</li></ol><h4 id="common-pitfalls-1">Common Pitfalls</h4><p><strong>Player falls through platform?</strong></p><p>Check:</p><ul><li>Player collision mask includes <code>environment</code> layer</li><li>StaticBody2D collision layer is <code>environment</code></li><li>CollisionShape2D has a shape assigned</li><li>Visible Collision Shapes is enabled to debug</li></ul><p><strong>Player doesn't jump?</strong></p><p>Check:</p><ul><li>Input action <code>jump</code> exists with Space assigned</li><li>No typos in <code>Input.is_action_just_pressed(&quot;jump&quot;)</code></li><li>Player is actually on the floor (add <code>print(is_on_floor())</code> to debug)</li></ul><hr><h2 id="player-health-system">Player Health System</h2><p>The player will start with three hearts and lose one each time damaged.</p><h3 id="health-variables-and-signals">Health Variables and Signals</h3><p><strong>Add to top of player.gd (after extends line):</strong></p><pre><code class="language-gdscript">signal life_changed
+signal died
+
+var life: int = 3: set = set_life
+
+func set_life(value: int) -&gt; void:
+    life = value
+    life_changed.emit(life)
+    if life &lt;= 0:
+        change_state(DEAD)
+</code></pre><h4 id="design-pattern-setter-functions">Design Pattern: Setter Functions</h4><p><strong>Godot 4 property setter syntax:</strong></p><p><code>var life: int = 3: set = set_life</code></p><p>Whenever <code>life</code> is modified (via <code>life = 2</code> or <code>life -= 1</code>), the <code>set_life()</code> function is automatically called.</p><p><strong>Benefits:</strong></p><ul><li>Centralized logic for property changes</li><li>Automatic signal emission on value change</li><li>Validation (e.g., clamping health between 0-3)</li><li>Side effects (triggering state changes)</li></ul><p><strong>Old Godot 3 syntax:</strong> <code>var life = 3 setget set_life</code></p><h3 id="signal-explanation">Signal Explanation</h3><ul><li><strong>life_changed</strong>: Emitted whenever health changes. UI will connect to this to update heart display.</li><li><strong>died</strong>: Emitted when life reaches 0. Main game scene will handle game over logic.</li></ul><h3 id="damage-response-function">Damage Response Function</h3><pre><code class="language-gdscript">func hurt() -&gt; void:
+    if state != HURT:
+        change_state(HURT)
+</code></pre><h4 id="design-decision-invulnerability-during-hurt">Design Decision: Invulnerability During HURT</h4><p>The <code>if state != HURT</code> check prevents damage loops.</p><p><strong>Without this check:</strong> Enemy collision → hurt() → life -= 1 → still colliding → hurt() → life -= 1...</p><p>Result: Instant death from single touch.</p><p><strong>With this check:</strong> Once in HURT state, additional damage calls are ignored until state changes back to IDLE.</p><h3 id="enhanced-hurt-state-behavior">Enhanced HURT State Behavior</h3><p><strong>Update the HURT case in change_state():</strong></p><pre><code class="language-gdscript">HURT:
+    $AnimationPlayer.play(&quot;hurt&quot;)
+    velocity.y = -200
+    velocity.x = -100 * sign(velocity.x)
+    life -= 1
+    await get_tree().create_timer(0.5).timeout
+    change_state(IDLE)
+</code></pre><p><strong>Breakdown:</strong></p><ul><li><code>velocity.y = -200</code>: Bounce upward</li><li><code>velocity.x = -100 * sign(velocity.x)</code>: Knock back opposite to current movement direction</li><li><code>life -= 1</code>: Decrease health (triggers <code>set_life()</code>)</li><li><code>await...create_timer(0.5)</code>: Wait 0.5 seconds</li><li><code>change_state(IDLE)</code>: Return to normal state</li></ul><h4 id="architecture-note-sign-function">Architecture Note: sign() Function</h4><p><code>sign(x)</code> returns:</p><ul><li>1 if x &gt; 0</li><li>-1 if x &lt; 0</li><li>0 if x == 0</li></ul><p><code>-100 * sign(velocity.x)</code> creates knockback:</p><ul><li>Moving right (velocity.x &gt; 0): -100 * 1 = -100 (pushed left)</li><li>Moving left (velocity.x &lt; 0): -100 * -1 = 100 (pushed right)</li></ul><p>This ensures knockback feels natural—you're pushed away from the danger source.</p><h3 id="update-dead-state">Update DEAD State</h3><pre><code class="language-gdscript">DEAD:
+    died.emit()
+    hide()
+</code></pre><p>Emit signal to notify Main scene, then hide the player sprite.</p><h3 id="disable-input-during-hurt">Disable Input During HURT</h3><p><strong>Add to the beginning of get_input():</strong></p><pre><code class="language-gdscript">func get_input() -&gt; void:
+    if state == HURT:
+        return
+    # ... rest of function
+</code></pre><p><strong>Rationale:</strong> Players shouldn't control the character during damage knockback. The early return prevents all input processing when hurt.</p><h3 id="reset-function-for-respawning">Reset Function for Respawning</h3><p><strong>Add this function:</strong></p><pre><code class="language-gdscript">func reset(_position: Vector2) -&gt; void:
+    position = _position
+    show()
+    life = 3
+    change_state(IDLE)
+</code></pre><p><strong>Usage:</strong> Later, the Main scene will call this when starting a level or respawning after death. This centralizes spawn logic.</p><h4 id="common-pitfalls-2">Common Pitfalls</h4><p><strong>Why set position directly here?</strong></p><p>Earlier, we said never directly set <code>position</code> on CharacterBody2D. But during spawn/reset, the player isn't moving—they're being placed. This is safe.</p><p><strong>Rule of thumb:</strong> Use <code>move_and_slide()</code> for movement during gameplay. Direct position assignment is acceptable for teleportation/spawning.</p><hr><h2 id="complete-player-script">Complete Player Script</h2><p>Your <code>player.gd</code> should now look like this:</p><pre><code class="language-gdscript">class_name Player extends CharacterBody2D
+
+signal life_changed
+signal died
+
+# Movement parameters
+@export var gravity: int = 750
+@export var run_speed: int = 150
+@export var jump_speed: int = -300
+
+# State machine
+enum {IDLE, RUN, JUMP, HURT, DEAD}
+var state: int = IDLE
+
+# Health
+var life: int = 3: set = set_life
+
+func set_life(value: int) -&gt; void:
+    life = value
+    life_changed.emit(life)
+    if life &lt;= 0:
+        change_state(DEAD)
+
+
+func _ready() -&gt; void:
+    change_state(IDLE)
+
+
+func change_state(new_state: int) -&gt; void:
+    state = new_state
+    match state:
+        IDLE:
+            $AnimationPlayer.play(&quot;idle&quot;)
+        RUN:
+            $AnimationPlayer.play(&quot;run&quot;)
+        JUMP:
+            $AnimationPlayer.play(&quot;jump_up&quot;)
+        HURT:
+            $AnimationPlayer.play(&quot;hurt&quot;)
+            velocity.y = -200
+            velocity.x = -100 * sign(velocity.x)
+            life -= 1
+            await get_tree().create_timer(0.5).timeout
+            change_state(IDLE)
+        DEAD:
+            died.emit()
+            hide()
+
+
+func get_input() -&gt; void:
+    if state == HURT:
+        return
+    
+    var right: bool = Input.is_action_pressed(&quot;right&quot;)
+    var left: bool = Input.is_action_pressed(&quot;left&quot;)
+    var jump: bool = Input.is_action_just_pressed(&quot;jump&quot;)
+    
+    # Movement occurs in all states
+    velocity.x = 0
+    if right:
+        velocity.x += run_speed
+        $Sprite2D.flip_h = false
+    if left:
+        velocity.x -= run_speed
+        $Sprite2D.flip_h = true
+    
+    # Only allow jumping when on the ground
+    if jump and is_on_floor():
+        change_state(JUMP)
+        velocity.y = jump_speed
+    
+    # IDLE transitions to RUN when moving
+    if state == IDLE and velocity.x != 0:
+        change_state(RUN)
+    
+    # RUN transitions to IDLE when standing still
+    if state == RUN and velocity.x == 0:
+        change_state(IDLE)
+    
+    # Transition to JUMP when in the air
+    if state in [IDLE, RUN] and not is_on_floor():
+        change_state(JUMP)
+
+
+func _physics_process(delta: float) -&gt; void:
+    velocity.y += gravity * delta
+    get_input()
+    move_and_slide()
+    
+    # JUMP ends when landing
+    if state == JUMP and is_on_floor():
+        change_state(IDLE)
+    
+    # Switch to falling animation
+    if state == JUMP and velocity.y &gt; 0:
+        $AnimationPlayer.play(&quot;jump_down&quot;)
+
+
+func reset(_position: Vector2) -&gt; void:
+    position = _position
+    show()
+    life = 3
+    change_state(IDLE)
+
+
+func hurt() -&gt; void:
+    if state != HURT:
+        change_state(HURT)
+</code></pre><hr><h2 id="testing-the-complete-system">Testing the Complete System</h2><h3 id="manual-damage-testing">Manual Damage Testing</h3><p>You don't have enemies yet, but you can test the health system manually.</p><p><strong>Add to Main.gd (create script if needed):</strong></p><pre><code class="language-gdscript">extends Node
+
+func _ready() -&gt; void:
+    $Player.life_changed.connect(_on_player_life_changed)
+    $Player.died.connect(_on_player_died)
+
+
+func _on_player_life_changed(new_life: int) -&gt; void:
+    print(&quot;Player life: &quot;, new_life)
+
+
+func _on_player_died() -&gt; void:
+    print(&quot;Player died!&quot;)
+
+
+func _input(event: InputEvent) -&gt; void:
+    # Press Enter to test damage
+    if event.is_action_pressed(&quot;ui_accept&quot;):
+        $Player.hurt()
+</code></pre><p><strong>Test:</strong> Press Enter/Return repeatedly. Console should show life decreasing. After three presses, player should disappear and &quot;Player died!&quot; should print.</p><h3 id="verification-checklist">Verification Checklist</h3><ol><li>Damage creates upward bounce</li><li>Knockback pushes player away from movement direction</li><li><code>hurt</code> animation plays</li><li>Input disabled during HURT state</li><li>Life decreases by 1</li><li>After 0.5s, returns to IDLE state</li><li>After 3 hits, player dies and disappears</li></ol><hr><h2 id="session-summary">Session Summary</h2><h3 id="what-we-built">What We Built</h3><ul><li>Complete player movement with responsive controls</li><li>Functional FSM with proper state transitions</li><li>Gravity and jump mechanics</li><li>Health system with damage response and knockback</li><li>Signal-based communication for UI integration</li></ul><h3 id="key-architectural-patterns">Key Architectural Patterns</h3><ol><li><strong>Velocity-based movement:</strong> Manual gravity + move_and_slide()</li><li><strong>Delta-time physics:</strong> Frame-independent movement</li><li><strong>FSM state transitions:</strong> Condition-based state changes</li><li><strong>Property setters:</strong> Automatic signal emission on value changes</li><li><strong>Invulnerability frames:</strong> Preventing damage loops</li></ol><h3 id="gdscript-patterns-introduced">GDScript Patterns Introduced</h3><ul><li><code>is_on_floor()</code> for platform detection</li><li><code>sign()</code> for directional logic</li><li><code>await...create_timer()</code> for timed state changes</li><li>Property setters with <code>: set = func_name</code></li><li>Early return pattern for conditional logic</li></ul><h3 id="next-session-preview">Next Session Preview</h3><ul><li>Design levels using TileMap node</li><li>Create TileSet with collision and custom data</li><li>Implement camera limits based on level bounds</li><li>Add screen wrapping for continuous worlds</li><li>Build multiple level scenes</li></ul></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script></main><footer class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js"></script><script src="js/calendar.js"></script><script src="js/code-features.js"></script><script src="js/scroll-button.js"></script><script src="js/toc.js"></script><script src="js/site.js"></script></body></html>

@@ -1,0 +1,309 @@
+/* ============================== */
+/* 0. THEME VARIABLES             */
+/* ============================== */
+:root {
+    /* --- MAIN THEME (DARK / DEFAULT) --- */
+    --bg-base: #0d1117;
+    /* GitHub Dark Dimmed */
+    --text-main: #c9d1d9;
+    /* Soft White */
+    --text-dim: #8b949e;
+    /* Muted Gray */
+    --accent: #ef4444;
+    /* NEON RED (Good for Dark Mode) */
+    --border-muted: #30363d;
+    --bg-surface: #161b22;
+
+    /* --- CODEBOX THEME (DARK) --- */
+    --code-bg: #010409;
+    --code-border: #30363d;
+    --label-bg: #161b22;
+    --label-text: #8b949e;
+    --btn-bg: rgba(255, 255, 255, 0.05);
+    --btn-border: #30363d;
+    --btn-hover-bg: #21262d;
+    --btn-hover-text: #f0f6fc;
+}
+
+[data-theme="light"] {
+    /* --- MAIN THEME (LIGHT - REVISED) --- */
+    --bg-base: #ffffff;
+    /* Pure White */
+    --text-main: #1f2328;
+    /* Sharper "Ink" Black (Better contrast) */
+    --text-dim: #656d76;
+    /* Neutral Gray */
+    --accent: #cf222e;
+    /* DEEP CRIMSON (Professional, not "Error-like") */
+    --border-muted: #d0d7de;
+    --bg-surface: #f6f8fa;
+    /* Subtle Light Gray surface */
+
+    /* --- CODEBOX THEME (LIGHT) --- */
+    --code-bg: #fafafa;
+    /* Match surface for seamless look */
+    --code-border: #d0d7de;
+    --label-bg: #ffffff;
+    /* White label to pop against gray code bg */
+    --label-text: #57606a;
+    --btn-bg: #ffffff;
+    --btn-border: #d0d7de;
+    --btn-hover-bg: #0969da;
+    /* Blue hover for copy button (distinctive) */
+    --btn-hover-text: #ffffff;
+}
+
+/* ============================== */
+/* 1. CUSTOM IDE / PRISM STYLES   */
+/* ============================== */
+
+/* Terminal Window Container */
+.code-wrapper {
+    position: relative;
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+
+    background-color: var(--code-bg) !important;
+    border: 1px solid var(--code-border);
+
+    border-radius: 0.375rem;
+    overflow: hidden;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* The Scrollable Code Area */
+.prose pre {
+    margin: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    overflow-x: auto;
+    padding: 1rem 1rem 1rem 3rem !important;
+}
+
+/* CONDITIONAL PADDING (With Label) */
+.code-wrapper[data-language] pre {
+    padding-top: 2.5rem !important;
+}
+
+/* Language Tab Label */
+.code-wrapper[data-language]::before {
+    content: attr(data-language);
+    color: var(--label-text);
+    background-color: var(--label-bg);
+    border-right: 1px solid var(--code-border);
+    border-bottom: 1px solid var(--code-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: lowercase;
+    width: fit-content;
+    white-space: nowrap;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.25rem 0.75rem;
+    border-bottom-right-radius: 6px;
+    z-index: 10;
+    pointer-events: none;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* Reset code padding */
+.prose pre code {
+    display: block;
+    padding: 0 !important;
+}
+
+/* ============================== */
+/* 2. NUCLEAR BACKTICK REMOVAL    */
+/* ============================== */
+.prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *)) {
+    background-color: rgba(239, 68, 68, 0.1);
+    /* Soft Red tint */
+    color: var(--accent);
+    /* Use dynamic accent color! */
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-weight: 500;
+}
+
+[data-theme="light"] .prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *)) {
+    background-color: rgba(207, 34, 46, 0.1);
+    /* Match new crimson accent */
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *))::before,
+.prose :where(code):not(:where([class~="not-prose"] *)):not(:where(pre *))::after {
+    content: "" !important;
+    display: none !important;
+}
+
+/* ============================== */
+/* 3. COPY BUTTON STYLES          */
+/* ============================== */
+.copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--label-text);
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 20;
+}
+
+.code-wrapper:hover .copy-button,
+.copy-button:focus {
+    opacity: 1;
+}
+
+.copy-button:hover {
+    background-color: var(--btn-hover-bg);
+    color: var(--btn-hover-text);
+    border-color: var(--btn-border);
+}
+
+.copy-button svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.copy-button.copied {
+    color: #238636;
+    border-color: #238636;
+}
+
+/* ============================== */
+/* 4. TECHNO GLITCH EFFECTS       */
+/* ============================== */
+/* FIXED: Removed hardcoded colors. 
+   Now uses var(--bg-base) so it doesn't flash black boxes in Light Mode. 
+*/
+.glitch-target {
+    position: relative;
+    /* Ensure the text color is dynamic */
+    color: var(--text-main);
+}
+
+.glitch-target::before,
+.glitch-target::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-base);
+    /* KEY FIX: DYNAMIC BACKGROUND */
+}
+
+.glitch-target::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--accent);
+    /* Use dynamic accent */
+    clip-path: inset(0 0 0 0);
+    animation: techno-glitch-1 4s infinite linear alternate-reverse;
+    z-index: -1;
+}
+
+.glitch-target::after {
+    left: -2px;
+    text-shadow: 2px 0 var(--text-dim);
+    /* Use dynamic secondary color */
+    clip-path: inset(0 0 0 0);
+    animation: techno-glitch-2 3s infinite linear alternate-reverse;
+    z-index: -2;
+}
+
+@keyframes techno-glitch-1 {
+    0% {
+        clip-path: inset(20% 0 50% 0);
+        transform: skew(1deg);
+    }
+
+    2% {
+        clip-path: inset(10% 0 85% 0);
+        transform: skew(0.5deg);
+    }
+
+    4% {
+        clip-path: inset(80% 0 5% 0);
+        transform: skew(2deg);
+    }
+
+    5%,
+    95% {
+        clip-path: inset(0 0 0 0);
+        transform: skew(0);
+        text-shadow: none;
+        background: transparent;
+    }
+
+    96% {
+        clip-path: inset(50% 0 30% 0);
+        transform: skew(1deg);
+        text-shadow: -2px 0 var(--accent);
+        background: var(--bg-base);
+    }
+
+    100% {
+        clip-path: inset(10% 0 60% 0);
+        transform: skew(2deg);
+    }
+}
+
+@keyframes techno-glitch-2 {
+    0% {
+        clip-path: inset(15% 0 60% 0);
+        transform: skew(-2deg);
+    }
+
+    1% {
+        clip-path: inset(40% 0 30% 0);
+        transform: skew(-1deg);
+    }
+
+    2%,
+    98% {
+        clip-path: inset(0 0 0 0);
+        transform: skew(0);
+        text-shadow: none;
+        background: transparent;
+    }
+
+    99% {
+        clip-path: inset(5% 0 80% 0);
+        transform: skew(-3deg);
+        text-shadow: 2px 0 var(--text-dim);
+        background: var(--bg-base);
+    }
+
+    100% {
+        clip-path: inset(70% 0 10% 0);
+        transform: skew(-1deg);
+    }
+}
+
+/* ============================== */
+/* 5. UNSELECTABLE UI ELEMENTS    */
+/* ============================== */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}

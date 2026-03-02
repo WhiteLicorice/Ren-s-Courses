@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses </title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>Latest course materials and announcements.</description>
+    <language>en-us</language>
+    
+        <item>
+            <title>Om nom nom!</title>
+            <subtitle>CMSC 197 GDD Machine Problem 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp2</guid>
+            <pubDate>Sun, 01 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Yet Another Feeding Frenzy Clone.</description>
+        </item>
+        <item>
+            <title>CPU Scheduling</title>
+            <subtitle>CMSC 125 Lab 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-lab2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-lab2</guid>
+            <pubDate>Wed, 25 Feb 2026 16:00:00 +0000</pubDate>
+            <description>CPU virtualization simulator.</description>
+        </item>
+        <item>
+            <title>Proportional Share Scheduling</title>
+            <subtitle>CMSC 125 Problem Set 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-ps1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-ps1</guid>
+            <pubDate>Sun, 15 Feb 2026 16:00:00 +0000</pubDate>
+            <description>COMM 12 inspiration.</description>
+        </item>
+        <item>
+            <title>Coin Dash Pt. 3</title>
+            <subtitle>CMSC 197 GDD Activity 4</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act4</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act4</guid>
+            <pubDate>Thu, 05 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Building the HUD.</description>
+        </item>
+        <item>
+            <title>Coin Dash Pt. 2</title>
+            <subtitle>CMSC 197 GDD Activity 3</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act3</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act3</guid>
+            <pubDate>Mon, 02 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Building the Coin Scene.</description>
+        </item>
+        <item>
+            <title>Pitch Perfect</title>
+            <subtitle>CMSC 197 GDD Pitching Guidelines</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-pitch</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-pitch</guid>
+            <pubDate>Mon, 02 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Your guide to GDD presentations.</description>
+        </item>
+        <item>
+            <title>Fly, Flap, and Die!</title>
+            <subtitle>CMSC 197 GDD Machine Problem 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp1</guid>
+            <pubDate>Mon, 02 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Yet Another Flappy Bird Clone (YAFBC).</description>
+        </item>
+        <item>
+            <title>Coin Dash Pt. 1</title>
+            <subtitle>CMSC 197 GDD Activity 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act2</guid>
+            <pubDate>Thu, 29 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Building the Player Scene.</description>
+        </item>
+        <item>
+            <title>Portfolio Project</title>
+            <subtitle>CMSC 197 GDD Final Output</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-livdocs</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-livdocs</guid>
+            <pubDate>Wed, 28 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Gamedev from concept to deployment.</description>
+        </item>
+        <item>
+            <title>Unix Shell</title>
+            <subtitle>CMSC 125 Lab 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-lab1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-lab1</guid>
+            <pubDate>Wed, 28 Jan 2026 16:00:00 +0000</pubDate>
+            <description>CMSC 124 II Electric Boogaloo.</description>
+        </item>
+        <item>
+            <title>Link, Start!</title>
+            <subtitle>CMSC 197 GDD Activity 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act1</guid>
+            <pubDate>Mon, 26 Jan 2026 16:00:00 +0000</pubDate>
+            <description>GDQuest on!</description>
+        </item>
+        <item>
+            <title>A UNIX Developer Environment</title>
+            <subtitle>CMSC 125 Lab 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-lab0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-lab0</guid>
+            <pubDate>Sun, 25 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Welcome to the abyss.</description>
+        </item>
+        <item>
+            <title>Pre-Jamming</title>
+            <subtitle>CMSC 197 GDD Activity 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act0</guid>
+            <pubDate>Sun, 18 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Pre-game, boss?</description>
+        </item>
+</channel>
+</rss>

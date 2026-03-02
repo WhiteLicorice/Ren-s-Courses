@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses (cmsc-125)</title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>Latest course materials and announcements.</description>
+    <language>en-us</language>
+    
+        <item>
+            <title>CPU Scheduling</title>
+            <subtitle>CMSC 125 Lab 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-lab2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-lab2</guid>
+            <pubDate>Wed, 25 Feb 2026 16:00:00 +0000</pubDate>
+            <description>CPU virtualization simulator.</description>
+        </item>
+        <item>
+            <title>Proportional Share Scheduling</title>
+            <subtitle>CMSC 125 Problem Set 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-ps1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-ps1</guid>
+            <pubDate>Sun, 15 Feb 2026 16:00:00 +0000</pubDate>
+            <description>COMM 12 inspiration.</description>
+        </item>
+        <item>
+            <title>Unix Shell</title>
+            <subtitle>CMSC 125 Lab 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-lab1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-lab1</guid>
+            <pubDate>Wed, 28 Jan 2026 16:00:00 +0000</pubDate>
+            <description>CMSC 124 II Electric Boogaloo.</description>
+        </item>
+        <item>
+            <title>A UNIX Developer Environment</title>
+            <subtitle>CMSC 125 Lab 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-125-lab0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-125-lab0</guid>
+            <pubDate>Sun, 25 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Welcome to the abyss.</description>
+        </item>
+</channel>
+</rss>
