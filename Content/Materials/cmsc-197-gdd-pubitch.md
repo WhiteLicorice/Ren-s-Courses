@@ -6,9 +6,9 @@ published: 2026-03-10
 tags: [cmsc-197-gdd]
 authors:
     - name: Rene Andre B. Jocsing
-      gitHubUserName: # needs to be provided
-      nickname: # needs to be provided
-downloadLink: # needs to be provided
+      gitHubUserName: WhiteLicorice
+      nickname: Ren
+downloadLink: https://drive.google.com/file/d/1jaxq83ZoucedL-GY2P022davOgfxWoVO/view?usp=drive_link
 isDraft: false
 noDeadline: true
 ---
