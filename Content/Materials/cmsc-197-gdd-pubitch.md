@@ -23,7 +23,7 @@ noDeadline: true
 
 ## Overview
 
-Itch.io is an open marketplace for independent games and creative software (https://itch.io/docs/general/about). It is the standard target for this course because it requires zero upfront cost, supports in-browser HTML5 play, and allows creators to set their own pricing and access conditions. Your projects may be published here.
+Itch.io is an open marketplace for independent games and creative software ([link](https://itch.io/docs/general/about)). It is the standard target for this course because it requires zero upfront cost, supports in-browser HTML5 play, and allows creators to set their own pricing and access conditions. Your projects may be published here.
 
 In real game development, publishing is not optional polish. **A game that cannot be shipped is not finished.** Export and deployment are engineering tasks that surface real bugs---missing resources, wrong renderer settings, broken paths---that simply do not appear during in-editor testing.
 
@@ -40,7 +40,7 @@ Before touching the export dialog, your project must be in a shippable state.
 * **Application / Config / Name:** Set a real name, not `New Game`
 * **Application / Config / Version:** Use semantic versioning, e.g. `1.0.0`
 * **Display / Window / Viewport Width / Height:** Confirm these match your game's intended resolution
-* **Display / Window / Stretch / Mode:** Set to `canvas_items` (recommended for 2D games) (https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html)
+* **Display / Window / Stretch / Mode:** Set to `canvas_items` (recommended for 2D games) ([link](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html))
 * **Display / Window / Stretch / Aspect:** Set to `keep` or `keep_width` depending on your layout
 
 #### Resolution Convention: 1280×720
@@ -88,7 +88,7 @@ func reset() -> void:
 
 ## Part 2: Installing Export Templates
 
-Godot separates the editor from the export templates. You must install templates before any export target is available (https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html).
+Godot separates the editor from the export templates. You must install templates before any export target is available ([link](https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html)).
 
 ### Installation Steps
 
@@ -135,7 +135,7 @@ Godot will generate: `index.html`, `index.js`, `index.wasm`, `index.pck`, and `i
 
 #### Why `index.html`?
 
-Itch.io's HTML5 host looks for `index.html` as the entry point for web games. Naming it anything else requires manual configuration in the Itch.io embed settings. Save yourself the confusion (https://itch.io/docs/creators/html5).
+Itch.io's HTML5 host looks for `index.html` as the entry point for web games. Naming it anything else requires manual configuration in the Itch.io embed settings. Save yourself the confusion ([link](https://itch.io/docs/creators/html5)).
 
 ### Windows Export
 
@@ -155,7 +155,7 @@ Itch.io's HTML5 host looks for `index.html` as the entry point for web games. Na
 
 #### Itch.io Note
 
-**macOS requires a paid Apple Developer account** to distribute outside the App Store without triggering Gatekeeper warnings. For this course, Web + Windows is sufficient (https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_macos.html).
+**macOS requires a paid Apple Developer account** to distribute outside the App Store without triggering Gatekeeper warnings. For this course, Web + Windows is sufficient ([link](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_macos.html)).
 
 ---
 
@@ -165,7 +165,7 @@ This is the single most common blocker for Godot HTML5 games on Itch.io. Read th
 
 ### What Is It?
 
-Godot's web export uses WebAssembly threads for performance. Threads require `SharedArrayBuffer`, which browsers block unless the page is served with specific HTTP headers (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements):
+Godot's web export uses WebAssembly threads for performance. Threads require `SharedArrayBuffer`, which browsers block unless the page is served with specific HTTP headers ([link](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements)):
 
 ```bash
 Cross-Origin-Opener-Policy: same-origin
@@ -179,7 +179,7 @@ Itch.io does *not* set these headers on all game pages by default.
 1. After uploading your build, go to the game's **Edit Game** page
 2. Scroll to **Embed Options**
 3. Check **SharedArrayBuffer support** (available to creators who request it)
-4. Email `support@itch.io` requesting the feature if not visible (https://itch.io/t/2025776/sharedarraybuffer-enabled)
+4. Email `support@itch.io` requesting the feature if not visible ([link](https://itch.io/t/2025776/sharedarraybuffer-enabled))
 
 ### Solution B: Disable Threads in Godot
 
@@ -222,7 +222,7 @@ Navigate to **Dashboard** → **Create new project**.
 * **Kind of project:** *HTML5* for web builds, *Downloadable* for desktop-only
 * **Classification:** *Games*
 * **Short description:** One sentence. Write it like a game pitch, not a homework description.
-* **Cover image:** 315×250 px minimum (https://itch.io/docs/creators/editing-game-pages). This is mandatory for discovery.
+* **Cover image:** 315×250 px minimum ([link](https://itch.io/docs/creators/editing-game-pages)). This is mandatory for discovery.
 
 **Recommended Fields:**
 
@@ -253,13 +253,13 @@ A game page with a blank description, no cover image, and no tags reflects the s
 
 #### Itch.io Note
 
-Set your game's visibility to **Restricted** while developing, and switch to **Public** only when ready. A broken public page cannot be unindexed from search immediately (https://itch.io/docs/creators/access-control).
+Set your game's visibility to **Restricted** while developing, and switch to **Public** only when ready. A broken public page cannot be unindexed from search immediately ([link](https://itch.io/docs/creators/access-control)).
 
 ---
 
 ## Part 6: Butler --- Automated Deployment
 
-Manually uploading a `.zip` for every build is error-prone. Butler is Itch.io's official command-line deployment tool (https://itch.io/docs/butler/). It performs delta uploads (only changed files), version-tracks builds, and integrates cleanly into shell scripts.
+Manually uploading a `.zip` for every build is error-prone. Butler is Itch.io's official command-line deployment tool ([link](https://itch.io/docs/butler/)). It performs delta uploads (only changed files), version-tracks builds, and integrates cleanly into shell scripts.
 
 ### Installation
 
@@ -297,7 +297,7 @@ butler push export/windows/ yourusername/your-game-slug:windows
 butler push export/linux/ yourusername/your-game-slug:linux
 ```
 
-**Channel names** are arbitrary labels you choose. Use descriptive names: `html5`, `windows`, `linux`. Each channel maintains its own version history on Itch.io (https://itch.io/docs/butler/pushing.html#channels).
+**Channel names** are arbitrary labels you choose. Use descriptive names: `html5`, `windows`, `linux`. Each channel maintains its own version history on Itch.io ([link](https://itch.io/docs/butler/pushing.html#channels)).
 
 #### Delta Uploads Save Time
 
@@ -347,7 +347,7 @@ echo "Deployment complete."
 
 ## Part 7: Android Builds
 
-Android is the only mobile target that does not require a paid developer account to distribute outside an official store. Itch.io hosts the `.apk` as a standard downloadable, and players sideload it directly. This makes it the correct mobile target for course projects (https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html).
+Android is the only mobile target that does not require a paid developer account to distribute outside an official store. Itch.io hosts the `.apk` as a standard downloadable, and players sideload it directly. This makes it the correct mobile target for course projects ([link](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html)).
 
 #### APK vs. AAB
 
@@ -368,7 +368,7 @@ On Windows, download the JDK 17 installer from [adoptium.net](https://adoptium.n
 
 **2. Android SDK**
 
-1. Install **Android Studio** from [developer.android.com/studio](https://developer.android.com/studio) (https://developer.android.com/studio)
+1. Install **Android Studio** from [developer.android.com/studio](https://developer.android.com/studio) ([link](https://developer.android.com/studio))
 2. Open **SDK Manager** → **SDK Platforms**: install **Android 8.0 (API 26)** or higher
 3. Open **SDK Manager** → **SDK Tools**: install **Android SDK Build-Tools** and **Command-line Tools**
 4. Note the SDK path (e.g., `~/Android/Sdk` on Linux)
@@ -384,7 +384,7 @@ You do not need to use Android Studio as an IDE. It is only required here for it
 
 #### Common Pitfalls
 
-**JDK version must be 17, not 21 or later.** Godot 4's Gradle build scripts are not yet compatible with JDK 21 as of the 4.3 stable release. Using the wrong JDK produces cryptic Gradle errors that have nothing to do with your game code (https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html).
+**JDK version must be 17, not 21 or later.** Godot 4's Gradle build scripts are not yet compatible with JDK 21 as of the 4.3 stable release. Using the wrong JDK produces cryptic Gradle errors that have nothing to do with your game code ([link](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html)).
 
 ### Creating a Keystore
 
@@ -516,7 +516,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 #### Design Pattern: Screen-Centre Joystick
 
-For simple 2D games, computing direction relative to screen centre is the quickest touch control to implement. For anything requiring precision, add an on-screen virtual joystick using a `TouchScreenButton` or a dedicated plugin (https://docs.godotengine.org/en/stable/tutorials/inputs/inputevent.html#touch-events).
+For simple 2D games, computing direction relative to screen centre is the quickest touch control to implement. For anything requiring precision, add an on-screen virtual joystick using a `TouchScreenButton` or a dedicated plugin ([link](https://docs.godotengine.org/en/stable/tutorials/inputs/inputevent.html#touch-events)).
 
 ### Screen Size and Safe Areas
 
@@ -689,22 +689,3 @@ Before sharing your Itch.io link:
 #### Play Your Own Game
 
 Open an incognito window. Go to your Itch.io page. Play the game from start to game-over at least once. This is the single most effective QA step available to you. If you cannot complete this step, the game is not ready to share.
-
----
-
-## References
-
-* Itch.io. *About Itch.io*. https://itch.io/docs/general/about
-* Godot Engine Documentation. *Exporting Projects*. https://docs.godotengine.org/en/stable/tutorials/export/exporting_projects.html
-* Godot Engine Documentation. *Multiple Resolutions*. https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html
-* Itch.io Creator Documentation. *HTML5 Games*. https://itch.io/docs/creators/html5
-* Mozilla Developer Network. *SharedArrayBuffer and Cross-Origin Isolation*. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements
-* Itch.io Forums. *SharedArrayBuffer support for HTML5 games*. https://itch.io/t/2025776/sharedarraybuffer-enabled
-* Godot Engine Documentation. *Exporting for macOS*. https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_macos.html
-* Itch.io Creator Documentation. *Editing your game's page*. https://itch.io/docs/creators/editing-game-pages
-* Itch.io Creator Documentation. *Visibility and access controls*. https://itch.io/docs/creators/access-control
-* Itch.io. *Butler Documentation*. https://itch.io/docs/butler/
-* Itch.io. *Butler Pushing Builds: Channels*. https://itch.io/docs/butler/pushing.html#channels
-* Godot Engine Documentation. *Exporting for Android*. https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html
-* Google. *Android Studio*. https://developer.android.com/studio
-* Godot Engine Documentation. *Using InputEvent: Touch*. https://docs.godotengine.org/en/stable/tutorials/inputs/inputevent.html#touch-events
