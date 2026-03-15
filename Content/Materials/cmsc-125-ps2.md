@@ -2,7 +2,7 @@
 title: Common Concurrency Problems
 subtitle: CMSC 125 Problem Set 2
 lead: Deadlocks, livelocks, and friends.
-published: 2026-03-19
+published: 2026-03-16
 tags: [cmsc-125]
 authors:
     - name: Rene Andre B. Jocsing
