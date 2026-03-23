@@ -11,11 +11,14 @@
 <div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300">
     <NavMenu />
 
-    <main class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0">
+    @* Purely for banners we want to run. *@
+    <header id=header> </header>
+
+    <main id=main class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0">
         @Body
     </main>
 
-    <footer class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300">
+    <footer id=footer class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300">
         <div class="mx-auto flex max-w-5xl flex-col items-center py-8">
             <div class="flex space-x-6 mb-4">
                 <a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 
