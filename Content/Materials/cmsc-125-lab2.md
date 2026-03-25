@@ -771,7 +771,7 @@ The instructor must verify appointments ahead of time before they can be conside
 
 ---
 
-## Laboratory Grading Rubric
+## Grading Rubric
 
 | **Criteria** | **Excellent (90–100%)** | **Good (75–89%)** | **Fair (60–74%)** | **Poor (0–59%)** |
 |---|---|---|---|---|
