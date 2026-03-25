@@ -1,7 +1,7 @@
 ---
-title: Fly, Flap, and Die!
+title: Flap flap flap!
 subtitle: CMSC 197 GDD Machine Problem 1
-lead: Yet Another Flappy Bird Clone (YAFBC).
+lead: Yet Another Flappy Bird Clone.
 published: 2026-02-03
 tags: [cmsc-197-gdd]
 authors:
@@ -268,6 +268,8 @@ Machine problem presentations will be conducted in a jam-style format during reg
 *Note: Machine problems that are functional but exhibit significant architectural issues (e.g., spaghetti code, no FSM, hard-coded values, tight coupling) will receive a maximum grade of 3.00 (60/100) regardless of gameplay quality or presentation performance. Professional game development prioritizes maintainable, scalable systems over short-term functionality.*
 
 ## Grading Rubric
+
+*\*Score may vary individually for component.*
 
 | **Criteria** | **Excellent (90-100%)** | **Good (75-89%)** | **Fair (60-74%)** | **Poor (0-59%)** |
 |--------------|-------------------------|-------------------|-------------------|------------------|
