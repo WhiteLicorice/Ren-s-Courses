@@ -10,6 +10,7 @@ authors:
       nickname: Ren
 downloadLink: https://drive.google.com/file/d/1aNUijfoRcxsVu8QJSQt8JhxupaxfQpWL/view?usp=drive_link
 isDraft: false
+deadline: 2026-05-21
 progressReportDates: [2026-04-06, 2026-04-08, 2026-04-09, 2026-04-13, 2026-04-15, 2026-04-16, 2026-04-20, 2026-04-22, 2026-04-23]
 defenseDates: [2026-04-27, 2026-04-29, 2026-04-30]
 ---
