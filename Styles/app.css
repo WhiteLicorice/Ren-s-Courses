@@ -80,4 +80,8 @@ body {
   h4 {
     color: var(--text-main);
   }
+
+  th {
+    color: var(--text-main);
+  }
 }
