@@ -44,7 +44,7 @@ How do you represent a weapon system that supports hundreds of combinations of b
 
 These are not academic questions. They are the exact problems that ship real games or sink them. Machine Problem 1 taught you the basics of a complete game loop. Machine Problem 2 taught you emergent complexity through multi-agent interaction. Machine Problem 3 teaches you **scale**: what it means to architect a system that stays clean when the number of entities, weapon types, upgrade combinations, and concurrent effects multiplies beyond what you can hold in your head (and roguelikes are popular in the market today).
 
-By the time you are done, you will have built---from scratch---the skeleton of a system that studios with full engineering teams spend months designing. That is a high bar, but this is the final machine problem for this semester.
+By the time you are done, you will have built—from scratch—the skeleton of a system that studios with full engineering teams spend months designing. That is a high bar, but this is the final machine problem for this semester.
 
 ---
 
@@ -52,7 +52,7 @@ By the time you are done, you will have built---from scratch---the skeleton of a
 
 ### The Player Character
 
-The player controls a single character that moves freely in all eight directions across an unbounded (or very large, wrapping) arena. Movement is the player's primary agency---their only direct interaction with the world. It must feel responsive and fluid. Use `CharacterBody2D` with `move_and_slide()`; inertia and drag are design decisions but may improve game feel considerably.
+The player controls a single character that moves freely in all eight directions across an unbounded (or very large, wrapping) arena. Movement is the player's primary agency—their only direct interaction with the world. It must feel responsive and fluid. Use `CharacterBody2D` with `move_and_slide()`; inertia and drag are design decisions but may improve game feel considerably.
 
 The character has the following core attributes, all of which must be externalized as configurable data (exported variables or a `Resource` configuration), not inline literals:
 
@@ -61,7 +61,7 @@ The character has the following core attributes, all of which must be externaliz
 * **XP Magnet Radius:** The radius within which XP gems are automatically pulled toward the player
 * **Armor:** Flat damage reduction applied before HP loss
 
-When the player is hit, a brief invulnerability window (i-frames) must be applied to prevent multiple hits from the same collision frame. This is not optional---without it, the game becomes unplayable.
+When the player is hit, a brief invulnerability window (i-frames) must be applied to prevent multiple hits from the same collision frame. This is not optional—without it, the game becomes unplayable.
 
 ### The Weapon System
 
@@ -97,17 +97,17 @@ The upgrade pool must be dynamic: weapons the player already owns offer level-up
 
 Enemies spawn continuously from outside the player's view and move toward the player. The difficulty escalates over time: the quantity, variety, and HP of enemies increase as the run clock advances.
 
-A dedicated **spawn manager** node or autoload is responsible for the entire population. Its parameters---spawn rate, active enemy cap, enemy type distribution, difficulty curve---must all be exported or resource-configured. Hard-coded spawn logic will be treated as a spaghetti code violation for grading purposes.
+A dedicated **spawn manager** node or autoload is responsible for the entire population. Its parameters—spawn rate, active enemy cap, enemy type distribution, difficulty curve—must all be exported or resource-configured. Hard-coded spawn logic will be treated as a spaghetti code violation for grading purposes.
 
 **Object pooling is required for this machine problem.** Vampire Survivors routinely maintains hundreds of active entities. Instantiating and freeing nodes continuously at that scale causes visible frame drops. You must implement a pool for at minimum the most frequently spawned enemy type and for projectiles. This is not optional.
 
 #### Object Pooling in Godot
 
-A minimal pool maintains a list of pre-instantiated inactive nodes. To acquire an entity from the pool, call a method that activates and returns an inactive instance. To release an entity back, call a method that deactivates it and returns it to the available list. Neither `instantiate()` nor `queue_free()` should be called during gameplay for pooled types---only during pool initialization and teardown.
+A minimal pool maintains a list of pre-instantiated inactive nodes. To acquire an entity from the pool, call a method that activates and returns an inactive instance. To release an entity back, call a method that deactivates it and returns it to the available list. Neither `instantiate()` nor `queue_free()` should be called during gameplay for pooled types—only during pool initialization and teardown.
 
 ### Enemy Behavior
 
-At a minimum, enemies must move toward the player's current position. This is sufficient for basic grunts---and in Vampire Survivors, it is exactly what most enemies do. However, your implementation must be FSM-driven per entity. A flat `_process()` function that unconditionally moves toward the player does not constitute an FSM and will be graded accordingly.
+At a minimum, enemies must move toward the player's current position. This is sufficient for basic grunts—and in Vampire Survivors, it is exactly what most enemies do. However, your implementation must be FSM-driven per entity. A flat `_process()` function that unconditionally moves toward the player does not constitute an FSM and will be graded accordingly.
 
 A minimum two-state FSM (e.g., **Move** and **Dead**) is required. A three-state FSM (e.g., **Spawn**, **Move**, **Dead**) is recommended. More complex behaviors (knockback, charge attacks, patrol-then-pursue) are valid additions for your mechanical twist. Look into pathfinding algorithms and artificial intelligence in games to enhance your enemies.
 
@@ -119,7 +119,7 @@ When an enemy hits the player, the player takes damage minus armor, i-frames act
 
 ### The Run Timer and Win Condition
 
-Each run lasts a fixed duration (commonly 30 minutes in Vampire Survivors, but you should start with 5--10 minutes for testing). A visible countdown or elapsed timer must be displayed. When the timer reaches the end, a **final boss wave** triggers---a single, dramatically stronger enemy that the player must defeat to win. Defeating it triggers a Win State. The player dying before the timer ends triggers a Game Over State.
+Each run lasts a fixed duration (commonly 30 minutes in Vampire Survivors, but you should start with 5–10 minutes for testing). A visible countdown or elapsed timer must be displayed. When the timer reaches the end, a **final boss wave** triggers—a single, dramatically stronger enemy that the player must defeat to win. Defeating it triggers a Win State. The player dying before the timer ends triggers a Game Over State.
 
 Your game does not need to match Vampire Survivors' full 30-minute structure, but it must have a defined arc: escalating difficulty, a climax, and a resolution.
 
@@ -132,7 +132,7 @@ Your game requires at minimum four states managed by a top-level FSM:
 * **Upgrade State:** Paused mid-run; player selects a level-up reward
 * **Game Over / Win State:** Run ended; displays final stats and restart option
 
-The Upgrade State is a **sub-state within the Playing State**---the run timer must pause, enemy movement must freeze, weapons must stop firing, and input must be routed to the upgrade UI exclusively. Resuming from Upgrade State must restore the game cleanly with no residual effects.
+The Upgrade State is a **sub-state within the Playing State**—the run timer must pause, enemy movement must freeze, weapons must stop firing, and input must be routed to the upgrade UI exclusively. Resuming from Upgrade State must restore the game cleanly with no residual effects.
 
 ---
 
@@ -157,7 +157,7 @@ Your clone must include a **unique mechanical twist (or several)** that meaningf
 * Adding background music or ambient effects only
 * Changing UI colors, fonts, or icon styles
 
-**Ask yourself:** Does this change *how* the player thinks about survival, build construction, or resource management---or does it only change *what they look at*? Will I get struck for copyright infringement if I publish this on Steam or Google Play?
+**Ask yourself:** Does this change *how* the player thinks about survival, build construction, or resource management—or does it only change *what they look at*? Will I get struck for copyright infringement if I publish this on Steam or Google Play?
 
 **You may deviate from the Technical Requirements section if and only if: it benefits or is crucial to your original mechanics, or is architecturally sound with justification!**
 
@@ -177,7 +177,7 @@ Your clone must include a **unique mechanical twist (or several)** that meaningf
 
 #### Common Pitfalls
 
-**Spaghetti code will cap your grade at 3.00** regardless of gameplay quality. Architecture is heavily weighted in grading. A `Main.gd` that manages spawning, weapon firing, XP tracking, upgrade pools, and enemy movement simultaneously is not acceptable---even if the game runs flawlessly.
+**Spaghetti code will cap your grade at 3.00** regardless of gameplay quality. Architecture is heavily weighted in grading. A `Main.gd` that manages spawning, weapon firing, XP tracking, upgrade pools, and enemy movement simultaneously is not acceptable—even if the game runs flawlessly.
 
 ### Input Handling
 
@@ -193,7 +193,7 @@ Implement collision detection for all of the following interactions:
 * XP gems directly contacting the player (collect trigger, if magnet is not active)
 * Projectiles hitting the arena boundary or exceeding their range (return to pool)
 
-Use `Area2D` nodes with collision shapes for all detection. Configure physics layers and masks deliberately---weapon areas must not detect each other, enemy bodies must not push other enemies out of position, and XP gems must not block player movement.
+Use `Area2D` nodes with collision shapes for all detection. Configure physics layers and masks deliberately—weapon areas must not detect each other, enemy bodies must not push other enemies out of position, and XP gems must not block player movement.
 
 ### Entity Behavior (Enemy AI)
 
@@ -220,7 +220,7 @@ Free assets available at: OpenGameArt.org, itch.io, Kenney.nl. Ensure assets hav
 
 ### 1. The Game
 
-An original playable Godot 4 project based on Vampire Survivors, implementing all core mechanics and technical requirements. The game must be stable for at least one complete run---no crashes, no orphaned nodes, no memory leaks detectable across a full session. The core loop must work flawlessly: survive, collect XP, level up, pick upgrades, survive longer, reach the boss, win or die.
+An original playable Godot 4 project based on Vampire Survivors, implementing all core mechanics and technical requirements. The game must be stable for at least one complete run—no crashes, no orphaned nodes, no memory leaks detectable across a full session. The core loop must work flawlessly: survive, collect XP, level up, pick upgrades, survive longer, reach the boss, win or die.
 
 ### 2. GitHub Repository
 
@@ -242,7 +242,7 @@ Your complete Godot project must be hosted in a GitHub repository with clean com
 Prepare a jam-style presentation covering:
 
 * Live gameplay demonstration
-* Architecture decisions and design patterns used---with special attention to the weapon and upgrade systems
+* Architecture decisions and design patterns used—with special attention to the weapon and upgrade systems
 * Explanation of your mechanical twist
 * Challenges faced and solutions
 * Q&A from classmates and instructor
@@ -255,7 +255,7 @@ Class will vote on: Best Architecture, Best Twist, Best Polish. Winners receive 
 
 Weekly progress reports during consultation hours are **strongly encouraged**. Groups that attend receive:
 
-* Ongoing feedback on architecture---especially on the weapon composition and object pool designs before they calcify into technical debt
+* Ongoing feedback on architecture—especially on the weapon composition and object pool designs before they calcify into technical debt
 * Early detection of performance issues (three hundred enemies is not something you can stress-test for the first time the night before the deadline)
 * Code review and refactoring guidance
 * Up to +5% extra credit for consistent attendance
@@ -266,7 +266,7 @@ Groups that skip progress reports accept the risk of discovering major architect
 
 ## Grading Philosophy
 
-This is not a competition to build the most content-rich Vampire Survivors clone. Vampire Survivors itself shipped with a fraction of its final content at launch. The goal is to demonstrate that you can design and implement a system of sufficient architectural maturity that adding a fourth weapon, a fifth passive, or a new enemy type requires only writing new data and new scenes---not rewriting the systems that already work.
+This is not a competition to build the most content-rich Vampire Survivors clone. Vampire Survivors itself shipped with a fraction of its final content at launch. The goal is to demonstrate that you can design and implement a system of sufficient architectural maturity that adding a fourth weapon, a fifth passive, or a new enemy type requires only writing new data and new scenes—not rewriting the systems that already work.
 
 **A three-weapon, three-enemy, well-architected game will score better than a ten-weapon, ten-enemy, poorly-architected one.**
 
@@ -276,7 +276,7 @@ Focus on:
 * Correct and performant entity management (pooling matters)
 * Meaningful and coherently integrated mechanical twist
 * Professional commit history and documentation
-* Excellent game "feel"---auto-attacking weapons should feel satisfying even before the player upgrades them
+* Excellent game "feel"—auto-attacking weapons should feel satisfying even before the player upgrades them
 
 Extra features (evolved weapons, achievement systems, meta-progression) are welcome after the foundation is solid, but will not compensate for poor architecture.
 

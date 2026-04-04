@@ -13,7 +13,7 @@ isDraft: false
 deadline: 2026-03-26
 ---
 
-This problem set explores one of the most practically important topics in concurrent systems: the bugs that real programs get wrong, and the strategies engineers use to prevent them. You will examine two broad classes of concurrency bugs identified through empirical study of real-world software, and analyze the landscape of techniques used to handle the most notorious of them --- deadlock. This assignment requires careful reading of the provided chapter and substantial independent research to develop a thorough, well-supported analysis.
+This problem set explores one of the most practically important topics in concurrent systems: the bugs that real programs get wrong, and the strategies engineers use to prevent them. You will examine two broad classes of concurrency bugs identified through empirical study of real-world software, and analyze the landscape of techniques used to handle the most notorious of them — deadlock. This assignment requires careful reading of the provided chapter and substantial independent research to develop a thorough, well-supported analysis.
 
 ---
 
@@ -21,9 +21,9 @@ This problem set explores one of the most practically important topics in concur
 
 Writing correct concurrent programs is notoriously difficult, even for expert engineers. Unlike sequential bugs, concurrency bugs are often non-deterministic: they may appear only under specific thread interleavings, making them hard to reproduce, diagnose, and fix. The consequences range from subtle data corruption to complete system deadlock.
 
-A landmark empirical study by Lu et al. (2008) analyzed concurrency bugs in four major open-source applications --- MySQL, Apache, Mozilla, and OpenOffice --- and found that bugs cluster into recognizable patterns. The majority are *non-deadlock bugs*: atomicity violations, where a sequence of operations assumed to be atomic is not, and order violations, where the assumed ordering between two threads is never enforced. The remainder are *deadlock bugs*, arising from circular lock dependencies that leave threads permanently blocked.
+A landmark empirical study by Lu et al. (2008) analyzed concurrency bugs in four major open-source applications — MySQL, Apache, Mozilla, and OpenOffice — and found that bugs cluster into recognizable patterns. The majority are *non-deadlock bugs*: atomicity violations, where a sequence of operations assumed to be atomic is not, and order violations, where the assumed ordering between two threads is never enforced. The remainder are *deadlock bugs*, arising from circular lock dependencies that leave threads permanently blocked.
 
-Understanding these patterns matters because it shapes how we write, review, and reason about concurrent code. More importantly, each class of bug admits a distinct family of solutions --- from simple lock insertion to sophisticated lock-free data structures built on hardware atomic instructions --- each with its own trade-offs in correctness, performance, and complexity.
+Understanding these patterns matters because it shapes how we write, review, and reason about concurrent code. More importantly, each class of bug admits a distinct family of solutions — from simple lock insertion to sophisticated lock-free data structures built on hardware atomic instructions — each with its own trade-offs in correctness, performance, and complexity.
 
 ---
 
@@ -50,8 +50,8 @@ Using [Chapter 32 of OSTEP](https://pages.cs.wisc.edu/~remzi/OSTEP/threads-bugs.
 
 Introduce the empirical foundation of this chapter: the study by Lu et al. (2008) and its analysis of real concurrency bugs in production software. Your discussion should cover:
 
-* The four applications studied and the overall distribution of bugs found --- how many were non-deadlock versus deadlock bugs, and what does this distribution tell us about where programmers most commonly go wrong?
-* Why concurrency bugs are particularly insidious compared to sequential bugs. What properties of concurrent execution --- thread interleaving, non-determinism, the absence of enforced atomicity --- make these bugs hard to find and reproduce?
+* The four applications studied and the overall distribution of bugs found — how many were non-deadlock versus deadlock bugs, and what does this distribution tell us about where programmers most commonly go wrong?
+* Why concurrency bugs are particularly insidious compared to sequential bugs. What properties of concurrent execution — thread interleaving, non-determinism, the absence of enforced atomicity — make these bugs hard to find and reproduce?
 * The significance of the finding that 97% of non-deadlock bugs are either atomicity or order violations. What does this concentration imply for the design of program analysis tools, code review practices, and programming language features?
 
 ### 2. Non-Deadlock Bugs: Atomicity and Order Violations
@@ -66,34 +66,34 @@ Then, reflect on the broader implications: if atomicity and order violations are
 
 ### 3. Deadlock: Conditions and Prevention Strategies
 
-Explain deadlock in depth. Begin by stating and explaining each of the four Coffman conditions, illustrating each with a concrete example in terms of threads and locks. Emphasize that all four conditions must hold simultaneously for a deadlock to occur --- and therefore, breaking any one of them is sufficient to prevent it.
+Explain deadlock in depth. Begin by stating and explaining each of the four Coffman conditions, illustrating each with a concrete example in terms of threads and locks. Emphasize that all four conditions must hold simultaneously for a deadlock to occur — and therefore, breaking any one of them is sufficient to prevent it.
 
 Then, describe the three prevention strategies the chapter presents:
 
-* **Circular wait prevention** via total or partial lock ordering --- how does enforcing a consistent acquisition order eliminate cycles? What are the practical challenges of maintaining such an ordering in a large codebase?
-* **Hold-and-wait prevention** via atomic lock acquisition --- how does acquiring all locks upfront prevent the condition? Discuss why this approach conflicts with encapsulation and reduces concurrency.
-* **No-preemption prevention** via `pthread_mutex_trylock()` --- explain the mechanism and introduce the concept of *livelock* as an emergent hazard of this approach. How does livelock differ from deadlock, and how can it be mitigated?
+* **Circular wait prevention** via total or partial lock ordering — how does enforcing a consistent acquisition order eliminate cycles? What are the practical challenges of maintaining such an ordering in a large codebase?
+* **Hold-and-wait prevention** via atomic lock acquisition — how does acquiring all locks upfront prevent the condition? Discuss why this approach conflicts with encapsulation and reduces concurrency.
+* **No-preemption prevention** via `pthread_mutex_trylock()` — explain the mechanism and introduce the concept of *livelock* as an emergent hazard of this approach. How does livelock differ from deadlock, and how can it be mitigated?
 
 ### 4. Beyond Prevention: Avoidance, Detection, and Lock-Free Approaches
 
 Examine the remaining strategies for handling deadlock and reflect on the broader design space.
 
-* **Deadlock avoidance via scheduling**: Explain the idea behind approaches like Dijkstra's Banker's Algorithm --- using global knowledge of lock requirements to schedule threads safely. Why are these approaches only practical in limited environments? What real-world properties of general-purpose systems make them inapplicable?
+* **Deadlock avoidance via scheduling**: Explain the idea behind approaches like Dijkstra's Banker's Algorithm — using global knowledge of lock requirements to schedule threads safely. Why are these approaches only practical in limited environments? What real-world properties of general-purpose systems make them inapplicable?
 * **Detection and recovery**: Describe how a deadlock detector using a resource graph can identify cycles and trigger recovery. What are the conditions under which this "let it happen and fix it" approach is pragmatically reasonable? What are its costs?
 * **Lock-free approaches**: Explain how hardware atomic instructions such as compare-and-swap (CAS) can be used to build data structures that avoid locks entirely. Walk through the chapter's lock-free list insertion example and explain why CAS eliminates the possibility of deadlock. Discuss the limitations: why are lock-free structures harder to build correctly, and why do they not fully replace locks in general-purpose systems?
 
-Finally, synthesize: given the full landscape of strategies --- prevention, avoidance, detection, and lock-free approaches --- argue which combination you believe is most appropriate for a general-purpose operating system kernel, and why. Acknowledge the trade-offs of the alternatives you did not choose.
+Finally, synthesize: given the full landscape of strategies — prevention, avoidance, detection, and lock-free approaches — argue which combination you believe is most appropriate for a general-purpose operating system kernel, and why. Acknowledge the trade-offs of the alternatives you did not choose.
 
 ---
 
 ## Research Requirements
 
-This essay demands substantial research well beyond Arpaci-Dusseau and Arpaci-Dusseau (2023) and Lu et al. (2008). Both are your starting point, not your finish line --- essays that cite only these two will not meet the research standard for this assignment. You are expected to independently locate and engage with sources that deepen, contextualize, or challenge the ideas presented in the reading.
+This essay demands substantial research well beyond Arpaci-Dusseau and Arpaci-Dusseau (2023) and Lu et al. (2008). Both are your starting point, not your finish line — essays that cite only these two will not meet the research standard for this assignment. You are expected to independently locate and engage with sources that deepen, contextualize, or challenge the ideas presented in the reading.
 
 You must:
 
 * Cite **at least three (3) academically sound sources** using **APA 7th Edition** format
-* Arpaci-Dusseau and Arpaci-Dusseau (2023) counts as one source; Lu et al. (2008) counts as a second --- you need **at least one additional source** that you found independently, beyond what the chapter already hands you
+* Arpaci-Dusseau and Arpaci-Dusseau (2023) counts as one source; Lu et al. (2008) counts as a second — you need **at least one additional source** that you found independently, beyond what the chapter already hands you
 * Acceptable sources include:
   * Peer-reviewed papers from conferences (ACM SIGOPS, USENIX, etc.)
   * Technical books on operating systems, concurrency, or distributed systems (see: syllabus)
@@ -103,12 +103,12 @@ You must:
 * Include a **References** section at the end following APA 7th Edition format
 * The References section does **not** count toward your word count
 
-The following are suggested entry points from the chapter's own reference list. They are freely available online and are directly relevant to the essay's content --- but again, you are expected to go further:
+The following are suggested entry points from the chapter's own reference list. They are freely available online and are directly relevant to the essay's content — but again, you are expected to go further:
 
-* Coffman et al. (1971) --- the original formalization of deadlock conditions
-* Herlihy (1991, 1993) --- foundational work on wait-free and lock-free synchronization
-* Jula et al. (2008) --- deadlock immunity and practical deadlock defense in real systems
-* Harris (2001) --- implementing non-blocking linked lists without locks
+* Coffman et al. (1971) — the original formalization of deadlock conditions
+* Herlihy (1991, 1993) — foundational work on wait-free and lock-free synchronization
+* Jula et al. (2008) — deadlock immunity and practical deadlock defense in real systems
+* Harris (2001) — implementing non-blocking linked lists without locks
 
 Strong essays will draw on sources the chapter does not mention. Use Google Scholar, IEEE Xplore, the ACM Digital Library, or your university library portal to find relevant work on topics such as: formal verification of concurrent programs, transactional memory as an alternative to explicit locking, real-world deadlock incidents in production systems, or the scheduling implications of lock-free data structures.
 
@@ -118,7 +118,7 @@ Strong essays will draw on sources the chapter does not mention. Use Google Scho
 
 * Write on **one-whole sheets of yellow pad paper only**
 * Work together with your trio defined [in this sheet](https://docs.google.com/spreadsheets/d/1FI9XeAnjmJZR9vZmKMJ8exAfzZOq_5ostKHHS1aLgeU/edit?usp=sharing) to accomplish the essay
-* Your essay must be approximately **2000 words** (acceptable range: 1800--2200 words)
+* Your essay must be approximately **2000 words** (acceptable range: 1800–2200 words)
 * Essays outside this range will receive deductions
 * **CRITICAL**: You must write the **cumulative word count at the left margin of each line**
   * Example: Line 1 ends at word 8, write `8` at the left margin
@@ -174,12 +174,12 @@ See the detailed rubric on the final page for specific performance standards.
 
 ## Tips for Success
 
-* **Read the chapter thoroughly before writing**: This is your primary reference --- understand every section before drafting
+* **Read the chapter thoroughly before writing**: This is your primary reference — understand every section before drafting
 * **Go beyond the suggested sources**: The chapter's reference list is a floor, not a ceiling. Essays that only cite Arpaci-Dusseau and Arpaci-Dusseau (2023) and Lu et al. (2008) will score poorly on Research Quality
-* **Divide the research, not just the writing**: Each member should independently explore sources for their section --- then share findings before drafting begins
-* **Plan before you write**: 2000 words across four sections is substantial --- sketch an outline and agree on coverage before anyone picks up a pen
+* **Divide the research, not just the writing**: Each member should independently explore sources for their section — then share findings before drafting begins
+* **Plan before you write**: 2000 words across four sections is substantial — sketch an outline and agree on coverage before anyone picks up a pen
 * **Use the code examples**: The chapter provides concrete bug scenarios; use them to ground your explanations, not just to summarize
-* **Argue in Section 4**: The synthesis question asks for a position --- pick a combination of strategies and defend it with trade-offs; don't describe all four equally
+* **Argue in Section 4**: The synthesis question asks for a position — pick a combination of strategies and defend it with trade-offs; don't describe all four equally
 * **Write the essay together**: With three authors, it is tempting to write four sections independently and staple them. Resist this. Read and edit each other's sections so the essay reads as a unified piece
 * **Count as you write**: Tracking cumulative word count per line from the start avoids painful recounting at the end
 
@@ -187,12 +187,12 @@ See the detailed rubric on the final page for specific performance standards.
 
 ## Common Pitfalls to Avoid
 
-* **Confusing the two bug classes**: Atomicity and order violations are distinct --- make sure your definitions and examples clearly distinguish them
+* **Confusing the two bug classes**: Atomicity and order violations are distinct — make sure your definitions and examples clearly distinguish them
 * **Listing the Coffman conditions without explaining them**: Naming all four earns little credit; explaining each in terms of threads and locks, with examples, is what the prompt requires
 * **Skipping livelock**: It is a required concept in Section 3 and a common omission
-* **Treating Section 4 as a summary**: The synthesis question requires an argument, not a recap --- make a claim and defend it
+* **Treating Section 4 as a summary**: The synthesis question requires an argument, not a recap — make a claim and defend it
 * **Citing only OSTEP and Lu et al.**: This is explicitly insufficient. The minimum is three sources, and Arpaci-Dusseau and Arpaci-Dusseau (2023) plus Lu et al. (2008) only gets you to two
-* **Weak source integration**: Don't merely list references at the end --- weave them into your argument where relevant
+* **Weak source integration**: Don't merely list references at the end — weave them into your argument where relevant
 * **A disjointed essay**: Three authors can produce three disconnected pieces. Make sure transitions between sections are smooth and the essay has a coherent voice throughout
 * **Format violations**: Forgetting line counts or exceeding word limits will cost you points regardless of content quality
 
@@ -215,7 +215,7 @@ You may wonder why this assignment requires handwritten submission in an age of 
 
 **Academic Integrity**: This format also serves an integrity function. While AI assistance is permitted for research and understanding, the final product must demonstrate *your* comprehension. A handwritten essay in your own words ensures the work is authentically yours. We can distinguish between genuine understanding and superficial reproduction.
 
-**Professional Preparation**: In technical interviews and graduate school qualifying exams, you will often work through problems by hand on whiteboards or paper. This assignment provides practice in organizing complex technical arguments without digital aid --- a valuable professional skill.
+**Professional Preparation**: In technical interviews and graduate school qualifying exams, you will often work through problems by hand on whiteboards or paper. This assignment provides practice in organizing complex technical arguments without digital aid — a valuable professional skill.
 
 The goal is not to make your life difficult, but to ensure that the time you invest in this assignment translates into genuine learning. When you sit for future examinations, beyond the walls of the university, the concepts you've handwritten will be far more accessible in your memory than those you merely copy-pasted into a document.
 
@@ -229,10 +229,10 @@ The goal is not to make your life difficult, but to ensure that the time you inv
 
 ## Grading Rubric
 
-| **Criteria** | **Excellent (90--100%)** | **Good (75--89%)** | **Fair (60--74%)** | **Poor (0--59%)** |
+| **Criteria** | **Excellent (90–100%)** | **Good (75–89%)** | **Fair (60–74%)** | **Poor (0–59%)** |
 |---|---|---|---|---|
 | **Technical Accuracy (30%)** | All OS concepts correct; mechanisms described precisely; calculations shown correctly; examples accurate; no conceptual errors. | Core concepts correct; minor inaccuracies in details; calculation errors or missing steps; examples mostly accurate. | Some correct concepts; significant errors in mechanisms; failed calculations; confused examples. | Fundamental misunderstanding; incorrect mechanisms throughout; no accurate calculations or examples. |
 | **Depth of Analysis (25%)** | Synthesizes concepts across sections; explores tradeoffs deeply; concrete examples throughout; anticipates edge cases; critical thinking evident; goes beyond surface description. | Good analysis; explores some tradeoffs; provides adequate examples; shows solid understanding of implications and relationships. | Mostly descriptive; limited analysis; few examples; surface-level understanding; minimal exploration of tradeoffs. | Purely descriptive; no analysis; regurgitates definitions; fails to address prompt requirements; no critical thinking. |
 | **Research Quality (20%)** | 3+ high-quality academic sources; meaningful integration into argument; perfect APA citations; sources directly support claims; demonstrates independent research. | 3 acceptable sources; generally correct APA format; relevant sources with adequate integration; some independent research evident. | Minimum sources met; citation errors; weak integration; sources tangentially relevant or poorly utilized. | Missing required citations; non-academic sources only; no APA format; plagiarism detected; no evidence of research. |
 | **Organization & Clarity (15%)** | Logical flow between sections; clear topic sentences; smooth transitions; precise technical writing; arguments build coherently; easy to follow throughout. | Generally organized; mostly clear explanations; adequate transitions; readable throughout with minor structural issues. | Weak organization; unclear explanations; choppy transitions; difficult to follow in places; some technical writing issues. | Incoherent structure; incomprehensible explanations; no clear argument thread; impossible to follow. |
-| **Format Compliance (10%)** | Word count within range; cumulative line counts correct throughout; legible print handwriting; minimal/no erasures; proper References section; all requirements met. | Minor word count deviation (<50 words); line counts mostly correct with few gaps; mostly legible; some erasures but readable; References present with minor errors. | Significant word count deviation (50--100 words); many missing line counts; partially illegible; excessive erasures; incomplete References. | Word count requirements ignored; missing line counts; illegible handwriting; violates format requirements; no References; critical submission violations. |
+| **Format Compliance (10%)** | Word count within range; cumulative line counts correct throughout; legible print handwriting; minimal/no erasures; proper References section; all requirements met. | Minor word count deviation (<50 words); line counts mostly correct with few gaps; mostly legible; some erasures but readable; References present with minor errors. | Significant word count deviation (50–100 words); many missing line counts; partially illegible; excessive erasures; incomplete References. | Word count requirements ignored; missing line counts; illegible handwriting; violates format requirements; no References; critical submission violations. |

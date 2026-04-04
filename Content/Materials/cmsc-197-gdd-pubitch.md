@@ -25,7 +25,7 @@ noDeadline: true
 
 Itch.io is an open marketplace for independent games and creative software ([link](https://itch.io/docs/general/about)). It is the standard target for this course because it requires zero upfront cost, supports in-browser HTML5 play, and allows creators to set their own pricing and access conditions. Your projects may be published here.
 
-In real game development, publishing is not optional polish. **A game that cannot be shipped is not finished.** Export and deployment are engineering tasks that surface real bugs---missing resources, wrong renderer settings, broken paths---that simply do not appear during in-editor testing.
+In real game development, publishing is not optional polish. **A game that cannot be shipped is not finished.** Export and deployment are engineering tasks that surface real bugs—missing resources, wrong renderer settings, broken paths—that simply do not appear during in-editor testing.
 
 ---
 
@@ -45,7 +45,7 @@ Before touching the export dialog, your project must be in a shippable state.
 
 #### Resolution Convention: 1280×720
 
-Use 1280×720 as your base viewport for Itch.io web embeds. The default embed canvas is 960 pixels wide; a 16:9 base scales cleanly. Avoid non-standard aspect ratios unless the design demands it---they produce letterboxing or pillarboxing that looks unpolished.
+Use 1280×720 as your base viewport for Itch.io web embeds. The default embed canvas is 960 pixels wide; a 16:9 base scales cleanly. Avoid non-standard aspect ratios unless the design demands it—they produce letterboxing or pillarboxing that looks unpolished.
 
 ### Resource Import Hygiene
 
@@ -94,7 +94,7 @@ Godot separates the editor from the export templates. You must install templates
 
 1. Open **Editor** → **Manage Export Templates**
 2. Click **Download and Install** for the version matching your editor
-3. Wait for the download to complete (roughly 300--500 MB)
+3. Wait for the download to complete (roughly 300–500 MB)
 4. Confirm the status reads *Templates Installed*
 
 #### Template Versions Must Match
@@ -197,7 +197,7 @@ This reduces performance on complex scenes but is perfectly acceptable for 2D ga
 
 * Symptom: Black screen or *"Your browser does not support..."* error
 * Cause: Missing COOP/COEP headers (SharedArrayBuffer blocked)
-* Symptom: Game loads but runs at 5--10 FPS
+* Symptom: Game loads but runs at 5–10 FPS
 * Cause: Threads disabled but you are rendering a 3D scene
 
 Do not guess. Open the browser DevTools console (**F12**) and read the actual error message before changing settings.
@@ -257,7 +257,7 @@ Set your game's visibility to **Restricted** while developing, and switch to **P
 
 ---
 
-## Part 6: Butler --- Automated Deployment
+## Part 6: Butler — Automated Deployment
 
 Manually uploading a `.zip` for every build is error-prone. Butler is Itch.io's official command-line deployment tool ([link](https://itch.io/docs/butler/)). It performs delta uploads (only changed files), version-tracks builds, and integrates cleanly into shell scripts.
 
@@ -351,7 +351,7 @@ Android is the only mobile target that does not require a paid developer account
 
 #### APK vs. AAB
 
-Google Play requires the Android App Bundle (`.aab`) format. Itch.io does not use the Play Store. Always export an `.apk` for Itch.io distribution---`.aab` files cannot be sideloaded directly by players.
+Google Play requires the Android App Bundle (`.aab`) format. Itch.io does not use the Play Store. Always export an `.apk` for Itch.io distribution—`.aab` files cannot be sideloaded directly by players.
 
 ### Prerequisites
 
@@ -402,11 +402,11 @@ keytool -genkey -v \
   -dname "CN=Android Debug,O=Android,C=US"
 ```
 
-Store `debug.keystore` somewhere permanent---outside your project folder. **Do not commit it to version control.** Add it to your `.gitignore`.
+Store `debug.keystore` somewhere permanent—outside your project folder. **Do not commit it to version control.** Add it to your `.gitignore`.
 
 #### Debug vs. Release Keystore
 
-For Itch.io distribution, a debug keystore is sufficient. A release keystore is only required for Google Play. The passwords above (`android`/`android`) are the standard Android debug keystore defaults and are publicly known---do not reuse them for a release build.
+For Itch.io distribution, a debug keystore is sufficient. A release keystore is only required for Google Play. The passwords above (`android`/`android`) are the standard Android debug keystore defaults and are publicly known—do not reuse them for a release build.
 
 ### Configuring the Android Export Preset
 
@@ -439,7 +439,7 @@ For Itch.io distribution, a debug keystore is sufficient. A release keystore is 
 3. Set filename: `GameName.apk`
 4. Click **Save**
 
-Godot invokes Gradle internally; the first build takes 2--5 minutes as dependencies are downloaded. Subsequent builds are faster due to Gradle's build cache.
+Godot invokes Gradle internally; the first build takes 2–5 minutes as dependencies are downloaded. Subsequent builds are faster due to Gradle's build cache.
 
 #### Common Pitfalls
 

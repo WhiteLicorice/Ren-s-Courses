@@ -26,7 +26,7 @@ noDeadline: true
 
 [Lex Talionis](https://github.com/WhiteLicorice/lt-maker) is an open-source engine for building turn-based strategy RPGs in the *Fire Emblem* style (see the Component System case study for a deeper introduction to the engine).
 
-In Lex Talionis, the **State System** handles *what happens*---the entire flow of the game, from the title screen to combat to cutscenes to menus. Every SRPG has a complex lifecycle: the player starts at a title screen, loads a save, enters a level, selects a unit, picks a movement destination, opens an action menu, chooses to attack, selects a target, watches combat play out, sees experience awarded, possibly a level-up screen, and then control returns to the map---or maybe the unit has Canto and can move again after attacking.
+In Lex Talionis, the **State System** handles *what happens*—the entire flow of the game, from the title screen to combat to cutscenes to menus. Every SRPG has a complex lifecycle: the player starts at a title screen, loads a save, enters a level, selects a unit, picks a movement destination, opens an action menu, chooses to attack, selects a target, watches combat play out, sees experience awarded, possibly a level-up screen, and then control returns to the map—or maybe the unit has Canto and can move again after attacking.
 
 That is just one turn for one unit. The State System is the architectural backbone that makes all of it manageable.
 
@@ -49,7 +49,7 @@ Title Screen -> Load Save -> Level Start -> Player Phase
 -> Next Turn -> Event Cutscene -> ...
 ```
 
-A flat FSM cannot express this. You need states that can *nest*---an event cutscene can trigger mid-combat, a menu can open on top of the map, combat can interrupt the player's turn flow. What you really need is a **pushdown automaton**: a state machine with a *stack*.
+A flat FSM cannot express this. You need states that can *nest*—an event cutscene can trigger mid-combat, a menu can open on top of the map, combat can interrupt the player's turn flow. What you really need is a **pushdown automaton**: a state machine with a *stack*.
 
 ---
 
@@ -76,7 +76,7 @@ while running:
     # ... 30 more elif branches
 ```
 
-This falls apart immediately. Control flow is implicit---hidden in `mode = "something_else"` assignments scattered everywhere. Adding a new mode means touching the main loop. There is no clean way to handle "draw the map *behind* the menu" or "pause the current state while an event plays."
+This falls apart immediately. Control flow is implicit—hidden in `mode = "something_else"` assignments scattered everywhere. Adding a new mode means touching the main loop. There is no clean way to handle "draw the map *behind* the menu" or "pause the current state while an event plays."
 
 ### The Deep Nesting Problem
 
@@ -95,7 +95,7 @@ def player_turn():
             player_turn()  # Recursion!
 ```
 
-What if `run_combat` needs to show a cutscene mid-fight? What if `show_menu` needs to open a sub-menu? You end up passing callbacks and coroutines everywhere, and the call stack becomes the implicit game state---good luck saving and loading *that*.
+What if `run_combat` needs to show a cutscene mid-fight? What if `show_menu` needs to open a sub-menu? You end up passing callbacks and coroutines everywhere, and the call stack becomes the implicit game state—good luck saving and loading *that*.
 
 ### The State Explosion Problem
 
@@ -168,7 +168,7 @@ class State():
 
 #### Key Design Points
 
-* **`start()` vs `begin()`**: `start()` runs once; `begin()` runs every time the state resurfaces; if you push a menu on top of `FreeState`, then pop the menu, `FreeState.begin()` runs again to restore the cursor and highlights---`start()` does not
+* **`start()` vs `begin()`**: `start()` runs once; `begin()` runs every time the state resurfaces; if you push a menu on top of `FreeState`, then pop the menu, `FreeState.begin()` runs again to restore the cursor and highlights—`start()` does not
 * **`end()` vs `finish()`**: `end()` fires when the state is about to be covered or popped; `finish()` fires when the state object is actually removed from the stack
 * **The `'repeat'` protocol**: any lifecycle method can return `'repeat'` to tell the state machine to skip the rest of the frame and re-run immediately; this is how single-frame states work
 
@@ -254,7 +254,7 @@ def process_temp_state(self):
 
 ### State Lifecycle
 
-Here is the frame loop---the `update()` method that runs every frame:
+Here is the frame loop—the `update()` method that runs every frame:
 
 ```python
 def update(self, event, surf):
@@ -321,7 +321,7 @@ def update(self, event, surf):
 +-------------------------------------------------+
 ```
 
-The `'repeat'` mechanism is crucial for states that do all their work in `start()` or `begin()`---they set up transitions and immediately return `'repeat'` so the new state starts in the same frame. Without this, you would see blank frames during rapid transitions.
+The `'repeat'` mechanism is crucial for states that do all their work in `start()` or `begin()`—they set up transitions and immediately return `'repeat'` so the new state starts in the same frame. Without this, you would see blank frames during rapid transitions.
 
 ### Transparency and Layered Rendering
 
@@ -345,11 +345,11 @@ Drawing order (bottom to top):
 Result: Dialog on top of menu on top of map. Clean compositing.
 ```
 
-The state machine walks *down* the stack until it finds a non-transparent state, then draws *up*. Each state only draws its own layer---it does not need to know what is above or below it.
+The state machine walks *down* the stack until it finds a non-transparent state, then draws *up*. Each state only draws its own layer—it does not need to know what is above or below it.
 
 ### Inter-State Communication
 
-States communicate through `game.memory`, a shared dictionary on the `GameState` singleton. This is a **message bus pattern**---the sender writes to a known key, the receiver reads it; neither state imports the other:
+States communicate through `game.memory`, a shared dictionary on the `GameState` singleton. This is a **message bus pattern**—the sender writes to a known key, the receiver reads it; neither state imports the other:
 
 ```python
 # In WeaponChoiceState, after the player picks a weapon:
@@ -377,7 +377,7 @@ class TransitionToState(TransitionOutState):
             return 'repeat'
 ```
 
-The convention is that the state which writes a key is responsible for what goes in it. `game.memory` is intentionally untyped---it trades compile-time safety for zero coupling.
+The convention is that the state which writes a key is responsible for what goes in it. `game.memory` is intentionally untyped—it trades compile-time safety for zero coupling.
 
 ### The State Registry
 
@@ -423,7 +423,7 @@ def load_states(self, starting_states=None, temp_state=None):
     }
 ```
 
-State navigation always uses string names. States never reference each other's classes directly---adding a new state is two steps: write the class, add one line to the registry:
+State navigation always uses string names. States never reference each other's classes directly—adding a new state is two steps: write the class, add one line to the registry:
 
 ```python
 game.state.change('combat')   # Push by name
@@ -448,7 +448,7 @@ state_stack = ['free', 'move', 'menu']
 temp_state = []
 ```
 
-Loading reconstructs the stack by re-instantiating from the registry. Individual states re-derive their display state from game data (cursor position, unit selection, etc.) in their `start()` and `begin()` methods. This is why `begin()` exists separately from `start()`---it is the "reconstruct yourself from current game state" hook.
+Loading reconstructs the stack by re-instantiating from the registry. Individual states re-derive their display state from game data (cursor position, unit selection, etc.) in their `start()` and `begin()` methods. This is why `begin()` exists separately from `start()`—it is the "reconstruct yourself from current game state" hook.
 
 ---
 
@@ -458,7 +458,7 @@ Loading reconstructs the stack by re-instantiating from the registry. Individual
 
 Some states exist for exactly one frame: they do work, queue a transition, and immediately return `'repeat'`.
 
-**WaitState**---marks all attacked units as finished:
+**WaitState**—marks all attacked units as finished:
 
 ```python
 class WaitState(MapState):
@@ -473,9 +473,9 @@ class WaitState(MapState):
         return 'repeat'
 ```
 
-This is a *command* disguised as a state. It exists because the state machine is the only sequencing mechanism---if you need "do X then do Y," you push state Y, then push state X. X runs, pops itself, and Y naturally becomes top.
+This is a *command* disguised as a state. It exists because the state machine is the only sequencing mechanism—if you need "do X then do Y," you push state Y, then push state X. X runs, pops itself, and Y naturally becomes top.
 
-**TurnChangeState**---orchestrates the turn/phase transition:
+**TurnChangeState**—orchestrates the turn/phase transition:
 
 ```python
 class TurnChangeState(MapState):
@@ -507,7 +507,7 @@ States are pushed in the order `free`, `status_upkeep`, `phase_change`. Since it
 
 ### Interactive States
 
-**FreeState**---the main player turn state, where the player selects units and issues commands:
+**FreeState**—the main player turn state, where the player selects units and issues commands:
 
 ```python
 class FreeState(MapState):
@@ -551,9 +551,9 @@ class FreeState(MapState):
         game.highlight.remove_highlights()
 ```
 
-`FreeState.begin()` demonstrates the auto-end-turn pattern: if all player units have acted, it does not wait for input---it immediately queues the turn-change sequence and returns `'repeat'`.
+`FreeState.begin()` demonstrates the auto-end-turn pattern: if all player units have acted, it does not wait for input—it immediately queues the turn-change sequence and returns `'repeat'`.
 
-**MoveState**---handles unit movement and transitions to the action menu:
+**MoveState**—handles unit movement and transitions to the action menu:
 
 ```python
 class MoveState(MapState):
@@ -588,7 +588,7 @@ The push ordering `change('menu')` then `change('movement')` means `MovementStat
 
 ### Orchestrator States
 
-**CombatState**---manages the entire combat encounter:
+**CombatState**—manages the entire combat encounter:
 
 ```python
 class CombatState(MapState):
@@ -621,9 +621,9 @@ class CombatState(MapState):
         return surf
 ```
 
-Notice that `CombatState` does not *implement* combat---it delegates to `self.combat`, which is an `AnimationCombat` or `BaseCombat` instance. The state manages the lifecycle (start, skip, done-check) and rendering integration only.
+Notice that `CombatState` does not *implement* combat—it delegates to `self.combat`, which is an `AnimationCombat` or `BaseCombat` instance. The state manages the lifecycle (start, skip, done-check) and rendering integration only.
 
-**EventState**---runs scripted events and cutscenes:
+**EventState**—runs scripted events and cutscenes:
 
 ```python
 class EventState(State):
@@ -747,7 +747,7 @@ game.state.change('my_feature')
 
 ### Patterns Worth Knowing
 
-**Stack sequencing**---push in reverse execution order:
+**Stack sequencing**—push in reverse execution order:
 
 ```python
 # Execute: phase_change -> status_upkeep -> free
@@ -756,14 +756,14 @@ game.state.change('status_upkeep')  # Will run second
 game.state.change('phase_change')   # Will run first (it's on top)
 ```
 
-**Transition wrapping**---use `transition_to` for visual navigation:
+**Transition wrapping**—use `transition_to` for visual navigation:
 
 ```python
 game.memory['next_state'] = 'info_menu'
 game.state.change('transition_to')  # Fades out, navigates, fades in
 ```
 
-**Single-frame command states**---do work and pop immediately:
+**Single-frame command states**—do work and pop immediately:
 
 ```python
 class DoSomethingState(MapState):
@@ -1018,14 +1018,14 @@ This gives entities their own behavioral state machines independent of the globa
 
 ## Conclusion
 
-The Lex Talionis State System is a textbook implementation of the **pushdown automaton** applied to game architecture---and the fact that it manages 120+ states without collapsing into chaos is proof that the pattern works at scale.
+The Lex Talionis State System is a textbook implementation of the **pushdown automaton** applied to game architecture—and the fact that it manages 120+ states without collapsing into chaos is proof that the pattern works at scale.
 
 #### Key Takeaways
 
 1. **Stack-based state machines** naturally model the nested, interruptible flow that SRPGs and other complex games require; flat FSMs cannot cut it
 2. **Deferred transitions** (queuing changes instead of executing immediately) prevent re-entrancy bugs and ensure consistent per-frame behavior
-3. **The `'repeat'` protocol** lets single-frame states exist---states that set up transitions and skip rendering, acting as sequencing commands rather than visual modes
-4. **Transparency** decouples visual layering from state logic; a menu state does not need to know how to draw the map---it just declares `transparent = True` and the machine composites them
+3. **The `'repeat'` protocol** lets single-frame states exist—states that set up transitions and skip rendering, acting as sequencing commands rather than visual modes
+4. **Transparency** decouples visual layering from state logic; a menu state does not need to know how to draw the map—it just declares `transparent = True` and the machine composites them
 5. **`game.memory`** provides loose coupling between states; states communicate through a shared bus, not through imports or method calls
 6. **String-based registration** means adding a new state is two steps: write the class, add one line to the registry; no switch statements, no enum updates, no base class modifications
 

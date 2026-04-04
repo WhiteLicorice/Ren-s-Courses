@@ -42,8 +42,8 @@ The mathematical relationships between the temperature scales for this assignmen
 
 ## Important Notes
 
-- Use **unsigned integer arithmetic only** - truncate any fractional results
-- Use registers appropriately - clean up of the Floating Point Unit (FPU) is not required
+- Use **unsigned integer arithmetic only** — truncate any fractional results
+- Use registers appropriately — clean up of the Floating Point Unit (FPU) is not required
 - Use the provided I/O functions: `print_string`, `print_int`, `read_int`
 - Assume input is valid and within reasonable bounds (e.g., no negative temperatures, no absurdly large or odd inputs, etc.)
 - No floating-point operations or FPU cleanup required

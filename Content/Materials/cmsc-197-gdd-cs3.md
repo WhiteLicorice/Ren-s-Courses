@@ -24,20 +24,20 @@ noDeadline: true
 
 ## Background
 
-If you have read the Component System and State System case studies, you know that Lex Talionis is an open-source engine for building turn-based strategy RPGs in the *Fire Emblem* style. The Component System handles *what things are*---items, skills, behaviors. The State System handles *what happens*---game flow, menus, combat sequences. The **Pathfinding and AI Navigation System** handles *how units move*---both for the human player (highlighting valid move tiles, drawing movement arrows) and for the AI (deciding where to go and who to attack).
+If you have read the Component System and State System case studies, you know that Lex Talionis is an open-source engine for building turn-based strategy RPGs in the *Fire Emblem* style. The Component System handles *what things are*—items, skills, behaviors. The State System handles *what happens*—game flow, menus, combat sequences. The **Pathfinding and AI Navigation System** handles *how units move*—both for the human player (highlighting valid move tiles, drawing movement arrows) and for the AI (deciding where to go and who to attack).
 
 This is the system that answers questions like:
 
 * "Which tiles can this unit reach with 5 movement points?"
 * "What is the shortest path from here to there, avoiding mountains and enemies?"
 * "Which enemy should the AI attack, from which position, with which weapon?"
-* "The AI cannot reach the target this turn---how far should it walk toward it?"
+* "The AI cannot reach the target this turn—how far should it walk toward it?"
 
 ---
 
 ## Context: Pathfinding Is Not a Single Problem
 
-Pathfinding is one of the most-studied problems in game development. If you have taken an algorithms class, you have seen Dijkstra's algorithm and A\*. But applying them to an actual game---especially a turn-based SRPG---involves problems that the textbook versions do not address.
+Pathfinding is one of the most-studied problems in game development. If you have taken an algorithms class, you have seen Dijkstra's algorithm and A\*. But applying them to an actual game—especially a turn-based SRPG—involves problems that the textbook versions do not address.
 
 **Multiple algorithms for different questions.** "What can I reach?" is a different question from "What is the fastest route to a specific tile?" Each needs a different algorithm.
 
@@ -47,7 +47,7 @@ Pathfinding is one of the most-studied problems in game development. If you have
 
 **Pathfinding is not AI.** Finding the shortest path is only half the problem. The AI must also decide *where* to go, *who* to attack, and *which weapon* to use. Pathfinding is a tool the AI uses, not the AI itself.
 
-**Budget-constrained movement.** In an SRPG, a unit does not traverse the full path in one turn---it moves as far as its movement points allow and stops. The AI needs a "walk as far as I can along this path" algorithm. Textbook A\* has no built-in concept of partial traversal.
+**Budget-constrained movement.** In an SRPG, a unit does not traverse the full path in one turn—it moves as far as its movement points allow and stops. The AI needs a "walk as far as I can along this path" algorithm. Textbook A\* has no built-in concept of partial traversal.
 
 ---
 
@@ -65,7 +65,7 @@ for every_tile in map:
         valid_moves.add(every_tile)
 ```
 
-This is $O(N \times A^*)$ where $N$ is the number of tiles on the map. Dijkstra's algorithm does this in a single pass---run it once from the unit's position, and it gives you *all* reachable tiles simultaneously.
+This is $O(N \times A^*)$ where $N$ is the number of tiles on the map. Dijkstra's algorithm does this in a single pass—run it once from the unit's position, and it gives you *all* reachable tiles simultaneously.
 
 ### The Hardcoded Cost Problem
 
@@ -77,7 +77,7 @@ def get_cost(tile):
     else: return 1
 ```
 
-This breaks the moment you add flying units (who ignore terrain), mounted units (who struggle in forests), or a "Water Walk" skill. You need a cost *table*---a 2D lookup of `(unit_movement_type, terrain_type) → cost`.
+This breaks the moment you add flying units (who ignore terrain), mounted units (who struggle in forests), or a "Water Walk" skill. You need a cost *table*—a 2D lookup of `(unit_movement_type, terrain_type) → cost`.
 
 ### The Coupled AI Problem
 
@@ -103,9 +103,9 @@ Lex Talionis solves these problems with a **layered architecture**:
 
 1. **Three algorithms for three questions**: Dijkstra for reachability ("what can I reach?"), A\* for pathing ("how do I get to X?"), Theta\* for smooth movement in free-roam mode
 2. **Data-driven movement costs**: A `movement_group × terrain_type → cost` lookup table (`DB.mcost`), configured in the editor. Each unit class has a movement group; each terrain has a movement type. Grids are pre-computed per movement group at level load.
-3. **Facade pattern**: `PathSystem` is a high-level API that hides algorithmic details. Callers say `get_valid_moves(unit)` or `get_path(unit, position)`---they never import `Dijkstra` or `AStar` directly.
+3. **Facade pattern**: `PathSystem` is a high-level API that hides algorithmic details. Callers say `get_valid_moves(unit)` or `get_path(unit, position)`—they never import `Dijkstra` or `AStar` directly.
 4. **AI as a consumer**: The AI controller uses `PathSystem` as a service. It asks for valid moves, asks for paths, then makes tactical decisions using a utility-scoring system. Pathfinding and AI are cleanly separated.
-5. **Travel algorithm**: A dedicated `travel_algorithm()` handles partial movement---given a path and a movement budget, it returns the farthest reachable position along that path.
+5. **Travel algorithm**: A dedicated `travel_algorithm()` handles partial movement—given a path and a movement budget, it returns the farthest reachable position along that path.
 
 ---
 
@@ -113,7 +113,7 @@ Lex Talionis solves these problems with a **layered architecture**:
 
 ### The Grid and Node Model
 
-Everything starts with the `Node`---a single tile in the movement grid:
+Everything starts with the `Node`—a single tile in the movement grid:
 
 ```python
 class Node():
@@ -138,8 +138,8 @@ class Node():
 
 #### Key Design Points
 
-* **`__slots__`**: Performance optimization---no `__dict__` per node, saving memory for large grids
-* **`reachable` vs `cost`**: A tile with `cost >= 99` is impassable, but `reachable` is checked *before* cost evaluation---walls are rejected in one boolean test
+* **`__slots__`**: Performance optimization—no `__dict__` per node, saving memory for large grids
+* **`reachable` vs `cost`**: A tile with `cost >= 99` is impassable, but `reachable` is checked *before* cost evaluation—walls are rejected in one boolean test
 * **`true_f` vs `f`**: A\* uses a slight directional nudge to prefer aesthetically straight paths; `true_f` stores the honest cost for limit-checking while `f` includes the nudge for tie-breaking
 
 At level load, `GameBoard` pre-computes one grid per movement group:
@@ -161,7 +161,7 @@ A "Flying" unit gets a grid where mountains cost 1, forests cost 1, and water co
 
 ### Dijkstra: Reachability Flood Fill
 
-When the player selects a unit, the game highlights all tiles the unit can reach. This is a **single-source reachability** problem---perfect for Dijkstra:
+When the player selects a unit, the game highlights all tiles the unit can reach. This is a **single-source reachability** problem—perfect for Dijkstra:
 
 ```python
 class Djikstra:
@@ -187,11 +187,11 @@ class Djikstra:
         return {(n.x, n.y) for n in self.closed}
 ```
 
-The algorithm expands outward from the start position, accumulating movement costs. Because the min-heap guarantees we always process the cheapest node first, the moment we pop a node that exceeds `movement_left`, we know every remaining node would also exceed it---early termination is sound.
+The algorithm expands outward from the start position, accumulating movement costs. Because the min-heap guarantees we always process the cheapest node first, the moment we pop a node that exceeds `movement_left`, we know every remaining node would also exceed it—early termination is sound.
 
 **Why Dijkstra and not BFS?** BFS assumes uniform cost. In an SRPG, a forest costs 2 while a plain costs 1. BFS would report tiles as reachable or unreachable incorrectly.
 
-**Why not A\*?** A\* is for finding the shortest path to a *specific* goal. We have no goal---we want *all* reachable tiles. A\* with no goal degenerates into Dijkstra with the overhead of computing a useless heuristic.
+**Why not A\*?** A\* is for finding the shortest path to a *specific* goal. We have no goal—we want *all* reachable tiles. A\* with no goal degenerates into Dijkstra with the overhead of computing a useless heuristic.
 
 ---
 
@@ -240,7 +240,7 @@ class AStar:
 
 * **`adj_good_enough`**: For the AI, reaching a tile *adjacent* to the target is usually sufficient (you attack from an adjacent tile). This avoids pathing to a tile occupied by the enemy.
 * **`limit`**: The AI can cap how far it is willing to search. Uses `true_f` (without the nudge) so the limit is honest.
-* **`max_movement_limit`**: Tiles with cost exceeding this are treated as impassable---prevents the AI from planning paths through terrain it cannot cross in one turn.
+* **`max_movement_limit`**: Tiles with cost exceeding this are treated as impassable—prevents the AI from planning paths through terrain it cannot cross in one turn.
 * **`set_goal_pos()`**: Allows re-using the same A\* instance with a new goal without re-allocating the grid. `SecondaryAI` uses this to evaluate multiple targets efficiently.
 
 ---
@@ -277,7 +277,7 @@ When updating a node's parent, Theta\* checks if there is line-of-sight to the *
 
 ### Movement Costs and Terrain
 
-Movement costs are stored in a database table---a 2D lookup:
+Movement costs are stored in a database table—a 2D lookup:
 
 ```python
 def get_movement_group(unit_to_move):
@@ -304,7 +304,7 @@ The data model is a grid of costs:
 | **Flying** | 1 | 1 | 1 | 1 | 1 |
 | **Armored** | 1 | 2 | 4 | 99 | 3 |
 
-Values are set in the Lex Talionis editor. A cost of 99 or higher means "impassable"---the grid marks those nodes as `reachable = False`. Skills can override movement type at runtime: a "Water Walk" skill changes the unit's effective movement group without touching pathfinding code.
+Values are set in the Lex Talionis editor. A cost of 99 or higher means "impassable"—the grid marks those nodes as `reachable = False`. Skills can override movement type at runtime: a "Water Walk" skill changes the unit's effective movement group without touching pathfinding code.
 
 ---
 
@@ -324,7 +324,7 @@ def can_move_through(self, team, pos):
     return False  # Visible enemy is blocking
 ```
 
-This callback is passed into pathfinding algorithms as a parameter. The pathfinding code never touches the game board directly---it calls the function it was given. The same `Dijkstra` class handles player movement (allies pass-through), AI movement (allies pass-through), and AI retreat (allies block) by swapping the callback.
+This callback is passed into pathfinding algorithms as a parameter. The pathfinding code never touches the game board directly—it calls the function it was given. The same `Dijkstra` class handles player movement (allies pass-through), AI movement (allies pass-through), and AI retreat (allies block) by swapping the callback.
 
 ---
 
@@ -381,7 +381,7 @@ This is the **Facade pattern**: a simple interface over complex subsystems. The 
 
 ### The AI Decision Pipeline
 
-The AI does not just pathfind---it makes *decisions*. Lex Talionis uses a **three-phase pipeline**:
+The AI does not just pathfind—it makes *decisions*. Lex Talionis uses a **three-phase pipeline**:
 
 ```bash
 Phase 1: THINK
@@ -402,7 +402,7 @@ Phase 4: CANTO (post-attack movement, if unit has Canto skill)
   - canto_retreat: move away from concentrated enemies
 ```
 
-The AI controller has a simple state machine: `Init → Primary → Secondary → Done`. It interleaves thinking across frames---each call to `think()` processes for up to half a frame (`FRAMERATE/2` milliseconds), then yields. This prevents the AI from freezing the game.
+The AI controller has a simple state machine: `Init → Primary → Secondary → Done`. It interleaves thinking across frames—each call to `think()` processes for up to half a frame (`FRAMERATE/2` milliseconds), then yields. This prevents the AI from freezing the game.
 
 ```python
 def think(self):
@@ -477,7 +477,7 @@ def run(self):
 
 ### SecondaryAI: Long-Range Navigation
 
-When `PrimaryAI` finds no viable attack, `SecondaryAI` takes over: "I cannot attack anyone this turn---who should I walk *toward*?"
+When `PrimaryAI` finds no viable attack, `SecondaryAI` takes over: "I cannot attack anyone this turn—who should I walk *toward*?"
 
 ```python
 class SecondaryAI():
@@ -522,13 +522,13 @@ class SecondaryAI():
         return path
 ```
 
-`SecondaryAI` *reuses* a single `AStar` instance across all targets---it calls `set_goal_pos()` to retarget and `reset()` to clear the visited set. This avoids repeated grid allocation and is a significant performance optimization when evaluating dozens of potential targets.
+`SecondaryAI` *reuses* a single `AStar` instance across all targets—it calls `set_goal_pos()` to retarget and `reset()` to clear the visited set. This avoids repeated grid allocation and is a significant performance optimization when evaluating dozens of potential targets.
 
 ---
 
 ### Utility Scoring
 
-The AI does not simply pick the closest enemy---it scores each option using a **weighted utility function**:
+The AI does not simply pick the closest enemy—it scores each option using a **weighted utility function**:
 
 ```python
 # PrimaryAI: close-range scoring
@@ -570,7 +570,7 @@ def compute_priority(self, target, distance):
     return utils.process_terms(terms)
 ```
 
-The `offense_bias` parameter is configurable per AI profile in the editor, letting designers create aggressive AI (high bias), defensive AI (low bias), or balanced AI---without touching code.
+The `offense_bias` parameter is configurable per AI profile in the editor, letting designers create aggressive AI (high bias), defensive AI (low bias), or balanced AI—without touching code.
 
 ---
 
@@ -606,7 +606,7 @@ def travel_algorithm(self, path, moves, unit, grid) -> Pos:
     return path[-(through_path + 1)]
 ```
 
-This reverses the path (stored goal-first), walks forward accumulating costs, stops when the budget runs out, then backtracks if another unit occupies the target tile. The result is $O(\text{path length})$---simple, correct, and fast.
+This reverses the path (stored goal-first), walks forward accumulating costs, stops when the budget runs out, then backtracks if another unit occupies the target tile. The result is $O(\text{path length})$—simple, correct, and fast.
 
 ---
 
@@ -648,7 +648,7 @@ def update_fow(self, pos, unit, sight_range):
             grid.get(position).add(unit.nid)  # Add new vision
 ```
 
-Fog of war interacts with pathfinding through the `can_move_through` callback: if the AI cannot see a tile (it is fogged), it assumes it can move through it---even if an enemy is there. This creates realistic AI behavior: units move toward fogged areas without cheating by seeing hidden enemies.
+Fog of war interacts with pathfinding through the `can_move_through` callback: if the AI cannot see a tile (it is fogged), it assumes it can move through it—even if an enemy is there. This creates realistic AI behavior: units move toward fogged areas without cheating by seeing hidden enemies.
 
 ---
 
@@ -853,12 +853,12 @@ The Lex Talionis Pathfinding and AI Navigation System demonstrates how a clean l
 #### Key Takeaways
 
 1. **Different questions need different algorithms**: Dijkstra for "what can I reach?", A\* for "how do I get to X?", Theta\* for "make the path look natural." Do not force one algorithm to answer all three questions.
-2. **Data-driven costs beat hardcoded logic**: A `(movement_group, terrain_type) → cost` table, editable by designers, handles flying units, mounted units, water-walking skills, and every other movement variation---without touching pathfinding code.
+2. **Data-driven costs beat hardcoded logic**: A `(movement_group, terrain_type) → cost` table, editable by designers, handles flying units, mounted units, water-walking skills, and every other movement variation—without touching pathfinding code.
 3. **Separate pathfinding from AI**: Pathfinding is a *service* that answers "can I get there and how?" The AI is a *consumer* that asks "should I go there?" Keep them in separate classes with clean interfaces.
 4. **The Facade pattern hides complexity**: Callers say `get_valid_moves(unit)` and `get_path(unit, goal)`. They do not care which algorithm runs, how the cost table is structured, or how obstacle checking works.
-5. **Budget computation across frames**: AI thinking is time-sliced---process for half a frame, then yield. This prevents the game from freezing during complex evaluations with many units and targets.
+5. **Budget computation across frames**: AI thinking is time-sliced—process for half a frame, then yield. This prevents the game from freezing during complex evaluations with many units and targets.
 6. **Callbacks decouple dynamic state**: `can_move_through` is a function passed *into* the pathfinder, not a hardcoded check *inside* it. The same algorithm works for allies, enemies, fog of war, and pass-through skills.
-7. **Partial traversal is a first-class concept**: The travel algorithm---"walk as far along this path as my budget allows"---is essential for multi-turn AI planning. Textbook pathfinding stops at "here is the path." Game pathfinding needs "here is how far along it I can get."
+7. **Partial traversal is a first-class concept**: The travel algorithm—"walk as far along this path as my budget allows"—is essential for multi-turn AI planning. Textbook pathfinding stops at "here is the path." Game pathfinding needs "here is how far along it I can get."
 
 ---
 

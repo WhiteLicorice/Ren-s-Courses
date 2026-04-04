@@ -36,11 +36,11 @@ By accomplishing this machine problem, you should be able to:
 
 ## Why Feeding Frenzy?
 
-Feeding Frenzy looks like a simple fish game. You swim around, you eat things smaller than you, you avoid things bigger than you, and you grow. That's the whole game---or so it seems.
+Feeding Frenzy looks like a simple fish game. You swim around, you eat things smaller than you, you avoid things bigger than you, and you grow. That's the whole game—or so it seems.
 
 What makes Feeding Frenzy an excellent second machine problem is that it forces you to think about *emergent complexity*. There is no scripted level layout, no handcrafted pipe arrangement. The challenge arises entirely from the interaction of many independent entities operating by the same simple rule: eat what is smaller, flee from what is larger. When you have dozens of fish on screen, each governed by that rule, and the player's size is constantly shifting, the game becomes a dynamic system rather than a static obstacle course.
 
-This is a fundamental shift from Flappy Bird. In Flappy Bird, the world was deterministic---pipes spawn on a timer, the gap is randomized once, and the challenge is fixed at design time. In Feeding Frenzy, the world is *alive*. Your architecture has to reflect that. You can't just add a `fish` variable and call it a day. You need to think about how entities are spawned, how they discover each other, how they are removed from the world without leaving dangling references, and how size---a continuous numeric value---becomes the axis around which every game interaction is decided.
+This is a fundamental shift from Flappy Bird. In Flappy Bird, the world was deterministic—pipes spawn on a timer, the gap is randomized once, and the challenge is fixed at design time. In Feeding Frenzy, the world is *alive*. Your architecture has to reflect that. You can't just add a `fish` variable and call it a day. You need to think about how entities are spawned, how they discover each other, how they are removed from the world without leaving dangling references, and how size—a continuous numeric value—becomes the axis around which every game interaction is decided.
 
 By the time you're done, you'll have built a small but genuine simulation with emergent behavior, real-time continuous state, and a codebase that would survive being handed to another developer without apology.
 
@@ -50,17 +50,17 @@ By the time you're done, you'll have built a small but genuine simulation with e
 
 ### The Player Fish
 
-The player controls a fish that swims freely in a bounded ocean environment. Movement should feel fluid and responsive---the fish should not snap to directions, but should turn and accelerate with some inertia. This matters more than it sounds. A fish that teleports to the cursor feels wrong. A fish with excessive drag that takes three seconds to stop feels wrong. The right balance is a fish that feels alive: it has weight, it has momentum, and it responds predictably to input. Animation-wise, this manifests as *smear frames*.
+The player controls a fish that swims freely in a bounded ocean environment. Movement should feel fluid and responsive—the fish should not snap to directions, but should turn and accelerate with some inertia. This matters more than it sounds. A fish that teleports to the cursor feels wrong. A fish with excessive drag that takes three seconds to stop feels wrong. The right balance is a fish that feels alive: it has weight, it has momentum, and it responds predictably to input. Animation-wise, this manifests as *smear frames*.
 
-At minimum, support mouse-driven movement (the fish swims toward the cursor), eight-directional keyboard movement, or joystick input from a controller. You may support whatever control schema. Screen boundaries should constrain the player---the fish cannot swim off-screen, but it should not hard-stop at the wall either. A soft boundary (the fish slows and turns as it approaches the edge) feels far better than an invisible wall.
+At minimum, support mouse-driven movement (the fish swims toward the cursor), eight-directional keyboard movement, or joystick input from a controller. You may support whatever control schema. Screen boundaries should constrain the player—the fish cannot swim off-screen, but it should not hard-stop at the wall either. A soft boundary (the fish slows and turns as it approaches the edge) feels far better than an invisible wall.
 
 ### The Size System
 
 This is the heart of the game, and it deserves more thought than a single `if` statement.
 
-Every entity in the game---player and NPC alike---has a size value. This value determines three things simultaneously: what the entity can eat, what can eat the entity, and how the entity *looks*. Size should be a continuous float, not a discrete integer level. When the player eats a fish, their size increases by some fraction of the consumed fish's size. The player's sprite (and collision shape) should scale smoothly to reflect this growth.
+Every entity in the game—player and NPC alike—has a size value. This value determines three things simultaneously: what the entity can eat, what can eat the entity, and how the entity *looks*. Size should be a continuous float, not a discrete integer level. When the player eats a fish, their size increases by some fraction of the consumed fish's size. The player's sprite (and collision shape) should scale smoothly to reflect this growth.
 
-The comparison rule is straightforward: an entity can eat another if its size exceeds the target's size by a defined threshold. This threshold is a tunable parameter---do not hard-code it. If the threshold is too tight, players will feel cheated by ambiguous collisions. If it is too loose, the game loses tension because everything is edible. Expose this as an exported variable and tune it during playtesting.
+The comparison rule is straightforward: an entity can eat another if its size exceeds the target's size by a defined threshold. This threshold is a tunable parameter—do not hard-code it. If the threshold is too tight, players will feel cheated by ambiguous collisions. If it is too loose, the game loses tension because everything is edible. Expose this as an exported variable and tune it during playtesting.
 
 #### On Scaling Collision Shapes
 
@@ -78,7 +78,7 @@ The ocean should be populated with fish of varying sizes that swim across the sc
 
 The last point is crucial. A world where NPC fish ignore each other feels like a shooting gallery. A world where they prey on each other feels like an ecosystem.
 
-NPC behavior does not need to be sophisticated. Simple steering---flee if threatened, chase if predatory, wander otherwise---is sufficient. But it must be implemented as a proper FSM per entity, not as a chain of nested `if` statements in `_process()`.
+NPC behavior does not need to be sophisticated. Simple steering—flee if threatened, chase if predatory, wander otherwise—is sufficient. But it must be implemented as a proper FSM per entity, not as a chain of nested `if` statements in `_process()`.
 
 ### Spawning and Population Management
 
@@ -89,7 +89,7 @@ Fish should spawn continuously throughout the game. A spawn manager (a dedicated
 * Spawn rate (how frequently new fish are introduced)
 * Spawn margin (how far off-screen fish spawn to avoid popping into view)
 
-These values should all be exported constants or configuration resources---not magic numbers buried in `_ready()`. The difficulty of the game is directly controlled by these parameters. Early in the session, the ocean should be dominated by small, edible fish. As the player grows, the population should shift. You may implement this as a gradual bias change over time, or as a response to the player's current size.
+These values should all be exported constants or configuration resources—not magic numbers buried in `_ready()`. The difficulty of the game is directly controlled by these parameters. Early in the session, the ocean should be dominated by small, edible fish. As the player grows, the population should shift. You may implement this as a gradual bias change over time, or as a response to the player's current size.
 
 Object pooling is not required, but instantiating and freeing nodes continuously has a cost. If you notice frame drops during heavy spawning, investigate pooling. At minimum, ensure you are using `call_deferred("queue_free")` or equivalent to avoid freeing nodes mid-physics step.
 
@@ -97,7 +97,7 @@ Object pooling is not required, but instantiating and freeing nodes continuously
 
 The player earns points for each fish consumed, scaled by the size of the fish eaten. Eating a fish twice your size (if your twist allows it) should be worth more than eating a fish half your size. Eating a fish of comparable size should feel like a meaningful accomplishment.
 
-Display the current score prominently alongside the player's current size or a visual progress indicator toward the next "tier" of fish they can safely eat. When the player is eaten, the game ends cleanly---no lingering signals, no orphaned nodes, no memory that the player was ever there.
+Display the current score prominently alongside the player's current size or a visual progress indicator toward the next "tier" of fish they can safely eat. When the player is eaten, the game ends cleanly—no lingering signals, no orphaned nodes, no memory that the player was ever there.
 
 ### Game States
 
@@ -107,7 +107,7 @@ Your game requires at minimum three states managed by a top-level FSM:
 * **Playing State**: Active gameplay with input, physics, and spawning
 * **Game Over State**: Triggered when the player is consumed; displays final score and restart option
 
-A fourth state---**Level Complete** or **Win State**---is required if your design has a defined win condition (e.g., reaching a target size). If your game is pure survival with no win condition, three states are sufficient.
+A fourth state—**Level Complete** or **Win State**—is required if your design has a defined win condition (e.g., reaching a target size). If your game is pure survival with no win condition, three states are sufficient.
 
 FSMs for individual NPC fish (wander, flee, chase) are separate from the global FSM. Do not conflate the two. The global FSM governs the game session. Entity FSMs govern individual behavior. Review your work from the Coin Dash and Jungle Jump activities for reference.
 
@@ -121,7 +121,7 @@ Your clone must include a **unique mechanical twist (or several)** that meaningf
 
 **Valid Examples:**
 
-* Predator fishes that hunt purely by sound---the player must stay still to avoid detection, turning it into a stealth game
+* Predator fishes that hunt purely by sound—the player must stay still to avoid detection, turning it into a stealth game
 * A venom system where certain fish poison the player on contact, temporarily shrinking them, and maybe the player can shrink other fish, too
 * A co-op or competitive split-screen mode with player fishes in the same ocean, the game scaling according to player count
 * Depth layers (foreground, midground, background) that the player can shift between to access different prey
@@ -152,7 +152,7 @@ Your clone must include a **unique mechanical twist (or several)** that meaningf
 
 #### Common Pitfalls
 
-**Spaghetti code will cap your grade at 3.00** regardless of gameplay quality. Architecture is heavily weighted in grading. A monolithic `Main.gd` that handles spawning, physics, scoring, and AI simultaneously is not acceptable---even if the game runs perfectly.
+**Spaghetti code will cap your grade at 3.00** regardless of gameplay quality. Architecture is heavily weighted in grading. A monolithic `Main.gd` that handles spawning, physics, scoring, and AI simultaneously is not acceptable—even if the game runs perfectly.
 
 ### Input Handling
 
@@ -169,7 +169,7 @@ Implement collision detection for all of the following interactions:
 * NPC fish eating smaller NPC fish
 * Player or fish colliding with screen boundaries
 
-Use `Area2D` nodes with collision shapes. Scale collision shapes consistently with entity size. Layer and mask configuration in the Physics settings is your friend here---set up collision layers so that fish-to-fish detection and fish-to-boundary detection are properly isolated.
+Use `Area2D` nodes with collision shapes. Scale collision shapes consistently with entity size. Layer and mask configuration in the Physics settings is your friend here—set up collision layers so that fish-to-fish detection and fish-to-boundary detection are properly isolated.
 
 ### Entity Behavior (NPC AI)
 
@@ -179,7 +179,7 @@ Each NPC fish must operate under its own simple FSM with at minimum three states
 * If prey (smaller fish) enters detection range: transition to **Chase**
 * Otherwise: **Wander** (move in a general direction with occasional mild steering)
 
-Detection range should be a tunable exported variable. Avoid polling every entity on every frame---use `Area2D` overlap signals to trigger state transitions. This is both more performant and more architecturally correct.
+Detection range should be a tunable exported variable. Avoid polling every entity on every frame—use `Area2D` overlap signals to trigger state transitions. This is both more performant and more architecturally correct.
 
 ### Visual and Audio Feedback
 
@@ -203,7 +203,7 @@ Free assets available at: OpenGameArt.org, itch.io, Kenney.nl. Ensure assets hav
 
 ### 1. The Game
 
-An original playable Godot 4 project based on Feeding Frenzy, implementing all core mechanics and technical requirements. The game should be stable---no crashes, no game-breaking bugs, no orphaned nodes after game over. The core loop must work flawlessly.
+An original playable Godot 4 project based on Feeding Frenzy, implementing all core mechanics and technical requirements. The game should be stable—no crashes, no game-breaking bugs, no orphaned nodes after game over. The core loop must work flawlessly.
 
 ### 2. GitHub Repository
 
@@ -249,7 +249,7 @@ Groups that skip progress reports accept the risk of discovering major flaws dur
 
 ## Grading Philosophy
 
-This is not a competition to build the most spectacular fish game. The goal is to demonstrate that you can design and architect a system with emergent complexity---one that is flexible enough that adding your mechanical twist didn't require rewriting everything else.
+This is not a competition to build the most spectacular fish game. The goal is to demonstrate that you can design and architect a system with emergent complexity—one that is flexible enough that adding your mechanical twist didn't require rewriting everything else.
 
 **A simple but well-architected game will score better than an ambitious but poorly architected one.**
 
@@ -259,7 +259,7 @@ Focus on:
 * Correct implementation of the size system and collision logic
 * Meaningful mechanical twist, coherently integrated
 * Professional commit history and documentation
-* Excellent game "feel"---the fish should feel alive, not like sliders on a menu
+* Excellent game "feel"—the fish should feel alive, not like sliders on a menu
 
 Extra features (particle effects, elaborate menus, level transitions) are welcome after the foundation is solid, but will not compensate for poor architecture.
 

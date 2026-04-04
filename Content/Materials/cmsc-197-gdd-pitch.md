@@ -83,11 +83,11 @@ The rationale behind decisions is as important as the decisions themselves.
 
 ### 6. Prepare for Q&A
 
-The question period is not adversarial---it's collaborative debugging:
+The question period is not adversarial—it's collaborative debugging:
 
 - Anticipate technical questions about your architecture
 - If you don't know an answer, say so: "Good question, we haven't considered that yet"
-- Take notes on feedback---this is free consulting from experienced peers
+- Take notes on feedback—this is free consulting from experienced peers
 - Don't get defensive. If someone identifies a flaw, thank them.
 
 ### Partner Coordination
@@ -279,7 +279,7 @@ Good feedback helps your peers **and** prepares you to address similar issues in
 
 ### Peer Learning Opportunity
 
-Presentations are not just about showing your work---they're about learning from others' approaches:
+Presentations are not just about showing your work—they're about learning from others' approaches:
 
 - Which architecture patterns are they using effectively?
 - What scope decisions seem to be working?
