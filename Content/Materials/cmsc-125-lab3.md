@@ -21,9 +21,9 @@ This laboratory assignment focuses on concurrency control in a multi-threaded ba
 
 ## Background
 
-Modern banking systems must handle thousands of concurrent transactions---deposits, withdrawals, and transfers that read and modify shared account balances. Without proper concurrency control, chaos ensues: one transaction's partial updates become visible to others, two transactions overwrite each other's changes (the lost update problem), or the system deadlocks entirely when transactions wait circularly for locks.
+Modern banking systems must handle thousands of concurrent transactions—deposits, withdrawals, and transfers that read and modify shared account balances. Without proper concurrency control, chaos ensues: one transaction's partial updates become visible to others, two transactions overwrite each other's changes (the lost update problem), or the system deadlocks entirely when transactions wait circularly for locks.
 
-Your task is to build a working multi-threaded banking system that correctly serializes conflicting operations while allowing safe concurrency where possible. This is not a simulation---you will use real pthreads, real mutexes and reader-writer locks, real semaphores, and experience real race conditions if you get the synchronization wrong.
+Your task is to build a working multi-threaded banking system that correctly serializes conflicting operations while allowing safe concurrency where possible. This is not a simulation—you will use real pthreads, real mutexes and reader-writer locks, real semaphores, and experience real race conditions if you get the synchronization wrong.
 
 ---
 
@@ -448,7 +448,7 @@ void unload_account(BufferPool* pool, int account_id) {
 * Load/unload per operation
 * Implement an LRU eviction policy
 
-There is no single correct answer---justify your choice with reasoning about performance and correctness.
+There is no single correct answer—justify your choice with reasoning about performance and correctness.
 
 ---
 
@@ -770,7 +770,7 @@ void* timer_thread(void* arg) {
 * **Lock after free**: Release lock AFTER you're done reading/writing the data
 * **Deadlock without ordering**: If you chose prevention, you MUST acquire locks in consistent order
 * **Race on global_tick**: Always read `global_tick` while holding `tick_lock`
-* **Semaphore initialization**: `sem_init(&sem, 0, count)` --- second arg is 0 for threads (not processes)
+* **Semaphore initialization**: `sem_init(&sem, 0, count)` — second arg is 0 for threads (not processes)
 * **Money conservation**: Sum of all balances in the system must remain constant
 
 ---
@@ -899,7 +899,7 @@ The instructor must verify appointments ahead of time before they can be conside
 
 ## Grading Rubric
 
-| **Criteria** | **Excellent (90--100%)** | **Good (75--89%)** | **Fair (60--74%)** | **Poor (0--59%)** |
+| **Criteria** | **Excellent (90–100%)** | **Good (75–89%)** | **Fair (60–74%)** | **Poor (0–59%)** |
 |---|---|---|---|---|
 | **System Architecture (25%)** | Modular design with clean separation of concerns; robust data structures; efficient resource usage. | Mostly modular; logic is functional but slightly coupled; data structures are appropriate. | Significant logic sprawl; monolithic functions; inconsistent data handling or hard-coded limits. | Spaghetti code; no modularity; violates basic systems programming principles. |
 | **Robustness (20%)** | Handles complex edge cases and race conditions; perfect resource lifecycle; graceful error recovery. | Handles core features well; minor issues with fringe edge cases or synchronization logic. | Basic features work, but system is unstable; frequent resource leaks or intermittent errors. | Fails core logic; program crashes on unexpected input; incorrect usage of fundamental syscalls. |

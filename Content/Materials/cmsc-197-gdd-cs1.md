@@ -24,7 +24,7 @@ noDeadline: true
 
 ## Background
 
-[Lex Talionis](https://github.com/WhiteLicorice/lt-maker) is an open-source game engine and editor purpose-built for turn-based strategy RPGs in the style of the *Fire Emblem* series. Written in Python on top of `pygame-ce`, it ships with a full visual editor built in PyQt5---everything you need to go from a concept to a playable game without writing a single line of game logic code.
+[Lex Talionis](https://github.com/WhiteLicorice/lt-maker) is an open-source game engine and editor purpose-built for turn-based strategy RPGs in the style of the *Fire Emblem* series. Written in Python on top of `pygame-ce`, it ships with a full visual editor built in PyQt5—everything you need to go from a concept to a playable game without writing a single line of game logic code.
 
 The engine ships with a default project (`default.ltproj/`) that recreates chapters from *Fire Emblem: The Sacred Stones*, serving as both a functional demo and a reference for how the system's features compose. People ship real games with this. It's not academic.
 
@@ -38,9 +38,9 @@ If you've taken any game design class, you've heard about Entity-Component-Syste
 
 #### Important Distinction
 
-Lex Talionis's Component System is **not** a traditional ECS. There's no System that bulk-processes entities. There's no archetype-based memory layout. It's closer to a **Component-Based Architecture**---a Strategy pattern applied at scale---where each game object is a bag of interchangeable behavior modules.
+Lex Talionis's Component System is **not** a traditional ECS. There's no System that bulk-processes entities. There's no archetype-based memory layout. It's closer to a **Component-Based Architecture**—a Strategy pattern applied at scale—where each game object is a bag of interchangeable behavior modules.
 
-The key insight: in an SRPG, you don't process 10,000 entities per frame. You need to express the *combinatorial complexity* of game mechanics---"this weapon does magic damage, has 3× effective damage against armored units, and heals the user for 50% of damage dealt"---in a way that is:
+The key insight: in an SRPG, you don't process 10,000 entities per frame. You need to express the *combinatorial complexity* of game mechanics—"this weapon does magic damage, has 3× effective damage against armored units, and heals the user for 50% of damage dealt"—in a way that is:
 
 1. **Data-driven**: designers configure behavior in the editor, no coding required
 2. **Composable**: complex behaviors emerge from stacking simple pieces
@@ -57,7 +57,7 @@ And skills like: Vantage (always attack first when below 50% HP), Miracle (survi
 
 ### The Inheritance Trap
 
-Your first instinct---no shame, we've all been there---might be inheritance:
+Your first instinct—no shame, we've all been there—might be inheritance:
 
 ```bash
 Item
@@ -78,7 +78,7 @@ This falls apart immediately. What if you want a weapon that is *both* Brave *an
 
 ### The God Object Trap
 
-The alternative---one big `Item` class with 50 boolean flags and optional fields---"works" but is a maintenance nightmare:
+The alternative—one big `Item` class with 50 boolean flags and optional fields—"works" but is a maintenance nightmare:
 
 ```python
 class Item:
@@ -104,9 +104,9 @@ The Component System solves all of this by applying **composition over inheritan
 
 #### Why Composition Works Here
 
-* **Combinatorial expressiveness**: any combination of components is valid---Brave + Effective + Lifelink is three components, not a new subclass
+* **Combinatorial expressiveness**: any combination of components is valid—Brave + Effective + Lifelink is three components, not a new subclass
 * **Open/Closed Principle**: new mechanics are new `Component` classes; the core `Item` class, combat system, and existing components are never modified
-* **Editor-friendly**: each component's `expose` field tells the editor what widget to render---`Int` gets a spinbox, `WeaponType` gets a dropdown
+* **Editor-friendly**: each component's `expose` field tells the editor what widget to render—`Int` gets a spinbox, `WeaponType` gets a dropdown
 * **Clean serialization**: every component serializes to a `(nid, value)` tuple; adding new components never breaks old save files
 * **Modder extensibility**: the registry uses runtime reflection (`recursive_subclasses(ItemComponent)`) to discover all component classes; drop a Python file in `custom_components/` and it appears in the editor automatically
 
@@ -147,9 +147,9 @@ class Component():
 
 #### Key Design Points
 
-* `nid`: how components are identified everywhere---in save files, in the registry, in code
+* `nid`: how components are identified everywhere—in save files, in the registry, in code
 * `expose`: tells the editor what kind of UI widget to render for this component's value
-* `defines()`: the hook discovery mechanism---"does this component implement `damage()`?"
+* `defines()`: the hook discovery mechanism—"does this component implement `damage()`?"
 * `save()`: dead simple, returns the nid and value; this is the *entire* serialization format
 
 `Component` is then subclassed into `ItemComponent` and `SkillComponent`:
@@ -219,7 +219,7 @@ class Damage(ItemComponent):
         actions.append(action.ChangeHP(target, -damage))
 ```
 
-Some components are purely declarative---no value, no `expose`, just facts:
+Some components are purely declarative—no value, no `expose`, just facts:
 
 ```python
 class Weapon(ItemComponent):
@@ -272,7 +272,7 @@ class EffectiveDamage(ItemComponent):
         return 0
 ```
 
-Notice that `dynamic_damage` *adds to* base damage instead of replacing it. This is because the hook uses an accumulation policy---more on that shortly.
+Notice that `dynamic_damage` *adds to* base damage instead of replacing it. This is because the hook uses an accumulation policy—more on that shortly.
 
 **Paired components** auto-add each other to prevent invalid states:
 
@@ -299,11 +299,11 @@ class AuraTarget(SkillComponent):
     value = 'unit'
 ```
 
-Add any one of these in the editor and the other two appear automatically. An aura without a range makes no sense---`paired_with` prevents that invalid state from ever existing.
+Add any one of these in the editor and the other two appear automatically. An aura without a range makes no sense—`paired_with` prevents that invalid state from ever existing.
 
 ### The Hook System
 
-The engine doesn't hard-code what items *do*. Instead, it defines a catalog of **hooks**---named extension points that components can implement.
+The engine doesn't hard-code what items *do*. Instead, it defines a catalog of **hooks**—named extension points that components can implement.
 
 ```python
 ITEM_HOOKS: Dict[str, HookInfo] = {
@@ -434,9 +434,9 @@ def damage(unit: UnitObject, item: ItemObject):
 
 #### Why Code Generation?
 
-Performance and debuggability. The generated code is plain Python---you can read it, step through it in a debugger, and there is no reflection overhead at runtime. The alternative, a generic dispatch function using `getattr`, would be harder to profile and trace.
+Performance and debuggability. The generated code is plain Python—you can read it, step through it in a debugger, and there is no reflection overhead at runtime. The alternative, a generic dispatch function using `getattr`, would be harder to profile and trace.
 
-The `get_all_components` function merges a unit's skill-based item overrides with the item's own components---this is how skills can modify item behavior at query time:
+The `get_all_components` function merges a unit's skill-based item overrides with the item's own components—this is how skills can modify item behavior at query time:
 
 ```python
 def get_all_components(unit: UnitObject, item: ItemObject) -> list:
@@ -476,7 +476,7 @@ Each component does its part independently. The composition just works.
 
 ### Serialization
 
-Saving an item is elegantly simple---just a list of `(nid, value)` tuples:
+Saving an item is elegantly simple—just a list of `(nid, value)` tuples:
 
 ```python
 {
@@ -570,7 +570,7 @@ The registry discovers it automatically at load time via `recursive_subclasses(I
 
 ## Adapting to Godot
 
-The concepts transfer cleanly to GDScript. Godot 4 gives us **Resources** (serializable data objects---the closest analog to LT's components), **`@export`** annotations (editor-visible properties replacing `expose`), and **`has_method()`** for hook discovery.
+The concepts transfer cleanly to GDScript. Godot 4 gives us **Resources** (serializable data objects—the closest analog to LT's components), **`@export`** annotations (editor-visible properties replacing `expose`), and **`has_method()`** for hook discovery.
 
 ### Step 1: Define the Base Component as a Resource
 
@@ -686,7 +686,7 @@ static func is_weapon(unit: Node, item: GameItem) -> bool:
 
 ### Step 6: Leverage Godot's Editor
 
-Since `GameComponent` extends `Resource`, Godot's inspector natively shows `@export` fields. Create components as `.tres` files, drag them onto items, and configure them visually---no custom editor plugin needed for basic workflows. For a richer UX with component search, templates, and category browsing, you would build an `EditorPlugin`, but the core system works out of the box.
+Since `GameComponent` extends `Resource`, Godot's inspector natively shows `@export` fields. Create components as `.tres` files, drag them onto items, and configure them visually—no custom editor plugin needed for basic workflows. For a richer UX with component search, templates, and category browsing, you would build an `EditorPlugin`, but the core system works out of the box.
 
 ### Architecture Comparison
 
@@ -705,15 +705,15 @@ Since `GameComponent` extends `Resource`, Godot's inspector natively shows `@exp
 
 #### Runtime vs. Build-Time Dispatch
 
-Lex Talionis uses **code generation** to produce optimized dispatcher functions at build time. In Godot, you would use runtime dispatch via `callv()`---which is fine. GDScript's `callv()` is fast enough for SRPG-scale workloads, and you gain the ability to register new components at runtime without a codegen step.
+Lex Talionis uses **code generation** to produce optimized dispatcher functions at build time. In Godot, you would use runtime dispatch via `callv()`—which is fine. GDScript's `callv()` is fast enough for SRPG-scale workloads, and you gain the ability to register new components at runtime without a codegen step.
 
 ---
 
 ## Extending to Entities
 
-In Lex Talionis, the component system is scoped to items and skills---units use a fixed-attribute model with skills layered on top. But there is nothing stopping you from applying the same pattern to entities themselves in Godot. In fact, this is arguably the more natural approach in a node-based engine.
+In Lex Talionis, the component system is scoped to items and skills—units use a fixed-attribute model with skills layered on top. But there is nothing stopping you from applying the same pattern to entities themselves in Godot. In fact, this is arguably the more natural approach in a node-based engine.
 
-Instead of separate `Player`, `Enemy`, and `NPC` classes with diverging inheritance trees, define a single `GameEntity` that carries an array of `EntityComponent` resources---exactly like items carry `GameComponent` resources. The difference between a player unit, an enemy, and an NPC becomes which components they carry:
+Instead of separate `Player`, `Enemy`, and `NPC` classes with diverging inheritance trees, define a single `GameEntity` that carries an array of `EntityComponent` resources—exactly like items carry `GameComponent` resources. The difference between a player unit, an enemy, and an NPC becomes which components they carry:
 
 ```gdscript
 # Player unit:
@@ -771,11 +771,11 @@ This gives you a **single unified architecture** across items, skills, and entit
 
 ## Conclusion
 
-The Lex Talionis Component System is a masterclass in domain-specific architecture. It does not try to be a general-purpose ECS---it is laser-focused on the problem of expressing SRPG mechanics through composition.
+The Lex Talionis Component System is a masterclass in domain-specific architecture. It does not try to be a general-purpose ECS—it is laser-focused on the problem of expressing SRPG mechanics through composition.
 
 #### Key Takeaways
 
-1. **Composition over inheritance** is not just a textbook principle---it is the only sane way to handle the combinatorial explosion of game mechanics
+1. **Composition over inheritance** is not just a textbook principle—it is the only sane way to handle the combinatorial explosion of game mechanics
 2. **Hooks + Resolution Policies** give you a principled way to combine multiple behaviors without ad-hoc conflict resolution
 3. **Code generation** can bridge the gap between a declarative hook definition and efficient runtime dispatch
 4. **Self-describing components** (`expose`, `desc`, `paired_with`) enable automatic editor UI generation and prevent invalid configurations

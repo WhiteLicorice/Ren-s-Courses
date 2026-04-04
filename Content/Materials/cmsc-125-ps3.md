@@ -13,7 +13,7 @@ isDraft: false
 deadline: 2026-04-20
 ---
 
-This problem set spans the full vertical extent of the persistent storage stack: from the physical mechanisms of I/O devices and hard disk drives up through the system calls that programmers use to name, read, and modify files. Each layer was designed with knowledge of the layer below it, and each introduces abstractions that hide cost while creating new constraints. Understanding these three layers in relation to one another---not as isolated topics---is the central goal of this assignment. It requires careful reading of the primary references and substantial independent research to move beyond description toward genuine analysis.
+This problem set spans the full vertical extent of the persistent storage stack: from the physical mechanisms of I/O devices and hard disk drives up through the system calls that programmers use to name, read, and modify files. Each layer was designed with knowledge of the layer below it, and each introduces abstractions that hide cost while creating new constraints. Understanding these three layers in relation to one another—not as isolated topics—is the central goal of this assignment. It requires careful reading of the primary references and substantial independent research to move beyond description toward genuine analysis.
 
 ---
 
@@ -21,9 +21,9 @@ This problem set spans the full vertical extent of the persistent storage stack:
 
 Persistent storage is the third of the three great problems of operating systems, alongside virtualization and concurrency. Unlike CPU and memory virtualization, which provide each process the illusion of a private machine, persistent storage is explicitly *shared*: files outlive the processes that create them, and multiple processes may read or write the same file simultaneously. The OS must therefore manage hardware that is orders of magnitude slower than DRAM, provide an interface that is simultaneously simple for programmers and safe for concurrent use, and do so without losing data when the machine loses power.
 
-The three chapters assigned for this unit each address a distinct level of this problem. Arpaci-Dusseau & Arpaci-Dusseau (2023) Chapter 36 describes how the OS abstracts over raw hardware devices using interrupts, DMA, and device drivers. Chapter 37 builds a concrete model of hard disk performance---one of the most consequential performance models in systems---and derives disk scheduling algorithms from first principles. Chapter 39 presents the UNIX file system interface: the file descriptors, open file table, inodes, hard links, symbolic links, and durability guarantees that programmers encounter every time they call `open()`, `write()`, or `fsync()`.
+The three chapters assigned for this unit each address a distinct level of this problem. Arpaci-Dusseau & Arpaci-Dusseau (2023) Chapter 36 describes how the OS abstracts over raw hardware devices using interrupts, DMA, and device drivers. Chapter 37 builds a concrete model of hard disk performance—one of the most consequential performance models in systems—and derives disk scheduling algorithms from first principles. Chapter 39 presents the UNIX file system interface: the file descriptors, open file table, inodes, hard links, symbolic links, and durability guarantees that programmers encounter every time they call `open()`, `write()`, or `fsync()`.
 
-These three chapters are not independent. The I/O device model explains *how* the OS issues a disk request. The disk performance model explains *how much that request costs* and in what order requests should be issued. And the file system interface explains *what sequence of requests* a single programmer-facing system call actually generates. An `open()` call, for instance, triggers multiple inode and directory reads, each of which descends through the driver to the physical device. Understanding the full path from system call to spinning platter---and the cost implications at every step---is what distinguishes a systems programmer from someone who merely uses POSIX.
+These three chapters are not independent. The I/O device model explains *how* the OS issues a disk request. The disk performance model explains *how much that request costs* and in what order requests should be issued. And the file system interface explains *what sequence of requests* a single programmer-facing system call actually generates. An `open()` call, for instance, triggers multiple inode and directory reads, each of which descends through the driver to the physical device. Understanding the full path from system call to spinning platter—and the cost implications at every step—is what distinguishes a systems programmer from someone who merely uses POSIX.
 
 ---
 
@@ -53,17 +53,17 @@ Explain how the operating system manages communication with hardware devices, us
 
 * Describe the **canonical device model**: the status, command, and data registers that form the basic interface between the OS and any device. Walk through the canonical polling protocol step by step, and identify precisely where its inefficiency lies. This is your baseline: polling works, but at what cost?
 
-* Explain how **interrupts** solve the polling problem, and describe in detail what happens when a device raises one---from the device's signal to the OS resuming the waiting process. Then complicate this: under what conditions does an interrupt-based approach *introduce more overhead than it saves*? Your discussion should address at least two such conditions (e.g., fast devices, high-rate packet arrival) and explain the hybrid strategies that emerge from them.
+* Explain how **interrupts** solve the polling problem, and describe in detail what happens when a device raises one—from the device's signal to the OS resuming the waiting process. Then complicate this: under what conditions does an interrupt-based approach *introduce more overhead than it saves*? Your discussion should address at least two such conditions (e.g., fast devices, high-rate packet arrival) and explain the hybrid strategies that emerge from them.
 
 * Explain **DMA** and why it is necessary even when interrupts are already in use. Polling eliminates one inefficiency; interrupts eliminate another; DMA eliminates a third. Clearly distinguish what each mechanism addresses and what it does not.
 
-* Describe the role of the **device driver** in the Linux I/O stack. Explain how the driver allows the file system to remain device-agnostic, and then evaluate the cost of this abstraction: what does the OS give up by routing all disk I/O through a generic block interface? Note that over 70% of Linux kernel code consists of device drivers (Arpaci-Dusseau & Arpaci-Dusseau, 2023)---what does this figure reveal about the practical scope of I/O management?
+* Describe the role of the **device driver** in the Linux I/O stack. Explain how the driver allows the file system to remain device-agnostic, and then evaluate the cost of this abstraction: what does the OS give up by routing all disk I/O through a generic block interface? Note that over 70% of Linux kernel code consists of device drivers (Arpaci-Dusseau & Arpaci-Dusseau, 2023)—what does this figure reveal about the practical scope of I/O management?
 
 ### 2. Hard Disk Performance and Scheduling (25%)
 
 Hard disk drives are one of the most consequential performance bottlenecks in computing history, and their physical characteristics have shaped decades of file system and database design. Chapter 37 provides a functional model of disk performance that remains practically relevant even as SSDs become more common. Your discussion must:
 
-* Describe the **physical geometry** of a hard disk drive---platter, surface, spindle, track, disk head, and arm---and explain how this geometry gives rise to the three phases of every disk I/O request. State the I/O time formula T_IO = T_seek + T_rotation + T_transfer and explain what each term represents physically, not just mathematically.
+* Describe the **physical geometry** of a hard disk drive—platter, surface, spindle, track, disk head, and arm—and explain how this geometry gives rise to the three phases of every disk I/O request. State the I/O time formula T_IO = T_seek + T_rotation + T_transfer and explain what each term represents physically, not just mathematically.
 
 * Using the **Cheetah 15K.5 and Barracuda** drive specifications from the chapter (Arpaci-Dusseau & Arpaci-Dusseau, 2023), perform the random and sequential I/O rate calculations described in Chapter 37. Show your work. Then explain, in plain terms, what the roughly 200× gap between random and sequential throughput implies for a programmer writing software that accesses disk. Why does this gap persist even as individual drive components improve? What design principle for file systems and applications does it motivate?
 
@@ -73,9 +73,9 @@ Hard disk drives are one of the most consequential performance bottlenecks in co
 
 ### 3. The File System Interface as Persistent Abstraction (25%)
 
-Chapter 39 describes the interface through which every programmer interacts with persistent storage. The design of this interface---what it exposes, what it hides, and what guarantees it makes---reflects decades of accumulated experience with the hardware described in Chapters 36 and 37. Your discussion must:
+Chapter 39 describes the interface through which every programmer interacts with persistent storage. The design of this interface—what it exposes, what it hides, and what guarantees it makes—reflects decades of accumulated experience with the hardware described in Chapters 36 and 37. Your discussion must:
 
-* Explain the **three-layer model** of file access: the per-process file descriptor table, the system-wide open file table (with its current offset field), and the on-disk inode. Trace what happens when a process calls `open()` and receives a file descriptor back. Explain why the current offset is stored in the open file table entry rather than in the per-process descriptor table or in the inode itself---this is not arbitrary; the `fork()` behavior described in Chapter 39 (Arpaci-Dusseau & Arpaci-Dusseau, 2023) reveals the design rationale. Your answer here requires understanding the offset-sharing behavior when a parent and child share a file table entry after `fork()`.
+* Explain the **three-layer model** of file access: the per-process file descriptor table, the system-wide open file table (with its current offset field), and the on-disk inode. Trace what happens when a process calls `open()` and receives a file descriptor back. Explain why the current offset is stored in the open file table entry rather than in the per-process descriptor table or in the inode itself—this is not arbitrary; the `fork()` behavior described in Chapter 39 (Arpaci-Dusseau & Arpaci-Dusseau, 2023) reveals the design rationale. Your answer here requires understanding the offset-sharing behavior when a parent and child share a file table entry after `fork()`.
 
 * Explain the **link-count model** that underlies `unlink()`. Trace the inode's link count across the following operations for a single file: initial creation, two `link()` calls, then three `unlink()` calls. At what point is the file's data actually freed? Why is the system call named `unlink()` rather than `delete()`? Your answer should make clear what the distinction between a directory entry and an inode is, and why that distinction makes hard links possible.
 
@@ -91,7 +91,7 @@ The three preceding sections address distinct layers of the storage stack. This 
 
 * **Evaluate the abstraction boundary between Chapters 37 and 39.** The file system interface (Ch. 39) is designed to hide the disk geometry (Ch. 37) from the programmer. Argue: does it succeed? Identify at least two ways in which disk hardware characteristics *leak through* the file system abstraction and influence how a well-informed programmer should write their code. Consider, for example, the implication of the sequential-versus-random performance gap for how a programmer should structure file access patterns, or the implication of the write-buffer delay for how a database must call `fsync()`. Concrete examples are required.
 
-* **Take a position on the UNIX file system interface.** Given what you now know about the hardware the interface runs on, argue whether the UNIX file system API as described in Chapter 39 (Arpaci-Dusseau & Arpaci-Dusseau, 2023) is a well-designed abstraction. Acknowledge its genuine strengths---for instance, the uniformity of naming, the simplicity of the fd model, the atomicity of `rename()`---and identify at least one aspect you find inadequate or misleading given the hardware realities described in Chapters 36 and 37. Your critique should be grounded in technical argument, not preference.
+* **Take a position on the UNIX file system interface.** Given what you now know about the hardware the interface runs on, argue whether the UNIX file system API as described in Chapter 39 (Arpaci-Dusseau & Arpaci-Dusseau, 2023) is a well-designed abstraction. Acknowledge its genuine strengths—for instance, the uniformity of naming, the simplicity of the fd model, the atomicity of `rename()`—and identify at least one aspect you find inadequate or misleading given the hardware realities described in Chapters 36 and 37. Your critique should be grounded in technical argument, not preference.
 
 ---
 
@@ -102,7 +102,7 @@ This essay requires research beyond Arpaci-Dusseau & Arpaci-Dusseau (2023). Both
 You must:
 
 * Cite **at least three (3) academically sound sources** using **APA 7th Edition** format
-* Arpaci-Dusseau & Arpaci-Dusseau (2023) counts as one source; Ruemmler & Wilkes (1994) counts as a second---you need **at least one additional source** that you found independently, beyond what is preloaded here
+* Arpaci-Dusseau & Arpaci-Dusseau (2023) counts as one source; Ruemmler & Wilkes (1994) counts as a second—you need **at least one additional source** that you found independently, beyond what is preloaded here
 * Acceptable sources include:
   * Peer-reviewed papers from conferences (ACM SIGOPS, USENIX, FAST, etc.)
   * Technical books on operating systems, storage systems, or systems programming (see: syllabus)
@@ -112,13 +112,13 @@ You must:
 * Include a **References** section at the end following APA 7th Edition format and include in-text citations
 * The References section does **not** count toward your word count
 
-The following are suggested entry points from the chapters' own reference lists. They are freely available and directly relevant---but again, you are expected to go further:
+The following are suggested entry points from the chapters' own reference lists. They are freely available and directly relevant—but again, you are expected to go further:
 
-* Ritchie & Thompson (1974)---the original UNIX paper, whose file system design is the direct ancestor of Chapter 39's interface
-* McKusick et al. (1984)---the Fast File System, which introduced many interface features (long file names, symbolic links) now treated as standard
-* Coffman, Klimko & Ryan (1972)---the foundational disk scheduling paper that introduced SCAN and its variants
-* Swift, Bershad & Levy (2003)---on improving OS reliability by isolating device drivers, illustrating the cost of the driver abstraction from Chapter 36
-* Patterson, Gibson & Katz (1988)---the RAID paper, which treats disk performance characteristics (from Chapter 37) as the problem to be solved
+* Ritchie & Thompson (1974)—the original UNIX paper, whose file system design is the direct ancestor of Chapter 39's interface
+* McKusick et al. (1984)—the Fast File System, which introduced many interface features (long file names, symbolic links) now treated as standard
+* Coffman, Klimko & Ryan (1972)—the foundational disk scheduling paper that introduced SCAN and its variants
+* Swift, Bershad & Levy (2003)—on improving OS reliability by isolating device drivers, illustrating the cost of the driver abstraction from Chapter 36
+* Patterson, Gibson & Katz (1988)—the RAID paper, which treats disk performance characteristics (from Chapter 37) as the problem to be solved
 
 Strong essays will draw on sources not listed here. Use Google Scholar, the ACM Digital Library, or IEEE Xplore to find work on topics such as: the performance implications of the VFS layer, the design of NVMe and its scheduling implications, empirical studies of file system access patterns, or the history of the inode structure. Section 4 in particular is strengthened by sources that take a critical or historical view of the UNIX interface.
 
@@ -128,7 +128,7 @@ Strong essays will draw on sources not listed here. Use Google Scholar, the ACM 
 
 * Write on **one-whole sheets of yellow pad paper only**
 * Work together with your pair defined [in this sheet](https://docs.google.com/spreadsheets/d/1iNQIZq-S3lDxdCOeqjVBck2hnibGV9EfHQdBdIALWzQ/edit?usp=sharing) to accomplish the essay
-* Your essay must be approximately **2000 words** (acceptable range: 1800--2200 words)
+* Your essay must be approximately **2000 words** (acceptable range: 1800–2200 words)
 * Essays outside this range will receive deductions
 * **CRITICAL**: You must write the **cumulative word count at the left margin of each line**
   * Example: Line 1 ends at word 8, write `8` at the left margin
@@ -200,7 +200,7 @@ See the detailed rubric below for specific performance standards.
 * **Skipping the calculations**: The quantitative comparison of random versus sequential I/O is a required element of Section 2. Qualitative descriptions of the gap without numbers will receive reduced credit.
 * **Confusing lseek() with a disk seek**: Chapter 39 is explicit about this distinction. Conflating the two is a common error that signals insufficient reading.
 * **Describing hard and soft links without structural grounding**: Many students describe the behavior of links without explaining what each one physically is (a directory entry vs. a file whose contents are a pathname). Structural grounding is required.
-* **A Section 4 that summarizes instead of argues**: This section is where depth of analysis is most directly assessed. If it reads like a conclusion paragraph that recaps Sections 1--3, it will score poorly.
+* **A Section 4 that summarizes instead of argues**: This section is where depth of analysis is most directly assessed. If it reads like a conclusion paragraph that recaps Sections 1–3, it will score poorly.
 * **Citing only OSTEP and Ruemmler & Wilkes**: This is explicitly insufficient. You need at least one additional independently found source, and strong essays will have two or more.
 * **Weak source integration**: Sources cited only in the References section without being woven into the argument earn no Research Quality credit. Cite sources where the idea they support appears.
 * **Format violations**: An essay that is 100 words under or over the range, or that has no cumulative line counts, will lose Format Compliance points regardless of its technical quality.
@@ -224,7 +224,7 @@ You may wonder why this assignment requires handwritten submission in an age of 
 
 **Academic Integrity**: This format also serves an integrity function. While AI assistance is permitted for research and understanding, the final product must demonstrate *your* comprehension. A handwritten essay in your own words ensures the work is authentically yours.
 
-**Professional Preparation**: In technical interviews and graduate school qualifying exams, you will often work through problems by hand on whiteboards or paper. This assignment provides practice in organizing complex technical arguments without digital aid---a skill that does not come naturally to those who have only ever typed.
+**Professional Preparation**: In technical interviews and graduate school qualifying exams, you will often work through problems by hand on whiteboards or paper. This assignment provides practice in organizing complex technical arguments without digital aid—a skill that does not come naturally to those who have only ever typed.
 
 The goal is not to make your life difficult, but to ensure that the time you invest in this assignment translates into genuine learning. The concepts in these three chapters will appear on the final examination. Students who have handwritten them tend to recall them more reliably than those who merely read them.
 

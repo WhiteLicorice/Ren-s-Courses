@@ -352,7 +352,7 @@ Obstacle (Area2D)
 * Mask: `player`
 * Node Tab, Groups: Add `obstacles`
 
-**No script needed** -- player already checks for obstacles group.
+**No script needed** — player already checks for obstacles group.
 
 **Add to Main:**
 
