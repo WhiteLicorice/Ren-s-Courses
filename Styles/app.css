@@ -84,4 +84,11 @@ body {
   th {
     color: var(--text-main);
   }
+
+  /* Prevent tables from overflowing the viewport on narrow screens (e.g., Android) */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
