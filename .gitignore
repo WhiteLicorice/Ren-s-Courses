@@ -1,3 +1,6 @@
+# Ignore Claude Code
+.claude
+
 # Ignore utilities
 utilities/
 
