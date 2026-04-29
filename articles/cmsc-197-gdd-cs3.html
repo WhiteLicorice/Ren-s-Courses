@@ -1,0 +1,481 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css" rel="stylesheet"><link href="css/site.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="preload" href="css/prism-dark.css" as="style"><link rel="preload" href="css/prism-light.css" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css"><script>!function(){var e=window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("user-theme"),m="dark";m="light"===t?"light":"dark"===t||e?"dark":"light",document.documentElement.setAttribute("data-theme",m),"light"===m&&(document.getElementById("prism-theme-link").href="css/prism-light.css")}()</script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js" integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js" integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="manifest" href="site.webmanifest.json"><meta name="theme-color" content="#ef4444"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex lg:w-0 lg:flex-1"><a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="materials" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Materials</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><div class="relative"><button id="desktop-dropdown-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors"><span class="sr-only">More menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto"><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Submissions</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Toggle Theme"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Submissions</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>const menuContainer=document.querySelector("#mobile-menu-container"),backdrop=document.querySelector("#mobile-backdrop"),toggleBtn=document.querySelector("#toggle-button"),closeBtn=document.querySelector("#close-mobile-menu-button"),toggleMobileMenu=()=>{menuContainer.classList.contains("hidden")?(menuContainer.classList.remove("hidden"),document.body.classList.add("overflow-hidden")):(menuContainer.classList.add("hidden"),document.body.classList.remove("overflow-hidden"))};toggleBtn.addEventListener("click",toggleMobileMenu),closeBtn.addEventListener("click",toggleMobileMenu),backdrop.addEventListener("click",toggleMobileMenu);const desktopBtn=document.getElementById("desktop-dropdown-btn"),desktopMenu=document.getElementById("desktop-dropdown-menu");function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{e.forEach(e=>{const n=e.querySelector(".icon-sun"),o=e.querySelector(".icon-moon");"light"===t?(n.classList.add("hidden"),o.classList.remove("hidden")):(o.classList.add("hidden"),n.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}desktopBtn&&desktopMenu&&(desktopBtn.addEventListener("click",e=>{e.stopPropagation(),desktopMenu.classList.toggle("hidden")}),document.addEventListener("click",e=>{desktopMenu.classList.contains("hidden")||desktopMenu.contains(e.target)||e.target===desktopBtn||desktopMenu.classList.add("hidden")})),initThemeToggle();let lastScrollTop=0;const navbar=document.getElementById("main-navbar");window.addEventListener("scroll",function(){let e=window.pageYOffset||document.documentElement.scrollTop;if(e<=64)return navbar.classList.remove("-translate-y-full"),void(lastScrollTop=e);e>lastScrollTop?(navbar.classList.add("-translate-y-full"),desktopMenu&&!desktopMenu.classList.contains("hidden")&&desktopMenu.classList.add("hidden"),menuContainer.classList.contains("hidden")?navbar.classList.add("-translate-y-full"):navbar.classList.remove("-translate-y-full")):navbar.classList.remove("-translate-y-full"),lastScrollTop=e})</script><header id="header"></header><main id="main" class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-197-gdd" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-197-gdd</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">Find Me If You Can</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 197 GDD Case Study 3</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>March 25, 2026</time></div><a href="https://drive.google.com/file/d/1sd4VD1ayJ8I0DB_i5jKw9jvKfLjsrpyc/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-accent hover:text-text-main transition-colors group text-sm font-medium mt-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-y-0.5"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"></path><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"></path></svg> <span class="border-b border-accent/30 group-hover:border-text-main pb-0.5">Download</span></a></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><h2 id="case-study-objectives">Case Study Objectives</h2><ul><li>Understand why different gameplay questions require different pathfinding algorithms</li><li>Analyze variable movement cost systems and data-driven terrain configuration</li><li>Trace the three-phase AI decision pipeline from tactical scoring to partial movement</li><li>Adapt the architecture to Godot using <code>AStarGrid2D</code> and custom Dijkstra flood fill</li></ul><hr><h2 id="background">Background</h2><p>If you have read the Component System and State System case studies, you know that Lex Talionis is an open-source engine for building turn-based strategy RPGs in the <em>Fire Emblem</em> style. The Component System handles <em>what things are</em>—items, skills, behaviors. The State System handles <em>what happens</em>—game flow, menus, combat sequences. The <strong>Pathfinding and AI Navigation System</strong> handles <em>how units move</em>—both for the human player (highlighting valid move tiles, drawing movement arrows) and for the AI (deciding where to go and who to attack).</p><p>This is the system that answers questions like:</p><ul><li>&quot;Which tiles can this unit reach with 5 movement points?&quot;</li><li>&quot;What is the shortest path from here to there, avoiding mountains and enemies?&quot;</li><li>&quot;Which enemy should the AI attack, from which position, with which weapon?&quot;</li><li>&quot;The AI cannot reach the target this turn—how far should it walk toward it?&quot;</li></ul><hr><h2 id="context-pathfinding-is-not-a-single-problem">Context: Pathfinding Is Not a Single Problem</h2><p>Pathfinding is one of the most-studied problems in game development. If you have taken an algorithms class, you have seen Dijkstra's algorithm and A*. But applying them to an actual game—especially a turn-based SRPG—involves problems that the textbook versions do not address.</p><p><strong>Multiple algorithms for different questions.</strong> &quot;What can I reach?&quot; is a different question from &quot;What is the fastest route to a specific tile?&quot; Each needs a different algorithm.</p><p><strong>Variable movement costs.</strong> A forest tile costs 2 movement points for infantry but 3 for cavalry and 1 for flying units. The same map has <em>different</em> cost graphs for different unit types.</p><p><strong>Dynamic obstacles.</strong> Units block tiles. Allies can be walked through; enemies cannot. Invisible enemies (fog of war) do not block. This changes every turn.</p><p><strong>Pathfinding is not AI.</strong> Finding the shortest path is only half the problem. The AI must also decide <em>where</em> to go, <em>who</em> to attack, and <em>which weapon</em> to use. Pathfinding is a tool the AI uses, not the AI itself.</p><p><strong>Budget-constrained movement.</strong> In an SRPG, a unit does not traverse the full path in one turn—it moves as far as its movement points allow and stops. The AI needs a &quot;walk as far as I can along this path&quot; algorithm. Textbook A* has no built-in concept of partial traversal.</p><hr><h2 id="the-problem">The Problem</h2><h3 id="the-wrong-algorithm-problem">The Wrong Algorithm Problem</h3><p>Your first instinct might be to use A* for everything:</p><pre><code class="language-python"># O(N * A*) -- runs A* 600 times for a 30x20 map
+for every_tile in map:
+    path = a_star(unit.position, every_tile)
+    if path_cost(path) &lt;= unit.movement:
+        valid_moves.add(every_tile)
+</code></pre><p>This is <span class="math">\(O(N \times A^*)\)</span> where <span class="math">\(N\)</span> is the number of tiles on the map. Dijkstra's algorithm does this in a single pass—run it once from the unit's position, and it gives you <em>all</em> reachable tiles simultaneously.</p><h3 id="the-hardcoded-cost-problem">The Hardcoded Cost Problem</h3><pre><code class="language-python">def get_cost(tile):
+    if tile == &quot;forest&quot;: return 2
+    elif tile == &quot;mountain&quot;: return 4
+    elif tile == &quot;water&quot;: return 99  # impassable
+    else: return 1
+</code></pre><p>This breaks the moment you add flying units (who ignore terrain), mounted units (who struggle in forests), or a &quot;Water Walk&quot; skill. You need a cost <em>table</em>—a 2D lookup of <code>(unit_movement_type, terrain_type) → cost</code>.</p><h3 id="the-coupled-ai-problem">The Coupled AI Problem</h3><pre><code class="language-python">def ai_think(unit):
+    for enemy in enemies:
+        path = a_star(unit.position, enemy.position)
+        damage = compute_damage(unit, enemy)
+        score = damage / len(path)
+        if score &gt; best_score:
+            best = enemy
+    move_along(path)
+    attack(best)
+</code></pre><p>This conflates three separate concerns: (1) where the unit can physically go, (2) what the optimal path is, and (3) what the best tactical decision is. Real AI must evaluate <code>(item, target, position)</code> triples, and the pathfinding layer should provide movement data, not make tactical decisions.</p><hr><h2 id="why-this-approach">Why This Approach?</h2><p>Lex Talionis solves these problems with a <strong>layered architecture</strong>:</p><ol><li><strong>Three algorithms for three questions</strong>: Dijkstra for reachability (&quot;what can I reach?&quot;), A* for pathing (&quot;how do I get to X?&quot;), Theta* for smooth movement in free-roam mode</li><li><strong>Data-driven movement costs</strong>: A <code>movement_group × terrain_type → cost</code> lookup table (<code>DB.mcost</code>), configured in the editor. Each unit class has a movement group; each terrain has a movement type. Grids are pre-computed per movement group at level load.</li><li><strong>Facade pattern</strong>: <code>PathSystem</code> is a high-level API that hides algorithmic details. Callers say <code>get_valid_moves(unit)</code> or <code>get_path(unit, position)</code>—they never import <code>Dijkstra</code> or <code>AStar</code> directly.</li><li><strong>AI as a consumer</strong>: The AI controller uses <code>PathSystem</code> as a service. It asks for valid moves, asks for paths, then makes tactical decisions using a utility-scoring system. Pathfinding and AI are cleanly separated.</li><li><strong>Travel algorithm</strong>: A dedicated <code>travel_algorithm()</code> handles partial movement—given a path and a movement budget, it returns the farthest reachable position along that path.</li></ol><hr><h2 id="architecture-deep-dive">Architecture Deep Dive</h2><h3 id="the-grid-and-node-model">The Grid and Node Model</h3><p>Everything starts with the <code>Node</code>—a single tile in the movement grid:</p><pre><code class="language-python">class Node():
+    __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f', 'true_f']
+
+    def __init__(self, x: int, y: int, reachable: bool, cost: float):
+        # Can this tile be traversed at all?
+        self.reachable: bool = reachable
+        # Movement points to enter this tile
+        self.cost: float = cost
+        self.x: int = x
+        self.y: int = y
+        self.reset()
+
+    def reset(self) -&gt; None:
+        self.parent: Optional[Node] = None
+        self.g: float = 0      # Actual cost from start
+        self.h: float = 0      # Estimated cost to goal (heuristic)
+        self.f: float = 0      # Total estimated cost (g + h)
+        self.true_f: float = 0 # f without the directional nudge
+</code></pre><h4 id="key-design-points">Key Design Points</h4><ul><li><strong><code>__slots__</code></strong>: Performance optimization—no <code>__dict__</code> per node, saving memory for large grids</li><li><strong><code>reachable</code> vs <code>cost</code></strong>: A tile with <code>cost &gt;= 99</code> is impassable, but <code>reachable</code> is checked <em>before</em> cost evaluation—walls are rejected in one boolean test</li><li><strong><code>true_f</code> vs <code>f</code></strong>: A* uses a slight directional nudge to prefer aesthetically straight paths; <code>true_f</code> stores the honest cost for limit-checking while <code>f</code> includes the nudge for tie-breaking</li></ul><p>At level load, <code>GameBoard</code> pre-computes one grid per movement group:</p><pre><code class="language-python">def init_movement_grid(self, movement_group, tilemap, mtype_grid):
+    grid = Grid[Node]((self.width, self.height))
+    for x in range(self.width):
+        for y in range(self.height):
+            mtype = mtype_grid.get((x, y))
+            cost = DB.mcost.get_mcost(movement_group, mtype) if mtype else 1
+            grid.append(Node(x, y, cost &lt; 99, cost))
+    return grid
+</code></pre><p>A &quot;Flying&quot; unit gets a grid where mountains cost 1, forests cost 1, and water costs 1. A &quot;Foot&quot; unit gets a grid where mountains cost 4, forests cost 2, and water costs 99. Same map; different cost landscapes.</p><hr><h3 id="dijkstra-reachability-flood-fill">Dijkstra: Reachability Flood Fill</h3><p>When the player selects a unit, the game highlights all tiles the unit can reach. This is a <strong>single-source reachability</strong> problem—perfect for Dijkstra:</p><pre><code class="language-python">class Djikstra:
+    def process(self, can_move_through, movement_left) -&gt; Set[Pos]:
+        heapq.heappush(self.open, (self.start_node.g, self.start_node))
+        while self.open:
+            g, node = heapq.heappop(self.open)
+            # EARLY TERMINATION: heap is cost-ordered; first node that
+            # exceeds the budget means all remaining nodes do too
+            if g &gt; movement_left:
+                return {(n.x, n.y) for n in self.closed}
+            self.closed.add(node)
+            for adj in self._get_manhattan_adj_nodes(node):
+                if adj.reachable and adj not in self.closed:
+                    if can_move_through((adj.x, adj.y)):
+                        if (adj.g, adj) in self.open:
+                            if adj.g &gt; node.g + adj.cost:
+                                self._update_node(adj, node)
+                                heapq.heappush(self.open, (adj.g, adj))
+                        else:
+                            self._update_node(adj, node)
+                            heapq.heappush(self.open, (adj.g, adj))
+        return {(n.x, n.y) for n in self.closed}
+</code></pre><p>The algorithm expands outward from the start position, accumulating movement costs. Because the min-heap guarantees we always process the cheapest node first, the moment we pop a node that exceeds <code>movement_left</code>, we know every remaining node would also exceed it—early termination is sound.</p><p><strong>Why Dijkstra and not BFS?</strong> BFS assumes uniform cost. In an SRPG, a forest costs 2 while a plain costs 1. BFS would report tiles as reachable or unreachable incorrectly.</p><p><strong>Why not A*?</strong> A* is for finding the shortest path to a <em>specific</em> goal. We have no goal—we want <em>all</em> reachable tiles. A* with no goal degenerates into Dijkstra with the overhead of computing a useless heuristic.</p><hr><h3 id="a-optimal-single-path-search">A*: Optimal Single-Path Search</h3><p>When the AI needs to navigate to a specific target, or when the game draws the movement arrow, it uses A*:</p><pre><code class="language-python">class AStar:
+    def _get_heuristic(self, node):
+        &quot;&quot;&quot;Manhattan distance + directional nudge.&quot;&quot;&quot;
+        dx1 = node.x - self.end_node.x
+        dy1 = node.y - self.end_node.y
+        h = abs(dx1) + abs(dy1)
+        # Cross-product nudge: prefer paths along the start-to-goal line
+        dx2 = self.start_node.x - self.end_node.x
+        dy2 = self.start_node.y - self.end_node.y
+        cross = abs(dx1 * dy2 - dx2 * dy1)
+        return h + cross * .001  # 0.001 keeps paths aesthetically straight
+
+    def process(self, can_move_through, adj_good_enough=False,
+                limit=None, max_movement_limit=999):
+        heapq.heappush(self.open, (self.start_node.f, self.start_node))
+        while self.open:
+            f, node = heapq.heappop(self.open)
+            self.closed.add(node)
+            if limit is not None and node.true_f &gt; limit:
+                return []  # Cost budget exceeded
+            if node is self.end_node or (adj_good_enough and node in self.adj_end):
+                return self._return_path(node)
+            for adj in self._get_adj_nodes(node):
+                if adj.reachable and adj not in self.closed:
+                    if can_move_through((adj.x, adj.y)) \
+                            and adj.cost &lt;= max_movement_limit:
+                        if (adj.f, adj) in self.open:
+                            if adj.g &gt; node.g + adj.cost:
+                                self._update_node(adj, node)
+                                heapq.heappush(self.open, (adj.f, adj))
+                        else:
+                            self._update_node(adj, node)
+                            heapq.heappush(self.open, (adj.f, adj))
+        return []
+</code></pre><h4 id="key-design-points-1">Key Design Points</h4><ul><li><strong><code>adj_good_enough</code></strong>: For the AI, reaching a tile <em>adjacent</em> to the target is usually sufficient (you attack from an adjacent tile). This avoids pathing to a tile occupied by the enemy.</li><li><strong><code>limit</code></strong>: The AI can cap how far it is willing to search. Uses <code>true_f</code> (without the nudge) so the limit is honest.</li><li><strong><code>max_movement_limit</code></strong>: Tiles with cost exceeding this are treated as impassable—prevents the AI from planning paths through terrain it cannot cross in one turn.</li><li><strong><code>set_goal_pos()</code></strong>: Allows re-using the same A* instance with a new goal without re-allocating the grid. <code>SecondaryAI</code> uses this to evaluate multiple targets efficiently.</li></ul><hr><h3 id="theta-smooth-paths-for-free-roam">Theta*: Smooth Paths for Free Roam</h3><p>Lex Talionis has a free-roam mode where units move continuously rather than tile-to-tile. A* produces jagged, staircase-like paths on a grid. <code>ThetaStar</code> inherits from <code>AStar</code> and produces smoother paths by allowing shortcuts when there is line-of-sight:</p><pre><code class="language-python">class ThetaStar(AStar):
+    def _update_node(self, adj, node):
+        # If there is line-of-sight to the PARENT of the current node,
+        # skip the current node -- connect adj directly to grandparent
+        if node.parent and self._line_of_sight(node.parent, adj):
+            adj.g = node.parent.g + adj.cost
+            adj.parent = node.parent  # Corner cut
+        else:
+            adj.g = node.g + adj.cost
+            adj.parent = node
+        adj.h = self._get_heuristic(adj)
+        adj.f = adj.h + adj.g
+
+    def _line_of_sight(self, node1, node2):
+        &quot;&quot;&quot;Bresenham line check: is there a clear line between two nodes?&quot;&quot;&quot;
+        def blocked(pos):
+            return not self.grid.get(pos).reachable
+        return bresenham_line_algorithm.get_line(
+            (node1.x, node1.y), (node2.x, node2.y), blocked)
+</code></pre><p>When updating a node's parent, Theta* checks if there is line-of-sight to the <em>grandparent</em>. If so, it sets the grandparent as the direct parent, cutting the corner. The result is paths that follow straight lines through open areas rather than zigzagging along grid axes.</p><hr><h3 id="movement-costs-and-terrain">Movement Costs and Terrain</h3><p>Movement costs are stored in a database table—a 2D lookup:</p><pre><code class="language-python">def get_movement_group(unit_to_move):
+    &quot;&quot;&quot;Get the unit's movement type: 'Flying', 'Mounted', 'Foot', etc.&quot;&quot;&quot;
+    movement_group = skill_system.movement_type(unit_to_move)
+    if not movement_group:
+        movement_group = DB.classes.get(unit_to_move.klass).movement_group
+    return movement_group
+
+def get_mcost(unit_to_move, pos):
+    &quot;&quot;&quot;How much does it cost THIS unit to enter THIS tile?&quot;&quot;&quot;
+    terrain_nid = game.get_terrain_nid(game.tilemap, pos)
+    terrain = DB.terrain.get(terrain_nid)
+    movement_group = get_movement_group(unit_to_move)
+    return DB.mcost.get_mcost(movement_group, terrain.mtype)
+</code></pre><p>The data model is a grid of costs:</p><table><thead><tr><th></th><th style="text-align:center">Plain</th><th style="text-align:center">Forest</th><th style="text-align:center">Mountain</th><th style="text-align:center">Water</th><th style="text-align:center">Sand</th></tr></thead><tbody><tr><td><strong>Foot</strong></td><td style="text-align:center">1</td><td style="text-align:center">2</td><td style="text-align:center">4</td><td style="text-align:center">99</td><td style="text-align:center">2</td></tr><tr><td><strong>Mounted</strong></td><td style="text-align:center">1</td><td style="text-align:center">3</td><td style="text-align:center">99</td><td style="text-align:center">99</td><td style="text-align:center">3</td></tr><tr><td><strong>Flying</strong></td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center">1</td></tr><tr><td><strong>Armored</strong></td><td style="text-align:center">1</td><td style="text-align:center">2</td><td style="text-align:center">4</td><td style="text-align:center">99</td><td style="text-align:center">3</td></tr></tbody></table><p>Values are set in the Lex Talionis editor. A cost of 99 or higher means &quot;impassable&quot;—the grid marks those nodes as <code>reachable = False</code>. Skills can override movement type at runtime: a &quot;Water Walk&quot; skill changes the unit's effective movement group without touching pathfinding code.</p><hr><h3 id="obstacle-handling">Obstacle Handling</h3><p>Static terrain is baked into the movement grid at level load. Dynamic obstacles (units) are handled by a callback:</p><pre><code class="language-python">def can_move_through(self, team, pos):
+    &quot;&quot;&quot;Can a unit of the given team pass through this position?&quot;&quot;&quot;
+    unit_team = self.get_team(pos)
+    if not unit_team or team in DB.teams.get_allies(unit_team):
+        return True  # Empty tile or ally -- pass through
+    if team == 'player' or DB.constants.value('ai_fog_of_war'):
+        if not self.in_vision(pos, team):
+            return True  # Enemy is fogged -- treat as empty
+    return False  # Visible enemy is blocking
+</code></pre><p>This callback is passed into pathfinding algorithms as a parameter. The pathfinding code never touches the game board directly—it calls the function it was given. The same <code>Dijkstra</code> class handles player movement (allies pass-through), AI movement (allies pass-through), and AI retreat (allies block) by swapping the callback.</p><hr><h3 id="the-path-system-facade">The Path System Facade</h3><p>Callers never instantiate <code>Dijkstra</code> or <code>AStar</code> directly. They use <code>PathSystem</code>:</p><pre><code class="language-python">class PathSystem():
+    def get_valid_moves(self, unit, force=False, witch_warp=True) -&gt; Set[Pos]:
+        &quot;&quot;&quot;All tiles this unit can reach this turn. Uses Dijkstra.&quot;&quot;&quot;
+        mtype = movement_funcs.get_movement_group(unit)
+        grid = self.game.board.get_movement_grid(mtype)
+        pathfinder = pathfinding.Djikstra(unit.position, grid)
+        movement_left = unit.get_movement() if force else unit.movement_left
+
+        if skill_system.pass_through(unit):
+            can_move_through = lambda adj: True  # Ghosts ignore all obstacles
+        else:
+            can_move_through = partial(self.game.board.can_move_through, unit.team)
+
+        valid_moves = pathfinder.process(can_move_through, movement_left)
+        valid_moves.add(unit.position)
+        if witch_warp:
+            valid_moves |= set(skill_system.witch_warp(unit))
+        return valid_moves
+
+    def get_path(self, unit, position, ally_block=False,
+                 use_limit=None, free_movement=False) -&gt; List[Pos]:
+        &quot;&quot;&quot;Optimal path from unit to goal. Uses A* or Theta*.&quot;&quot;&quot;
+        mtype = movement_funcs.get_movement_group(unit)
+        grid = self.game.board.get_movement_grid(mtype)
+
+        if skill_system.pass_through(unit) or free_movement:
+            can_move_through = lambda adj: True
+        elif ally_block:
+            can_move_through = partial(
+                self.game.board.can_move_through_ally_block, unit.team)
+        else:
+            can_move_through = partial(self.game.board.can_move_through, unit.team)
+
+        if free_movement:
+            pathfinder = pathfinding.ThetaStar(unit.position, position, grid)
+        else:
+            pathfinder = pathfinding.AStar(unit.position, position, grid)
+        return pathfinder.process(can_move_through, limit=use_limit)
+</code></pre><p>This is the <strong>Facade pattern</strong>: a simple interface over complex subsystems. The caller says <code>game.path_system.get_valid_moves(unit)</code> and does not care whether Dijkstra, A*, or some future algorithm runs underneath.</p><hr><h2 id="ai-integration">AI Integration</h2><h3 id="the-ai-decision-pipeline">The AI Decision Pipeline</h3><p>The AI does not just pathfind—it makes <em>decisions</em>. Lex Talionis uses a <strong>three-phase pipeline</strong>:</p><pre><code class="language-bash">Phase 1: THINK
+  - Try PrimaryAI (can I attack someone reachable right now?)
+      For each (item, target, position): score utility
+      Pick the triple with the maximum score
+  - If no attack found: Try SecondaryAI (navigate toward best target)
+      For each potential target: A* pathfind, score by distance + damage
+      travel_algorithm -&gt; walk as far as movement budget allows
+
+Phase 2: MOVE
+  - Execute movement along chosen path via state machine + animation
+
+Phase 3: ATTACK (if PrimaryAI found a target)
+  - Execute combat
+
+Phase 4: CANTO (post-attack movement, if unit has Canto skill)
+  - canto_retreat: move away from concentrated enemies
+</code></pre><p>The AI controller has a simple state machine: <code>Init → Primary → Secondary → Done</code>. It interleaves thinking across frames—each call to <code>think()</code> processes for up to half a frame (<code>FRAMERATE/2</code> milliseconds), then yields. This prevents the AI from freezing the game.</p><pre><code class="language-python">def think(self):
+    time = engine.get_time()
+    while True:
+        over_time = engine.get_true_time() - time &gt;= FRAMERATE/2
+
+        if self.state == 'Init':
+            self.set_next_behaviour()
+            if self.behaviour.action == &quot;Attack&quot;:
+                self.inner_ai = self.build_primary()
+                self.state = &quot;Primary&quot;
+            elif self.behaviour.action == &quot;Move_to&quot;:
+                self.inner_ai = self.build_secondary()
+                self.state = &quot;Secondary&quot;
+
+        elif self.state == 'Primary':
+            done, target, position, item = self.inner_ai.run()
+            if done:
+                if target:
+                    self.state = &quot;Done&quot;
+                else:
+                    self.inner_ai = self.build_secondary()
+                    self.state = &quot;Secondary&quot;  # Fall back to navigation
+
+        elif self.state == 'Secondary':
+            done, position = self.inner_ai.run()
+            if done:
+                self.state = &quot;Done&quot;
+
+        if self.state == 'Done':
+            return True
+        if over_time:
+            break  # Yield to game loop
+    return False
+</code></pre><hr><h3 id="primaryai-close-range-combat-targeting">PrimaryAI: Close-Range Combat Targeting</h3><p><code>PrimaryAI</code> answers: &quot;Given the tiles I can reach <em>right now</em>, what is the best <code>(item, target, position)</code> combination?&quot; It iterates over a three-level loop:</p><pre><code class="language-bash">For each usable item:
+    For each valid target in item range from any valid move:
+        For each position I can strike from:
+            Compute utility score
+            Track best (item, target, position) triple
+</code></pre><p>The AI <em>temporarily teleports</em> the unit to each candidate position to evaluate combat stats (which can depend on terrain bonuses, adjacency, etc.), then teleports back. This avoids the complexity of full what-if simulation:</p><pre><code class="language-python">def run(self):
+    target = self.valid_targets[self.target_index]
+    item = self.items[self.item_index]
+    move = self.possible_moves[self.move_index]
+
+    if self.unit.position != move:
+        self.quick_move(move)  # Temporarily teleport
+
+    if DB.constants.value('line_of_sight'):
+        valid = line_of_sight.line_of_sight([move], [target], max_range)
+        if not valid:
+            return  # Cannot see target from here
+
+    self.determine_utility(move, target, item)
+</code></pre><hr><h3 id="secondaryai-long-range-navigation">SecondaryAI: Long-Range Navigation</h3><p>When <code>PrimaryAI</code> finds no viable attack, <code>SecondaryAI</code> takes over: &quot;I cannot attack anyone this turn—who should I walk <em>toward</em>?&quot;</p><pre><code class="language-python">class SecondaryAI():
+    def __init__(self, unit, behaviour):
+        self.unit = unit
+        self.all_targets = get_targets(unit, behaviour)
+        movement_group = movement_funcs.get_movement_group(unit)
+        self.grid = game.board.get_movement_grid(movement_group)
+        # Pre-build the A* pathfinder -- reused across all target evaluations
+        self.pathfinder = pathfinding.AStar(unit.position, None, self.grid)
+
+    def run(self):
+        if self.available_targets:
+            target = self.available_targets.pop()
+            path = self.get_path(target)
+            if path:
+                tp = self.compute_priority(target, len(path))
+                if tp is not None and (self.max_tp is None or tp &gt; self.max_tp):
+                    self.max_tp = tp
+                    self.best_target = target
+                    self.best_path = path
+        elif self.best_target:
+            self.best_position = game.path_system.travel_algorithm(
+                self.best_path, self.unit.movement_left,
+                self.unit, self.grid)
+            return True, self.best_position
+        else:
+            return True, None
+        return False, None
+
+    def get_path(self, goal_pos):
+        self.pathfinder.set_goal_pos(goal_pos)  # Reuse A* instance, new goal
+        adj_good_enough = self.behaviour.target not in ('Event', 'Terrain')
+        can_move_through = partial(game.board.can_move_through, self.unit.team)
+        path = self.pathfinder.process(
+            can_move_through,
+            adj_good_enough=adj_good_enough,
+            limit=self.get_limit(),
+            max_movement_limit=self.unit.get_movement()
+        )
+        self.pathfinder.reset()
+        return path
+</code></pre><p><code>SecondaryAI</code> <em>reuses</em> a single <code>AStar</code> instance across all targets—it calls <code>set_goal_pos()</code> to retarget and <code>reset()</code> to clear the visited set. This avoids repeated grid allocation and is a significant performance optimization when evaluating dozens of potential targets.</p><hr><h3 id="utility-scoring">Utility Scoring</h3><p>The AI does not simply pick the closest enemy—it scores each option using a <strong>weighted utility function</strong>:</p><pre><code class="language-python"># PrimaryAI: close-range scoring
+def default_priority(self, main_target, item, move):
+    raw_damage = combat_calcs.compute_damage(self.unit, main_target, item, ...)
+    lethality = clamp(raw_damage / main_target.get_hp(), 0, 1)
+    accuracy  = clamp(combat_calcs.compute_hit(...) / 100, 0, 1)
+    # Large bonus for guaranteed kills
+    offense_term = 3 if lethality * accuracy &gt;= 1 \
+                     else lethality * accuracy * num_attacks
+
+    counter_damage = combat_calcs.compute_damage(main_target, self.unit, ...)
+    defense_term   = 1 - counter_damage * counter_accuracy * (1 - first_strike)
+
+    # Tiebreaker: prefer not moving too far
+    distance_term  = (max_dist - distance(move, orig_pos)) / max_dist
+
+    offense_weight = offense_bias / (offense_bias + 1)
+    defense_weight = 1 - offense_weight
+    return process_terms([
+        (offense_term, offense_weight),
+        (defense_term, defense_weight),
+        (distance_term, .0001),  # Only breaks ties
+    ])
+</code></pre><pre><code class="language-python"># SecondaryAI: long-range scoring
+def compute_priority(self, target, distance):
+    distance_term = 1 - math.log(distance) / 4  # Logarithmic decay
+    terms = [(distance_term, 60)]
+
+    if self.behaviour.action == &quot;Attack&quot; and enemy:
+        terms += self.default_priority(enemy)
+    elif self.behaviour.action == &quot;Support&quot; and ally:
+        help_term = (ally.get_max_hp() - ally.get_hp()) / ally.get_max_hp()
+        terms.append((help_term, 100))  # Prioritize injured allies
+
+    return utils.process_terms(terms)
+</code></pre><p>The <code>offense_bias</code> parameter is configurable per AI profile in the editor, letting designers create aggressive AI (high bias), defensive AI (low bias), or balanced AI—without touching code.</p><hr><h3 id="the-travel-algorithm">The Travel Algorithm</h3><p>When the AI's target is out of reach, it must walk <em>as far as possible</em> along the planned path:</p><pre><code class="language-python">def travel_algorithm(self, path, moves, unit, grid) -&gt; Pos:
+    &quot;&quot;&quot;
+    Given a path (goal-first, start-last) and a movement budget,
+    returns the farthest position the unit can reach along the path.
+    &quot;&quot;&quot;
+    if not path:
+        return unit.position
+
+    moves_left = moves
+    through_path = 0
+    for position in path[::-1][1:]:  # Walk from start toward goal
+        moves_left -= grid.get(position).cost
+        if moves_left &gt;= 0:
+            through_path += 1
+        else:
+            break
+
+    # Don't step on another unit
+    while through_path &gt; 0 and any(
+        other.position == path[-(through_path + 1)]
+        for other in self.game.units if unit is not other
+    ):
+        through_path -= 1
+
+    return path[-(through_path + 1)]
+</code></pre><p>This reverses the path (stored goal-first), walks forward accumulating costs, stops when the budget runs out, then backtracks if another unit occupies the target tile. The result is <span class="math">\(O(\text{path length})\)</span>—simple, correct, and fast.</p><hr><h2 id="supporting-systems">Supporting Systems</h2><h3 id="line-of-sight">Line of Sight</h3><p>When the <code>line_of_sight</code> database constant is enabled, units cannot attack through walls. The system uses <strong>Bresenham's line algorithm</strong> to check whether a clear line exists between two positions:</p><pre><code class="language-python">def get_line(start, end, get_opacity) -&gt; bool:
+    &quot;&quot;&quot;
+    Trace a rasterized line from start to end.
+    Returns True if no opaque tile blocks the line.
+    &quot;&quot;&quot;
+    # ... Bresenham's algorithm with diagonal handling ...
+    # For each tile the line passes through:
+    #   if get_opacity(tile) is True: line is blocked
+    return True  # Clear line of sight
+</code></pre><p>The <code>get_opacity</code> callback makes the algorithm reusable: Theta* uses it for path smoothing (checking walkability); the combat system uses it for attack visibility (checking opacity). Same algorithm, two different meanings of &quot;blocked.&quot;</p><hr><h3 id="fog-of-war">Fog of War</h3><p>The fog of war system maintains a per-team visibility grid updated when units move:</p><pre><code class="language-python">def update_fow(self, pos, unit, sight_range):
+    grid = self.fog_of_war_grids[unit.team]
+    for cell in grid.cells():
+        cell.discard(unit.nid)  # Clear old vision
+    if pos:
+        positions = game.target_system.find_manhattan_spheres(
+            range(sight_range + 1), *pos)
+        for position in positions:
+            grid.get(position).add(unit.nid)  # Add new vision
+</code></pre><p>Fog of war interacts with pathfinding through the <code>can_move_through</code> callback: if the AI cannot see a tile (it is fogged), it assumes it can move through it—even if an enemy is there. This creates realistic AI behavior: units move toward fogged areas without cheating by seeing hidden enemies.</p><hr><h2 id="applying-to-other-game-genres">Applying to Other Game Genres</h2><p>The principles in this system transfer broadly across game types. The table below summarizes what changes and what does not.</p><table><thead><tr><th><strong>Genre</strong></th><th><strong>What transfers directly</strong></th><th><strong>What changes</strong></th></tr></thead><tbody><tr><td>Open-world / Action RPG</td><td>Data-driven cost tables; facade pattern; same Dijkstra/A* algorithms on a navmesh</td><td>8-directional or continuous movement; local avoidance (RVO/steering) on top of global pathfinding; hierarchical pathfinding for large maps</td></tr><tr><td>Real-Time Strategy</td><td>Dijkstra for reachability; cost tables for terrain variation; AI pipeline separation</td><td>Flow fields replace per-unit A* at scale; steering and flocking for physical unit size; time-sliced computation across many units simultaneously</td></tr><tr><td>Roguelike / Dungeon Crawler</td><td>Grid-based pathfinding with variable costs; dynamic obstacle callbacks; utility scoring for AI</td><td>Procedural maps require incremental grid construction; many entities with simpler AI (no complex PrimaryAI needed)</td></tr><tr><td>Platformer</td><td>Navigation graph with nodes as safe positions and edges as actions; passable-callback for one-way platforms</td><td>Gravity and physics make movement arc-based, not free; A* edges encode jump sequences, not directions; action sequences replace tile paths</td></tr></tbody></table><h4 id="universal-principles">Universal Principles</h4><p>Regardless of genre, these principles apply:</p><ol><li><strong>Use the right algorithm for the question</strong>: Do not run A* when you need Dijkstra. &quot;What can I reach?&quot; and &quot;How do I get to X?&quot; are different problems.</li><li><strong>Data-driven costs</strong>: Use a lookup table designers can tune. The <code>(entity_type, terrain_type) → cost</code> pattern scales to any game.</li><li><strong>Separate pathfinding from AI</strong>: Pathfinding answers &quot;how do I get there?&quot; AI answers &quot;should I go there?&quot; Keep them in separate layers.</li><li><strong>Budget your computation</strong>: Time-slice across frames, cache pre-computed grids, and limit search radius with the A* <code>limit</code> parameter.</li><li><strong>Callbacks for dynamic state</strong>: Pass obstacle-checking as a function parameter, not a hardcoded check. The same algorithm then handles allies, enemies, fog of war, and pass-through skills.</li><li><strong>Partial traversal is a first-class concept</strong>: &quot;Walk as far along this path as my budget allows&quot; is an essential game primitive. Textbook pathfinding stops at &quot;here is the path.&quot;</li></ol><hr><h2 id="adapting-to-godot">Adapting to Godot</h2><p>Godot 4 provides <code>AStarGrid2D</code> and <code>NavigationServer2D</code> as building blocks, but you still need custom Dijkstra for reachability, custom AI logic for decisions, and the data-driven cost table for terrain variation.</p><h3 id="step-1-grid-pathfinding-with-astargrid2d">Step 1: Grid Pathfinding with AStarGrid2D</h3><pre><code class="language-gdscript">class_name GridPathfinder extends Node
+
+var grid: AStarGrid2D
+
+func setup(tilemap: TileMap, tile_size: Vector2i) -&gt; void:
+    grid = AStarGrid2D.new()
+    grid.region = tilemap.get_used_rect()
+    grid.cell_size = Vector2(tile_size)
+    grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER  # 4-directional
+    grid.update()
+    for cell in tilemap.get_used_cells(0):
+        var terrain_id: TileData = tilemap.get_cell_tile_data(0, cell)
+        var cost: float = _get_terrain_cost(terrain_id)
+        if cost &gt;= 99:
+            grid.set_point_solid(cell, true)  # Impassable
+        else:
+            grid.set_point_weight_scale(cell, cost)
+
+func get_path_to(from_pos: Vector2i, to_pos: Vector2i) -&gt; PackedVector2Array:
+    return grid.get_point_path(from_pos, to_pos)
+</code></pre><hr><h3 id="step-2-custom-dijkstra-for-reachability">Step 2: Custom Dijkstra for Reachability</h3><p>Godot's <code>AStarGrid2D</code> has no flood-fill method, so this must be custom:</p><pre><code class="language-gdscript">class_name DijkstraFlood extends RefCounted
+
+func find_reachable(start: Vector2i, movement: float,
+                    cost_func: Callable,
+                    passable_func: Callable) -&gt; Array[Vector2i]:
+    var open_heap: Array = [[0.0, start]]
+    var costs: Dictionary = {start: 0.0}
+    var closed: Dictionary = {}
+
+    while not open_heap.is_empty():
+        open_heap.sort_custom(func(a, b): return a[0] &lt; b[0])
+        var current: Array = open_heap.pop_front()
+        var g: float = current[0]
+        var pos: Vector2i = current[1]
+
+        if g &gt; movement:
+            break  # Early termination
+        if pos in closed:
+            continue
+        closed[pos] = true
+
+        for neighbor: Vector2i in _get_neighbors(pos):
+            if neighbor in closed or not passable_func.call(neighbor):
+                continue
+            var new_g: float = g + cost_func.call(neighbor)
+            if neighbor not in costs or new_g &lt; costs[neighbor]:
+                costs[neighbor] = new_g
+                open_heap.append([new_g, neighbor])
+
+    return closed.keys()
+
+func _get_neighbors(pos: Vector2i) -&gt; Array[Vector2i]:
+    return [pos + Vector2i.UP, pos + Vector2i.DOWN,
+            pos + Vector2i.LEFT, pos + Vector2i.RIGHT]
+</code></pre><hr><h3 id="step-3-data-driven-movement-costs">Step 3: Data-Driven Movement Costs</h3><pre><code class="language-gdscript">class_name MovementCostTable extends Resource
+
+@export var costs: Dictionary = {
+    &quot;Foot&quot;:    {&quot;Plain&quot;: 1, &quot;Forest&quot;: 2, &quot;Mountain&quot;: 4,  &quot;Water&quot;: 99},
+    &quot;Mounted&quot;: {&quot;Plain&quot;: 1, &quot;Forest&quot;: 3, &quot;Mountain&quot;: 99, &quot;Water&quot;: 99},
+    &quot;Flying&quot;:  {&quot;Plain&quot;: 1, &quot;Forest&quot;: 1, &quot;Mountain&quot;: 1,  &quot;Water&quot;: 1},
+}
+
+func get_cost(movement_group: String, terrain: String) -&gt; float:
+    if movement_group in costs and terrain in costs[movement_group]:
+        return costs[movement_group][terrain]
+    return 1.0
+</code></pre><hr><h3 id="step-4-ai-controller-with-pathfinding">Step 4: AI Controller with Pathfinding</h3><pre><code class="language-gdscript">class_name AIController extends Node
+
+var pathfinder: GridPathfinder
+var dijkstra: DijkstraFlood
+var cost_table: MovementCostTable
+
+func think(unit: GameUnit) -&gt; Dictionary:
+    # Phase 1: Can we attack from somewhere we can reach?
+    var valid_moves: Array[Vector2i] = dijkstra.find_reachable(
+        unit.grid_pos, unit.movement,
+        func(pos): return cost_table.get_cost(unit.movement_group,
+                                               _get_terrain(pos)),
+        func(pos): return _can_move_through(unit, pos)
+    )
+    var best: Dictionary = _find_best_attack(unit, valid_moves)
+    if not best.is_empty():
+        return best
+
+    # Phase 2: Navigate toward best reachable target
+    var best_path: PackedVector2Array = []
+    var best_score: float = -INF
+    for target: Vector2i in _get_enemy_positions(unit):
+        var path: PackedVector2Array = pathfinder.get_path_to(
+            unit.grid_pos, target)
+        if path.is_empty():
+            continue
+        var score: float = _score_target(unit, target, path.size())
+        if score &gt; best_score:
+            best_score = score
+            best_path = path
+
+    if not best_path.is_empty():
+        var move_to: Vector2i = _travel_along_path(
+            best_path, unit.movement, unit)
+        return {&quot;action&quot;: &quot;move&quot;, &quot;position&quot;: move_to}
+
+    return {&quot;action&quot;: &quot;wait&quot;}
+
+func _travel_along_path(path: PackedVector2Array, budget: float,
+                        unit: GameUnit) -&gt; Vector2i:
+    var spent: float = 0.0
+    var last_valid: Vector2i = Vector2i(path[0])
+    for i: int in range(1, path.size()):
+        var pos: Vector2i = Vector2i(path[i])
+        spent += cost_table.get_cost(unit.movement_group, _get_terrain(pos))
+        if spent &gt; budget:
+            break
+        if not _is_occupied(pos, unit):
+            last_valid = pos
+    return last_valid
+</code></pre><hr><h3 id="architecture-comparison">Architecture Comparison</h3><table><thead><tr><th><strong>Lex Talionis (Python)</strong></th><th><strong>Godot 4 (GDScript)</strong></th></tr></thead><tbody><tr><td><code>Node</code> (pathfinding grid cell)</td><td><code>AStarGrid2D</code> (built-in) or custom <code>Node</code></td></tr><tr><td><code>Dijkstra</code> (reachability)</td><td>Custom <code>DijkstraFlood</code> (no built-in equivalent)</td></tr><tr><td><code>AStar</code> (optimal path)</td><td><code>AStarGrid2D.get_point_path()</code></td></tr><tr><td><code>ThetaStar</code> (smooth paths)</td><td><code>NavigationServer2D</code> (navmesh-based)</td></tr><tr><td><code>PathSystem</code> (facade)</td><td>Custom <code>PathSystem</code> wrapping the above</td></tr><tr><td><code>DB.mcost</code> (cost table)</td><td><code>MovementCostTable</code> resource</td></tr><tr><td><code>GameBoard.can_move_through</code></td><td><code>Callable</code> passed into pathfinder</td></tr><tr><td><code>AIController</code> (decision pipeline)</td><td>Custom <code>AIController</code> node</td></tr><tr><td><code>PrimaryAI</code> (close-range scoring)</td><td>Same pattern, GDScript implementation</td></tr><tr><td><code>SecondaryAI</code> (long-range nav)</td><td>Same pattern, GDScript implementation</td></tr><tr><td><code>travel_algorithm</code> (partial paths)</td><td><code>_travel_along_path()</code> method</td></tr><tr><td><code>bresenham_line_algorithm</code></td><td><code>Geometry2D</code> or custom Bresenham</td></tr><tr><td>Fog of war grid</td><td>Custom visibility grid or <code>TileMap</code> layer</td></tr></tbody></table><hr><h2 id="conclusion">Conclusion</h2><p>The Lex Talionis Pathfinding and AI Navigation System demonstrates how a clean layered architecture handles the surprisingly complex problem of &quot;how should game entities move.&quot;</p><h4 id="key-takeaways">Key Takeaways</h4><ol><li><strong>Different questions need different algorithms</strong>: Dijkstra for &quot;what can I reach?&quot;, A* for &quot;how do I get to X?&quot;, Theta* for &quot;make the path look natural.&quot; Do not force one algorithm to answer all three questions.</li><li><strong>Data-driven costs beat hardcoded logic</strong>: A <code>(movement_group, terrain_type) → cost</code> table, editable by designers, handles flying units, mounted units, water-walking skills, and every other movement variation—without touching pathfinding code.</li><li><strong>Separate pathfinding from AI</strong>: Pathfinding is a <em>service</em> that answers &quot;can I get there and how?&quot; The AI is a <em>consumer</em> that asks &quot;should I go there?&quot; Keep them in separate classes with clean interfaces.</li><li><strong>The Facade pattern hides complexity</strong>: Callers say <code>get_valid_moves(unit)</code> and <code>get_path(unit, goal)</code>. They do not care which algorithm runs, how the cost table is structured, or how obstacle checking works.</li><li><strong>Budget computation across frames</strong>: AI thinking is time-sliced—process for half a frame, then yield. This prevents the game from freezing during complex evaluations with many units and targets.</li><li><strong>Callbacks decouple dynamic state</strong>: <code>can_move_through</code> is a function passed <em>into</em> the pathfinder, not a hardcoded check <em>inside</em> it. The same algorithm works for allies, enemies, fog of war, and pass-through skills.</li><li><strong>Partial traversal is a first-class concept</strong>: The travel algorithm—&quot;walk as far along this path as my budget allows&quot;—is essential for multi-turn AI planning. Textbook pathfinding stops at &quot;here is the path.&quot; Game pathfinding needs &quot;here is how far along it I can get.&quot;</li></ol><hr><p><em>This document references our private dev fork of the Lex Talionis engine <a href="https://github.com/WhiteLicorice/lt-maker-indie">here</a>, where I work together with some other contributors to produce a fork of the engine suitable for deployment on Steam and other commercial platforms. All code snippets are drawn from the codebase and lightly adapted for clarity. You may view the master branch of the Lex Talionis engine at my personal <a href="https://github.com/WhiteLicorice/lt-maker">mirror</a> or at the <a href="https://gitlab.com/rainlash/lt-maker">source</a>.</em></p></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script></main><footer id="footer" class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js"></script><script src="js/calendar.js"></script><script src="js/code-features.js"></script><script src="js/scroll-button.js"></script><script src="js/toc.js"></script><script src="js/site.js"></script><script src="https://keepandroidopen.org/banner.js?id=header&hidebutton=off"></script></body></html>

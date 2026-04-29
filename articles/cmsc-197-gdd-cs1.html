@@ -1,0 +1,440 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css" rel="stylesheet"><link href="css/site.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="preload" href="css/prism-dark.css" as="style"><link rel="preload" href="css/prism-light.css" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css"><script>!function(){var e=window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("user-theme"),m="dark";m="light"===t?"light":"dark"===t||e?"dark":"light",document.documentElement.setAttribute("data-theme",m),"light"===m&&(document.getElementById("prism-theme-link").href="css/prism-light.css")}()</script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js" integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js" integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="manifest" href="site.webmanifest.json"><meta name="theme-color" content="#ef4444"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex lg:w-0 lg:flex-1"><a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="materials" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Materials</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><div class="relative"><button id="desktop-dropdown-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors"><span class="sr-only">More menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto"><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Submissions</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Toggle Theme"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Submissions</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>const menuContainer=document.querySelector("#mobile-menu-container"),backdrop=document.querySelector("#mobile-backdrop"),toggleBtn=document.querySelector("#toggle-button"),closeBtn=document.querySelector("#close-mobile-menu-button"),toggleMobileMenu=()=>{menuContainer.classList.contains("hidden")?(menuContainer.classList.remove("hidden"),document.body.classList.add("overflow-hidden")):(menuContainer.classList.add("hidden"),document.body.classList.remove("overflow-hidden"))};toggleBtn.addEventListener("click",toggleMobileMenu),closeBtn.addEventListener("click",toggleMobileMenu),backdrop.addEventListener("click",toggleMobileMenu);const desktopBtn=document.getElementById("desktop-dropdown-btn"),desktopMenu=document.getElementById("desktop-dropdown-menu");function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{e.forEach(e=>{const n=e.querySelector(".icon-sun"),o=e.querySelector(".icon-moon");"light"===t?(n.classList.add("hidden"),o.classList.remove("hidden")):(o.classList.add("hidden"),n.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}desktopBtn&&desktopMenu&&(desktopBtn.addEventListener("click",e=>{e.stopPropagation(),desktopMenu.classList.toggle("hidden")}),document.addEventListener("click",e=>{desktopMenu.classList.contains("hidden")||desktopMenu.contains(e.target)||e.target===desktopBtn||desktopMenu.classList.add("hidden")})),initThemeToggle();let lastScrollTop=0;const navbar=document.getElementById("main-navbar");window.addEventListener("scroll",function(){let e=window.pageYOffset||document.documentElement.scrollTop;if(e<=64)return navbar.classList.remove("-translate-y-full"),void(lastScrollTop=e);e>lastScrollTop?(navbar.classList.add("-translate-y-full"),desktopMenu&&!desktopMenu.classList.contains("hidden")&&desktopMenu.classList.add("hidden"),menuContainer.classList.contains("hidden")?navbar.classList.add("-translate-y-full"):navbar.classList.remove("-translate-y-full")):navbar.classList.remove("-translate-y-full"),lastScrollTop=e})</script><header id="header"></header><main id="main" class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-197-gdd" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-197-gdd</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">Cook Better Spaghetti</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 197 GDD Case Study 1</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>March 10, 2026</time></div><a href="https://drive.google.com/file/d/17uWPuy1_MPRQEMx4Pu0eXSG1INpQdFjZ/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-accent hover:text-text-main transition-colors group text-sm font-medium mt-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-y-0.5"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"></path><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"></path></svg> <span class="border-b border-accent/30 group-hover:border-text-main pb-0.5">Download</span></a></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><h2 id="case-study-objectives">Case Study Objectives</h2><ul><li>Understand why inheritance fails at combinatorial complexity</li><li>Analyze the Component pattern as applied to game item and skill systems</li><li>Trace hook dispatch and resolution policies through real engine code</li><li>Adapt the architecture to GDScript using <code>Resource</code>-based components</li></ul><hr><h2 id="background">Background</h2><p><a href="https://github.com/WhiteLicorice/lt-maker">Lex Talionis</a> is an open-source game engine and editor purpose-built for turn-based strategy RPGs in the style of the <em>Fire Emblem</em> series. Written in Python on top of <code>pygame-ce</code>, it ships with a full visual editor built in PyQt5—everything you need to go from a concept to a playable game without writing a single line of game logic code.</p><p>The engine ships with a default project (<code>default.ltproj/</code>) that recreates chapters from <em>Fire Emblem: The Sacred Stones</em>, serving as both a functional demo and a reference for how the system's features compose. People ship real games with this. It's not academic.</p><p>What makes Lex Talionis interesting from a software architecture standpoint is how it handles the domain's core design problem: <strong>items and skills</strong>. In any SRPG, items (weapons, staves, consumables) and skills (passive abilities, combat arts, auras) are where the majority of your <em>game design</em> lives. They define what units can do, how combat resolves, and what makes your game feel unique. Lex Talionis models these through a <strong>Component System</strong>.</p><hr><h2 id="context-not-your-ecs">Context: Not Your ECS</h2><p>If you've taken any game design class, you've heard about Entity-Component-System (ECS). Unity leans on it, Bevy goes deep on it, and it's the canonical answer when someone asks how to structure game objects.</p><h4 id="important-distinction">Important Distinction</h4><p>Lex Talionis's Component System is <strong>not</strong> a traditional ECS. There's no System that bulk-processes entities. There's no archetype-based memory layout. It's closer to a <strong>Component-Based Architecture</strong>—a Strategy pattern applied at scale—where each game object is a bag of interchangeable behavior modules.</p><p>The key insight: in an SRPG, you don't process 10,000 entities per frame. You need to express the <em>combinatorial complexity</em> of game mechanics—&quot;this weapon does magic damage, has 3× effective damage against armored units, and heals the user for 50% of damage dealt&quot;—in a way that is:</p><ol><li><strong>Data-driven</strong>: designers configure behavior in the editor, no coding required</li><li><strong>Composable</strong>: complex behaviors emerge from stacking simple pieces</li><li><strong>Extensible</strong>: modders and advanced users can add new components</li><li><strong>Serializable</strong>: everything saves and loads cleanly to JSON-like structures</li></ol><hr><h2 id="the-problem">The Problem</h2><p>You need to support items like: Iron Sword (physical damage, can counterattack, can double), Fire (magic damage, no counterattack, no double, 30 uses), Heal (targets allies, heals HP), Brave Sword (attacks twice per round), Wing Spear (3× effective against armored and cavalry), and Nosferatu (heals user for damage dealt).</p><p>And skills like: Vantage (always attack first when below 50% HP), Miracle (survive lethal hits with 1 HP), Aura/Hex (debuff enemies within 1 tile).</p><h3 id="the-inheritance-trap">The Inheritance Trap</h3><p>Your first instinct—no shame, we've all been there—might be inheritance:</p><pre><code class="language-bash">Item
++-- Weapon
+|   +-- PhysicalWeapon
+|   |   +-- BraveWeapon
+|   |   +-- EffectiveWeapon
+|   |   `-- BraveEffectiveWeapon   &lt;- uh oh
+|   `-- MagicalWeapon
+|       +-- HealingSpell
+|       `-- DrainSpell
+`-- Consumable
+    +-- StatBooster
+    `-- KeyItem
+</code></pre><p>This falls apart immediately. What if you want a weapon that is <em>both</em> Brave <em>and</em> Effective? What about Brave + Effective + Lifelink? You end up in multiple inheritance hell or copy-pasting code across a combinatorial explosion of subclasses. Lex Talionis must support not just Fire Emblem mechanics but <em>arbitrary user-defined mechanics</em>. Inheritance simply does not scale.</p><h3 id="the-god-object-trap">The God Object Trap</h3><p>The alternative—one big <code>Item</code> class with 50 boolean flags and optional fields—&quot;works&quot; but is a maintenance nightmare:</p><pre><code class="language-python">class Item:
+    is_weapon: bool
+    is_spell: bool
+    is_brave: bool
+    is_effective: bool
+    effective_tags: list
+    effective_multiplier: float
+    lifelink_percent: float
+    # ... 50 more fields
+</code></pre><h4 id="common-pitfalls">Common Pitfalls</h4><p>Every new mechanic touches the <code>Item</code> class. Serialization becomes fragile as fields accumulate. The editor UI becomes unmanageable. Modders can't add new behaviors without forking the engine.</p><hr><h2 id="why-this-approach">Why This Approach?</h2><p>The Component System solves all of this by applying <strong>composition over inheritance</strong>. Instead of encoding behavior in a class hierarchy or a bag of flags, each item or skill is a <strong>collection of small, focused Component objects</strong>, each responsible for one aspect of behavior.</p><h4 id="why-composition-works-here">Why Composition Works Here</h4><ul><li><strong>Combinatorial expressiveness</strong>: any combination of components is valid—Brave + Effective + Lifelink is three components, not a new subclass</li><li><strong>Open/Closed Principle</strong>: new mechanics are new <code>Component</code> classes; the core <code>Item</code> class, combat system, and existing components are never modified</li><li><strong>Editor-friendly</strong>: each component's <code>expose</code> field tells the editor what widget to render—<code>Int</code> gets a spinbox, <code>WeaponType</code> gets a dropdown</li><li><strong>Clean serialization</strong>: every component serializes to a <code>(nid, value)</code> tuple; adding new components never breaks old save files</li><li><strong>Modder extensibility</strong>: the registry uses runtime reflection (<code>recursive_subclasses(ItemComponent)</code>) to discover all component classes; drop a Python file in <code>custom_components/</code> and it appears in the editor automatically</li></ul><hr><h2 id="architecture-deep-dive">Architecture Deep Dive</h2><h3 id="the-base-component">The Base Component</h3><p>Everything starts here:</p><pre><code class="language-python">class Component():
+    nid: str                           # Unique identifier, e.g. 'damage', 'lifelink'
+    desc: str                          # Human-readable description (shows in editor)
+    expose: Optional[ComponentType]    # What type of value to show in the editor UI
+    paired_with: list = []             # Auto-add these components when this one is added
+    tag: Enum                          # Category tag for organization
+    value = None                       # The configurable value
+
+    def __init__(self, value=None):
+        if value is not None:
+            self.value = value
+
+    def defines(self, function_name):
+        &quot;&quot;&quot;Check if this component implements a given hook.&quot;&quot;&quot;
+        return hasattr(self, function_name)
+
+    def save(self):
+        &quot;&quot;&quot;Serialize to (nid, value) tuple.&quot;&quot;&quot;
+        if isinstance(self.value, Data):
+            return self.nid, self.value.save()
+        elif isinstance(self.value, list):
+            return self.nid, copy.deepcopy(self.value)
+        else:
+            return self.nid, self.value
+</code></pre><h4 id="key-design-points">Key Design Points</h4><ul><li><code>nid</code>: how components are identified everywhere—in save files, in the registry, in code</li><li><code>expose</code>: tells the editor what kind of UI widget to render for this component's value</li><li><code>defines()</code>: the hook discovery mechanism—&quot;does this component implement <code>damage()</code>?&quot;</li><li><code>save()</code>: dead simple, returns the nid and value; this is the <em>entire</em> serialization format</li></ul><p><code>Component</code> is then subclassed into <code>ItemComponent</code> and <code>SkillComponent</code>:</p><pre><code class="language-python">class ItemTags(Enum):
+    BASE = 'base'
+    TARGET = 'target'
+    WEAPON = 'weapon'
+    USES = 'uses'
+    EXP = 'exp'
+    EXTRA = 'extra'
+    ADVANCED = 'advanced'
+
+class ItemComponent(Component):
+    item: Optional[ItemObject] = None  # Back-reference to the owning item
+</code></pre><p>Same structure applies for <code>SkillComponent</code> in <code>app/data/database/skill_components.py</code>.</p><h3 id="item-and-skill-components">Item and Skill Components</h3><p>Components are organized by category:</p><pre><code class="language-bash">app/engine/item_components/       # 18 Python files
+    base_components.py            # Weapon, Spell, SiegeWeapon, Usable, ...
+    weapon_components.py          # WeaponType, WeaponRank, Damage, Hit, Crit, ...
+    extra_components.py           # EffectiveDamage, Lifelink, Brave, ...
+    advanced_components.py        # MultiItem, SequenceItem, ...
+
+app/engine/skill_components/      # 17 Python files
+    base_components.py            # Unselectable, ChangeAI, ExpMultiplier, ...
+    combat2_components.py         # Miracle, Lifelink, IgnoreDamage, ...
+    status_components.py          # Aura, AuraRange, AuraTarget, ...
+</code></pre><p><strong>Simple components</strong> implement one or two hooks and return a fixed value:</p><pre><code class="language-python">class Damage(ItemComponent):
+    nid = 'damage'
+    desc = &quot;Item does damage on hit&quot;
+    tag = ItemTags.WEAPON
+    expose = ComponentType.Int  # Shows a spinbox in the editor
+    value = 0                   # Default damage value
+
+    def damage(self, unit, item):
+        &quot;&quot;&quot;Hook: return this item's base damage.&quot;&quot;&quot;
+        return self.value
+
+    def target_restrict(self, unit, item, def_pos, splash) -&gt; bool:
+        # Restricts targeting to enemies
+        defender = game.board.get_unit(def_pos)
+        if defender and skill_system.check_enemy(unit, defender):
+            return True
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
+            if s and skill_system.check_enemy(unit, s):
+                return True
+        return False
+
+    def on_hit(self, actions, playback, unit, item, target, item2,
+               target_pos, mode, attack_info):
+        damage = combat_calcs.compute_damage(
+            unit, target, item, target.get_weapon(), mode, attack_info)
+        actions.append(action.ChangeHP(target, -damage))
+</code></pre><p>Some components are purely declarative—no value, no <code>expose</code>, just facts:</p><pre><code class="language-python">class Weapon(ItemComponent):
+    nid = 'weapon'
+    desc = &quot;Item is a weapon that can be used to attack and initiate combat.&quot;
+    tag = ItemTags.BASE
+
+    def is_weapon(self, unit, item):        return True
+    def is_spell(self, unit, item):         return False
+    def equippable(self, unit, item):       return True
+    def can_counter(self, unit, item):      return True
+    def can_be_countered(self, unit, item): return True
+    def can_double(self, unit, item):       return True
+</code></pre><p>Attaching <code>Weapon</code> to an item makes it a weapon. Nothing else required.</p><p><strong>Complex components</strong> expose sub-forms and interact with multiple hooks:</p><pre><code class="language-python">class EffectiveDamage(ItemComponent):
+    nid = 'effective_damage'
+    desc = 'Damage is multiplied against certain enemy tags'
+    tag = ItemTags.EXTRA
+    expose = ComponentType.NewMultipleOptions
+
+    options = {
+        'effective_tags': (ComponentType.List, ComponentType.Tag),
+        'effective_multiplier': ComponentType.Float,
+        'effective_bonus_damage': ComponentType.Int,
+        'show_effectiveness_flash': ComponentType.Bool,
+    }
+
+    def __init__(self, value=None):
+        self.value = {
+            'effective_tags': [],
+            'effective_multiplier': 3,
+            'effective_bonus_damage': 0,
+            'show_effectiveness_flash': True,
+        }
+        if value:
+            self.value.update(value)
+
+    def dynamic_damage(self, unit, item, target, item2,
+                       mode, attack_info, base_value) -&gt; int:
+        &quot;&quot;&quot;Hook: add bonus damage if target has matching tags.&quot;&quot;&quot;
+        if self._check_effective(target):
+            might = item_system.damage(unit, item) or 0
+            return int((self.multiplier - 1.0) * might + self.bonus_damage)
+        return 0
+</code></pre><p>Notice that <code>dynamic_damage</code> <em>adds to</em> base damage instead of replacing it. This is because the hook uses an accumulation policy—more on that shortly.</p><p><strong>Paired components</strong> auto-add each other to prevent invalid states:</p><pre><code class="language-python">class Aura(SkillComponent):
+    nid = 'aura'
+    desc = &quot;Skill has an aura that gives off child skill&quot;
+    tag = SkillTags.STATUS
+    paired_with = ('aura_range', 'aura_target')  # These three are a package deal
+    expose = ComponentType.Skill
+
+class AuraRange(SkillComponent):
+    nid = 'aura_range'
+    tag = SkillTags.STATUS
+    paired_with = ('aura', 'aura_target')
+    expose = ComponentType.Int
+    value = 3
+
+class AuraTarget(SkillComponent):
+    nid = 'aura_target'
+    tag = SkillTags.STATUS
+    paired_with = ('aura', 'aura_range')
+    expose = (ComponentType.MultipleChoice, ('ally', 'enemy', 'unit'))
+    value = 'unit'
+</code></pre><p>Add any one of these in the editor and the other two appear automatically. An aura without a range makes no sense—<code>paired_with</code> prevents that invalid state from ever existing.</p><h3 id="the-hook-system">The Hook System</h3><p>The engine doesn't hard-code what items <em>do</em>. Instead, it defines a catalog of <strong>hooks</strong>—named extension points that components can implement.</p><pre><code class="language-python">ITEM_HOOKS: Dict[str, HookInfo] = {
+    # Boolean hooks (AND logic -- False if ANY returns False)
+    'is_weapon':    HookInfo(['unit', 'item'], ResolvePolicy.ALL_DEFAULT_FALSE),
+    'equippable':   HookInfo(['unit', 'item'], ResolvePolicy.ALL_DEFAULT_FALSE),
+    'can_counter':  HookInfo(['unit', 'item'], ResolvePolicy.ALL_DEFAULT_FALSE),
+    'can_double':   HookInfo(['unit', 'item'], ResolvePolicy.ALL_DEFAULT_FALSE),
+
+    # Exclusive hooks (last value wins)
+    'damage':          HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE,
+                                has_default_value=True),
+    'hit':             HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE,
+                                has_default_value=True),
+    'damage_formula':  HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE),
+
+    # Additive hooks (sum all values)
+    'dynamic_damage':  HookInfo(['unit', 'item', 'target', 'item2',
+                                 'mode', 'attack_info', 'base_value'],
+                                ResolvePolicy.NUMERIC_ACCUM),
+    'modify_damage':   HookInfo(['unit', 'item'], ResolvePolicy.NUMERIC_ACCUM),
+
+    # Fire-and-forget hooks (no return value)
+    'start_combat':    HookInfo(['playback', 'unit', 'item', 'target',
+                                 'item2', 'mode'],
+                                ResolvePolicy.NO_RETURN, inherits_parent=True),
+    'on_end_chapter':  HookInfo(['unit', 'item'],
+                                ResolvePolicy.NO_RETURN, inherits_parent=True),
+}
+</code></pre><p>Each <code>HookInfo</code> specifies the parameters the hook receives, how to combine results when multiple components implement it, whether to fall back to a <code>Defaults</code> class if nothing defines it, and whether sub-items also check their parent item's components.</p><h3 id="resolution-policies">Resolution Policies</h3><p>When multiple components on the same item implement the same hook, their return values must be combined. The <code>ResolvePolicy</code> enum defines the strategies:</p><pre><code class="language-python">class ResolvePolicy(Enum):
+    UNIQUE            = 'unique'             # Last value wins
+    ALL_DEFAULT_FALSE = 'all_false_priority' # AND logic (all must be True)
+    ALL_DEFAULT_TRUE  = 'all_true_priority'  # AND logic (default True)
+    ANY_DEFAULT_FALSE = 'any_false_priority' # OR logic (any True -&gt; True)
+    NUMERIC_ACCUM     = 'numeric_accumulate' # Sum all values
+    NUMERIC_MULTIPLY  = 'numeric_multiply'   # Multiply all values
+    NO_RETURN         = 'no_return'          # Fire all, return nothing
+    MAXIMUM           = 'maximum'
+    MINIMUM           = 'minimum'
+    LIST              = 'list'               # Collect all values into a list
+    UNION             = 'union'              # Set union of all values
+
+def unique(vals):
+    return vals[-1] if vals else None
+
+def all_false_priority(vals):
+    return all(vals) if vals else False
+
+def numeric_accumulate(vals):
+    return sum(vals)
+
+def no_return(_):
+    return None
+</code></pre><p>Here is how this plays out in practice:</p><pre><code class="language-bash">SCENARIO: Iron Sword with Weapon + Damage(8) + Hit(75)
+
+item_system.is_weapon(unit, iron_sword):
+  Weapon.is_weapon() -&gt; True
+  Policy: ALL_DEFAULT_FALSE -&gt; all([True]) -&gt; True
+
+item_system.damage(unit, iron_sword):
+  Damage.damage() -&gt; 8
+  Policy: UNIQUE -&gt; 8
+
+item_system.can_counter(unit, iron_sword):
+  Weapon.can_counter() -&gt; True
+  Policy: ALL_DEFAULT_FALSE -&gt; all([True]) -&gt; True
+
+
+SCENARIO: Siege Ballista (cannot counterattack)
+
+item_system.can_counter(unit, ballista):
+  SiegeWeapon.can_counter() -&gt; False
+  Policy: ALL_DEFAULT_FALSE -&gt; all([False]) -&gt; False
+
+
+SCENARIO: Wing Spear vs. armored unit (EffectiveDamage(tags=['Armored'], multiplier=3))
+
+item_system.dynamic_damage(unit, spear, armored_knight, ...):
+  EffectiveDamage.dynamic_damage() -&gt; 20  (the bonus damage)
+  Policy: NUMERIC_ACCUM -&gt; sum([20]) -&gt; 20 (added to base damage)
+</code></pre><h3 id="code-generation">Code Generation</h3><p>Here is something you do not see every day: the hook dispatch functions are <strong>generated at build time</strong>.</p><pre><code class="language-python">def generate_item_hook_str(hook_name: str, hook_info: HookInfo):
+    func_text = &quot;&quot;&quot;
+def {hook_name}({func_signature}):
+    all_components = get_all_components(unit, item)
+    values = []
+    for component in all_components:
+        if component.defines('{hook_name}'):
+            values.append(component.{hook_name}({args}))
+    result = utils.{policy_resolution}(values)
+    {default_handling}
+&quot;&quot;&quot;.format(...)
+    return func_text
+</code></pre><p>Running <code>compile_item_system()</code> writes the generated code to <code>app/engine/item_system.py</code>. The final dispatcher for the <code>damage</code> hook looks like this:</p><pre><code class="language-python">def damage(unit: UnitObject, item: ItemObject):
+    all_components = get_all_components(unit, item)
+    values = []
+    for component in all_components:
+        if component.defines('damage'):
+            values.append(component.damage(unit, item))
+    result = utils.unique(values)
+    return result if values else Defaults.damage(unit, item)
+</code></pre><h4 id="why-code-generation">Why Code Generation?</h4><p>Performance and debuggability. The generated code is plain Python—you can read it, step through it in a debugger, and there is no reflection overhead at runtime. The alternative, a generic dispatch function using <code>getattr</code>, would be harder to profile and trace.</p><p>The <code>get_all_components</code> function merges a unit's skill-based item overrides with the item's own components—this is how skills can modify item behavior at query time:</p><pre><code class="language-python">def get_all_components(unit: UnitObject, item: ItemObject) -&gt; list:
+    from app.engine import skill_system
+    override_components = skill_system.item_override(unit, item)
+    if not item:
+        return override_components
+    all_components = [c for c in item.components] + override_components
+    return all_components
+</code></pre><h3 id="composing-components">Composing Components</h3><p>Here is the full flow when building a Nosferatu tome (dark magic that drains HP):</p><pre><code class="language-bash">Nosferatu (ItemObject)
++-- Spell          -&gt; is_spell: True, can_counter: False, can_double: False
++-- Magic          -&gt; damage_formula: 'MAGIC_DAMAGE', resist_formula: 'MAGIC_DEFENSE'
++-- Damage(8)      -&gt; damage: 8, on_hit: apply damage
++-- Hit(70)        -&gt; hit: 70
++-- WeaponType('Dark') -&gt; weapon_type: 'Dark', available: check unit wexp
++-- Uses(30)       -&gt; tracks usage count
+`-- Lifelink(1.0)  -&gt; after_strike: heal user for 100% of damage dealt
+</code></pre><p>When combat resolves:</p><ol><li><code>item_system.is_weapon()</code> iterates all components; <code>Spell.is_weapon()</code> returns <code>False</code></li><li><code>item_system.is_spell()</code> returns <code>True</code> via <code>Spell.is_spell()</code></li><li><code>item_system.damage()</code> returns <code>8</code> via <code>Damage.damage()</code></li><li><code>item_system.damage_formula()</code> returns <code>'MAGIC_DAMAGE'</code> via <code>Magic.damage_formula()</code></li><li><code>Damage.on_hit()</code> fires, applying damage to the target</li><li><code>Lifelink.after_strike()</code> fires, reads the playback log for damage dealt, heals the user</li></ol><p>Each component does its part independently. The composition just works.</p><h3 id="serialization">Serialization</h3><p>Saving an item is elegantly simple—just a list of <code>(nid, value)</code> tuples:</p><pre><code class="language-python">{
+    'nid': 'nosferatu',
+    'name': 'Nosferatu',
+    'components': [
+        ('spell', None),
+        ('magic', None),
+        ('damage', 8),
+        ('hit', 70),
+        ('weapon_type', 'Dark'),
+        ('weapon_rank', 'D'),
+        ('uses', 30),
+        ('lifelink', 1.0),
+    ]
+}
+</code></pre><p>Loading is handled by the component registry:</p><pre><code class="language-python">def restore_component(dat):
+    nid, value = dat
+    base_class = get_item_components().get(nid)
+    if base_class:
+        return base_class(value)  # Instantiate component class with saved value
+    return None  # Unknown component? Skip it gracefully.
+</code></pre><p>This gives you both <strong>forward compatibility</strong> (old save files work with new engine versions; unknown components from removed features are simply skipped) and <strong>backward compatibility</strong> (<code>paired_with</code> auto-adds missing dependent components when loading old data).</p><p>The <code>ItemObject</code> constructor also injects components directly into the item's <code>__dict__</code>, enabling shorthand access like <code>item.weapon_type</code> instead of searching the component list every time.</p><hr><h2 id="how-it-is-used-and-extended">How It Is Used and Extended</h2><h3 id="for-game-designers-no-code-required">For Game Designers (No Code Required)</h3><p>In the editor, creating a new item is:</p><ol><li>Open the Item Editor, create a new entry (NID, name, icon)</li><li>Click &quot;Add Component&quot;, search or browse by category</li><li>Configure each component's values in the property panel</li></ol><p>Want a Brave Sword? Add <code>Weapon</code>, <code>Damage(12)</code>, <code>Hit(65)</code>, <code>WeaponType('Sword')</code>, <code>Brave</code>. Want it effective against dragons? Add <code>EffectiveDamage(tags=['Dragon'], multiplier=3)</code>. Done. No code.</p><h3 id="for-engine-developers-new-components">For Engine Developers (New Components)</h3><p>Adding a new mechanic is a ~20-line Python class:</p><pre><code class="language-python">class Vampirism(ItemComponent):
+    nid = 'vampirism'
+    desc = &quot;Heals user for a flat amount on each hit&quot;
+    tag = ItemTags.EXTRA
+    expose = ComponentType.Int
+    value = 5
+
+    def after_strike(self, actions, playback, unit, item, target,
+                     item2, mode, attack_info, strike):
+        from app.engine import action
+        true_heal = min(self.value, unit.get_max_hp() - unit.get_hp())
+        if true_heal &gt; 0:
+            actions.append(action.ChangeHP(unit, true_heal))
+</code></pre><p>Regenerate the hook dispatcher, and the component appears in the editor automatically.</p><h3 id="for-modders-custom-components-without-touching-engine-code">For Modders (Custom Components Without Touching Engine Code)</h3><pre><code class="language-python">from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+
+class PoisonOnHit(ItemComponent):
+    nid = 'poison_on_hit'
+    desc = &quot;Applies poison status to target on hit&quot;
+    tag = ItemTags.EXTRA
+    expose = ComponentType.Skill  # Select which skill to apply
+
+    def on_hit(self, actions, playback, unit, item, target,
+               item2, target_pos, mode, attack_info):
+        from app.engine import action
+        actions.append(action.AddSkill(target, self.value))
+</code></pre><p>The registry discovers it automatically at load time via <code>recursive_subclasses(ItemComponent)</code>. No registration boilerplate. No engine fork.</p><hr><h2 id="adapting-to-godot">Adapting to Godot</h2><p>The concepts transfer cleanly to GDScript. Godot 4 gives us <strong>Resources</strong> (serializable data objects—the closest analog to LT's components), <strong><code>@export</code></strong> annotations (editor-visible properties replacing <code>expose</code>), and <strong><code>has_method()</code></strong> for hook discovery.</p><h3 id="step-1-define-the-base-component-as-a-resource">Step 1: Define the Base Component as a Resource</h3><pre><code class="language-gdscript">class_name GameComponent extends Resource
+
+@export var component_id: String   # Same as LT's nid
+@export var description: String    # Same as LT's desc
+
+func defines(hook_name: String) -&gt; bool:
+    return has_method(hook_name)
+</code></pre><h3 id="step-2-create-concrete-components">Step 2: Create Concrete Components</h3><pre><code class="language-gdscript">class_name DamageComponent extends GameComponent
+
+@export var base_damage: int = 0
+
+func _init() -&gt; void:
+    component_id = &quot;damage&quot;
+    description = &quot;Item does damage on hit&quot;
+
+func damage(_unit: Node, _item: GameItem) -&gt; int:
+    return base_damage
+
+func on_hit(actions: Array, unit: Node, item: GameItem,
+            target: Node, mode: String) -&gt; void:
+    var dmg: int = CombatCalcs.compute_damage(unit, target, item, mode)
+    actions.append(ChangeHPAction.new(target, -dmg))
+</code></pre><pre><code class="language-gdscript">class_name BraveComponent extends GameComponent
+
+func _init() -&gt; void:
+    component_id = &quot;brave&quot;
+    description = &quot;Weapon attacks twice&quot;
+
+func dynamic_multiattacks(_unit: Node, _item: GameItem, _target: Node,
+                           _item2: GameItem, _mode: String,
+                           _info: Dictionary, _base: int) -&gt; int:
+    return 1
+</code></pre><h3 id="step-3-implement-resolution-policies">Step 3: Implement Resolution Policies</h3><pre><code class="language-gdscript">class_name ResolvePolicies
+
+static func unique(values: Array) -&gt; Variant:
+    return values.back() if values.size() &gt; 0 else null
+
+static func all_default_false(values: Array) -&gt; bool:
+    if values.is_empty():
+        return false
+    for v: bool in values:
+        if not v:
+            return false
+    return true
+
+static func numeric_accumulate(values: Array) -&gt; float:
+    var total := 0.0
+    for v: float in values:
+        total += v
+    return total
+</code></pre><h3 id="step-4-build-the-item-class">Step 4: Build the Item Class</h3><pre><code class="language-gdscript">class_name GameItem extends Resource
+
+@export var nid: String
+@export var item_name: String
+@export var components: Array[GameComponent] = []
+
+var data: Dictionary = {}  # Runtime scratch space
+
+func get_hook_values(hook_name: String, args: Array) -&gt; Array:
+    var values: Array = []
+    for component: GameComponent in components:
+        if component.defines(hook_name):
+            values.append(component.callv(hook_name, args))
+    return values
+</code></pre><h3 id="step-5-build-the-hook-dispatcher">Step 5: Build the Hook Dispatcher</h3><pre><code class="language-gdscript">class_name ItemSystem
+
+## Hook definitions: hook_name -&gt; resolve policy callable
+const HOOK_POLICIES: Dictionary = {
+    &quot;is_weapon&quot;:      ResolvePolicies.all_default_false,
+    &quot;damage&quot;:         ResolvePolicies.unique,
+    &quot;dynamic_damage&quot;: ResolvePolicies.numeric_accumulate,
+}
+
+static func query(item: GameItem, hook_name: String, args: Array) -&gt; Variant:
+    var values: Array = item.get_hook_values(hook_name, args)
+    var policy: Callable = HOOK_POLICIES.get(
+        hook_name, ResolvePolicies.unique)
+    return policy.call(values)
+
+static func damage(unit: Node, item: GameItem) -&gt; int:
+    return query(item, &quot;damage&quot;, [unit, item])
+
+static func is_weapon(unit: Node, item: GameItem) -&gt; bool:
+    return query(item, &quot;is_weapon&quot;, [unit, item])
+</code></pre><h3 id="step-6-leverage-godots-editor">Step 6: Leverage Godot's Editor</h3><p>Since <code>GameComponent</code> extends <code>Resource</code>, Godot's inspector natively shows <code>@export</code> fields. Create components as <code>.tres</code> files, drag them onto items, and configure them visually—no custom editor plugin needed for basic workflows. For a richer UX with component search, templates, and category browsing, you would build an <code>EditorPlugin</code>, but the core system works out of the box.</p><h3 id="architecture-comparison">Architecture Comparison</h3><table><thead><tr><th><strong>Lex Talionis (Python)</strong></th><th><strong>Godot 4 (GDScript)</strong></th></tr></thead><tbody><tr><td><code>Component</code> base class</td><td><code>GameComponent extends Resource</code></td></tr><tr><td><code>ComponentType</code> expose enum</td><td><code>@export</code> annotations</td></tr><tr><td><code>item.components</code> (Data list)</td><td><code>item.components: Array[GameComponent]</code></td></tr><tr><td><code>item.data</code> (dict)</td><td><code>item.data: Dictionary</code></td></tr><tr><td><code>defines()</code> / <code>hasattr()</code></td><td><code>defines()</code> / <code>has_method()</code></td></tr><tr><td><code>component.save()</code> → (nid, value)</td><td>Resource serialization (<code>.tres</code>)</td></tr><tr><td><code>ResolvePolicy</code> + utils.py</td><td><code>ResolvePolicies</code> static class</td></tr><tr><td><code>compile_item_system</code> (codegen)</td><td><code>ItemSystem</code> static dispatcher</td></tr><tr><td><code>recursive_subclasses</code> (registry)</td><td><code>ClassDB</code> or manual registration</td></tr><tr><td><code>paired_with</code></td><td>Custom <code>@export</code> validation</td></tr></tbody></table><h4 id="runtime-vs.build-time-dispatch">Runtime vs. Build-Time Dispatch</h4><p>Lex Talionis uses <strong>code generation</strong> to produce optimized dispatcher functions at build time. In Godot, you would use runtime dispatch via <code>callv()</code>—which is fine. GDScript's <code>callv()</code> is fast enough for SRPG-scale workloads, and you gain the ability to register new components at runtime without a codegen step.</p><hr><h2 id="extending-to-entities">Extending to Entities</h2><p>In Lex Talionis, the component system is scoped to items and skills—units use a fixed-attribute model with skills layered on top. But there is nothing stopping you from applying the same pattern to entities themselves in Godot. In fact, this is arguably the more natural approach in a node-based engine.</p><p>Instead of separate <code>Player</code>, <code>Enemy</code>, and <code>NPC</code> classes with diverging inheritance trees, define a single <code>GameEntity</code> that carries an array of <code>EntityComponent</code> resources—exactly like items carry <code>GameComponent</code> resources. The difference between a player unit, an enemy, and an NPC becomes which components they carry:</p><pre><code class="language-gdscript"># Player unit:
+var player := GameEntity.new()
+player.components = [
+    HealthComponent.new(),       # Has HP
+    StatsComponent.new(),        # Has STR, DEF, SPD, etc.
+    PlayerInputComponent.new(),  # Controlled by player
+    InventoryComponent.new(),    # Can carry items
+    MovementComponent.new(),     # Can move on the grid
+]
+
+# Enemy unit:
+var enemy := GameEntity.new()
+enemy.components = [
+    HealthComponent.new(),
+    StatsComponent.new(),
+    AIControllerComponent.new(), # Controlled by AI
+    InventoryComponent.new(),
+    MovementComponent.new(),
+    LootDropComponent.new(),     # Drops items on death
+]
+
+# Non-combatant NPC:
+var npc := GameEntity.new()
+npc.components = [
+    DialogComponent.new(),       # Can be talked to
+    MovementComponent.new(),     # Can wander
+    AIControllerComponent.new(), # Autonomous movement
+]
+</code></pre><p>The entity system queries components the same way item hooks work:</p><pre><code class="language-gdscript">class_name EntitySystem
+
+static func is_player_controlled(entity: GameEntity) -&gt; bool:
+    var values: Array = entity.query(&quot;is_player_controlled&quot;, [])
+    return ResolvePolicies.all_default_false(values)
+
+static func get_ai_action(entity: GameEntity,
+                           board: Node) -&gt; Dictionary:
+    var values: Array = entity.query(&quot;get_ai_action&quot;, [board])
+    return ResolvePolicies.unique(values)
+
+static func is_alive(entity: GameEntity) -&gt; bool:
+    var values: Array = entity.query(&quot;is_alive&quot;, [])
+    return ResolvePolicies.all_default_false(values)
+</code></pre><p>This gives you a <strong>single unified architecture</strong> across items, skills, and entities. The same hooks-and-resolution-policies pattern scales from &quot;what damage does this weapon do?&quot; to &quot;is this unit player-controlled or AI-driven?&quot;</p><hr><h2 id="conclusion">Conclusion</h2><p>The Lex Talionis Component System is a masterclass in domain-specific architecture. It does not try to be a general-purpose ECS—it is laser-focused on the problem of expressing SRPG mechanics through composition.</p><h4 id="key-takeaways">Key Takeaways</h4><ol><li><strong>Composition over inheritance</strong> is not just a textbook principle—it is the only sane way to handle the combinatorial explosion of game mechanics</li><li><strong>Hooks + Resolution Policies</strong> give you a principled way to combine multiple behaviors without ad-hoc conflict resolution</li><li><strong>Code generation</strong> can bridge the gap between a declarative hook definition and efficient runtime dispatch</li><li><strong>Self-describing components</strong> (<code>expose</code>, <code>desc</code>, <code>paired_with</code>) enable automatic editor UI generation and prevent invalid configurations</li><li><strong>Simple serialization</strong> (<code>(nid, value)</code> tuples) makes the system robust to version changes and trivial to debug</li></ol><p>Whether you are building in Python, Godot, Unity, or Bevy, the pattern transfers. Define your hooks. Define your resolution policies. Let components implement whatever subset of hooks they care about. Compose freely.</p><hr><p><em>This document references our private dev fork of the Lex Talionis engine <a href="https://github.com/WhiteLicorice/lt-maker-indie">here</a>, where I work together with some other contributors to produce a fork of the engine suitable for deployment on Steam and other commercial platforms. All code snippets are drawn from the codebase and lightly adapted for clarity. You may view the master branch of the Lex Talionis engine at my personal <a href="https://github.com/WhiteLicorice/lt-maker">mirror</a> or at the <a href="https://gitlab.com/rainlash/lt-maker">source</a>.</em></p></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script></main><footer id="footer" class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js"></script><script src="js/calendar.js"></script><script src="js/code-features.js"></script><script src="js/scroll-button.js"></script><script src="js/toc.js"></script><script src="js/site.js"></script><script src="https://keepandroidopen.org/banner.js?id=header&hidebutton=off"></script></body></html>
