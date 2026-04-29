@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses (cmsc-197-gdd)</title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>Latest course materials and announcements.</description>
+    <language>en-us</language>
+    
+        <item>
+            <title>Find Me If You Can</title>
+            <subtitle>CMSC 197 GDD Case Study 3</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-cs3</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-cs3</guid>
+            <pubDate>Tue, 24 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Pathfinding and AI.</description>
+        </item>
+        <item>
+            <title>Glurg glurg glurg!</title>
+            <subtitle>CMSC 197 GDD Machine Problem 3</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp3</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp3</guid>
+            <pubDate>Tue, 24 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Yet Another Vampire Survivors Clone.</description>
+        </item>
+        <item>
+            <title>Jungle Jump Pt. 2</title>
+            <subtitle>CMSC 197 GDD Activity 6</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act6</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act6</guid>
+            <pubDate>Mon, 16 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Platformer Movement</description>
+        </item>
+        <item>
+            <title>Shipping Itch.io</title>
+            <subtitle>CMSC 197 GDD Shipping Guide</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-pubitch</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-pubitch</guid>
+            <pubDate>Mon, 09 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Going indie.</description>
+        </item>
+        <item>
+            <title>Jungle Jump Pt. 1</title>
+            <subtitle>CMSC 197 GDD Activity 5</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act5</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act5</guid>
+            <pubDate>Mon, 09 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Animation Players and State Machines.</description>
+        </item>
+        <item>
+            <title>Cook Better Spaghetti</title>
+            <subtitle>CMSC 197 GDD Case Study 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-cs1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-cs1</guid>
+            <pubDate>Mon, 09 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Composition over Inheritance.</description>
+        </item>
+        <item>
+            <title>The Stack Is Your Friend</title>
+            <subtitle>CMSC 197 GDD Case Study 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-cs2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-cs2</guid>
+            <pubDate>Mon, 09 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Finite State Machines and Pushdown Automata.</description>
+        </item>
+        <item>
+            <title>Om nom nom!</title>
+            <subtitle>CMSC 197 GDD Machine Problem 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp2</guid>
+            <pubDate>Sun, 01 Mar 2026 16:00:00 +0000</pubDate>
+            <description>Yet Another Feeding Frenzy Clone.</description>
+        </item>
+        <item>
+            <title>Coin Dash Pt. 3</title>
+            <subtitle>CMSC 197 GDD Activity 4</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act4</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act4</guid>
+            <pubDate>Thu, 05 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Building the HUD.</description>
+        </item>
+        <item>
+            <title>Pitch Perfect</title>
+            <subtitle>CMSC 197 GDD Pitching Guidelines</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-pitch</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-pitch</guid>
+            <pubDate>Mon, 02 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Your guide to GDD presentations.</description>
+        </item>
+        <item>
+            <title>Coin Dash Pt. 2</title>
+            <subtitle>CMSC 197 GDD Activity 3</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act3</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act3</guid>
+            <pubDate>Mon, 02 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Building the Coin Scene.</description>
+        </item>
+        <item>
+            <title>Flap flap flap!</title>
+            <subtitle>CMSC 197 GDD Machine Problem 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-mp1</guid>
+            <pubDate>Mon, 02 Feb 2026 16:00:00 +0000</pubDate>
+            <description>Yet Another Flappy Bird Clone.</description>
+        </item>
+        <item>
+            <title>Coin Dash Pt. 1</title>
+            <subtitle>CMSC 197 GDD Activity 2</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act2</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act2</guid>
+            <pubDate>Thu, 29 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Building the Player Scene.</description>
+        </item>
+        <item>
+            <title>Portfolio Project</title>
+            <subtitle>CMSC 197 GDD Final Output</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-livdocs</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-livdocs</guid>
+            <pubDate>Wed, 28 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Gamedev from concept to deployment.</description>
+        </item>
+        <item>
+            <title>Link, Start!</title>
+            <subtitle>CMSC 197 GDD Activity 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act1</guid>
+            <pubDate>Mon, 26 Jan 2026 16:00:00 +0000</pubDate>
+            <description>GDQuest on!</description>
+        </item>
+        <item>
+            <title>Pre-Jamming</title>
+            <subtitle>CMSC 197 GDD Activity 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-197-gdd-act0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-197-gdd-act0</guid>
+            <pubDate>Sun, 18 Jan 2026 16:00:00 +0000</pubDate>
+            <description>Pre-game, boss?</description>
+        </item>
+</channel>
+</rss>

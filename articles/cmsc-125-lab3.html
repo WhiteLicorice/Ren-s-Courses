@@ -1,0 +1,496 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/Ren-s-Courses/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css" rel="stylesheet"><link href="css/site.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="preload" href="css/prism-dark.css" as="style"><link rel="preload" href="css/prism-light.css" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css"><script>!function(){var e=window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("user-theme"),m="dark";m="light"===t?"light":"dark"===t||e?"dark":"light",document.documentElement.setAttribute("data-theme",m),"light"===m&&(document.getElementById("prism-theme-link").href="css/prism-light.css")}()</script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js" integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js" integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="manifest" href="site.webmanifest.json"><meta name="theme-color" content="#ef4444"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex lg:w-0 lg:flex-1"><a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="materials" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Materials</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><div class="relative"><button id="desktop-dropdown-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors"><span class="sr-only">More menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto"><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Submissions</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Toggle Theme"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Submissions</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>const menuContainer=document.querySelector("#mobile-menu-container"),backdrop=document.querySelector("#mobile-backdrop"),toggleBtn=document.querySelector("#toggle-button"),closeBtn=document.querySelector("#close-mobile-menu-button"),toggleMobileMenu=()=>{menuContainer.classList.contains("hidden")?(menuContainer.classList.remove("hidden"),document.body.classList.add("overflow-hidden")):(menuContainer.classList.add("hidden"),document.body.classList.remove("overflow-hidden"))};toggleBtn.addEventListener("click",toggleMobileMenu),closeBtn.addEventListener("click",toggleMobileMenu),backdrop.addEventListener("click",toggleMobileMenu);const desktopBtn=document.getElementById("desktop-dropdown-btn"),desktopMenu=document.getElementById("desktop-dropdown-menu");function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{e.forEach(e=>{const n=e.querySelector(".icon-sun"),o=e.querySelector(".icon-moon");"light"===t?(n.classList.add("hidden"),o.classList.remove("hidden")):(o.classList.add("hidden"),n.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}desktopBtn&&desktopMenu&&(desktopBtn.addEventListener("click",e=>{e.stopPropagation(),desktopMenu.classList.toggle("hidden")}),document.addEventListener("click",e=>{desktopMenu.classList.contains("hidden")||desktopMenu.contains(e.target)||e.target===desktopBtn||desktopMenu.classList.add("hidden")})),initThemeToggle();let lastScrollTop=0;const navbar=document.getElementById("main-navbar");window.addEventListener("scroll",function(){let e=window.pageYOffset||document.documentElement.scrollTop;if(e<=64)return navbar.classList.remove("-translate-y-full"),void(lastScrollTop=e);e>lastScrollTop?(navbar.classList.add("-translate-y-full"),desktopMenu&&!desktopMenu.classList.contains("hidden")&&desktopMenu.classList.add("hidden"),menuContainer.classList.contains("hidden")?navbar.classList.add("-translate-y-full"):navbar.classList.remove("-translate-y-full")):navbar.classList.remove("-translate-y-full"),lastScrollTop=e})</script><header id="header"></header><main id="main" class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-125" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-125</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">Concurrent Banking</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 125 Lab 3</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>March 25, 2026</time></div><a href="https://drive.google.com/file/d/1aNUijfoRcxsVu8QJSQt8JhxupaxfQpWL/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-accent hover:text-text-main transition-colors group text-sm font-medium mt-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-y-0.5"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"></path><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"></path></svg> <span class="border-b border-accent/30 group-hover:border-text-main pb-0.5">Download</span></a></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><p>This laboratory assignment focuses on concurrency control in a multi-threaded banking system using real POSIX threads (pthreads) and synchronization primitives. You will build an in-memory bank that processes concurrent transactions, implements proper isolation through locking, manages a bounded buffer pool with semaphores, and handles deadlock through either prevention or detection. Through this exercise, you will gain hands-on experience with the classical concurrency problems that real systems confront every day.</p><hr><h2 id="background">Background</h2><p>Modern banking systems must handle thousands of concurrent transactions—deposits, withdrawals, and transfers that read and modify shared account balances. Without proper concurrency control, chaos ensues: one transaction's partial updates become visible to others, two transactions overwrite each other's changes (the lost update problem), or the system deadlocks entirely when transactions wait circularly for locks.</p><p>Your task is to build a working multi-threaded banking system that correctly serializes conflicting operations while allowing safe concurrency where possible. This is not a simulation—you will use real pthreads, real mutexes and reader-writer locks, real semaphores, and experience real race conditions if you get the synchronization wrong.</p><hr><h2 id="learning-objectives">Learning Objectives</h2><p>By the end of this laboratory exercise, students should be able to:</p><ul><li>Implement multi-threaded programs using the POSIX threads API (<code>pthread_create</code>, <code>pthread_join</code>)</li><li>Protect shared data structures with mutual exclusion using <code>pthread_mutex_t</code></li><li>Implement reader-writer synchronization using <code>pthread_rwlock_t</code></li><li>Solve the bounded-buffer problem using semaphores (<code>sem_t</code>)</li><li>Implement deadlock prevention through lock ordering OR deadlock detection through cycle detection</li><li>Simulate time progression using a timer thread</li><li>Debug race conditions and data corruption using ThreadSanitizer</li><li>Measure concurrency performance (throughput, lock contention, wait times)</li><li>Explain how classical concurrency problems appear in real banking systems</li></ul><hr><h2 id="task">Task</h2><p>Build a concurrent banking system (<code>bankdb</code>) that:</p><ul><li>Stores bank accounts with balances (integer centavos)</li><li>Executes transactions concurrently using real pthreads</li><li>Uses a timer thread to simulate time progression (global clock)</li><li>Implements transaction isolation using reader-writer locks</li><li>Prevents OR detects deadlock (choose one strategy)</li><li>Manages a bounded buffer pool with semaphores</li><li>Reads transaction workloads from provided trace files</li><li>Outputs transaction logs, lock wait times, and concurrency metrics</li><li>Demonstrates correctness under ThreadSanitizer with zero warnings</li></ul><hr><h2 id="system-architecture">System Architecture</h2><h3 id="data-model">Data Model</h3><p>Everything in this system is money. The database contains bank accounts with integer balances in centavos:</p><pre><code class="language-c">#define MAX_ACCOUNTS 100
+
+typedef struct {
+    int account_id;          // Account number
+    int balance_centavos;    // Balance in centavos
+    pthread_rwlock_t lock;   // Per-account lock
+} Account;
+
+typedef struct {
+    Account accounts[MAX_ACCOUNTS];
+    int num_accounts;
+    pthread_mutex_t bank_lock;  // Protects bank metadata
+} Bank;
+</code></pre><h3 id="transaction-types">Transaction Types</h3><p>A transaction is a sequence of banking operations:</p><pre><code class="language-c">typedef enum {
+    OP_DEPOSIT,   // Add money to account
+    OP_WITHDRAW,  // Remove money from account
+    OP_TRANSFER,  // Move money between two accounts
+    OP_BALANCE,   // Read account balance
+} OpType;
+
+typedef struct {
+    OpType type;
+    int account_id;          // Primary account
+    int amount_centavos;     // Amount in centavos
+    int target_account;      // For TRANSFER only
+} Operation;
+
+typedef enum {
+    TX_RUNNING,
+    TX_COMMITTED,
+    TX_ABORTED
+} TxStatus;
+
+typedef struct {
+    int tx_id;
+    Operation ops[256];    // Max 256 operations per transaction
+    int num_ops;
+    int start_tick;       // When transaction should start
+    pthread_t thread;
+    
+    // Timing (measured in ticks)
+    int actual_start;
+    int actual_end;
+    int wait_ticks;
+    
+    // Status
+    TxStatus status;
+} Transaction;
+</code></pre><h3 id="time-simulation">Time Simulation</h3><p>Your system must simulate time using a <strong>timer thread</strong> that increments a global clock:</p><pre><code class="language-c">// Global simulation clock (shared by all threads)
+volatile int global_tick = 0;
+pthread_mutex_t tick_lock;
+pthread_cond_t tick_changed;
+
+// Timer thread increments clock every TICK_INTERVAL_MS
+void* timer_thread(void* arg) {
+    while (simulation_running) {
+        pthread_mutex_lock(&amp;tick_lock);
+        usleep(TICK_INTERVAL_MS * 1000);  // Sleep to simulate a tick
+        global_tick++;
+        pthread_cond_broadcast(&amp;tick_changed);  // Wake waiting
+        pthread_mutex_unlock(&amp;tick_lock);
+    }
+    return NULL;
+}
+
+// Transactions wait until their start_tick
+void wait_until_tick(int target_tick) {
+    pthread_mutex_lock(&amp;tick_lock);
+    while (global_tick &lt; target_tick) {
+        pthread_cond_wait(&amp;tick_changed, &amp;tick_lock);
+    }
+    pthread_mutex_unlock(&amp;tick_lock);
+}
+</code></pre><p><em>Think: Why do we need a timer thread instead of just processing operations sequentially? What concurrency does this enable?</em></p><hr><h2 id="required-features">Required Features</h2><h3 id="part-1-multi-threaded-transaction-execution">Part 1: Multi-threaded Transaction Execution</h3><p>Each transaction runs in its own pthread and waits for the correct tick before starting:</p><pre><code class="language-c">void* execute_transaction(void* arg) {
+    Transaction* tx = (Transaction*)arg;
+    
+    // Wait until scheduled start time
+    wait_until_tick(tx-&gt;start_tick);
+    
+    tx-&gt;actual_start = global_tick;
+    
+    for (int i = 0; i &lt; tx-&gt;num_ops; i++) {
+        Operation* op = &amp;tx-&gt;ops[i];
+        
+        int tick_before = global_tick;
+        
+        switch (op-&gt;type) {
+            case OP_DEPOSIT:
+                deposit(op-&gt;account_id, op-&gt;amount_centavos);
+                break;
+                
+            case OP_WITHDRAW:
+                if (!withdraw(op-&gt;account_id, op-&gt;amount_centavos)) {
+                    // Insufficient funds - abort transaction
+                    tx-&gt;status = TX_ABORTED;
+                    return NULL;
+                }
+                break;
+                
+            case OP_TRANSFER:
+                if (!transfer(op-&gt;account_id, op-&gt;target_account,
+                              op-&gt;amount_centavos)) {
+                    tx-&gt;status = TX_ABORTED;
+                    return NULL;
+                }
+                break;
+                
+            case OP_BALANCE:
+                int balance = get_balance(op-&gt;account_id);
+                printf(&quot;T%d: Account %d balance = PHP %d.%02d\n&quot;, 
+                       tx-&gt;tx_id, op-&gt;account_id, 
+                       balance / 100, balance % 100);
+                break;
+        }
+        
+        tx-&gt;wait_ticks += (global_tick - tick_before);
+    }
+    
+    tx-&gt;actual_end = global_tick;
+    tx-&gt;status = TX_COMMITTED;
+    return NULL;
+}
+</code></pre><h3 id="part-2-reader-writer-locks-for-account-access">Part 2: Reader-Writer Locks for Account Access</h3><p>Use <code>pthread_rwlock_t</code> to allow multiple balance queries or one writer per account:</p><pre><code class="language-c">int get_balance(int account_id) {
+    Account* acc = &amp;bank.accounts[account_id];
+    
+    pthread_rwlock_rdlock(&amp;acc-&gt;lock);
+    int balance = acc-&gt;balance_centavos;
+    pthread_rwlock_unlock(&amp;acc-&gt;lock);
+    
+    return balance;
+}
+
+void deposit(int account_id, int amount_centavos) {
+    Account* acc = &amp;bank.accounts[account_id];
+    
+    pthread_rwlock_wrlock(&amp;acc-&gt;lock);
+    acc-&gt;balance_centavos += amount_centavos;
+    pthread_rwlock_unlock(&amp;acc-&gt;lock);
+}
+
+bool withdraw(int account_id, int amount_centavos) {
+    Account* acc = &amp;bank.accounts[account_id];
+    
+    pthread_rwlock_wrlock(&amp;acc-&gt;lock);
+    
+    if (acc-&gt;balance_centavos &lt; amount_centavos) {
+        pthread_rwlock_unlock(&amp;acc-&gt;lock);
+        return false;  // Insufficient funds
+    }
+    
+    acc-&gt;balance_centavos -= amount_centavos;
+    pthread_rwlock_unlock(&amp;acc-&gt;lock);
+    return true;
+}
+
+bool transfer(int from_id, int to_id, int amount_centavos) {
+    // This is where deadlock can occur!
+    // See Part 3 for proper implementation
+}
+</code></pre><h3 id="part-3-deadlock-handling-choose-one-strategy">Part 3: Deadlock Handling (Choose ONE Strategy)</h3><p>The <code>transfer</code> operation acquires locks on two accounts. If two transactions transfer in opposite directions simultaneously, deadlock occurs.</p><p><strong>You must choose and implement ONE of the following strategies:</strong></p><h4 id="strategy-a-deadlock-prevention-via-lock-ordering">Strategy A: Deadlock Prevention via Lock Ordering</h4><p>Always acquire locks in ascending order of account ID:</p><pre><code class="language-c">bool transfer(int from_id, int to_id, int amount_centavos) {
+    // Acquire locks in consistent order to prevent deadlock
+    int first = (from_id &lt; to_id) ? from_id : to_id;
+    int second = (from_id &lt; to_id) ? to_id : from_id;
+    
+    Account* acc_first = &amp;bank.accounts[first];
+    Account* acc_second = &amp;bank.accounts[second];
+    
+    pthread_rwlock_wrlock(&amp;acc_first-&gt;lock);
+    pthread_rwlock_wrlock(&amp;acc_second-&gt;lock);
+    
+    // Check sufficient funds
+    Account* from_acc = &amp;bank.accounts[from_id];
+    if (from_acc-&gt;balance_centavos &lt; amount_centavos) {
+        pthread_rwlock_unlock(&amp;acc_second-&gt;lock);
+        pthread_rwlock_unlock(&amp;acc_first-&gt;lock);
+        return false;
+    }
+    
+    // Perform transfer
+    bank.accounts[from_id].balance_centavos -= amount_centavos;
+    bank.accounts[to_id].balance_centavos += amount_centavos;
+    
+    pthread_rwlock_unlock(&amp;acc_second-&gt;lock);
+    pthread_rwlock_unlock(&amp;acc_first-&gt;lock);
+    return true;
+}
+</code></pre><p><em>Which Coffman condition does lock ordering break?</em></p><h4 id="strategy-b-deadlock-detection-via-wait-for-graph">Strategy B: Deadlock Detection via Wait-For Graph</h4><p>Maintain a wait-for graph and detect cycles using DFS:</p><pre><code class="language-c">typedef struct {
+    int tx_id;
+    int waiting_for_tx;  // -1 if not waiting
+    int waiting_for_account;
+} WaitForEntry;
+
+WaitForEntry wait_graph[MAX_TRANSACTIONS];
+pthread_mutex_t graph_lock;
+
+// When a transaction blocks on a lock, record it
+void record_wait(int tx_id, int account_id, int holder_tx) {
+    pthread_mutex_lock(&amp;graph_lock);
+    wait_graph[tx_id].tx_id = tx_id;
+    wait_graph[tx_id].waiting_for_tx = holder_tx;
+    wait_graph[tx_id].waiting_for_account = account_id;
+    pthread_mutex_unlock(&amp;graph_lock);
+}
+
+// DFS-based cycle detection
+bool has_cycle(int tx_id, bool* visited, bool* rec_stack) {
+    visited[tx_id] = true;
+    rec_stack[tx_id] = true;
+    
+    int next = wait_graph[tx_id].waiting_for_tx;
+    if (next != -1) {
+        if (!visited[next]) {
+            if (has_cycle(next, visited, rec_stack)) {
+                return true;
+            }
+        } else if (rec_stack[next]) {
+            return true;  // Cycle detected!
+        }
+    }
+    
+    rec_stack[tx_id] = false;
+    return false;
+}
+
+bool detect_deadlock() {
+    pthread_mutex_lock(&amp;graph_lock);
+    
+    bool visited[MAX_TRANSACTIONS] = {false};
+    bool rec_stack[MAX_TRANSACTIONS] = {false};
+    
+    for (int i = 0; i &lt; num_active_transactions; i++) {
+        if (!visited[i]) {
+            if (has_cycle(i, visited, rec_stack)) {
+                pthread_mutex_unlock(&amp;graph_lock);
+                return true;
+            }
+        }
+    }
+    
+    pthread_mutex_unlock(&amp;graph_lock);
+    return false;
+}
+</code></pre><p>If deadlock is detected, abort the youngest transaction in the cycle.</p><p><strong>Note:</strong> Strategy A (prevention) is easier to implement correctly. Strategy B (detection) is more challenging but demonstrates deeper understanding of deadlock theory.</p><h3 id="part-4-bounded-buffer-pool-with-semaphores">Part 4: Bounded Buffer Pool with Semaphores</h3><p><strong>Purpose:</strong> This component demonstrates the bounded-buffer (producer-consumer) problem. The buffer pool has a fixed size, and semaphores coordinate producers (transactions loading accounts) and consumers (transactions unloading accounts).</p><p>The bank maintains a limited buffer pool for loading account data from the &quot;disk&quot; (simulated):</p><pre><code class="language-c">#define BUFFER_POOL_SIZE 5
+
+typedef struct {
+    int account_id;
+    Account* data;
+    bool in_use;
+} BufferSlot;
+
+typedef struct {
+    BufferSlot slots[BUFFER_POOL_SIZE];
+    sem_t empty_slots;
+    sem_t full_slots;
+    pthread_mutex_t pool_lock;
+} BufferPool;
+
+void init_buffer_pool(BufferPool* pool) {
+    sem_init(&amp;pool-&gt;empty_slots, 0, BUFFER_POOL_SIZE);
+    sem_init(&amp;pool-&gt;full_slots, 0, 0);
+    pthread_mutex_init(&amp;pool-&gt;pool_lock, NULL);
+}
+
+// Load account into buffer pool (producer)
+void load_account(BufferPool* pool, int account_id) {
+    sem_wait(&amp;pool-&gt;empty_slots);  // Wait for empty slot
+    
+    pthread_mutex_lock(&amp;pool-&gt;pool_lock);
+    
+    // Find empty slot and load account
+    for (int i = 0; i &lt; BUFFER_POOL_SIZE; i++) {
+        if (!pool-&gt;slots[i].in_use) {
+            pool-&gt;slots[i].account_id = account_id;
+            pool-&gt;slots[i].data = &amp;bank.accounts[account_id];
+            pool-&gt;slots[i].in_use = true;
+            break;
+        }
+    }
+    
+    pthread_mutex_unlock(&amp;pool-&gt;pool_lock);
+    
+    sem_post(&amp;pool-&gt;full_slots);  // Signal slot is full
+}
+
+// Unload account from buffer pool (consumer)
+void unload_account(BufferPool* pool, int account_id) {
+    sem_wait(&amp;pool-&gt;full_slots);  // Wait for full slot
+    
+    pthread_mutex_lock(&amp;pool-&gt;pool_lock);
+    
+    // Find and unload account
+    for (int i = 0; i &lt; BUFFER_POOL_SIZE; i++) {
+        if (pool-&gt;slots[i].in_use &amp;&amp;
+            pool-&gt;slots[i].account_id == account_id) {
+            pool-&gt;slots[i].in_use = false;
+            pool-&gt;slots[i].account_id = -1;
+            break;
+        }
+    }
+    
+    pthread_mutex_unlock(&amp;pool-&gt;pool_lock);
+    
+    sem_post(&amp;pool-&gt;empty_slots);  // Signal slot is empty
+}
+</code></pre><p><strong>Integration with banking operations:</strong> You must decide when to load/unload accounts to/from the buffer pool. This decision must be documented in your <code>design.md</code>. Possible strategies:</p><ul><li>Load on first access, unload on transaction commit</li><li>Load all accounts transaction needs at start, unload all at end</li><li>Load/unload per operation</li><li>Implement an LRU eviction policy</li></ul><p>There is no single correct answer—justify your choice with reasoning about performance and correctness.</p><hr><h2 id="input-format">Input Format</h2><h3 id="trace-file-format">Trace File Format</h3><p>We provide trace files in the following format:</p><pre><code class="language-bash"># Banking transaction trace
+# Format: TxID  StartTick  Operation  AccountID  [Amount]  [TargetAccount]
+
+# Transaction 1: Simple deposit
+T1  0  DEPOSIT   10  5000
+
+# Transaction 2: Withdrawal
+T2  1  WITHDRAW  10  2000
+
+# Transaction 3: Transfer (can deadlock with T4)
+T3  2  TRANSFER  10  20  3000
+
+# Transaction 4: Concurrent transfer in opposite direction
+T4  2  TRANSFER  20  10  1500
+
+# Transaction 5: Balance inquiry
+T5  5  BALANCE   10
+</code></pre><p>Lines beginning with <code>#</code> are comments. Operations are:</p><ul><li><code>DEPOSIT account_id amount</code>: Add amount centavos to account</li><li><code>WITHDRAW account_id amount</code>: Remove amount centavos (abort if insufficient)</li><li><code>TRANSFER from_id to_id amount</code>: Move amount from one account to another</li><li><code>BALANCE account_id</code>: Read and print account balance</li></ul><h3 id="initial-account-balances">Initial Account Balances</h3><p>Your program must load initial balances from a separate file:</p><pre><code class="language-bash"># AccountID  InitialBalanceCentavos
+0   10000
+1   25000
+10  50000
+20  30000
+</code></pre><h3 id="command-line-interface">Command-line Interface</h3><pre><code class="language-bash">$ ./bankdb --accounts=accounts.txt --trace=trace.txt \
+           --deadlock=prevention --tick-ms=100
+
+$ ./bankdb --accounts=accounts.txt --trace=trace.txt \
+           --deadlock=detection --tick-ms=50 --verbose
+</code></pre><p>Required options:</p><ul><li><code>--accounts=FILE</code>: Initial account balances</li><li><code>--trace=FILE</code>: Transaction workload</li><li><code>--deadlock=prevention|detection</code>: Deadlock strategy</li><li><code>--tick-ms=N</code>: Milliseconds per tick (default: 100)</li><li><code>--verbose</code>: Print detailed operation logs</li></ul><hr><h2 id="expected-output">Expected Output</h2><h3 id="transaction-log">Transaction Log</h3><pre><code class="language-bash">=== Banking System Execution Log ===
+Timer thread started (tick interval: 100ms)
+
+Tick 0:
+  T1 started: DEPOSIT account 10 amount PHP 50.00
+
+Tick 1:
+  T1 completed: DEPOSIT successful
+  T2 started: WITHDRAW account 10 amount PHP 20.00
+
+Tick 2:
+  T2 completed: WITHDRAW successful
+  T3 started: TRANSFER from 10 to 20 amount PHP 30.00
+  T4 started: TRANSFER from 20 to 10 amount PHP 15.00
+
+Tick 3:
+  T3 acquired lock on account 10
+  T4 acquired lock on account 20
+  [DEADLOCK PREVENTED] Lock ordering: T3 waiting for account 20
+  [DEADLOCK PREVENTED] Lock ordering: T4 waiting for account 10
+
+Tick 4:
+  T3 completed: TRANSFER successful
+  T4 completed: TRANSFER successful
+
+Tick 5:
+  T5 started: BALANCE account 10
+  T5: Account 10 balance = PHP 145.00
+
+=== Summary ===
+Total transactions: 5
+Committed: 5
+Aborted: 0
+Total ticks: 6
+ThreadSanitizer warnings: 0
+</code></pre><h3 id="detailed-metrics">Detailed Metrics</h3><pre><code class="language-bash">=== Transaction Performance Metrics ===
+TxID | StartTick | ActualStart | End | WaitTicks | Status
+-----|-----------|-------------|-----|-----------|----------
+T1   |     0     |      0      |  1  |     0     | COMMITTED
+T2   |     1     |      1      |  2  |     0     | COMMITTED
+T3   |     2     |      2      |  4  |     1     | COMMITTED
+T4   |     2     |      2      |  4  |     1     | COMMITTED
+T5   |     5     |      5      |  5  |     0     | COMMITTED
+
+Average wait time: 0.4 ticks
+Throughput: 5 transactions / 6 ticks = 0.83 tx/tick
+</code></pre><h3 id="buffer-pool-statistics">Buffer Pool Statistics</h3><pre><code class="language-bash">=== Buffer Pool Report ===
+Pool size: 5 slots
+Total loads: 8
+Total unloads: 8
+Peak usage: 4 slots
+Blocked operations (pool full): 0
+</code></pre><hr><h2 id="provided-test-cases">Provided Test Cases</h2><p>We provide the following trace files that your program MUST handle correctly.</p><h3 id="test-1-no-conflicts-trace_simple.txt">Test 1: No Conflicts (trace_simple.txt)</h3><pre><code class="language-bash"># Single-threaded sequential operations
+T1  0  DEPOSIT   10  10000
+T1  1  WITHDRAW  10  2000
+T1  2  BALANCE   10
+</code></pre><p>Expected: All operations succeed, account 10 final balance = PHP 80.00</p><h3 id="test-2-concurrent-readers-trace_readers.txt">Test 2: Concurrent Readers (trace_readers.txt)</h3><pre><code class="language-bash"># Multiple transactions reading same account simultaneously
+T1  0  BALANCE   10
+T2  0  BALANCE   10
+T3  0  BALANCE   10
+T4  0  BALANCE   10
+</code></pre><p>Expected: All complete at same tick (reader-writer lock allows concurrent reads)</p><h3 id="test-3-deadlock-scenario-trace_deadlock.txt">Test 3: Deadlock Scenario (trace_deadlock.txt)</h3><pre><code class="language-bash"># Two transfers in opposite directions
+T1  0  TRANSFER  10  20  5000
+T2  0  TRANSFER  20  10  3000
+</code></pre><p>Expected:</p><ul><li>With <code>--deadlock=prevention</code>: Both succeed, lock ordering prevents deadlock</li><li>With <code>--deadlock=detection</code>: Deadlock detected, one transaction aborted</li></ul><h3 id="test-4-insufficient-funds-trace_abort.txt">Test 4: Insufficient Funds (trace_abort.txt)</h3><pre><code class="language-bash"># Initial: Account 10 has PHP 100.00
+T1  0  WITHDRAW  10  15000
+</code></pre><p>Expected: T1 aborts with insufficient funds error</p><h3 id="test-5-buffer-pool-saturation-trace_buffer.txt">Test 5: Buffer Pool Saturation (trace_buffer.txt)</h3><pre><code class="language-bash"># Load more accounts than buffer pool size (pool = 5 slots)
+T1  0  DEPOSIT   1  1000
+T2  0  DEPOSIT   2  1000
+T3  0  DEPOSIT   3  1000
+T4  0  DEPOSIT   4  1000
+T5  0  DEPOSIT   5  1000
+T6  0  DEPOSIT   6  1000
+</code></pre><p>Expected: T6 blocks until a buffer slot is freed (demonstrates bounded buffer)</p><hr><h2 id="testing-strategy">Testing Strategy</h2><h3 id="correctness-testing">Correctness Testing</h3><h4 id="test-1-threadsanitizer-zero-warnings-required">Test 1: ThreadSanitizer (Zero Warnings Required)</h4><pre><code class="language-bash">$ make debug  # Compiles with -fsanitize=thread
+$ ./bankdb --accounts=accounts.txt --trace=trace_readers.txt \
+           --deadlock=prevention
+
+# YOUR PROGRAM MUST PRODUCE ZERO ThreadSanitizer WARNINGS
+# Any data race detected = automatic failure
+</code></pre><h4 id="test-2-deadlock-handling">Test 2: Deadlock Handling</h4><pre><code class="language-bash"># Prevention strategy
+$ ./bankdb --accounts=accounts.txt --trace=trace_deadlock.txt \
+           --deadlock=prevention --verbose
+
+# Expected output must show:
+# - Lock ordering applied
+# - Both transactions complete
+# - No deadlock occurred
+
+# Detection strategy
+$ ./bankdb --accounts=accounts.txt --trace=trace_deadlock.txt \
+           --deadlock=detection --verbose
+
+# Expected output must show:
+# - Deadlock detected
+# - One transaction aborted
+# - Other transaction completed
+</code></pre><h4 id="test-3-balance-consistency">Test 3: Balance Consistency</h4><p>After all transactions complete, verify total money in system is conserved:</p><pre><code class="language-bash"># Your program must print:
+Initial total: PHP 1150.00
+Final total:   PHP 1150.00
+Conservation check: PASSED
+</code></pre><h3 id="performance-testing">Performance Testing</h3><p>Compare reader-writer locks vs. plain mutexes on read-heavy workload:</p><pre><code class="language-bash"># Modify your code to use pthread_mutex_t instead of pthread_rwlock_t
+$ ./bankdb --trace=trace_readers.txt --tick-ms=10
+# Record: &quot;Completed in X ticks&quot;
+
+# Switch back to pthread_rwlock_t
+$ ./bankdb --trace=trace_readers.txt --tick-ms=10
+# Record: &quot;Completed in Y ticks&quot;
+
+# rwlock should be faster (lower Y) on read-heavy workload
+</code></pre><p>Document this comparison in your <code>design.md</code>.</p><hr><h2 id="implementation-notes">Implementation Notes</h2><h3 id="timing-measurements">Timing Measurements</h3><p>Use the global tick counter, not wall-clock time:</p><pre><code class="language-c">void deposit(int account_id, int amount_centavos) {
+    int tick_before = global_tick;
+    
+    pthread_rwlock_wrlock(&amp;bank.accounts[account_id].lock);
+    
+    int tick_after = global_tick;
+    int wait_ticks = tick_after - tick_before;
+    
+    // Perform operation
+    bank.accounts[account_id].balance_centavos += amount_centavos;
+    
+    pthread_rwlock_unlock(&amp;bank.accounts[account_id].lock);
+}
+</code></pre><h3 id="thread-synchronization-for-timer">Thread Synchronization for Timer</h3><p>The timer thread must signal waiting transactions when the tick advances:</p><pre><code class="language-c">void* timer_thread(void* arg) {
+    while (!all_transactions_done) {
+        usleep(tick_interval_ms * 1000);
+        
+        pthread_mutex_lock(&amp;tick_lock);
+        global_tick++;
+        
+        // Wake all transactions waiting for this tick
+        pthread_cond_broadcast(&amp;tick_changed);
+        
+        pthread_mutex_unlock(&amp;tick_lock);
+    }
+    return NULL;
+}
+</code></pre><h3 id="common-pitfalls">Common Pitfalls</h3><ul><li><strong>Forgetting to unlock</strong>: Always release locks even on error paths</li><li><strong>Lock after free</strong>: Release lock AFTER you're done reading/writing the data</li><li><strong>Deadlock without ordering</strong>: If you chose prevention, you MUST acquire locks in consistent order</li><li><strong>Race on global_tick</strong>: Always read <code>global_tick</code> while holding <code>tick_lock</code></li><li><strong>Semaphore initialization</strong>: <code>sem_init(&amp;sem, 0, count)</code> — second arg is 0 for threads (not processes)</li><li><strong>Money conservation</strong>: Sum of all balances in the system must remain constant</li></ul><hr><h2 id="proposed-project-structure">Proposed Project Structure</h2><pre><code class="language-bash">bankdb/
+|-- Makefile
+|-- README.md
+|-- include/
+|   |-- bank.h           # Bank and account structures
+|   |-- transaction.h    # Transaction and operation types
+|   |-- timer.h          # Timer thread and clock functions
+|   |-- lock_mgr.h       # Lock ordering or deadlock detection
+|   |-- buffer_pool.h    # Buffer pool with semaphores
+|   +-- metrics.h        # Statistics collection
+|-- src/
+|   |-- main.c           # CLI parsing, initialization
+|   |-- bank.c           # Account operations
+|   |-- transaction.c    # Transaction execution thread
+|   |-- timer.c          # Timer thread implementation
+|   |-- lock_mgr.c       # Deadlock prevention or detection
+|   |-- buffer_pool.c    # Bounded buffer implementation
+|   |-- metrics.c        # Metrics calculation and reporting
+|   +-- utils.c          # Parsing, error handling
+|-- tests/
+|   |-- accounts.txt           # Initial account balances
+|   |-- trace_simple.txt       # Test 1
+|   |-- trace_readers.txt      # Test 2
+|   |-- trace_deadlock.txt     # Test 3
+|   |-- trace_abort.txt        # Test 4
+|   +-- trace_buffer.txt       # Test 5
++-- docs/
+    +-- design.md              # Design justifications
+</code></pre><hr><h2 id="design-documentation">Design Documentation</h2><p>Your <code>docs/design.md</code> must address the following questions.</p><h3 id="required-discussion-topics">Required Discussion Topics</h3><ol><li><p><strong>Deadlock Strategy Choice</strong></p><ul><li>Which strategy did you choose (prevention or detection)?</li><li>Why did you choose this strategy?</li><li>If prevention: Prove that lock ordering eliminates circular wait. Which Coffman condition is broken?</li><li>If detection: Explain your cycle detection algorithm. How do you choose which transaction to abort?</li></ul></li><li><p><strong>Buffer Pool Integration</strong></p><ul><li>When do you load accounts into the buffer pool?</li><li>When do you unload them?</li><li>What happens if the pool is full when a transaction needs an account?</li><li>Justify your design with reasoning about performance and correctness</li></ul></li><li><p><strong>Reader-Writer Lock Performance</strong></p><ul><li>Show benchmark results comparing <code>pthread_mutex_t</code> vs <code>pthread_rwlock_t</code></li><li>On which workload (trace file) does rwlock show the biggest improvement?</li><li>Why does rwlock help on read-heavy workloads?</li></ul></li><li><p><strong>Timer Thread Design</strong></p><ul><li>Why is a separate timer thread necessary?</li><li>What would break if you removed the timer and processed operations sequentially?</li><li>How does the timer thread enable true concurrency testing?</li></ul></li></ol><hr><h2 id="deliverables">Deliverables</h2><p>Your pair's GitHub repository must contain:</p><ol><li>All source files (<code>.c</code> and <code>.h</code>) with proper documentation</li><li><code>Makefile</code> with targets:<ul><li><code>all</code>: Compile with <code>-pthread -O2 -Wall -Wextra</code></li><li><code>debug</code>: Compile with <code>-g -fsanitize=thread -pthread</code></li><li><code>clean</code>: Remove binaries and object files</li><li><code>test</code>: Run all 5 provided test cases</li></ul></li><li><code>README.md</code> with:<ul><li>Complete names of both group members</li><li>Compilation and usage instructions</li><li>List of implemented features</li><li>Known limitations (if any)</li></ul></li><li><code>docs/design.md</code> addressing all 4 required discussion topics</li><li>Screenshots or logs demonstrating:<ul><li>ThreadSanitizer producing zero warnings on all test cases</li><li>Deadlock handling (prevention or detection) working correctly</li><li>Buffer pool blocking when full, then unblocking</li><li>Balance conservation check passing</li></ul></li></ol><p>To submit, invite the <a href="https://github.com/WhiteLicorice">instructor</a> as a collaborator to your repository. Commits after grading will not be considered.</p><p>Then, submit the following <strong>individually</strong> via email:</p><ol><li><code>reflection.txt</code>: Which concurrency problem (mutual exclusion, reader-writer, bounded buffer, deadlock) was most difficult to implement correctly and why?</li><li><code>peer.txt</code>: Assessment of your partner's contributions and collaboration.</li><li>GitHub repository link (for verification)</li></ol><p>Subject line: <code>[CMSC 125 Lab] Lab 3: Surname, Initials</code></p><p>Example: <code>[CMSC 125 Lab] Lab 3: Sanchez, SM</code></p><hr><h2 id="academic-honesty">Academic Honesty</h2><p>The usage of Large Language Models (e.g. ChatGPT, Claude, Deepseek, etc.) to generate code is considered cheating. As cheating is against the university's code of ethics, it is subject to failure in the course and harsh disciplinary action.</p><hr><h2 id="important-dates">Important Dates</h2><p>Progress reports and laboratory defense may be booked only during the dates and hours defined in the syllabus. It is mandatory to book appointments ahead of time on the <a href="https://cal.com/renscourses/cmsc125lab">course's booking page</a> (also accessible on the course site).</p><table><thead><tr><th><strong>Activity</strong></th><th style="text-align:center"><strong>Monday</strong></th><th style="text-align:center"><strong>Wednesday</strong></th><th style="text-align:center"><strong>Thursday</strong></th></tr></thead><tbody><tr><td>Week 1 Progress Report</td><td style="text-align:center">Apr 6</td><td style="text-align:center">Apr 8</td><td style="text-align:center">Apr 9</td></tr><tr><td>Week 2 Progress Report</td><td style="text-align:center">Apr 13</td><td style="text-align:center">Apr 15</td><td style="text-align:center">Apr 16</td></tr><tr><td>Week 3 Progress Report</td><td style="text-align:center">Apr 20</td><td style="text-align:center">Apr 22</td><td style="text-align:center">Apr 23</td></tr><tr><td><strong>Week 4 Laboratory Defense</strong></td><td style="text-align:center"><strong>Apr 27</strong></td><td style="text-align:center"><strong>Apr 29</strong></td><td style="text-align:center"><strong>Apr 30</strong></td></tr></tbody></table><p>The instructor must verify appointments ahead of time before they can be considered valid. See the syllabus for proper hours and more details.</p><hr><h2 id="grading-rubric">Grading Rubric</h2><table><thead><tr><th><strong>Criteria</strong></th><th><strong>Excellent (90–100%)</strong></th><th><strong>Good (75–89%)</strong></th><th><strong>Fair (60–74%)</strong></th><th><strong>Poor (0–59%)</strong></th></tr></thead><tbody><tr><td><strong>System Architecture (25%)</strong></td><td>Modular design with clean separation of concerns; robust data structures; efficient resource usage.</td><td>Mostly modular; logic is functional but slightly coupled; data structures are appropriate.</td><td>Significant logic sprawl; monolithic functions; inconsistent data handling or hard-coded limits.</td><td>Spaghetti code; no modularity; violates basic systems programming principles.</td></tr><tr><td><strong>Robustness (20%)</strong></td><td>Handles complex edge cases and race conditions; perfect resource lifecycle; graceful error recovery.</td><td>Handles core features well; minor issues with fringe edge cases or synchronization logic.</td><td>Basic features work, but system is unstable; frequent resource leaks or intermittent errors.</td><td>Fails core logic; program crashes on unexpected input; incorrect usage of fundamental syscalls.</td></tr><tr><td><strong>Code Engineering (10%)</strong></td><td>No memory leaks; all syscalls check return codes; uses <code>perror</code> appropriately; safe pointer usage.</td><td>Minor leaks or missing checks on non-critical syscalls; mostly safe pointer arithmetic.</td><td>Inconsistent error handling; frequent unsafe operations; significant leaks or lack of bounds checking.</td><td>Frequent segmentation faults; silent failures of syscalls; no evidence of memory management.</td></tr><tr><td><strong>Collaboration (20%)</strong></td><td>Professional Git usage: atomic, semantic commits; use of feature branches; evidence of team collaboration.</td><td>Consistent use of version control; adequate commit messages; evidence of a structured team workflow.</td><td>Inconsistent Git usage; large code dumps instead of incremental progress; vague commit messages.</td><td>Minimal use of version control; repository lacks history or shows no evidence of teamwork.</td></tr><tr><td><strong>Technical Defense (25%)</strong></td><td>Both members articulate the low-level mechanics; handles what-if scenarios and code-tracing confidently.</td><td>Clear architectural explanation; both members participate meaningfully; logic delivery is sound.</td><td>Unclear explanations of system mechanics; uneven participation; struggles with logic-flow questions.</td><td>Unprepared; cannot explain system flow or syscall interactions; unable to defend design decisions.</td></tr></tbody></table></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script></main><footer id="footer" class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js"></script><script src="js/calendar.js"></script><script src="js/code-features.js"></script><script src="js/scroll-button.js"></script><script src="js/toc.js"></script><script src="js/site.js"></script><script src="https://keepandroidopen.org/banner.js?id=header&hidebutton=off"></script></body></html>

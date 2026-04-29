@@ -1,0 +1,682 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/Ren-s-Courses/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css" rel="stylesheet"><link href="css/site.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="preload" href="css/prism-dark.css" as="style"><link rel="preload" href="css/prism-light.css" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css"><script>!function(){var e=window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("user-theme"),m="dark";m="light"===t?"light":"dark"===t||e?"dark":"light",document.documentElement.setAttribute("data-theme",m),"light"===m&&(document.getElementById("prism-theme-link").href="css/prism-light.css")}()</script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js" integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js" integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js" integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js" integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js" integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js" integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js" integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="manifest" href="site.webmanifest.json"><meta name="theme-color" content="#ef4444"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex lg:w-0 lg:flex-1"><a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="materials" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Materials</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><div class="relative"><button id="desktop-dropdown-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent focus:outline-none focus:ring-0 focus:bg-transparent transition-colors"><span class="sr-only">More menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto"><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Submissions</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Toggle Theme"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent"><span class="sr-only">Open main menu</span> <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="https://forms.gle/mRFBXwhuR3LdvSN3A" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Submissions</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>const menuContainer=document.querySelector("#mobile-menu-container"),backdrop=document.querySelector("#mobile-backdrop"),toggleBtn=document.querySelector("#toggle-button"),closeBtn=document.querySelector("#close-mobile-menu-button"),toggleMobileMenu=()=>{menuContainer.classList.contains("hidden")?(menuContainer.classList.remove("hidden"),document.body.classList.add("overflow-hidden")):(menuContainer.classList.add("hidden"),document.body.classList.remove("overflow-hidden"))};toggleBtn.addEventListener("click",toggleMobileMenu),closeBtn.addEventListener("click",toggleMobileMenu),backdrop.addEventListener("click",toggleMobileMenu);const desktopBtn=document.getElementById("desktop-dropdown-btn"),desktopMenu=document.getElementById("desktop-dropdown-menu");function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{e.forEach(e=>{const n=e.querySelector(".icon-sun"),o=e.querySelector(".icon-moon");"light"===t?(n.classList.add("hidden"),o.classList.remove("hidden")):(o.classList.add("hidden"),n.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}desktopBtn&&desktopMenu&&(desktopBtn.addEventListener("click",e=>{e.stopPropagation(),desktopMenu.classList.toggle("hidden")}),document.addEventListener("click",e=>{desktopMenu.classList.contains("hidden")||desktopMenu.contains(e.target)||e.target===desktopBtn||desktopMenu.classList.add("hidden")})),initThemeToggle();let lastScrollTop=0;const navbar=document.getElementById("main-navbar");window.addEventListener("scroll",function(){let e=window.pageYOffset||document.documentElement.scrollTop;if(e<=64)return navbar.classList.remove("-translate-y-full"),void(lastScrollTop=e);e>lastScrollTop?(navbar.classList.add("-translate-y-full"),desktopMenu&&!desktopMenu.classList.contains("hidden")&&desktopMenu.classList.add("hidden"),menuContainer.classList.contains("hidden")?navbar.classList.add("-translate-y-full"):navbar.classList.remove("-translate-y-full")):navbar.classList.remove("-translate-y-full"),lastScrollTop=e})</script><header id="header"></header><main id="main" class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-197-gdd" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-197-gdd</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">The Stack Is Your Friend</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 197 GDD Case Study 2</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>March 10, 2026</time></div><a href="https://drive.google.com/file/d/1JvUMe-gYUSyauq8DsRbXVGo1XHudfOQG/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-accent hover:text-text-main transition-colors group text-sm font-medium mt-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-y-0.5"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"></path><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"></path></svg> <span class="border-b border-accent/30 group-hover:border-text-main pb-0.5">Download</span></a></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><h2 id="case-study-objectives">Case Study Objectives</h2><ul><li>Understand why flat FSMs cannot model SRPG game flow</li><li>Analyze the pushdown automaton as applied to a live engine</li><li>Trace the state lifecycle and deferred transition system</li><li>Adapt the architecture to Godot using <code>RefCounted</code>-based states</li></ul><hr><h2 id="background">Background</h2><p><a href="https://github.com/WhiteLicorice/lt-maker">Lex Talionis</a> is an open-source engine for building turn-based strategy RPGs in the <em>Fire Emblem</em> style (see the Component System case study for a deeper introduction to the engine).</p><p>In Lex Talionis, the <strong>State System</strong> handles <em>what happens</em>—the entire flow of the game, from the title screen to combat to cutscenes to menus. Every SRPG has a complex lifecycle: the player starts at a title screen, loads a save, enters a level, selects a unit, picks a movement destination, opens an action menu, chooses to attack, selects a target, watches combat play out, sees experience awarded, possibly a level-up screen, and then control returns to the map—or maybe the unit has Canto and can move again after attacking.</p><p>That is just one turn for one unit. The State System is the architectural backbone that makes all of it manageable.</p><hr><h2 id="context-why-a-flat-fsm-fails">Context: Why a Flat FSM Fails</h2><p>If you have done any game programming, you have encountered the <strong>Finite State Machine</strong> (FSM) pattern: the game is always in exactly one state at a time, and inputs cause transitions between states. Simple enough for a platformer (Idle → Running → Jumping → Falling).</p><p>An SRPG is not simple. Consider this gameplay sequence:</p><pre><code class="language-bash">Title Screen -&gt; Load Save -&gt; Level Start -&gt; Player Phase
+  -&gt; Select Unit -&gt; Move Unit -&gt; Action Menu -&gt; Attack
+    -&gt; Select Target -&gt; Combat Animation -&gt; EXP Screen
+      -&gt; Level Up -&gt; Return to Map -&gt; (Canto?) Move Again
+        -&gt; Wait -&gt; Next Unit or End Turn
+-&gt; Enemy Phase -&gt; AI Think -&gt; Enemy Move -&gt; Enemy Attack
+  -&gt; Combat -&gt; (Unit dies?) Death Animation -&gt; Continue AI
+-&gt; Next Turn -&gt; Event Cutscene -&gt; ...
+</code></pre><p>A flat FSM cannot express this. You need states that can <em>nest</em>—an event cutscene can trigger mid-combat, a menu can open on top of the map, combat can interrupt the player's turn flow. What you really need is a <strong>pushdown automaton</strong>: a state machine with a <em>stack</em>.</p><hr><h2 id="the-problem">The Problem</h2><h3 id="the-spaghetti-problem">The Spaghetti Problem</h3><p>Your first instinct for game flow might be a big switch statement in the main loop:</p><pre><code class="language-python">while running:
+    if mode == &quot;title&quot;:
+        handle_title_input()
+        draw_title()
+    elif mode == &quot;map&quot;:
+        handle_map_input()
+        draw_map()
+    elif mode == &quot;menu&quot;:
+        handle_menu_input()
+        draw_menu()
+    elif mode == &quot;combat&quot;:
+        handle_combat_input()
+        draw_combat()
+    # ... 30 more elif branches
+</code></pre><p>This falls apart immediately. Control flow is implicit—hidden in <code>mode = &quot;something_else&quot;</code> assignments scattered everywhere. Adding a new mode means touching the main loop. There is no clean way to handle &quot;draw the map <em>behind</em> the menu&quot; or &quot;pause the current state while an event plays.&quot;</p><h3 id="the-deep-nesting-problem">The Deep Nesting Problem</h3><p>Embedding flow in nested function calls gives you clear sequencing but terrible flexibility:</p><pre><code class="language-python">def player_turn():
+    unit = select_unit()
+    dest = pick_move(unit)
+    move_unit(unit, dest)
+    action = show_menu(unit)
+    if action == &quot;attack&quot;:
+        target = pick_target(unit)
+        run_combat(unit, target)
+        if unit.has_canto:
+            player_turn()  # Recursion!
+</code></pre><p>What if <code>run_combat</code> needs to show a cutscene mid-fight? What if <code>show_menu</code> needs to open a sub-menu? You end up passing callbacks and coroutines everywhere, and the call stack becomes the implicit game state—good luck saving and loading <em>that</em>.</p><h3 id="the-state-explosion-problem">The State Explosion Problem</h3><p>Even with a proper FSM, an SRPG has an absurd number of states. Lex Talionis registers <strong>120+ distinct states</strong>. You need a pattern that makes each state self-contained, composable, and easy to navigate between.</p><hr><h2 id="why-this-approach">Why This Approach?</h2><p>Lex Talionis uses a <strong>stack-based state machine</strong> (pushdown automaton). The core ideas:</p><h4 id="design-principles">Design Principles</h4><ol><li><strong>States are objects</strong>: each game mode is a class with a standard lifecycle (<code>start</code>, <code>begin</code>, <code>take_input</code>, <code>update</code>, <code>draw</code>, <code>end</code>, <code>finish</code>); state logic is encapsulated, not spread across a switch statement</li><li><strong>Stack, not graph</strong>: states are pushed and popped, not transitioned between in a flat graph; &quot;open menu on top of map&quot; is pushing <code>MenuState</code>; &quot;close menu&quot; is popping it; the map state is still there underneath, untouched</li><li><strong>Deferred transitions</strong>: state changes are <em>queued</em>, not immediate; when a state calls <code>game.state.change('combat')</code>, the transition happens at end-of-frame after the current state finishes its update cycle, preventing re-entrancy bugs</li><li><strong>Transparent layering</strong>: states declare whether they are <code>transparent</code>; the machine walks down the stack until it finds a non-transparent state, then draws upward; a transparent <code>EventState</code> renders on top of the map without the map knowing about events</li><li><strong>Memory bus</strong>: states communicate through <code>game.memory</code>, a shared dictionary; a state does not need to import or reference the state that will read its data</li><li><strong>Serializable</strong>: the entire state stack is a list of state names; saving is <code>[state.name for state in self.state]</code>; loading re-instantiates from the registry</li></ol><hr><h2 id="architecture-deep-dive">Architecture Deep Dive</h2><h3 id="the-base-state">The Base State</h3><p>Everything starts here:</p><pre><code class="language-python">class State():
+    name: ClassVar[str] = None  # Unique identifier
+    in_level = True             # Is this state part of gameplay?
+    show_map = True             # Should the map be visible?
+    transparent = False         # Draw states below on the stack too?
+
+    started = False             # Has start() been called?
+    processed = False           # Has begin() been called since last becoming top?
+
+    def __init__(self, name=None):
+        self.name = name
+
+    def start(self):
+        &quot;&quot;&quot;Called ONCE when state is first instantiated and pushed.&quot;&quot;&quot;
+        pass
+
+    def begin(self):
+        &quot;&quot;&quot;Called EVERY TIME this state becomes the top of the stack.&quot;&quot;&quot;
+        pass
+
+    def take_input(self, event):
+        &quot;&quot;&quot;Process a single input event.&quot;&quot;&quot;
+        pass
+
+    def update(self):
+        &quot;&quot;&quot;Per-frame game logic.&quot;&quot;&quot;
+        pass
+
+    def draw(self, surf):
+        &quot;&quot;&quot;Render onto the given surface.&quot;&quot;&quot;
+        return surf
+
+    def end(self):
+        &quot;&quot;&quot;Called when state is about to lose top-of-stack status.&quot;&quot;&quot;
+        pass
+
+    def finish(self):
+        &quot;&quot;&quot;Called when state is being fully removed from the stack.&quot;&quot;&quot;
+        pass
+</code></pre><h4 id="key-design-points">Key Design Points</h4><ul><li><strong><code>start()</code> vs <code>begin()</code></strong>: <code>start()</code> runs once; <code>begin()</code> runs every time the state resurfaces; if you push a menu on top of <code>FreeState</code>, then pop the menu, <code>FreeState.begin()</code> runs again to restore the cursor and highlights—<code>start()</code> does not</li><li><strong><code>end()</code> vs <code>finish()</code></strong>: <code>end()</code> fires when the state is about to be covered or popped; <code>finish()</code> fires when the state object is actually removed from the stack</li><li><strong>The <code>'repeat'</code> protocol</strong>: any lifecycle method can return <code>'repeat'</code> to tell the state machine to skip the rest of the frame and re-run immediately; this is how single-frame states work</li></ul><p><code>MapState</code> extends <code>State</code> with map-specific rendering. Most in-game states extend <code>MapState</code> because they need the map drawn behind them:</p><pre><code class="language-python">class MapState(State):
+    def __init__(self, name=None):
+        if name:
+            self.name = name
+        self.fluid = FluidScroll()  # Smooth directional input handling
+
+    def draw(self, surf, culled_rect=None):
+        game.camera.update()
+        game.highlight.update()
+        camera_cull = (int(game.camera.get_x() * TILEWIDTH),
+                       int(game.camera.get_y() * TILEHEIGHT),
+                       WINWIDTH, WINHEIGHT)
+        map_surf = game.map_view.draw(camera_cull, culled_rect)
+        surf.blit(map_surf, (0, 0))
+        return surf
+</code></pre><h3 id="the-state-machine">The State Machine</h3><p>The <code>StateMachine</code> manages the stack and drives the lifecycle:</p><pre><code class="language-python">class StateMachine():
+    def __init__(self):
+        self.state: List[State] = []       # The stack
+        self.temp_state: List[str] = []    # Queued transitions (deferred)
+        self.prev_state: State = None
+        self.prior_state: State = None
+
+    def change(self, new_state):
+        &quot;&quot;&quot;Queue a push. Doesn't execute until end of frame.&quot;&quot;&quot;
+        self.temp_state.append(new_state)
+
+    def back(self):
+        &quot;&quot;&quot;Queue a pop.&quot;&quot;&quot;
+        self.temp_state.append('pop')
+
+    def clear(self):
+        &quot;&quot;&quot;Queue clearing the entire stack.&quot;&quot;&quot;
+        self.temp_state.append('clear')
+
+    def refresh(self):
+        &quot;&quot;&quot;Keep only the top state, discard everything below.&quot;&quot;&quot;
+        self.state = self.state[-1:]
+
+    def current(self):
+        &quot;&quot;&quot;Name of the top state.&quot;&quot;&quot;
+        return self.state[-1].name if self.state else None
+
+    def current_state(self) -&gt; State:
+        &quot;&quot;&quot;The top state object.&quot;&quot;&quot;
+        return self.state[-1] if self.state else None
+</code></pre><p>The critical method is <code>process_temp_state()</code>, which executes all queued transitions at the end of each frame:</p><pre><code class="language-python">def process_temp_state(self):
+    for transition in self.temp_state:
+        if transition == 'pop':
+            state = self.state[-1]
+            self.exit_state(state)     # Calls end() + finish()
+            self.prior_state = state
+            self.state.pop()
+        elif transition == 'clear':
+            self.prior_state = self.current_state()
+            for state in reversed(self.state):
+                self.exit_state(state)
+            self.state.clear()
+        else:
+            # Instantiate new state from registry
+            new_state = self.all_states[transition](transition)
+            self.prior_state = self.state[-1] if self.state else None
+            self.state.append(new_state)
+    self.temp_state.clear()
+</code></pre><h3 id="state-lifecycle">State Lifecycle</h3><p>Here is the frame loop—the <code>update()</code> method that runs every frame:</p><pre><code class="language-python">def update(self, event, surf):
+    state = self.state[-1]
+    repeat_flag = False
+
+    # Phase 1: START (once per state instance)
+    if not state.started:
+        state.started = True
+        if state.start() == 'repeat':
+            repeat_flag = True
+
+    # Phase 2: BEGIN (each time state becomes top)
+    if not repeat_flag and not state.processed:
+        state.processed = True
+        if state.begin() == 'repeat':
+            repeat_flag = True
+
+    # Phase 3: TAKE INPUT
+    if not repeat_flag:
+        if state.take_input(event) == 'repeat':
+            repeat_flag = True
+
+    # Phase 4: UPDATE
+    if not repeat_flag:
+        if state.update() == 'repeat':
+            repeat_flag = True
+
+    # Phase 5: DRAW (with transparency walk)
+    if not repeat_flag:
+        idx = -1
+        while self.state[idx].transparent and len(self.state) &gt;= (abs(idx) + 1):
+            idx -= 1
+        while idx &lt;= -1:
+            surf = self.state[idx].draw(surf)
+            idx += 1
+
+    # Phase 6: END (if transitions are pending)
+    if self.temp_state and state.processed:
+        state.processed = False
+        state.end()
+
+    # Phase 7: Execute queued transitions
+    self.process_temp_state()
+    return surf, repeat_flag
+</code></pre><h4 id="frame-loop-summary">Frame Loop Summary</h4><pre><code class="language-bash">+-------------------------------------------------+
+|  Frame N                                        |
+|                                                 |
+|  1. START      (if first frame for this state)  |
+|  2. BEGIN      (if state just became top)       |
+|  3. TAKE_INPUT (process player input)           |
+|  4. UPDATE     (game logic)                     |
+|  5. DRAW       (render, walk transparency)      |
+|  6. END        (if transitions queued)          |
+|  7. TRANSITIONS (push / pop / clear)            |
+|                                                 |
+|  Any phase can return 'repeat' to skip the rest |
+|  and re-run the state machine this frame.       |
++-------------------------------------------------+
+</code></pre><p>The <code>'repeat'</code> mechanism is crucial for states that do all their work in <code>start()</code> or <code>begin()</code>—they set up transitions and immediately return <code>'repeat'</code> so the new state starts in the same frame. Without this, you would see blank frames during rapid transitions.</p><h3 id="transparency-and-layered-rendering">Transparency and Layered Rendering</h3><p>The <code>transparent</code> flag enables visual layering without coupling states together:</p><pre><code class="language-bash">State Stack (top to bottom):
++------------------+
+|  EventState      |   transparent = True  &lt;- draws dialog overlay
++------------------+
+|  MenuState       |   transparent = True  &lt;- draws action menu
++------------------+
+|  FreeState       |   transparent = False &lt;- draws map + units
++------------------+
+
+Drawing order (bottom to top):
+1. FreeState.draw()  -&gt; map, units, cursor
+2. MenuState.draw()  -&gt; action menu overlay
+3. EventState.draw() -&gt; dialog box overlay
+
+Result: Dialog on top of menu on top of map. Clean compositing.
+</code></pre><p>The state machine walks <em>down</em> the stack until it finds a non-transparent state, then draws <em>up</em>. Each state only draws its own layer—it does not need to know what is above or below it.</p><h3 id="inter-state-communication">Inter-State Communication</h3><p>States communicate through <code>game.memory</code>, a shared dictionary on the <code>GameState</code> singleton. This is a <strong>message bus pattern</strong>—the sender writes to a known key, the receiver reads it; neither state imports the other:</p><pre><code class="language-python"># In WeaponChoiceState, after the player picks a weapon:
+game.memory['item'] = selected_weapon
+game.state.change('combat_targeting')
+
+# In CombatTargetingState.start():
+self.item = game.memory['item']
+</code></pre><p>Common patterns:</p><pre><code class="language-python"># Pass data forward
+game.memory['item'] = weapon
+game.memory['current_unit'] = unit
+game.memory['next_state'] = 'info_menu'
+
+# TransitionToState reads 'next_state' and navigates there
+class TransitionToState(TransitionOutState):
+    def update(self):
+        if engine.get_time() &gt;= self.start_time + self.wait_time:
+            game.state.back()
+            game.state.change(game.memory['next_state'])
+            return 'repeat'
+</code></pre><p>The convention is that the state which writes a key is responsible for what goes in it. <code>game.memory</code> is intentionally untyped—it trades compile-time safety for zero coupling.</p><h3 id="the-state-registry">The State Registry</h3><p>States are registered by name in <code>StateMachine.load_states()</code>:</p><pre><code class="language-python">def load_states(self, starting_states=None, temp_state=None):
+    self.all_states = {
+        # Title
+        'title_start':      title_screen.TitleStartState,
+        'title_main':       title_screen.TitleMainState,
+        'title_load':       title_screen.TitleLoadState,
+
+        # Transitions
+        'transition_in':    transitions.TransitionInState,
+        'transition_out':   transitions.TransitionOutState,
+        'transition_to':    transitions.TransitionToState,
+
+        # Core gameplay
+        'free':             general_states.FreeState,
+        'move':             general_states.MoveState,
+        'movement':         general_states.MovementState,
+        'menu':             general_states.MenuState,
+        'wait':             general_states.WaitState,
+
+        # Combat
+        'weapon_choice':    general_states.WeaponChoiceState,
+        'combat_targeting': general_states.CombatTargetingState,
+        'combat':           general_states.CombatState,
+        'dying':            general_states.DyingState,
+
+        # AI
+        'ai':               general_states.AIState,
+
+        # Events
+        'event':            event_state.EventState,
+
+        # Phase management
+        'turn_change':      general_states.TurnChangeState,
+        'phase_change':     general_states.PhaseChangeState,
+
+        # ... 100+ more states
+    }
+</code></pre><p>State navigation always uses string names. States never reference each other's classes directly—adding a new state is two steps: write the class, add one line to the registry:</p><pre><code class="language-python">game.state.change('combat')   # Push by name
+game.state.back()             # Pop (no name needed)
+game.state.clear()            # Clear all
+</code></pre><h3 id="serialization">Serialization</h3><p>Saving game state is remarkably simple because the stack is just a list of names:</p><pre><code class="language-python">def save(self):
+    return ([state.name for state in self.state],
+            self.temp_state[:])  # Copy to avoid mutation
+</code></pre><p>A save file might contain:</p><pre><code class="language-python">state_stack = ['free', 'move', 'menu']
+temp_state = []
+</code></pre><p>Loading reconstructs the stack by re-instantiating from the registry. Individual states re-derive their display state from game data (cursor position, unit selection, etc.) in their <code>start()</code> and <code>begin()</code> methods. This is why <code>begin()</code> exists separately from <code>start()</code>—it is the &quot;reconstruct yourself from current game state&quot; hook.</p><hr><h2 id="concrete-state-examples">Concrete State Examples</h2><h3 id="single-frame-states">Single-Frame States</h3><p>Some states exist for exactly one frame: they do work, queue a transition, and immediately return <code>'repeat'</code>.</p><p><strong>WaitState</strong>—marks all attacked units as finished:</p><pre><code class="language-python">class WaitState(MapState):
+    name = 'wait'
+
+    def update(self):
+        super().update()
+        game.state.back()
+        for unit in game.units:
+            if unit.has_attacked and not unit.finished:
+                unit.wait()
+        return 'repeat'
+</code></pre><p>This is a <em>command</em> disguised as a state. It exists because the state machine is the only sequencing mechanism—if you need &quot;do X then do Y,&quot; you push state Y, then push state X. X runs, pops itself, and Y naturally becomes top.</p><p><strong>TurnChangeState</strong>—orchestrates the turn/phase transition:</p><pre><code class="language-python">class TurnChangeState(MapState):
+    name = 'turn_change'
+
+    def begin(self):
+        game.state.refresh()  # Clear the stack except me
+        game.state.back()     # Pop myself too
+        return 'repeat'
+
+    def end(self):
+        game.phase.next()
+        if game.phase.get_current() == 'player':
+            # Stack: free -&gt; status_upkeep -&gt; phase_change (top)
+            # Executes right-to-left: phase_change, then status_upkeep, then free
+            game.state.change('free')
+            game.state.change('status_upkeep')
+            game.state.change('phase_change')
+            game.events.trigger(triggers.TurnChange())
+        else:
+            game.state.change('ai')
+            game.state.change('status_upkeep')
+            game.state.change('phase_change')
+</code></pre><h4 id="reading-push-order">Reading Push Order</h4><p>States are pushed in the order <code>free</code>, <code>status_upkeep</code>, <code>phase_change</code>. Since it is a stack, <code>phase_change</code> runs first, pops, then <code>status_upkeep</code>, pops, then <code>free</code> becomes active. <strong>Read the pushes bottom-to-top for execution order.</strong></p><h3 id="interactive-states">Interactive States</h3><p><strong>FreeState</strong>—the main player turn state, where the player selects units and issues commands:</p><pre><code class="language-python">class FreeState(MapState):
+    name = 'free'
+
+    def begin(self):
+        game.cursor.show()
+        game.boundary.show()
+        phase.fade_in_phase_music()
+
+        # Auto-end turn if all units are done
+        if all(u.finished for u in game.get_player_units()
+               if skill_system.can_select(u)):
+            game.state.change('turn_change')
+            game.state.change('status_endstep')
+            game.state.change('ai')
+            return 'repeat'
+
+    def take_input(self, event):
+        game.cursor.take_input()
+        if event == 'SELECT':
+            cur_unit = game.board.get_unit(game.cursor.position)
+            if cur_unit and not cur_unit.finished \
+                    and skill_system.can_select(cur_unit):
+                game.cursor.cur_unit = cur_unit
+                game.state.change('move')  # Push MoveState
+            else:
+                game.state.change('option_menu')
+        elif event == 'INFO':
+            if game.cursor.get_hover():
+                game.memory['current_unit'] = game.cursor.get_hover()
+                game.memory['next_state'] = 'info_menu'
+                game.state.change('transition_to')
+
+    def update(self):
+        super().update()
+        game.highlight.handle_hover()
+
+    def end(self):
+        game.cursor.set_speed_state(False)
+        game.highlight.remove_highlights()
+</code></pre><p><code>FreeState.begin()</code> demonstrates the auto-end-turn pattern: if all player units have acted, it does not wait for input—it immediately queues the turn-change sequence and returns <code>'repeat'</code>.</p><p><strong>MoveState</strong>—handles unit movement and transitions to the action menu:</p><pre><code class="language-python">class MoveState(MapState):
+    name = 'move'
+
+    def begin(self):
+        cur_unit = game.cursor.cur_unit
+        cur_unit.sprite.change_state('selected')
+        self.valid_moves = game.highlight.display_highlights(cur_unit)
+        game.cursor.show_arrows()
+
+    def take_input(self, event):
+        cur_unit = game.cursor.cur_unit
+        if event == 'SELECT':
+            if game.cursor.position in self.valid_moves:
+                cur_unit.current_move = action.Move(
+                    cur_unit, game.cursor.position)
+                game.state.change('menu')      # Menu runs after movement
+                game.state.change('movement')  # Movement animation runs first
+                action.do(cur_unit.current_move)
+        elif event == 'BACK':
+            game.cursor.set_pos(cur_unit.position)
+            game.state.clear()
+            game.state.change('free')
+
+    def end(self):
+        game.cursor.remove_arrows()
+        game.highlight.remove_highlights()
+</code></pre><p>The push ordering <code>change('menu')</code> then <code>change('movement')</code> means <code>MovementState</code> (the animation) runs first, and when it pops, <code>MenuState</code> becomes active. The state machine is your sequencer.</p><h3 id="orchestrator-states">Orchestrator States</h3><p><strong>CombatState</strong>—manages the entire combat encounter:</p><pre><code class="language-python">class CombatState(MapState):
+    name = 'combat'
+
+    def start(self):
+        game.cursor.hide()
+        self.combat = game.combat_instance.pop(0)
+        game.memory['current_combat'] = self.combat
+        self.is_animation_combat = isinstance(
+            self.combat, interaction.AnimationCombat)
+
+    def take_input(self, event):
+        if event == 'START':
+            self.combat.skip()  # Skip animation
+
+    def update(self):
+        super().update()
+        done = self.combat.update()  # Delegates to combat system
+        if done:
+            return 'repeat'
+
+    def draw(self, surf):
+        if self.is_animation_combat and self.combat.viewbox:
+            surf = super().draw(surf, culled_rect=self.combat.viewbox)
+            surf.blit(self.fuzz_background, (0, 0))
+        else:
+            surf = super().draw(surf)
+        self.combat.draw(surf)
+        return surf
+</code></pre><p>Notice that <code>CombatState</code> does not <em>implement</em> combat—it delegates to <code>self.combat</code>, which is an <code>AnimationCombat</code> or <code>BaseCombat</code> instance. The state manages the lifecycle (start, skip, done-check) and rendering integration only.</p><p><strong>EventState</strong>—runs scripted events and cutscenes:</p><pre><code class="language-python">class EventState(State):
+    name = 'event'
+    transparent = True  # Map/game continues rendering underneath
+
+    def begin(self):
+        if not self.event:
+            self.event = game.events.get()
+            game.cursor.hide()
+
+    def update(self):
+        if self.event:
+            self.event.update()
+        else:
+            game.state.back()  # No more events, pop
+            return 'repeat'
+        if self.event.state == 'complete':
+            return self.end_event()
+
+    def draw(self, surf):
+        if self.event:
+            self.event.draw(surf)
+        return surf
+
+    def end_event(self):
+        game.events.end(self.event)
+        if game.level_vars.get('_win_game'):
+            self.level_end()
+        elif game.level_vars.get('_lose_game'):
+            game.memory['next_state'] = 'game_over'
+            game.state.change('transition_to')
+</code></pre><p><code>EventState</code> is <code>transparent = True</code>, so the map draws behind the dialog. When the event completes, it checks win/loss conditions and routes accordingly.</p><h3 id="transition-states">Transition States</h3><p>Transitions are small, elegant states that handle screen fades:</p><pre><code class="language-python">class TransitionInState(State):
+    &quot;&quot;&quot;Fade from black to gameplay.&quot;&quot;&quot;
+    name = 'transition_in'
+    transparent = True
+
+    def start(self):
+        self.bg = SPRITES.get('bg_black').convert_alpha()
+        self.start_time = engine.get_time()
+        self.wait_time = game.memory.get('transition_speed', 1) * 133
+
+    def update(self):
+        if engine.get_time() &gt;= self.start_time + self.wait_time:
+            game.state.back()
+            return 'repeat'
+
+    def draw(self, surf):
+        proc = (engine.get_time() - self.start_time) / self.wait_time
+        bg = image_mods.make_translucent(self.bg, proc)
+        engine.blit_center(surf, bg)
+        return surf
+
+
+class TransitionToState(TransitionOutState):
+    &quot;&quot;&quot;Fade to black, then navigate to game.memory['next_state'].&quot;&quot;&quot;
+    name = 'transition_to'
+
+    def update(self):
+        if engine.get_time() &gt;= self.start_time + self.wait_time:
+            game.state.back()
+            game.state.change(game.memory['next_state'])
+            return 'repeat'
+</code></pre><p><code>TransitionToState</code> is the standard &quot;navigate with a fade&quot; pattern: the caller writes the destination to <code>game.memory['next_state']</code>, pushes <code>transition_to</code>, and the transition handles the rest. Variants include <code>TransitionPopState</code> (fade then pop) and <code>TransitionDoublePopState</code> (fade then pop twice) for different navigation needs.</p><hr><h2 id="how-it-is-used-and-extended">How It Is Used and Extended</h2><h3 id="adding-a-new-state">Adding a New State</h3><ol><li><strong>Write the class</strong>:</li></ol><pre><code class="language-python">from app.engine.state import MapState
+from app.engine.game_state import game
+
+class MyFeatureState(MapState):
+    name = 'my_feature'
+    transparent = True  # If you want the map visible behind it
+
+    def start(self):
+        self.data = game.memory.get('feature_data')
+
+    def take_input(self, event):
+        if event == 'BACK':
+            game.state.back()
+            return 'repeat'
+        elif event == 'SELECT':
+            game.state.back()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        # Draw your feature's UI on top
+        return surf
+</code></pre><ol start="2"><li><strong>Register it</strong> (one line in <code>state_machine.py</code>):</li></ol><pre><code class="language-python">self.all_states['my_feature'] = my_feature.MyFeatureState
+</code></pre><ol start="3"><li><strong>Navigate to it</strong> from any other state:</li></ol><pre><code class="language-python">game.memory['feature_data'] = some_data
+game.state.change('my_feature')
+</code></pre><h3 id="patterns-worth-knowing">Patterns Worth Knowing</h3><p><strong>Stack sequencing</strong>—push in reverse execution order:</p><pre><code class="language-python"># Execute: phase_change -&gt; status_upkeep -&gt; free
+game.state.change('free')           # Will run third
+game.state.change('status_upkeep')  # Will run second
+game.state.change('phase_change')   # Will run first (it's on top)
+</code></pre><p><strong>Transition wrapping</strong>—use <code>transition_to</code> for visual navigation:</p><pre><code class="language-python">game.memory['next_state'] = 'info_menu'
+game.state.change('transition_to')  # Fades out, navigates, fades in
+</code></pre><p><strong>Single-frame command states</strong>—do work and pop immediately:</p><pre><code class="language-python">class DoSomethingState(MapState):
+    name = 'do_something'
+
+    def begin(self):
+        do_the_thing()
+        game.state.back()
+        return 'repeat'  # Skip rendering, continue immediately
+</code></pre><hr><h2 id="adapting-to-godot">Adapting to Godot</h2><p>Godot has its own scene and node tree, but the pushdown state machine pattern applies directly. Here is the port.</p><h3 id="step-1-the-base-state">Step 1: The Base State</h3><pre><code class="language-gdscript">class_name GameState extends RefCounted
+
+var state_name: String = &quot;&quot;
+var transparent: bool = false
+var started: bool = false
+var processed: bool = false
+
+func start() -&gt; String:
+    return &quot;&quot;
+
+func begin() -&gt; String:
+    return &quot;&quot;
+
+func take_input(event: InputEvent) -&gt; String:
+    return &quot;&quot;
+
+func update(delta: float) -&gt; String:
+    return &quot;&quot;
+
+func draw(canvas: CanvasItem) -&gt; void:
+    pass
+
+func end() -&gt; void:
+    pass
+
+func finish() -&gt; void:
+    pass
+</code></pre><h3 id="step-2-the-state-machine">Step 2: The State Machine</h3><pre><code class="language-gdscript">class_name GameStateMachine extends Node
+
+var stack: Array[GameState] = []
+var pending: Array = []  # Array of String, &quot;pop&quot;, or &quot;clear&quot;
+var state_registry: Dictionary = {}
+var memory: Dictionary = {}
+
+func register_state(name: String, state_class: GDScript) -&gt; void:
+    state_registry[name] = state_class
+
+func change(state_name: String) -&gt; void:
+    pending.append(state_name)
+
+func back() -&gt; void:
+    pending.append(&quot;pop&quot;)
+
+func clear() -&gt; void:
+    pending.append(&quot;clear&quot;)
+
+func current() -&gt; GameState:
+    return stack.back() if stack.size() &gt; 0 else null
+
+func _process(delta: float) -&gt; void:
+    if stack.is_empty():
+        return
+
+    var state := stack.back()
+    var repeat := false
+
+    # START
+    if not state.started:
+        state.started = true
+        if state.start() == &quot;repeat&quot;:
+            repeat = true
+
+    # BEGIN
+    if not repeat and not state.processed:
+        state.processed = true
+        if state.begin() == &quot;repeat&quot;:
+            repeat = true
+
+    # INPUT
+    if not repeat:
+        var event := _get_current_input()
+        if state.take_input(event) == &quot;repeat&quot;:
+            repeat = true
+
+    # UPDATE
+    if not repeat:
+        if state.update(delta) == &quot;repeat&quot;:
+            repeat = true
+
+    # DRAW (handled in _draw or CanvasLayer)
+    if not repeat:
+        _draw_stack()
+
+    # END
+    if not pending.is_empty() and state.processed:
+        state.processed = false
+        state.end()
+
+    # PROCESS TRANSITIONS
+    _process_pending()
+
+func _process_pending() -&gt; void:
+    for transition: Variant in pending:
+        if transition == &quot;pop&quot;:
+            if stack.size() &gt; 0:
+                var s: GameState = stack.pop_back()
+                s.end()
+                s.finish()
+        elif transition == &quot;clear&quot;:
+            while stack.size() &gt; 0:
+                var s: GameState = stack.pop_back()
+                s.end()
+                s.finish()
+        else:
+            var new_state: GameState = state_registry[transition].new()
+            new_state.state_name = transition
+            stack.append(new_state)
+    pending.clear()
+
+func _draw_stack() -&gt; void:
+    # Walk down to find first non-transparent state
+    var start_idx := stack.size() - 1
+    while start_idx &gt; 0 and stack[start_idx].transparent:
+        start_idx -= 1
+    # Draw upward from first opaque state
+    for i: int in range(start_idx, stack.size()):
+        stack[i].draw(get_tree().root)
+</code></pre><h3 id="step-3-concrete-states">Step 3: Concrete States</h3><pre><code class="language-gdscript">class_name FreeState extends GameState
+
+func _init() -&gt; void:
+    state_name = &quot;free&quot;
+
+func begin() -&gt; String:
+    GameManager.cursor.show()
+    GameManager.highlight.show_boundary()
+    return &quot;&quot;
+
+func take_input(event: InputEvent) -&gt; String:
+    if event.is_action_pressed(&quot;select&quot;):
+        var unit = GameManager.board.get_unit(GameManager.cursor.position)
+        if unit and not unit.finished:
+            GameManager.memory[&quot;selected_unit&quot;] = unit
+            GameManager.state_machine.change(&quot;move&quot;)
+    return &quot;&quot;
+
+func update(_delta: float) -&gt; String:
+    GameManager.highlight.handle_hover()
+    return &quot;&quot;
+
+func end() -&gt; void:
+    GameManager.highlight.clear()
+</code></pre><pre><code class="language-gdscript">class_name CombatState extends GameState
+
+var combat_instance: Variant
+
+func _init() -&gt; void:
+    state_name = &quot;combat&quot;
+
+func start() -&gt; String:
+    combat_instance = GameManager.memory[&quot;combat&quot;]
+    GameManager.cursor.hide()
+    return &quot;&quot;
+
+func update(delta: float) -&gt; String:
+    if combat_instance.update(delta):
+        GameManager.state_machine.back()
+        return &quot;repeat&quot;
+    return &quot;&quot;
+
+func draw(canvas: CanvasItem) -&gt; void:
+    combat_instance.draw(canvas)
+</code></pre><h3 id="step-4-per-entity-state-machines">Step 4: Per-Entity State Machines</h3><p>The pattern also works <em>per-entity</em> for AI and animation states. Give each unit its own mini state machine:</p><pre><code class="language-gdscript">class_name UnitStateMachine extends Node
+
+var stack: Array = []
+
+class UnitState:
+    func enter(_unit: Node) -&gt; void: pass
+    func update(_unit: Node, _delta: float) -&gt; String: return &quot;&quot;
+    func exit(_unit: Node) -&gt; void: pass
+
+class IdleState extends UnitState:
+    func enter(unit: Node) -&gt; void:
+        unit.play_animation(&quot;idle&quot;)
+
+class MovingState extends UnitState:
+    var target_pos: Vector2i
+    func enter(unit: Node) -&gt; void:
+        unit.play_animation(&quot;walk&quot;)
+    func update(unit: Node, _delta: float) -&gt; String:
+        if unit.position == target_pos:
+            return &quot;done&quot;
+        return &quot;&quot;
+
+class AttackingState extends UnitState:
+    func enter(unit: Node) -&gt; void:
+        unit.play_animation(&quot;attack&quot;)
+    func update(unit: Node, _delta: float) -&gt; String:
+        if unit.animation_finished:
+            return &quot;done&quot;
+        return &quot;&quot;
+</code></pre><p>This gives entities their own behavioral state machines independent of the global game state machine. The global machine handles <em>game flow</em> (&quot;whose turn is it?&quot;), while per-entity machines handle <em>entity behavior</em> (&quot;is this unit idle, moving, or attacking?&quot;).</p><h3 id="architecture-comparison">Architecture Comparison</h3><table><thead><tr><th><strong>Lex Talionis (Python)</strong></th><th><strong>Godot 4 (GDScript)</strong></th></tr></thead><tbody><tr><td><code>State</code> base class</td><td><code>GameState extends RefCounted</code></td></tr><tr><td><code>MapState</code> (map-rendering state)</td><td><code>MapGameState</code> (draws tilemap)</td></tr><tr><td><code>StateMachine.state</code> (list)</td><td><code>GameStateMachine.stack</code> (Array)</td></tr><tr><td><code>StateMachine.temp_state</code></td><td><code>GameStateMachine.pending</code></td></tr><tr><td><code>game.state.change('name')</code></td><td><code>state_machine.change(&quot;name&quot;)</code></td></tr><tr><td><code>game.state.back()</code></td><td><code>state_machine.back()</code></td></tr><tr><td><code>game.memory</code> (dict)</td><td><code>state_machine.memory</code> (Dictionary)</td></tr><tr><td><code>all_states</code> (str → class dict)</td><td><code>state_registry</code> (str → class dict)</td></tr><tr><td><code>transparent = True</code></td><td><code>transparent = true</code></td></tr><tr><td><code>'repeat'</code> return value</td><td><code>&quot;repeat&quot;</code> return value</td></tr><tr><td><code>State.start</code> / <code>begin</code> / <code>end</code></td><td>Same lifecycle methods</td></tr></tbody></table><hr><h2 id="conclusion">Conclusion</h2><p>The Lex Talionis State System is a textbook implementation of the <strong>pushdown automaton</strong> applied to game architecture—and the fact that it manages 120+ states without collapsing into chaos is proof that the pattern works at scale.</p><h4 id="key-takeaways">Key Takeaways</h4><ol><li><strong>Stack-based state machines</strong> naturally model the nested, interruptible flow that SRPGs and other complex games require; flat FSMs cannot cut it</li><li><strong>Deferred transitions</strong> (queuing changes instead of executing immediately) prevent re-entrancy bugs and ensure consistent per-frame behavior</li><li><strong>The <code>'repeat'</code> protocol</strong> lets single-frame states exist—states that set up transitions and skip rendering, acting as sequencing commands rather than visual modes</li><li><strong>Transparency</strong> decouples visual layering from state logic; a menu state does not need to know how to draw the map—it just declares <code>transparent = True</code> and the machine composites them</li><li><strong><code>game.memory</code></strong> provides loose coupling between states; states communicate through a shared bus, not through imports or method calls</li><li><strong>String-based registration</strong> means adding a new state is two steps: write the class, add one line to the registry; no switch statements, no enum updates, no base class modifications</li></ol><p>The pattern is universal. Whether you are building in Pygame, Godot, Unity, or a custom C++ engine, a stack-based state machine with deferred transitions and transparent layering is one of those patterns that, once you have used it, you wonder how you ever built games without it.</p><hr><p><em>This document references our private dev fork of the Lex Talionis engine <a href="https://github.com/WhiteLicorice/lt-maker-indie">here</a>, where I work together with some other contributors to produce a fork of the engine suitable for deployment on Steam and other commercial platforms. All code snippets are drawn from the codebase and lightly adapted for clarity. You may view the master branch of the Lex Talionis engine at my personal <a href="https://github.com/WhiteLicorice/lt-maker">mirror</a> or at the <a href="https://gitlab.com/rainlash/lt-maker">source</a>.</em></p></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script></main><footer id="footer" class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js"></script><script src="js/calendar.js"></script><script src="js/code-features.js"></script><script src="js/scroll-button.js"></script><script src="js/toc.js"></script><script src="js/site.js"></script><script src="https://keepandroidopen.org/banner.js?id=header&hidebutton=off"></script></body></html>
