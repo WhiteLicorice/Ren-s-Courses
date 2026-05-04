@@ -28,7 +28,6 @@ builder.Services.AddBlazorStaticService(opt =>
     opt.ContentPath = WebsiteKeys.Projects.SourcePath;
     opt.Tags.TagsPageUrl = WebsiteKeys.Projects.TagPageUrl;
     opt.PageUrl = WebsiteKeys.DisabledPage;
-    opt.Tags.AddTagPagesFromPosts = false;
     opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemovePostPages;
 })
 .AddBlazorStaticContentService<BookingFrontmatter>(opt =>
