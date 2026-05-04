@@ -24,15 +24,23 @@ public class CalendarEventProvider
     }
 
     public List<CalendarEvent> GetAllEvents()
+        => BuildEvents(
+            _holidaysProvider.GetHolidaysForRange(BuildTimeProvider.TermStart, BuildTimeProvider.TermEnd),
+            _calendarEventService.Posts,
+            _contentProvider.GetVisiblePosts(),
+            _courseService.Options.PageUrl
+        );
+
+    // Extracted for testability — pure function with no DI dependencies
+    internal static List<CalendarEvent> BuildEvents(
+        IEnumerable<Holiday> holidays,
+        IEnumerable<Post<CalendarEventFrontmatter>> customEvents,
+        IEnumerable<Post<CourseFrontMatter>> coursePosts,
+        string coursePageUrl)
     {
         var events = new List<CalendarEvent>();
 
-        // 1. Load Holidays
-        var holidays = _holidaysProvider.GetHolidaysForRange(
-            BuildTimeProvider.TermStart,
-            BuildTimeProvider.TermEnd
-        );
-
+        // 1. Holidays
         foreach (var h in holidays)
         {
             events.Add(new CalendarEvent
@@ -46,13 +54,10 @@ public class CalendarEventProvider
             });
         }
 
-        // 2. Load Custom Calendar Events
-        var customEvents = _calendarEventService.Posts;
-
+        // 2. Custom Calendar Events
         foreach (var evt in customEvents)
         {
             var fm = evt.FrontMatter;
-
             if (fm.Dates == null || !fm.Dates.Any())
                 continue;
 
@@ -60,31 +65,25 @@ public class CalendarEventProvider
 
             foreach (var date in fm.Dates)
             {
-                if (date >= BuildTimeProvider.TermStart && date <= BuildTimeProvider.TermEnd)
+                events.Add(new CalendarEvent
                 {
-                    events.Add(new CalendarEvent
-                    {
-                        Title = fm.Title,
-                        Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
-                        Date = date,
-                        Type = fm.EventType,
-                        CssClass = cssClass,
-                        Url = fm.Url
-                    });
-                }
+                    Title = fm.Title,
+                    Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
+                    Date = date,
+                    Type = fm.EventType,
+                    CssClass = cssClass,
+                    Url = fm.Url
+                });
             }
         }
 
-        // 3. Load Posts
-        var posts = _contentProvider.GetVisiblePosts();
-
-        foreach (var post in posts)
+        // 3. Course Posts
+        foreach (var post in coursePosts)
         {
             var fm = post.FrontMatter;
-            var postUrl = $"{_courseService.Options.PageUrl}/{post.Url}";
+            var postUrl = $"{coursePageUrl}/{post.Url}";
             var tagClasses = string.Join(" ", fm.Tags.Select(t => $"tag-{t.Replace(" ", "-")}"));
 
-            // A. Release Date
             events.Add(new CalendarEvent
             {
                 Title = fm.Title,
@@ -95,7 +94,6 @@ public class CalendarEventProvider
                 Url = postUrl
             });
 
-            // B. Deadline
             if (fm.Deadline.HasValue)
             {
                 events.Add(new CalendarEvent
@@ -109,7 +107,6 @@ public class CalendarEventProvider
                 });
             }
 
-            // C. Progress
             if (fm.ProgressReportDates != null)
             {
                 foreach (var date in fm.ProgressReportDates)
@@ -126,7 +123,6 @@ public class CalendarEventProvider
                 }
             }
 
-            // D. Defense
             if (fm.DefenseDates != null)
             {
                 foreach (var date in fm.DefenseDates)

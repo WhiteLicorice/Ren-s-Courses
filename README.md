@@ -80,3 +80,22 @@ This project follows semantic commits. Start your commit message with a type, fo
 * `debug/test:` Testing, scaffolding, and debugging.
 * Example: `feat: add markdown export to doc manager`
 
+### Tests
+
+Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq for mocking, bUnit for component tests.
+
+```bash
+# Kill any locked process before building
+pwsh -Command "Get-Process | Where-Object { \$_.ProcessName -like '*Blazor*' } | Stop-Process -Force"
+
+# Run all tests
+dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj
+```
+
+Key patterns:
+- **Test collection** `BuildTimeProvider` sets `STATIC_GEN_TIME` + `TERM_START`/`TERM_END` env vars before any test in the collection runs. All tests using `BuildTimeProvider` or services that depend on it must opt into this collection.
+- **InternalsVisibleTo** lets tests access `internal` methods. Testability helpers (`BuildEvents()`, `CalculateFallbackHolidays()`, `GetVisiblePosts(IEnumerable)`) are marked `internal` — never change their public signature.
+- **PostGrid component** tested via bUnit with `TestContext.Render<PostGrid>()`. No DI services needed — all state comes through parameters.
+- **Pure function extraction**: Complex logic extracted as `internal static` methods for direct testing without DI setup.
+- **Environment-dependent date logic** frozen via `STATIC_GEN_TIME` env var for deterministic assertions. Current frozen time: 2026-03-15 18:00 PHT. Update this value when writing date-sensitive tests.
+

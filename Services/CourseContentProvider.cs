@@ -8,11 +8,8 @@ public class CourseContentProvider
 {
     private readonly BlazorStaticContentService<CourseFrontMatter> _staticService;
 
-    // TODO: Define courses that we should hide here.
-    private readonly HashSet<string> _globalHiddenTags = new(StringComparer.OrdinalIgnoreCase)
-    {
-        // "cmsc-131"
-    };
+    // Internal setter for testing via InternalsVisibleTo
+    internal HashSet<string> GlobalHiddenTags { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     public CourseContentProvider(BlazorStaticContentService<CourseFrontMatter> staticService)
     {
@@ -20,20 +17,21 @@ public class CourseContentProvider
     }
 
     public IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts()
+        => GetVisiblePosts(_staticService.Posts);
+
+    // Extracted for testability — pure filtering function
+    public IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts(IEnumerable<Post<CourseFrontMatter>> sourcePosts)
     {
-        var sourcePosts = _staticService.Posts;
         DateTime termStart = BuildTimeProvider.TermStart;
         DateTime termEnd = BuildTimeProvider.TermEnd;
         DateTime nowPh = BuildTimeProvider.LocalNow;
 
         if (nowPh > termEnd)
-        {
             return Enumerable.Empty<Post<CourseFrontMatter>>();
-        }
 
         return sourcePosts.Where(p =>
             !p.FrontMatter.IsDraft
-            && !p.FrontMatter.Tags.Any(t => _globalHiddenTags.Contains(t))
+            && !p.FrontMatter.Tags.Any(t => GlobalHiddenTags.Contains(t))
             && p.FrontMatter.Published <= nowPh
             && p.FrontMatter.Published >= termStart
             && p.FrontMatter.Published <= termEnd

@@ -6,26 +6,29 @@ namespace BlazorStaticMinimalBlog.Services;
 public class HolidaysProvider
 {
     private List<Holiday> _holidaysCache = new();
+    private readonly HttpClient? _httpClient;
     private const string TIMEZONE_STR = "PH";
+
+    public HolidaysProvider() { }
+
+    // Internal for testing — allows injecting a mock HttpClient
+    internal HolidaysProvider(HttpClient? httpClient)
+    {
+        _httpClient = httpClient;
+    }
 
     public async Task InitializeAsync()
     {
         var startYear = BuildTimeProvider.UtcNow.Year;
-
-        // Fetch current year + next year (usually enough for academic calendars)
         var years = Enumerable.Range(startYear, 2).ToList();
-
         var fetchedHolidays = new List<Holiday>();
 
-        using var client = new HttpClient();
-        client.Timeout = TimeSpan.FromSeconds(5);
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; BlazorStaticBot/1.0)");
+        using var client = _httpClient ?? CreateDefaultClient();
 
         foreach (var year in years)
         {
             try
             {
-                // Attempt to fetch from Nager.Date API
                 var json = await client.GetStringAsync($"https://date.nager.at/api/v3/PublicHolidays/{year}/{TIMEZONE_STR}");
                 var apiHolidays = JsonSerializer.Deserialize<List<NagerHoliday>>(json,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -57,11 +60,11 @@ public class HolidaysProvider
             .OrderBy(h => h.Date);
     }
 
-    private List<Holiday> CalculateFallbackHolidays(int year)
+    // Internal for testing — direct access to fallback logic
+    internal List<Holiday> CalculateFallbackHolidays(int year)
     {
         var holidays = new List<Holiday>();
 
-        // 1. Fixed Dates
         holidays.AddRange(
         [
             new Holiday { Date = new DateTime(year, 1, 1), Name = "New Year's Day" },
@@ -80,42 +83,30 @@ public class HolidaysProvider
             new Holiday { Date = new DateTime(year, 12, 31), Name = "Last Day of the Year" }
         ]);
 
-        // 2. National Heroes Day (Last Monday of August)
         holidays.Add(new Holiday
         {
             Date = GetLastDayOfWeekInMonth(year, 8, DayOfWeek.Monday),
             Name = "National Heroes Day"
         });
 
-        // 3. Holy Week (Calculated relative to Easter)
         DateTime easter = CalculateEasterSunday(year);
         holidays.Add(new Holiday { Date = easter.AddDays(-3), Name = "Maundy Thursday" });
         holidays.Add(new Holiday { Date = easter.AddDays(-2), Name = "Good Friday" });
         holidays.Add(new Holiday { Date = easter.AddDays(-1), Name = "Black Saturday" });
         holidays.Add(new Holiday { Date = easter, Name = "Easter Sunday" });
 
-        /* NOTE: We explicitly DO NOT calculate:
-           - Chinese New Year
-           - Eid al-Fitr
-           - Eid al-Adha
-           These depend on the lunar calendar and official presidential proclamations 
-           which vary by sighting. Better to omit them in fallback, than guess wrong.
-        */
-
         return holidays;
     }
 
-    private DateTime GetLastDayOfWeekInMonth(int year, int month, DayOfWeek dayOfWeek)
+    internal static DateTime GetLastDayOfWeekInMonth(int year, int month, DayOfWeek dayOfWeek)
     {
         var dt = new DateTime(year, month, DateTime.DaysInMonth(year, month));
         while (dt.DayOfWeek != dayOfWeek)
-        {
             dt = dt.AddDays(-1);
-        }
         return dt;
     }
 
-    private DateTime CalculateEasterSunday(int year)
+    internal static DateTime CalculateEasterSunday(int year)
     {
         int a = year % 19;
         int b = year / 100;
@@ -133,5 +124,13 @@ public class HolidaysProvider
         int day = ((h + l - 7 * m + 114) % 31) + 1;
 
         return new DateTime(year, month, day);
+    }
+
+    private static HttpClient CreateDefaultClient()
+    {
+        var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(5);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; BlazorStaticBot/1.0)");
+        return client;
     }
 }
