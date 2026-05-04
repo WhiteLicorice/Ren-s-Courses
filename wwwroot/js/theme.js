@@ -36,7 +36,25 @@ window.switchPrismTheme = (theme) => {
     } else {
         localStorage.setItem('user-theme', theme);
     }
+
+    // 5. Update theme-color meta tag for browser chrome
+    updateThemeColorMeta(targetMode);
 };
+
+/**
+ * Updates browser chrome theme-color to match accent.
+ * Uses dark/light adaptive colors instead of hardcoded red.
+ */
+function updateThemeColorMeta(mode) {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        document.head.appendChild(meta);
+    }
+    // Use color that adapts to theme: dark bg in dark mode, light bg in light mode
+    meta.content = mode === 'light' ? '#f8f9fa' : '#111827';
+}
 
 // Listen for system changes
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {

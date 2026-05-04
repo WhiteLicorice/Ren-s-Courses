@@ -2,6 +2,7 @@ using BlazorStatic;
 using BlazorStatic.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BlazorStaticMinimalBlog.Components;
@@ -49,6 +50,9 @@ builder.Services.AddBlazorStaticService(opt =>
 
 builder.Services.AddRazorComponents();
 
+// Load configurable values from appsettings.json
+WebsiteKeys.BlogLead = builder.Configuration.GetValue<string>("BlogLead") ?? WebsiteKeys.BlogLead;
+
 var holidaysProvider = new HolidaysProvider();
 await holidaysProvider.InitializeAsync();
 builder.Services.AddSingleton(holidaysProvider);
@@ -89,7 +93,7 @@ public static class WebsiteKeys
     public const string AuthorGitHub = "https://github.com/WhiteLicorice";
     public const string Title = "Ren's Courses";
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
-    public const string BlogLead = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
+    public static string BlogLead { get; set; } = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
 
     // Non-empty placeholder for content types where individual pages are not needed.
     // Generation of individual post pages is suppressed via AfterContentParsedAndAddedAction.
@@ -123,13 +127,15 @@ public static class WebsiteKeys
     // for content types that only need the listing page, not detail pages.
     // BlazorStatic v1.0.0-beta.17 has no built-in option to skip individual page
     // generation, so we remove them post-parse via this hook.
-    internal static void RemovePostPages<T>(BlazorStaticService svc, BlazorStaticContentService<T> _) where T : class, IFrontMatter, new()
+    internal static void RemovePostPages<T>(BlazorStaticService svc, BlazorStaticContentService<T> contentService) where T : class, IFrontMatter, new()
     {
-        // The options for the specific content service are stored; we find the
-        // PageUrl by matching against the content service's internal prefix.
-        // We remove any page whose Url starts with "DisabledPage/" (the placeholder)
-        // since that indicates it was auto-generated from a disabled content type.
-        var prefix = DisabledPage + "/";
+        // Uses contentService.Options.PageUrl for prefix matching instead of
+        // the DisabledPage constant. This is more robust because it directly
+        // references the service's own PageUrl, which is the actual prefix used
+        // when auto-generating individual post pages.
+        // Note: BlazorStatic v1.0.0-beta.17 has no built-in option to skip
+        // individual page generation, so we remove them post-parse via this hook.
+        var prefix = contentService.Options.PageUrl + "/";
         var pagesToRemove = svc.Options.PagesToGenerate
             .Where(p => p.Url.StartsWith(prefix, StringComparison.Ordinal))
             .ToList();

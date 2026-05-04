@@ -72,7 +72,7 @@ window.addCodeFeatures = () => {
     });
 
     // 4. Trigger Highlighting
-    if (window.Prism) {
-        window.Prism.highlightAll();
-    }
+    //if (window.Prism) {
+        //window.Prism.highlightAll();
+    //}
 };

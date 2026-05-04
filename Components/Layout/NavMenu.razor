@@ -162,6 +162,10 @@
 </div>
 
 <script>
+    // Guard: run only once, even if component re-renders
+    if (!window._navMenuInitialized) {
+    window._navMenuInitialized = true;
+
     // --- Mobile Menu Logic ---
     const menuContainer = document.querySelector('#mobile-menu-container');
     const backdrop = document.querySelector('#mobile-backdrop');
@@ -301,6 +305,7 @@
         }
         lastScrollTop = scrollTop;
     });
+    } // end guard
 </script>
 
 @code {

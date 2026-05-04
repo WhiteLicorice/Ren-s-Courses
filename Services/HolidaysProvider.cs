@@ -46,6 +46,7 @@ public class HolidaysProvider
             catch (Exception ex)
             {
                 Console.WriteLine($"[HolidaysProvider] WARNING: Failed to fetch live {TIMEZONE_STR} holidays for {year}. Calculating fallbacks. Error: {ex.Message}");
+                Console.Error.WriteLine($"[HolidaysProvider] *** FALLBACK ACTIVE: {TIMEZONE_STR} holidays for {year} may be incomplete. Redeploy to refresh. ***");
                 fetchedHolidays.AddRange(CalculateFallbackHolidays(year));
             }
         }

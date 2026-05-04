@@ -50,6 +50,15 @@
             if (mode === 'light') {
                 document.getElementById('prism-theme-link').href = "css/prism-light.css";
             }
+
+            // Set initial theme-color for browser chrome
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (!meta) {
+                meta = document.createElement('meta');
+                meta.name = 'theme-color';
+                document.head.appendChild(meta);
+            }
+            meta.content = mode === 'light' ? '#f8f9fa' : '#111827';
         })();
     </script>
 
@@ -69,12 +78,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js"
         integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    @*TODO: Add security details for Kotlin and GDScript.*@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"
+        integrity="sha384-zz49ukKZF8e3sr9aiW45Ju61sb9hptYyPOufuu9eutOrjwnOK3D1CGRU+eb12fGy"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"
         integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"
+        integrity="sha384-/VR77D3X6KK5aOg7HD5UwKXCvpBRSd69miStqj8kq3OeK3nJ3nzHQ9GZxMjcES5T"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js"
         integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>

@@ -1,5 +1,8 @@
-@* This page exists solely to satisfy the BlazorStatic engine. Ugh.*@
-@* TODO: Add null pages here. *@
+@* This page exists solely to satisfy BlazorStatic auto-page-discovery for the /null route.
+   BlazorStatic picks up all @page directives even those without content parameters.
+   Alternative: Set BlazorStaticOptions.AddPagesWithoutParameters = false and
+   manually list every page you want generated. That eliminates Null.razor but
+   adds maintenance. Current approach: keep Null.razor as a simple redirect. Ugh. *@
 @page "/null/{*Slug}"
 @page "/null"
 

@@ -362,4 +362,23 @@ public class CalendarEventProviderTests
 
         Assert.Empty(results);
     }
+
+    // ----------------------------------------------------------------
+    // 11. Every EventType enum value maps to a non-empty CSS class
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetDefaultCssForEventType_AllEnumValues_ReturnNonEmptyString()
+    {
+        var method = typeof(CalendarEventProvider).GetMethod("GetDefaultCssForEventType",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        Assert.NotNull(method);
+
+        foreach (EventType eventType in Enum.GetValues<EventType>())
+        {
+            var cssClass = (string)method.Invoke(null, [eventType])!;
+            Assert.False(string.IsNullOrEmpty(cssClass),
+                $"GetDefaultCssForEventType returned empty for EventType.{eventType}");
+        }
+    }
 }
