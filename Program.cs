@@ -33,12 +33,14 @@ builder.Services.AddBlazorStaticService(opt =>
     opt.ContentPath = WebsiteKeys.Bookings.SourcePath;
     opt.Tags.TagsPageUrl = WebsiteKeys.Disabled;
     opt.PageUrl = WebsiteKeys.Disabled;
+    opt.Tags.AddTagPagesFromPosts = false;
 })
 .AddBlazorStaticContentService<CalendarEventFrontmatter>(opt =>
 {
     opt.ContentPath = WebsiteKeys.CalendarEvents.SourcePath;
     opt.Tags.TagsPageUrl = WebsiteKeys.Disabled;
     opt.PageUrl = WebsiteKeys.Disabled;
+    opt.Tags.AddTagPagesFromPosts = false;
 });
 
 builder.Services.AddRazorComponents();
