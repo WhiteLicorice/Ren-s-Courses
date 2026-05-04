@@ -100,7 +100,7 @@ Key patterns:
 - **Environment-dependent date logic** frozen via `STATIC_GEN_TIME` env var for deterministic assertions. Current frozen time: 2026-03-15 18:00 PHT. Update this value when writing date-sensitive tests.
 - **EphemeralPost&lt;T&gt;**: In-memory markdown fixture harness. Define frontmatter + body in-line, no disk I/O:
   ```csharp
-  var post = new EphemeralPost&lt;CourseFrontMatter&gt;(new CourseFrontMatter
+  var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
   {
       Title = "Test", Published = new DateTime(2026, 3, 1)
   }, body: "## Content");
