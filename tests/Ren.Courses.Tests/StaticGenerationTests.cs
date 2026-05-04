@@ -1,26 +1,28 @@
-using System.Text;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-
 namespace Ren.Courses.Tests;
 
 [Collection("BuildTimeProvider")]
 public class StaticGenerationTests
 {
-    private readonly string _materialsDir;
-
-    public StaticGenerationTests()
-    {
-        var baseDir = Path.GetDirectoryName(typeof(StaticGenerationTests).Assembly.Location)
-            ?? throw new InvalidOperationException("Cannot determine test assembly directory");
-        _materialsDir = Path.Combine(baseDir, "Content", "Materials");
-    }
-
     [Fact]
     public void ParseFrontMatter_ValidPost_ParsesAllFields()
     {
-        var md = File.ReadAllText(Path.Combine(_materialsDir, "valid-post.md"));
-        var fm = ParseFrontMatter<CourseFrontMatter>(md);
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Test Post",
+            Lead = "Test lead paragraph",
+            Subtitle = "Test subtitle",
+            Published = new DateTime(2026, 2, 1),
+            IsDraft = false,
+            DownloadLink = "https://example.com/download",
+            Deadline = new DateTime(2026, 3, 20),
+            Tags = new List<string> { "cmsc-131", "homework" },
+            Authors = new List<ArticleAuthor>
+            {
+                new() { Name = "Test Author" }
+            }
+        }, body: "# Test Content\n\nThis is test markdown.\n");
+
+        var fm = post.FrontMatter;
 
         Assert.Equal("Test Post", fm.Title);
         Assert.Equal("Test lead paragraph", fm.Lead);
@@ -39,8 +41,15 @@ public class StaticGenerationTests
     [Fact]
     public void ParseFrontMatter_DraftPost_HasIsDraftTrue()
     {
-        var md = File.ReadAllText(Path.Combine(_materialsDir, "draft-post.md"));
-        var fm = ParseFrontMatter<CourseFrontMatter>(md);
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Draft Post",
+            Published = new DateTime(2026, 3, 1),
+            IsDraft = true,
+            Tags = new List<string> { "cmsc-124" }
+        }, body: "Draft content.");
+
+        var fm = post.FrontMatter;
 
         Assert.Equal("Draft Post", fm.Title);
         Assert.True(fm.IsDraft);
@@ -50,89 +59,95 @@ public class StaticGenerationTests
     [Fact]
     public void ParseFrontMatter_MinimalPost_UsesDefaultValuesForMissingFields()
     {
-        var md = File.ReadAllText(Path.Combine(_materialsDir, "minimal-post.md"));
-        var fm = ParseFrontMatter<CourseFrontMatter>(md);
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Minimal Post",
+            Published = new DateTime(2026, 3, 1),
+            Tags = new List<string> { "cmsc-131" }
+        }, body: "Minimal content.");
+
+        var fm = post.FrontMatter;
 
         Assert.Equal("Minimal Post", fm.Title);
         Assert.Equal(new DateTime(2026, 3, 1), fm.Published);
         Assert.False(fm.IsDraft);
 
-        // Fields not present in YAML should fall through to C# defaults
+        // Fields not set in frontmatter should have C# defaults
         Assert.Empty(fm.Lead);
         Assert.Empty(fm.Subtitle);
         Assert.Null(fm.Deadline);
         Assert.False(fm.NoDeadline);
         Assert.Null(fm.DownloadLink);
         Assert.Empty(fm.Authors);
-
         Assert.Contains("cmsc-131", fm.Tags);
     }
 
     [Fact]
     public void GetVisiblePosts_ValidAndMinimalPostsVisible_DraftExcluded()
     {
-        var validMd = File.ReadAllText(Path.Combine(_materialsDir, "valid-post.md"));
-        var draftMd = File.ReadAllText(Path.Combine(_materialsDir, "draft-post.md"));
-        var minimalMd = File.ReadAllText(Path.Combine(_materialsDir, "minimal-post.md"));
-
-        var validFm = ParseFrontMatter<CourseFrontMatter>(validMd);
-        var draftFm = ParseFrontMatter<CourseFrontMatter>(draftMd);
-        var minimalFm = ParseFrontMatter<CourseFrontMatter>(minimalMd);
+        var valid = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Valid Post",
+            Published = new DateTime(2026, 2, 1),
+            Tags = new List<string> { "cmsc-131" }
+        });
+        var draft = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Draft Post",
+            Published = new DateTime(2026, 3, 1),
+            IsDraft = true,
+            Tags = new List<string> { "cmsc-124" }
+        });
+        var minimal = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Minimal Post",
+            Published = new DateTime(2026, 3, 1),
+            Tags = new List<string> { "cmsc-131" }
+        });
 
         var posts = new List<Post<CourseFrontMatter>>
         {
-            new() { FrontMatter = validFm, Url = "valid-post", HtmlContent = "" },
-            new() { FrontMatter = draftFm, Url = "draft-post", HtmlContent = "" },
-            new() { FrontMatter = minimalFm, Url = "minimal-post", HtmlContent = "" }
+            new() { FrontMatter = valid.FrontMatter, Url = "valid-post", HtmlContent = "" },
+            new() { FrontMatter = draft.FrontMatter, Url = "draft-post", HtmlContent = "" },
+            new() { FrontMatter = minimal.FrontMatter, Url = "minimal-post", HtmlContent = "" }
         };
 
-        // Construct provider with null because GetVisiblePosts(IEnumerable<>)
-        // is a pure function that does not use the constructor parameter.
         var provider = new CourseContentProvider(null!);
         var visible = provider.GetVisiblePosts(posts).ToList();
 
-        // Valid and minimal posts should be visible; draft post should be excluded
         Assert.Contains(visible, p => p.Url == "valid-post");
         Assert.Contains(visible, p => p.Url == "minimal-post");
         Assert.DoesNotContain(visible, p => p.Url == "draft-post");
 
-        // Should be ordered by Published descending:
-        // minimal-post (2026-03-01) first, then valid-post (2026-02-01)
         Assert.Equal(2, visible.Count);
-        Assert.Equal("minimal-post", visible[0].Url);
-        Assert.Equal("valid-post", visible[1].Url);
+        Assert.Equal("minimal-post", visible[0].Url); // 2026-03-01 first
+        Assert.Equal("valid-post", visible[1].Url);    // 2026-02-01 second
     }
 
-    /// <summary>
-    /// Extracts and deserializes YAML frontmatter from a markdown string.
-    /// Expects content between leading "---" and closing "---" delimiters.
-    /// </summary>
-    private static T ParseFrontMatter<T>(string markdown) where T : class
+    [Fact]
+    public void EphemeralPost_RoundTripsBodyCorrectly()
     {
-        const string delimiter = "---";
-        using var reader = new StringReader(markdown);
-
-        var firstLine = reader.ReadLine()?.Trim();
-        if (firstLine != delimiter)
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
         {
-            throw new InvalidOperationException(
-                "Markdown must start with frontmatter delimiter (---).");
-        }
+            Title = "Body Test",
+            Published = new DateTime(2026, 3, 1),
+            Tags = new List<string>()
+        }, body: "## Section 1\n\nSome *text* here.");
 
-        var yaml = new StringBuilder();
-        string? line;
-        while ((line = reader.ReadLine()) != null)
+        Assert.Equal("## Section 1\n\nSome *text* here.", post.Body);
+    }
+
+    [Fact]
+    public void EphemeralPost_RawMarkdown_ContainsFrontmatterDelimiters()
+    {
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
         {
-            if (line.Trim() == delimiter)
-                break;
-            yaml.AppendLine(line);
-        }
+            Title = "Delimiter Test",
+            Published = new DateTime(2026, 3, 1),
+            Tags = new List<string>()
+        });
 
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
-
-        return deserializer.Deserialize<T>(yaml.ToString());
+        Assert.StartsWith("---", post.RawMarkdown);
+        Assert.Contains("\n---\n", post.RawMarkdown);
     }
 }

@@ -82,7 +82,7 @@ This project follows semantic commits. Start your commit message with a type, fo
 
 ### Tests
 
-Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq for mocking, bUnit for component tests.
+Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq + bUnit. No fixture files on disk — test data defined inline via `EphemeralPost<T>` harness.
 
 ```bash
 # Kill any locked process before building
@@ -98,4 +98,13 @@ Key patterns:
 - **PostGrid component** tested via bUnit with `TestContext.Render<PostGrid>()`. No DI services needed — all state comes through parameters.
 - **Pure function extraction**: Complex logic extracted as `internal static` methods for direct testing without DI setup.
 - **Environment-dependent date logic** frozen via `STATIC_GEN_TIME` env var for deterministic assertions. Current frozen time: 2026-03-15 18:00 PHT. Update this value when writing date-sensitive tests.
+- **EphemeralPost&lt;T&gt;**: In-memory markdown fixture harness. Define frontmatter + body in-line, no disk I/O:
+  ```csharp
+  var post = new EphemeralPost&lt;CourseFrontMatter&gt;(new CourseFrontMatter
+  {
+      Title = "Test", Published = new DateTime(2026, 3, 1)
+  }, body: "## Content");
+  var fm = post.FrontMatter; // deserialized
+  var md = post.RawMarkdown; // "---\ntitle: Test\n..."
+  ```
 

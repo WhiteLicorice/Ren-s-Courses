@@ -27,10 +27,4 @@
     <ProjectReference Include="..\..\BlazorStaticMinimalBlog.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Content/**/*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
