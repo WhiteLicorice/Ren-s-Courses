@@ -14,7 +14,6 @@ public static class BuildTimeProvider
     public static TimeZoneInfo LocalTimeZone { get; private set; }
     public static DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(UtcNow, LocalTimeZone);
 
-    // FIXME: C# thinks that the term starts 8 hours into the day lmao.
     static BuildTimeProvider()
     {
         Console.WriteLine("--------------------------------------------------");
@@ -47,20 +46,24 @@ public static class BuildTimeProvider
         }
 
         // 3. Initialize Term Dates
-        _termStart = DateTime.Parse(
-            Environment.GetEnvironmentVariable("TERM_START")!,
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.AdjustToUniversal
-        );
+        // TERM_START/TERM_END are Philippine local dates.
+        // Handle both with and without Z suffix (CI env uses plain dates,
+        // launchSettings uses ISO with Z). If Z suffix, treat as-is (already UTC).
+        // Otherwise, parse as Unspecified and convert from PH to UTC.
+        _termStart = ParseTermDate(Environment.GetEnvironmentVariable("TERM_START")!);
         Console.WriteLine($"[BuildTimeProvider] SUCCESS: Set TermStart to {_termStart:O}");
 
-        _termEnd = DateTime.Parse(
-            Environment.GetEnvironmentVariable("TERM_END")!,
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.AdjustToUniversal
-        );
+        _termEnd = ParseTermDate(Environment.GetEnvironmentVariable("TERM_END")!);
         Console.WriteLine($"[BuildTimeProvider] SUCCESS: Set TermEnd to {_termEnd:O}");
 
         Console.WriteLine("--------------------------------------------------");
+    }
+
+    private static DateTime ParseTermDate(string raw)
+    {
+        var date = DateTime.Parse(raw, CultureInfo.InvariantCulture);
+        if (date.Kind == DateTimeKind.Unspecified)
+            return TimeZoneInfo.ConvertTimeToUtc(date, LocalTimeZone);
+        return date.ToUniversalTime();
     }
 }
