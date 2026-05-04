@@ -1,0 +1,26 @@
+@if (Layout == PostGridLayout.Grid)
+{
+    <div class="grid gap-6 sm:grid-cols-2 lg:gap-8 mt-8">
+        @foreach (var item in Items)
+        {
+            @CardTemplate(item)
+        }
+    </div>
+}
+else
+{
+    <div class="flex flex-col gap-6 px-4">
+        @foreach (var item in Items)
+        {
+            @CardTemplate(item)
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public IEnumerable<object> Items { get; set; } = [];
+    [Parameter] public RenderFragment<object> CardTemplate { get; set; } = null!;
+    [Parameter] public PostGridLayout Layout { get; set; } = PostGridLayout.Grid;
+
+    public enum PostGridLayout { Grid, Stack }
+}

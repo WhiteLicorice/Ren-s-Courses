@@ -1,4 +1,5 @@
 using BlazorStatic;
+using BlazorStatic.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,21 +27,25 @@ builder.Services.AddBlazorStaticService(opt =>
 {
     opt.ContentPath = WebsiteKeys.Projects.SourcePath;
     opt.Tags.TagsPageUrl = WebsiteKeys.Projects.TagPageUrl;
-    opt.PageUrl = WebsiteKeys.Disabled;
+    opt.PageUrl = WebsiteKeys.DisabledPage;
+    opt.Tags.AddTagPagesFromPosts = false;
+    opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemovePostPages;
 })
 .AddBlazorStaticContentService<BookingFrontmatter>(opt =>
 {
     opt.ContentPath = WebsiteKeys.Bookings.SourcePath;
-    opt.Tags.TagsPageUrl = WebsiteKeys.Disabled;
-    opt.PageUrl = WebsiteKeys.Disabled;
+    opt.Tags.TagsPageUrl = WebsiteKeys.DisabledPage;
+    opt.PageUrl = WebsiteKeys.DisabledPage;
     opt.Tags.AddTagPagesFromPosts = false;
+    opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemovePostPages;
 })
 .AddBlazorStaticContentService<CalendarEventFrontmatter>(opt =>
 {
     opt.ContentPath = WebsiteKeys.CalendarEvents.SourcePath;
-    opt.Tags.TagsPageUrl = WebsiteKeys.Disabled;
-    opt.PageUrl = WebsiteKeys.Disabled;
+    opt.Tags.TagsPageUrl = WebsiteKeys.DisabledPage;
+    opt.PageUrl = WebsiteKeys.DisabledPage;
     opt.Tags.AddTagPagesFromPosts = false;
+    opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemovePostPages;
 });
 
 builder.Services.AddRazorComponents();
@@ -51,7 +56,11 @@ builder.Services.AddSingleton(holidaysProvider);
 
 builder.Services.AddSingleton<CourseContentProvider>();
 builder.Services.AddSingleton<FrontmatterStatusService>();
+builder.Services.AddSingleton<CalendarEventProvider>();
 builder.Services.AddScoped<ThemeService>();
+
+var menuFilePath = Path.Combine(builder.Environment.ContentRootPath, "menu.json");
+builder.Services.AddSingleton(new MenuConfigService(menuFilePath));
 
 var app = builder.Build();
 
@@ -83,8 +92,9 @@ public static class WebsiteKeys
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
     public const string BlogLead = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
 
-    // Use this constant when you need to pass the literal string "null"
-    public const string Disabled = "null";
+    // Non-empty placeholder for content types where individual pages are not needed.
+    // Generation of individual post pages is suppressed via AfterContentParsedAndAddedAction.
+    public const string DisabledPage = "_disabled";
 
     // --- DOMAIN SPECIFIC KEYS ---
     public static class Materials
@@ -108,5 +118,23 @@ public static class WebsiteKeys
     public static class CalendarEvents
     {
         public const string SourcePath = "Content/Events";
+    }
+
+    // AfterContentParsedAndAddedAction callback: removes individual post pages
+    // for content types that only need the listing page, not detail pages.
+    // BlazorStatic v1.0.0-beta.17 has no built-in option to skip individual page
+    // generation, so we remove them post-parse via this hook.
+    internal static void RemovePostPages<T>(BlazorStaticService svc, BlazorStaticContentService<T> _) where T : class, IFrontMatter, new()
+    {
+        // The options for the specific content service are stored; we find the
+        // PageUrl by matching against the content service's internal prefix.
+        // We remove any page whose Url starts with "DisabledPage/" (the placeholder)
+        // since that indicates it was auto-generated from a disabled content type.
+        var prefix = DisabledPage + "/";
+        var pagesToRemove = svc.Options.PagesToGenerate
+            .Where(p => p.Url.StartsWith(prefix, StringComparison.Ordinal))
+            .ToList();
+        foreach (var page in pagesToRemove)
+            svc.Options.PagesToGenerate.Remove(page);
     }
 }

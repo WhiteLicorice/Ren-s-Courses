@@ -1,4 +1,6 @@
-﻿@inject NavigationManager Nm
+﻿@inject MenuConfigService MenuConfig
+@using BlazorStaticMinimalBlog.Services
+@using Svg = BlazorStaticMinimalBlog.Components.Svg
 
 @* 'fixed' to lock it to the viewport strictly *@
 <header id="main-navbar"
@@ -302,18 +304,10 @@
 </script>
 
 @code {
-    List<MenuItem> menuItems =
-    [
-    new("Home", "", null, "_self"),
-new("Materials", "materials", null, "_self"),
-new MenuItem("Showcase", "projects", null, "_self"),
-new(Name: "Submissions", "https://forms.gle/mRFBXwhuR3LdvSN3A", null, "_blank"),
-new(Name: "Bookings", "bookings", null, "_self"),
-new(Name: "Calendar", "calendar", null, "_self"),
-new("Grades",
-"https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
-null, "_blank"),
-];
+    List<MenuItem> menuItems = [];
 
-    record MenuItem(string Name, string Link, Svg.Icons? Icon, string Target);
+    protected override void OnInitialized()
+    {
+        menuItems = MenuConfig.Items;
+    }
 }

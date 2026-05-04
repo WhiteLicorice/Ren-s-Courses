@@ -3,13 +3,13 @@
 @using BlazorStaticMinimalBlog.Models
 @inject BlazorStaticContentService<ProjectFrontMatter> projectService
 
-@* Stack of Foldable Cards *@
-<div class="flex flex-col gap-6 px-4">
-    @* Use the Parameter passed from the parent *@
-    @foreach (var post in Posts)
-    {
-        var project = post.FrontMatter;
-        bool hasThumbnail = !string.IsNullOrWhiteSpace(project.Thumbnail);
+<PostGrid Items="@Posts" Layout="PostGrid.PostGridLayout.Stack">
+    <CardTemplate Context="ctx">
+        @{
+            var post = (Post<ProjectFrontMatter>)ctx;
+            var project = post.FrontMatter;
+            bool hasThumbnail = !string.IsNullOrWhiteSpace(project.Thumbnail);
+        }
 
         <details
             class="group bg-surface border border-border-muted rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300">
@@ -136,8 +136,8 @@
                 </div>
             </div>
         </details>
-    }
-</div>
+    </CardTemplate>
+</PostGrid>
 
 @code {
     [Parameter] public IEnumerable<Post<ProjectFrontMatter>> Posts { get; set; } = new List<Post<ProjectFrontMatter>>();

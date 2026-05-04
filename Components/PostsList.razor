@@ -7,9 +7,11 @@
 @inject CourseContentProvider ContentProvider
 @inject FrontmatterStatusService StatusService
 
-<div class="grid gap-6 sm:grid-cols-2 lg:gap-8 mt-8">
-    @foreach (var post in posts)
-    {
+<PostGrid Items="@posts" Layout="PostGrid.PostGridLayout.Grid">
+    <CardTemplate Context="ctx">
+        @{
+            var post = (Post<CourseFrontMatter>)ctx;
+        }
         <article
             class="group relative flex flex-col justify-between rounded-lg border border-border-muted bg-surface p-6 shadow-md transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-accent/15 hover:-translate-y-1">
 
@@ -44,7 +46,7 @@
                     </div>
                 }
 
-                @* --- STATUS BADGE (Logic decoupled via StatusService) --- *@
+                @* --- STATUS BADGE --- *@
                 @{
                     var status = StatusService.GetStatus(post.FrontMatter);
                     var date = StatusService.GetEffectiveDate(post.FrontMatter);
@@ -52,8 +54,6 @@
 
                 @if (status != FrontmatterStatus.None)
                 {
-                    // Visual mapping based on Status Enum
-                    // Keeping standard semantic colors for status (Red/Orange/Green) as they denote state better than theme colors
                     string badgeClass = status switch
                     {
                         FrontmatterStatus.Expired => "border-red-500/30 bg-red-500/10 text-red-500",
@@ -104,8 +104,8 @@
                 </span>
             </div>
         </article>
-    }
-</div>
+    </CardTemplate>
+</PostGrid>
 
 @code {
     private List<Post<CourseFrontMatter>> posts = new();

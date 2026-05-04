@@ -4,10 +4,8 @@
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
 @using BlazorStaticMinimalBlog.Services
+@inject CalendarEventProvider EventProvider
 @inject CourseContentProvider ContentProvider
-@inject HolidaysProvider HolidaysProvider
-@inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
-@inject BlazorStaticContentService<CalendarEventFrontmatter> calendarEventService
 @inject IJSRuntime JSRuntime
 
 <div class="mx-auto max-w-[1400px] py-10 sm:py-16 animate-fade-in select-none px-4">
@@ -333,144 +331,13 @@
 
     protected override void OnInitialized()
     {
-        LoadEvents();
+        _allEvents = EventProvider.GetAllEvents();
     }
 
     // IMPORTANT: Re-initialize JS navigation when the component renders (navigating back to this page)
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeVoidAsync("initCalendarNav");
-    }
-
-    private void LoadEvents()
-    {
-        _allEvents.Clear();
-
-        // 1. Load Holidays (Using Provider)
-        var holidays = HolidaysProvider.GetHolidaysForRange(
-        BuildTimeProvider.TermStart,
-        BuildTimeProvider.TermEnd
-        );
-
-        foreach (var h in holidays)
-        {
-            _allEvents.Add(new CalendarEvent
-            {
-                Title = h.Name,
-                Tooltip = "Holiday",
-                Date = h.Date,
-                Type = EventType.Holiday,
-                CssClass = "bg-accent/10 text-accent border-accent",
-                Url = null
-            });
-        }
-
-        // 2. Load Custom Calendar Events (Using CalendarEventFrontmatter)
-        var customEvents = calendarEventService.Posts;
-
-        foreach (var evt in customEvents)
-        {
-            var fm = evt.FrontMatter;
-            
-            // Skip if no dates are defined
-            if (fm.Dates == null || !fm.Dates.Any())
-                continue;
-            
-            // Use custom CSS class if provided, otherwise use default based on event type
-            string cssClass = fm.CssClass ?? GetDefaultCssForEventType(fm.EventType);
-
-            // Create a calendar event for each date in the Dates list
-            foreach (var date in fm.Dates)
-            {
-                // Only add events within the term range
-                if (date >= BuildTimeProvider.TermStart && date <= BuildTimeProvider.TermEnd)
-                {
-                    _allEvents.Add(new CalendarEvent
-                    {
-                        Title = fm.Title,
-                        Tooltip = string.IsNullOrEmpty(fm.Tooltip) ? fm.EventType.ToString() : fm.Tooltip,
-                        Date = date,
-                        Type = fm.EventType,
-                        CssClass = cssClass,
-                        Url = fm.Url
-                    });
-                }
-            }
-        }
-
-        // 3. Load Posts (Using Provider)
-        var posts = ContentProvider.GetVisiblePosts();
-
-        foreach (var post in posts)
-        {
-            var fm = post.FrontMatter;
-            var postUrl = $"{blazorStaticContentService.Options.PageUrl}/{post.Url}";
-
-            // INJECT TAG CLASSES FOR JS FILTERING
-            // e.g. "tag-Homework tag-Labs"
-            var tagClasses = string.Join(" ", fm.Tags.Select(t => $"tag-{t.Replace(" ", "-")}"));
-
-            // Note: For event types (Release, Deadline, etc), we keep distinct colors
-            // but use adaptive text colors (dark:text-white) to ensure visibility in all themes.
-            // A. Release Date
-            _allEvents.Add(new CalendarEvent
-            {
-                Title = fm.Title,
-                Tooltip = "Release",
-                Date = fm.Published.Date,
-                Type = EventType.Release,
-                CssClass = $"bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500 {tagClasses}",
-                Url = postUrl
-            });
-
-            // B. Deadline
-            if (fm.Deadline.HasValue)
-            {
-                _allEvents.Add(new CalendarEvent
-                {
-                    Title = fm.Title,
-                    Tooltip = "Deadline",
-                    Date = fm.Deadline.Value.Date,
-                    Type = EventType.Deadline,
-                    CssClass = $"bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500 font-bold {tagClasses}",
-                    Url = postUrl
-                });
-            }
-
-            // C. Progress
-            if (fm.ProgressReportDates != null)
-            {
-                foreach (var date in fm.ProgressReportDates)
-                {
-                    _allEvents.Add(new CalendarEvent
-                    {
-                        Title = fm.Title,
-                        Tooltip = "Progress",
-                        Date = date.Date,
-                        Type = EventType.Progress,
-                        CssClass = $"bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500 {tagClasses}",
-                        Url = postUrl
-                    });
-                }
-            }
-
-            // D. Defense
-            if (fm.DefenseDates != null)
-            {
-                foreach (var date in fm.DefenseDates)
-                {
-                    _allEvents.Add(new CalendarEvent
-                    {
-                        Title = fm.Title,
-                        Tooltip = "Defense",
-                        Date = date.Date,
-                        Type = EventType.Defense,
-                        CssClass = $"bg-green-500/10 text-green-700 dark:text-green-400 border-green-500 {tagClasses}",
-                        Url = postUrl
-                    });
-                }
-            }
-        }
     }
 
     private List<DateTime> GetDynamicTermMonths()
@@ -498,21 +365,4 @@
         .ToList();
     }
 
-    /// <summary>
-    /// Returns default CSS classes for a given event type.
-    /// Maintains parity with existing event styling.
-    /// </summary>
-    private string GetDefaultCssForEventType(EventType eventType)
-    {
-        return eventType switch
-        {
-            EventType.Holiday => "bg-accent/10 text-accent border-accent",
-            EventType.Custom => "bg-accent/10 text-accent border-accent",
-            EventType.Release => "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500",
-            EventType.Deadline => "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500 font-bold",
-            EventType.Progress => "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500",
-            EventType.Defense => "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500",
-            _ => "bg-accent/10 text-accent border-accent"
-        };
-    }
 }

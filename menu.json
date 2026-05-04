@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Home",
+    "link": "",
+    "icon": null,
+    "target": "_self"
+  },
+  {
+    "name": "Materials",
+    "link": "materials",
+    "icon": null,
+    "target": "_self"
+  },
+  {
+    "name": "Showcase",
+    "link": "projects",
+    "icon": null,
+    "target": "_self"
+  },
+  {
+    "name": "Submissions",
+    "link": "https://forms.gle/mRFBXwhuR3LdvSN3A",
+    "icon": null,
+    "target": "_blank"
+  },
+  {
+    "name": "Bookings",
+    "link": "bookings",
+    "icon": null,
+    "target": "_self"
+  },
+  {
+    "name": "Calendar",
+    "link": "calendar",
+    "icon": null,
+    "target": "_self"
+  },
+  {
+    "name": "Grades",
+    "link": "https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec",
+    "icon": null,
+    "target": "_blank"
+  }
+]
