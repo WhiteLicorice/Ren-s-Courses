@@ -177,6 +177,46 @@ window.closeEventPopover = () => {
 };
 
 /**
+ * Multi-tag calendar filter. Called by course-filter.js when the global course
+ * filter changes. Accepts an array of tag strings (lowercase). Empty array = show all.
+ * Mirrors filterCalendar() but supports multiple tags simultaneously.
+ */
+window.filterCalendarMulti = function (tags) {
+    // Reset all calendar filter button states
+    document.querySelectorAll('.filter-btn').forEach(function (btn) {
+        btn.classList.remove('bg-accent-dim', 'border-accent', 'text-accent', 'scale-105', 'shadow-lg');
+        btn.classList.add('bg-surface', 'border-border-muted', 'text-text-dim', 'hover:border-accent/50');
+    });
+
+    var events = document.querySelectorAll('.calendar-event');
+    var title = document.getElementById('cal-title');
+    var subtitle = document.getElementById('cal-subtitle');
+    var resetBtn = document.getElementById('cal-reset-btn');
+
+    if (!tags || tags.length === 0) {
+        events.forEach(function (el) { el.style.display = ''; });
+        if (title) title.innerHTML = '<span class="text-accent">./</span>Calendar';
+        if (subtitle) {
+            var defaultText = subtitle.getAttribute('data-default');
+            subtitle.innerText = defaultText || 'Displaying schedule...';
+        }
+        if (resetBtn) resetBtn.style.display = 'none';
+    } else {
+        events.forEach(function (el) {
+            var matches = tags.some(function (tag) {
+                return el.classList.contains('tag-' + tag.replace(/\s+/g, '-'));
+            });
+            el.style.display = matches ? '' : 'none';
+        });
+        if (title) title.innerHTML = '<span class="text-accent">#</span>' + tags.join(', ');
+        if (subtitle) {
+            subtitle.innerHTML = 'Filtering by <span class="text-text-main font-semibold">' + tags.join(', ') + '</span>.';
+        }
+        if (resetBtn) resetBtn.style.display = 'flex';
+    }
+};
+
+/**
  * INITIALIZE CALENDAR POPOVER BEHAVIOUR
  * Sets up document-level listeners for closing the popover on outside click or Escape.
  */

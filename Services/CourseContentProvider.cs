@@ -40,7 +40,12 @@ public class CourseContentProvider
 
     public List<string> GetAllTags()
     {
-        return GetVisiblePosts()
+        return GetAllTags(GetVisiblePosts());
+    }
+
+    public List<string> GetAllTags(IEnumerable<Post<CourseFrontMatter>> filteredPosts)
+    {
+        return filteredPosts
             .SelectMany(p => p.FrontMatter.Tags)
             .Distinct()
             .OrderBy(t => t)

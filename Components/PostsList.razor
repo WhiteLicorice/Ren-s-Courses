@@ -12,7 +12,7 @@
         @{
             var post = (Post<CourseFrontMatter>)ctx;
         }
-        <article
+        <article data-course-tags="@string.Join(" ", post.FrontMatter.Tags)"
             class="group relative flex flex-col justify-between rounded-lg border border-border-muted bg-surface p-6 shadow-md transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-accent/15 hover:-translate-y-1">
 
             @* --- TOP META: Date & Tags --- *@
