@@ -42,9 +42,11 @@ function _updateChips() {
 }
 
 function _applyFilter() {
+    // Only filter pages that render CourseFilter chips; other pages (Materials, etc.) are unaffected.
+    if (document.querySelectorAll('.course-filter-chip').length === 0) return;
+
     var active = _selectedTags.length > 0;
 
-    // Show/hide all elements tagged with data-course-tags
     document.querySelectorAll('[data-course-tags]').forEach(function (el) {
         if (!active) {
             el.style.display = '';
