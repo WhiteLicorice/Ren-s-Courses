@@ -19,22 +19,27 @@ public class CourseContentProvider
     public IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts()
         => GetVisiblePosts(_staticService.Posts);
 
-    // Extracted for testability — pure filtering function
+    // Delegates to internal overload with current showcase mode
     public IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts(IEnumerable<Post<CourseFrontMatter>> sourcePosts)
+        => GetVisiblePosts(sourcePosts, BuildTimeProvider.IsShowcaseMode);
+
+    // Pure filtering function — showcaseMode bypasses term window + future check
+    internal IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts(
+        IEnumerable<Post<CourseFrontMatter>> sourcePosts, bool showcaseMode)
     {
         DateTime termStart = BuildTimeProvider.TermStart;
         DateTime termEnd = BuildTimeProvider.TermEnd;
         DateTime nowPh = BuildTimeProvider.LocalNow;
 
-        if (nowPh > termEnd)
+        if (!showcaseMode && nowPh > termEnd)
             return Enumerable.Empty<Post<CourseFrontMatter>>();
 
         return sourcePosts.Where(p =>
             !p.FrontMatter.IsDraft
             && !p.FrontMatter.Tags.Any(t => GlobalHiddenTags.Contains(t))
-            && p.FrontMatter.Published <= nowPh
-            && p.FrontMatter.Published >= termStart
-            && p.FrontMatter.Published <= termEnd
+            && (showcaseMode || p.FrontMatter.Published >= termStart)
+            && (showcaseMode || p.FrontMatter.Published <= termEnd)
+            && (showcaseMode || p.FrontMatter.Published <= nowPh)
         ).OrderByDescending(p => p.FrontMatter.Published);
     }
 

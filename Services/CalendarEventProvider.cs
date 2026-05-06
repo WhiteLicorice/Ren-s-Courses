@@ -24,12 +24,24 @@ public class CalendarEventProvider
     }
 
     public List<CalendarEvent> GetAllEvents()
-        => BuildEvents(
-            _holidaysProvider.GetHolidaysForRange(BuildTimeProvider.TermStart, BuildTimeProvider.TermEnd),
+    {
+        DateTime holidayStart = BuildTimeProvider.TermStart;
+        DateTime holidayEnd = BuildTimeProvider.TermEnd;
+
+        if (BuildTimeProvider.IsShowcaseMode)
+        {
+            // Showcase mode: show holidays across all years
+            holidayStart = DateTime.MinValue;
+            holidayEnd = DateTime.MaxValue;
+        }
+
+        return BuildEvents(
+            _holidaysProvider.GetHolidaysForRange(holidayStart, holidayEnd),
             _calendarEventService.Posts,
             _contentProvider.GetVisiblePosts(),
             _courseService.Options.PageUrl
         );
+    }
 
     // Extracted for testability — pure function with no DI dependencies
     internal static List<CalendarEvent> BuildEvents(

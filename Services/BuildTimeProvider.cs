@@ -11,6 +11,7 @@ public static class BuildTimeProvider
     public static DateTime TermEnd => _termEnd;
     private static readonly DateTime _termStart;
     private static readonly DateTime _termEnd;
+    public static bool IsShowcaseMode { get; internal set; }
     public static TimeZoneInfo LocalTimeZone { get; private set; }
     public static DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(UtcNow, LocalTimeZone);
 
@@ -56,6 +57,14 @@ public static class BuildTimeProvider
         _termEnd = ParseTermDate(Environment.GetEnvironmentVariable("TERM_END")!);
         Console.WriteLine($"[BuildTimeProvider] SUCCESS: Set TermEnd to {_termEnd:O}");
 
+        // 4. Initialize Showcase Mode
+        var showcaseMode = Environment.GetEnvironmentVariable("SHOWCASE_MODE");
+        IsShowcaseMode = string.Equals(showcaseMode, "true", StringComparison.OrdinalIgnoreCase)
+                      || showcaseMode == "1";
+        if (IsShowcaseMode)
+        {
+            Console.WriteLine("[BuildTimeProvider] Showcase mode ACTIVE — all content visible regardless of term window.");
+        }
         Console.WriteLine("--------------------------------------------------");
     }
 

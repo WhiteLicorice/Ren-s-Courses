@@ -320,6 +320,187 @@ public class CourseContentProviderTests
     /// <see cref="CourseContentProvider.GetVisiblePosts(IEnumerable{Post{CourseFrontMatter}})"/>
     /// is exercised by the callers; the no-arg overload works but returns nothing.
     /// </summary>
+    // ================================================================
+    // Showcase Mode Tests
+    // ================================================================
+
+    [Fact]
+    public void GetVisiblePosts_ShowcaseMode_IncludesPostBeforeTermStart()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Pre-Term Post",
+                Published = new DateTime(2025, 8, 1), // before termStart
+                Tags = new List<string>(),
+            },
+            Url = "pre-term",
+            HtmlContent = "<p>Pre-Term</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.Contains(post, result);
+    }
+
+    [Fact]
+    public void GetVisiblePosts_ShowcaseMode_IncludesPostAfterTermEnd()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Post-Term Post",
+                Published = new DateTime(2026, 8, 1), // after termEnd
+                Tags = new List<string>(),
+            },
+            Url = "post-term",
+            HtmlContent = "<p>Post-Term</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.Contains(post, result);
+    }
+
+    [Fact]
+    public void GetVisiblePosts_ShowcaseMode_IncludesFuturePublishedPost()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Future Post",
+                Published = new DateTime(2026, 9, 1), // > LocalNow
+                Tags = new List<string>(),
+            },
+            Url = "future",
+            HtmlContent = "<p>Future</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.Contains(post, result);
+    }
+
+    [Fact]
+    public void GetVisiblePosts_ShowcaseMode_StillExcludesDraft()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+
+        var draft = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Draft",
+                Published = new DateTime(2025, 1, 1),
+                IsDraft = true,
+                Tags = new List<string>(),
+            },
+            Url = "draft",
+            HtmlContent = "<p>Draft</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { draft });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.DoesNotContain(draft, result);
+    }
+
+    [Fact]
+    public void GetVisiblePosts_ShowcaseMode_StillExcludesHiddenTag()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+        provider.GlobalHiddenTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "private" };
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Hidden",
+                Published = new DateTime(2025, 1, 1),
+                Tags = new List<string> { "private" },
+            },
+            Url = "hidden",
+            HtmlContent = "<p>Hidden</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.DoesNotContain(post, result);
+    }
+
+    [Fact]
+    public void GetVisiblePosts_ShowcaseMode_NoArgOverloadReturnsAllNonDraft()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+
+        var posts = new List<Post<CourseFrontMatter>>
+        {
+            new()
+            {
+                FrontMatter = new CourseFrontMatter
+                {
+                    Title = "Pre-Term",
+                    Published = new DateTime(2025, 1, 1),
+                    Tags = new List<string>(),
+                },
+                Url = "pre",
+                HtmlContent = "<p>Pre</p>",
+            },
+            new()
+            {
+                FrontMatter = new CourseFrontMatter
+                {
+                    Title = "Future",
+                    Published = new DateTime(2026, 9, 1),
+                    Tags = new List<string>(),
+                },
+                Url = "fut",
+                HtmlContent = "<p>Fut</p>",
+            },
+            new()
+            {
+                FrontMatter = new CourseFrontMatter
+                {
+                    Title = "Draft",
+                    Published = new DateTime(2026, 3, 1),
+                    IsDraft = true,
+                    Tags = new List<string>(),
+                },
+                Url = "draft",
+                HtmlContent = "<p>Draft</p>",
+            },
+        };
+
+        var service = CreateServiceWithPosts(posts);
+        var provider = new CourseContentProvider(service);
+        var result = provider.GetVisiblePosts().ToList();
+
+        BuildTimeProvider.IsShowcaseMode = false;
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, p => p.FrontMatter.Title == "Pre-Term");
+        Assert.Contains(result, p => p.FrontMatter.Title == "Future");
+        Assert.DoesNotContain(result, p => p.FrontMatter.Title == "Draft");
+    }
+
     private static CourseContentProvider CreateEmptyProvider()
         => new(CreateServiceWithPosts([]));
 
