@@ -33,7 +33,7 @@
             @foreach (var item in bookingService.Posts.OrderBy(x => x.FrontMatter.Name))
             {
                 var booking = item.FrontMatter;
-                <div data-course-tags="@string.Join(" ", booking.Tags ?? new List<string>())"
+                <div
                     class="group flex flex-col h-full bg-surface border border-border-muted rounded-lg overflow-hidden hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300">
 
                     @* Card Content *@
@@ -83,3 +83,4 @@
         </div>
     }
 </div>
+

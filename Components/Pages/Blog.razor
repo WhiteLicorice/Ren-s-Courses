@@ -25,6 +25,7 @@
         <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
 
         <div class="text-left">
+            <CourseFilter Tags="@_allTags" />
             <PostsList />
         </div>
     </div>
@@ -179,9 +180,16 @@
 @code {
     [Parameter] public string? FileName { get; set; }
     Post<CourseFrontMatter>? post;
+    IReadOnlyList<string> _allTags = [];
 
     protected override void OnInitialized()
     {
+        _allTags = blazorStaticContentService.Posts
+            .SelectMany(p => p.FrontMatter.Tags)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
         if (string.IsNullOrWhiteSpace(FileName)) return;
         post = blazorStaticContentService.Posts.FirstOrDefault(x => x.Url == FileName);
     }

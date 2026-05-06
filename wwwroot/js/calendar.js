@@ -177,17 +177,11 @@ window.closeEventPopover = () => {
 };
 
 /**
- * Multi-tag calendar filter. Called by course-filter.js when the global course
- * filter changes. Accepts an array of tag strings (lowercase). Empty array = show all.
- * Mirrors filterCalendar() but supports multiple tags simultaneously.
+ * Multi-tag calendar filter. Pure: only touches event visibility and header text.
+ * Button chip state is managed separately by _updateCalendarChips().
+ * Called internally by toggleCalendarTag / clearCalendarFilter.
  */
 window.filterCalendarMulti = function (tags) {
-    // Reset all calendar filter button states
-    document.querySelectorAll('.filter-btn').forEach(function (btn) {
-        btn.classList.remove('bg-accent-dim', 'border-accent', 'text-accent', 'scale-105', 'shadow-lg');
-        btn.classList.add('bg-surface', 'border-border-muted', 'text-text-dim', 'hover:border-accent/50');
-    });
-
     var events = document.querySelectorAll('.calendar-event');
     var title = document.getElementById('cal-title');
     var subtitle = document.getElementById('cal-subtitle');
@@ -214,6 +208,41 @@ window.filterCalendarMulti = function (tags) {
         }
         if (resetBtn) resetBtn.style.display = 'flex';
     }
+};
+
+// Calendar-local multi-select filter state (not persisted, not shared with global filter)
+var _calendarSelectedTags = [];
+
+function _updateCalendarChips() {
+    document.querySelectorAll('.filter-btn').forEach(function (btn) {
+        var tag = (btn.dataset.tag || '').toLowerCase();
+        var active = _calendarSelectedTags.indexOf(tag) >= 0;
+        if (active) {
+            btn.classList.add('bg-accent-dim', 'border-accent', 'text-accent', 'scale-105', 'shadow-lg');
+            btn.classList.remove('bg-surface', 'border-border-muted', 'text-text-dim');
+        } else {
+            btn.classList.remove('bg-accent-dim', 'border-accent', 'text-accent', 'scale-105', 'shadow-lg');
+            btn.classList.add('bg-surface', 'border-border-muted', 'text-text-dim');
+        }
+    });
+}
+
+window.toggleCalendarTag = function (tag) {
+    var t = tag.toLowerCase();
+    var idx = _calendarSelectedTags.indexOf(t);
+    if (idx >= 0) {
+        _calendarSelectedTags.splice(idx, 1);
+    } else {
+        _calendarSelectedTags.push(t);
+    }
+    filterCalendarMulti(_calendarSelectedTags.length > 0 ? _calendarSelectedTags : []);
+    _updateCalendarChips();
+};
+
+window.clearCalendarFilter = function () {
+    _calendarSelectedTags = [];
+    filterCalendarMulti([]);
+    _updateCalendarChips();
 };
 
 /**

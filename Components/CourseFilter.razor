@@ -1,0 +1,27 @@
+@* Shared per-page course filter chip bar. Place above card grids, left-aligned.
+   Calls toggleCourseFilter(tag) / clearCourseFilter() from course-filter.js.
+   Pass ALL tags from the raw content service (no term filtering) so inactive
+   courses still appear as chip options. *@
+
+@if (Tags.Any())
+{
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+        @foreach (var tag in Tags)
+        {
+            <button onclick="toggleCourseFilter('@tag')" data-tag="@tag"
+                    class="course-filter-chip cursor-pointer rounded border border-border-muted bg-surface px-3 py-1 font-mono text-xs font-bold text-text-dim transition-all hover:border-accent/50 hover:text-accent hover:shadow-lg hover:shadow-accent/10">
+                #@tag
+            </button>
+        }
+        <button id="course-filter-clear" onclick="clearCourseFilter()"
+                style="display:none"
+                class="inline-flex cursor-pointer items-center rounded border border-red-500/30 bg-red-500/10 px-3 py-1 font-mono text-xs font-bold text-red-400 transition-all hover:border-red-500/60 hover:bg-red-500/20">
+            Show All
+        </button>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Tags { get; set; } = [];
+}

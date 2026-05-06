@@ -55,10 +55,6 @@ function _applyFilter() {
         el.style.display = matches ? '' : 'none';
     });
 
-    // Calendar page: delegate to filterCalendarMulti
-    if (typeof window.filterCalendarMulti === 'function') {
-        window.filterCalendarMulti(active ? _selectedTags.slice() : []);
-    }
 }
 
 window.initCourseFilter = function () {

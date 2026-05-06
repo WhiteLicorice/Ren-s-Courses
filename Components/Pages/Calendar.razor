@@ -27,7 +27,7 @@
 
         @* Reset Button (Hidden by default via CSS/JS) *@
         <div id="cal-reset-btn" class="flex justify-center mb-6" style="display: none;">
-            <button onclick="filterCalendar(null)"
+            <button onclick="clearCalendarFilter()"
                     class="inline-flex items-center gap-2 text-sm text-text-dim hover:text-accent transition-colors group bg-transparent border-none cursor-pointer">
                 <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
                      stroke="currentColor">
@@ -38,13 +38,12 @@
         </div>
     </div>
 
-    @* --- CONTROLS: TAG FILTERS --- *@
-    <div class="flex flex-wrap justify-center gap-3 mb-8 max-w-5xl mx-auto">
+    @* --- CONTROLS: TAG FILTERS (multi-select, page-local state) --- *@
+    <div class="flex flex-wrap gap-3 mb-8 max-w-5xl mx-auto">
         @foreach (var tag in ContentProvider.GetAllTags())
         {
-            @* JS Filter Button *@
-            <button onclick="filterCalendar('@tag')" data-tag="@tag"
-                    class="filter-btn text-xs px-4 py-2 rounded-md border transition-all font-mono font-bold cursor-pointer bg-surface border-border-muted text-text-dim hover:border-accent/50 hover:text-accent hover:shadow-lg hover:shadow-accent/10">
+            <button onclick="toggleCalendarTag('@tag')" data-tag="@tag"
+                    class="filter-btn cursor-pointer rounded border border-border-muted bg-surface px-3 py-1 font-mono text-xs font-bold text-text-dim transition-all hover:border-accent/50 hover:text-accent hover:shadow-lg hover:shadow-accent/10">
                 #@tag
             </button>
         }

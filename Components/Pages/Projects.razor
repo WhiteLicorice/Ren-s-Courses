@@ -73,11 +73,10 @@
     {
         if (!string.IsNullOrWhiteSpace(TagName))
         {
-            // Filter logic specific to projects
             filteredPosts = projectService.Posts
-            .Where(x => x.FrontMatter.Tags != null && x.FrontMatter.Tags.Contains(TagName))
-            .OrderBy(x => x.FrontMatter.Title)
-            .ToList();
+                .Where(x => x.FrontMatter.Tags != null && x.FrontMatter.Tags.Contains(TagName))
+                .OrderBy(x => x.FrontMatter.Title)
+                .ToList();
         }
     }
 }

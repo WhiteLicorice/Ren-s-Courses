@@ -11,7 +11,7 @@
             bool hasThumbnail = !string.IsNullOrWhiteSpace(project.Thumbnail);
         }
 
-        <details data-course-tags="@string.Join(" ", project.Tags ?? new List<string>())"
+        <details
             class="group bg-surface border border-border-muted rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300">
 
             @* 1. SUMMARY *@
