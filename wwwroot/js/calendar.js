@@ -102,28 +102,37 @@ window.initCalendarNav = () => {
 /**
  * CALENDAR EVENT POPOVER
  * Opens a floating popover showing overflow events for a given cell.
- * Uses position:fixed to avoid affecting grid cell or row dimensions.
+ * Reads event data from the button's data-overflow JSON attribute — no DOM traversal needed.
  * Called by the "+X more" button on calendar cells with >3 events.
  */
-window.openEventPopover = (cellId, buttonEl) => {
-    const cell = document.getElementById(cellId);
+window.openEventPopoverFromData = (buttonEl) => {
     const popover = document.getElementById('calendar-popover');
     const titleEl = document.getElementById('calendar-popover-title');
     const eventsEl = document.getElementById('calendar-popover-events');
 
-    if (!cell || !popover || !titleEl || !eventsEl || !buttonEl) return;
+    if (!popover || !titleEl || !eventsEl || !buttonEl) return;
 
-    // The overflow-events div is a sibling of the events list inside the cell wrapper
-    const overflowDiv = cell.parentElement.querySelector('.overflow-events');
-    if (!overflowDiv) return;
+    titleEl.textContent = buttonEl.dataset.dateLabel || '';
 
-    // Set the date label from the data attribute (e.g. "Tuesday, February 3")
-    titleEl.textContent = overflowDiv.dataset.date || '';
-
-    // Clone overflow event nodes into the popover events list
+    const overflowData = JSON.parse(buttonEl.dataset.overflow || '[]');
     eventsEl.innerHTML = '';
-    Array.from(overflowDiv.children).forEach(child => {
-        eventsEl.appendChild(child.cloneNode(true));
+    overflowData.forEach(evt => {
+        let el;
+        if (evt.url) {
+            el = document.createElement('a');
+            el.href = evt.url;
+            el.target = '_blank';
+            el.className = `calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm ${evt.cssClass}`;
+        } else {
+            el = document.createElement('div');
+            el.className = `calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm ${evt.cssClass}`;
+        }
+        el.title = evt.tooltip;
+        const span = document.createElement('span');
+        span.className = 'font-medium';
+        span.textContent = evt.title;
+        el.appendChild(span);
+        eventsEl.appendChild(el);
     });
 
     // Position the popover using fixed coordinates from the button's bounding rect.
@@ -136,25 +145,15 @@ window.openEventPopover = (cellId, buttonEl) => {
     let top = btnRect.bottom + MARGIN;
     let left = btnRect.left;
 
-    if (left + POPOVER_WIDTH > window.innerWidth - MARGIN) {
-        left = btnRect.right - POPOVER_WIDTH;
-    }
-    if (left < MARGIN) {
-        left = MARGIN;
-    }
-    if (top + POPOVER_EST_HEIGHT > window.innerHeight - MARGIN) {
-        top = btnRect.top - POPOVER_EST_HEIGHT - MARGIN;
-    }
-    if (top < MARGIN) {
-        top = MARGIN;
-    }
+    if (left + POPOVER_WIDTH > window.innerWidth - MARGIN) left = btnRect.right - POPOVER_WIDTH;
+    if (left < MARGIN) left = MARGIN;
+    if (top + POPOVER_EST_HEIGHT > window.innerHeight - MARGIN) top = btnRect.top - POPOVER_EST_HEIGHT - MARGIN;
+    if (top < MARGIN) top = MARGIN;
 
     popover.style.top = `${top}px`;
     popover.style.left = `${left}px`;
     popover.classList.remove('hidden');
-    popover.dataset.activeCell = cellId;
-
-    // Update button ARIA state
+    popover.dataset.activeCell = buttonEl.dataset.cell || '';
     buttonEl.setAttribute('aria-expanded', 'true');
 };
 

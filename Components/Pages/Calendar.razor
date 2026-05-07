@@ -1,9 +1,9 @@
 @page "/calendar"
-@using System.Globalization
 @using BlazorStatic
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
 @using BlazorStaticMinimalBlog.Services
+@using BlazorStaticMinimalBlog.ViewModels
 @inject CalendarEventProvider EventProvider
 @inject CourseContentProvider ContentProvider
 @inject IJSRuntime JSRuntime
@@ -12,7 +12,6 @@
 
     @* --- HEADER SECTION --- *@
     <div class="text-center mb-8">
-        @* Dynamic Header controlled by JS *@
         <h1 id="cal-title" class="text-3xl font-bold tracking-tight text-text-main sm:text-5xl mb-4 font-mono">
             <span class="text-accent">./</span>Calendar
         </h1>
@@ -25,7 +24,6 @@
 
         <div class="mt-8 mb-8 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
 
-        @* Reset Button (Hidden by default via CSS/JS) *@
         <div id="cal-reset-btn" class="flex justify-center mb-6" style="display: none;">
             <button onclick="clearCalendarFilter()"
                     class="inline-flex items-center gap-2 text-sm text-text-dim hover:text-accent transition-colors group bg-transparent border-none cursor-pointer">
@@ -83,22 +81,12 @@
     @* --- CALENDAR CONTAINER --- *@
     <div id="calendar-container"
          class="bg-bg-base border border-border-muted rounded-b-lg overflow-hidden shadow-2xl max-w-full mx-auto min-h-[400px]">
-        @{
-            var months = GetDynamicTermMonths();
-            int monthIndex = 0;
-        }
 
-        @foreach (var month in months)
+        @for (int mi = 0; mi < _viewModel.Months.Count; mi++)
         {
-            var isCurrent = (BuildTimeProvider.LocalNow >= month && BuildTimeProvider.LocalNow < month.AddMonths(1));
-            if (!months.Any(m => BuildTimeProvider.UtcNow >= m && BuildTimeProvider.UtcNow < m.AddMonths(1)) && monthIndex
-            == 0)
-            {
-                isCurrent = true;
-            }
-
-            <div class="month-view w-full @(isCurrent ? "" : "hidden")" data-index="@monthIndex"
-                 data-label="@month.ToString("MMMM yyyy")">
+            var month = _viewModel.Months[mi];
+            <div class="month-view w-full @(month.IsCurrent ? "" : "hidden")" data-index="@mi"
+                 data-label="@month.Label">
 
                 @* ========================================= *@
                 @* DESKTOP VIEW: GRID LAYOUT (md:grid) *@
@@ -115,112 +103,67 @@
                 </div>
 
                 <div class="hidden md:grid grid-cols-7 auto-rows-fr gap-px bg-border-muted">
-                    @{
-                        var daysInMonth = DateTime.DaysInMonth(month.Year, month.Month);
-                        var firstDayOfMonth = new DateTime(month.Year, month.Month, 1);
-                        var startOffset = (int)firstDayOfMonth.DayOfWeek;
-
-                        // PREVIOUS MONTH FILLER
-                        for (int i = 0; i < startOffset; i++)
+                    @foreach (var week in month.Weeks)
+                    {
+                        @foreach (var cell in week.Days)
                         {
-                            <div class="bg-surface/40 min-h-[140px]"></div>
-                        }
+                            @if (cell is null)
+                            {
+                                <div class="bg-surface/40 min-h-[140px]"></div>
+                            }
+                            else
+                            {
+                                <div class="relative bg-surface min-h-[140px] p-2 transition-all group flex flex-col gap-2
+                                    hover:bg-surface-hover hover:ring-1 hover:ring-inset hover:ring-accent/50 hover:z-10 cursor-default
+                                    @(cell.IsToday ? "bg-accent/5 ring-1 ring-inset ring-accent/50" : "")">
 
-                        // ACTUAL DAYS
-                        for (int day = 1; day <= daysInMonth; day++)
-                        {
-                            var currentDay = new DateTime(month.Year, month.Month, day);
-                            var events = GetEventsForDate(currentDay);
-                            var isToday = currentDay.Date == BuildTimeProvider.LocalNow.Date;
-                            var isWeekend = currentDay.DayOfWeek == DayOfWeek.Saturday || currentDay.DayOfWeek == DayOfWeek.Sunday;
-                            var cellId = $"cell-{month.Year}-{month.Month}-{day}";
-                            var visibleEvents = events.Take(3).ToList();
-                            var hiddenCount = events.Count - 3;
+                                    @* Date indicator + show-more button *@
+                                    <div class="flex justify-between items-start">
+                                        <span
+                                            class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
+                                            @(cell.IsToday ? "bg-accent text-white shadow-lg shadow-accent/20" : (cell.IsWeekend ? "text-text-dim" : "text-text-dim group-hover:text-accent"))">
+                                            @cell.Date.Day
+                                        </span>
 
-                            <div class="relative bg-surface min-h-[140px] p-2 transition-all group flex flex-col gap-2
-                                hover:bg-surface-hover hover:ring-1 hover:ring-inset hover:ring-accent/50 hover:z-10 cursor-default
-                                @(isToday ? "bg-accent/5 ring-1 ring-inset ring-accent/50" : "")">
-
-                                @* Date Indicator with Show More Button *@
-                                <div class="flex justify-between items-start">
-                                    <span
-                                        class="text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full transition-transform group-hover:scale-110
-                                        @(isToday ? "bg-accent text-white shadow-lg shadow-accent/20" : (isWeekend ? "text-text-dim" : "text-text-dim group-hover:text-accent"))">
-                                        @day
-                                    </span>
-
-                                    @* Show More Button - opens floating popover instead of expanding cell *@
-                                    @if (hiddenCount > 0)
-                                    {
-                                        <button type="button"
-                                                onclick="openEventPopover('@cellId', this)"
-                                                class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors"
-                                                data-cell="@cellId"
-                                                aria-expanded="false"
-                                                aria-haspopup="true"
-                                                aria-label="Show @hiddenCount more events for @currentDay.ToString("MMMM d")">
-                                            + @hiddenCount more
-                                        </button>
-                                    }
-                                </div>
-
-                                @* Visible Events (up to 3) *@
-                                <div id="@cellId" class="flex flex-col gap-1.5">
-                                    @foreach (var evt in visibleEvents)
-                                    {
-                                        if (!string.IsNullOrEmpty(evt.Url))
+                                        @if (cell.OverflowEvents.Count > 0)
                                         {
-                                            <a href="@evt.Url" target="_blank"
-                                                   class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
-                                                   title="@evt.Tooltip">
-                                                <span class="font-medium">@evt.Title</span>
-                                            </a>
+                                            <button type="button"
+                                                    onclick="openEventPopoverFromData(this)"
+                                                    class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors"
+                                                    data-cell="@cell.CellId"
+                                                    data-overflow="@cell.OverflowJson"
+                                                    data-date-label="@cell.DateLabel"
+                                                    aria-expanded="false"
+                                                    aria-haspopup="true"
+                                                    aria-label="Show @cell.OverflowEvents.Count more events for @cell.DateLabel">
+                                                +@cell.OverflowEvents.Count more
+                                            </button>
                                         }
-                                        else
-                                        {
-                                            <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
-                                                 title="@evt.Tooltip">
-                                                <span class="font-medium">@evt.Title</span>
-                                            </div>
-                                        }
-                                    }
-                                </div>
+                                    </div>
 
-                                @* Overflow events - hidden from view, used as data source for the popover *@
-                                @if (hiddenCount > 0)
-                                {
-                                    <div class="overflow-events" data-date="@currentDay.ToString("dddd, MMMM d")" style="display: none;">
-                                        @foreach (var evt in events.Skip(3))
+                                    @* Visible events (up to 3) *@
+                                    <div id="@cell.CellId" class="flex flex-col gap-1.5">
+                                        @foreach (var evt in cell.VisibleEvents)
                                         {
-                                            if (!string.IsNullOrEmpty(evt.Url))
+                                            @if (!string.IsNullOrEmpty(evt.Url))
                                             {
                                                 <a href="@evt.Url" target="_blank"
-                                                       class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
-                                                       title="@evt.Tooltip">
+                                                   class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
+                                                   title="@evt.Tooltip">
                                                     <span class="font-medium">@evt.Title</span>
                                                 </a>
                                             }
                                             else
                                             {
-                                                <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
+                                                <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
                                                      title="@evt.Tooltip">
                                                     <span class="font-medium">@evt.Title</span>
                                                 </div>
                                             }
                                         }
                                     </div>
-                                }
-                            </div>
-                        }
-
-                        // NEXT MONTH FILLER
-                        var usedCells = startOffset + daysInMonth;
-                        var totalCellsNeeded = 42;
-                        var remainingCells = totalCellsNeeded - usedCells;
-
-                        for (int i = 0; i < remainingCells; i++)
-                        {
-                            <div class="bg-surface/40 min-h-[140px]"></div>
+                                </div>
+                            }
                         }
                     }
                 </div>
@@ -229,72 +172,59 @@
                 @* MOBILE VIEW: VERTICAL LIST (md:hidden) *@
                 @* ========================================= *@
                 <div class="md:hidden flex flex-col divide-y divide-border-muted bg-surface">
-                    @{
-                        // Only show days that actually have events OR are today
-                        var mobileDaysInMonth = DateTime.DaysInMonth(month.Year, month.Month);
-                        bool hasMobileEvents = false;
-
-                        for (int day = 1; day <= mobileDaysInMonth; day++)
+                    @if (!month.MobileEntries.Any())
+                    {
+                        <div class="p-8 text-center text-text-dim italic">
+                            No events scheduled for this month.
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var entry in month.MobileEntries)
                         {
-                            var currentDay = new DateTime(month.Year, month.Month, day);
-                            var events = GetEventsForDate(currentDay);
-                            var isToday = currentDay.Date == BuildTimeProvider.LocalNow.Date;
-                            if (events.Any() || isToday)
-                            {
-                                hasMobileEvents = true;
-                                <div class="flex p-4 gap-4 @(isToday ? "bg-accent/5" : "")">
-                                    @* Date Column *@
-                                    <div class="flex flex-col items-center min-w-[3.5rem]">
-                                        <span class="text-xs uppercase font-bold text-text-dim">@currentDay.ToString("ddd")</span>
-                                        <span class="text-2xl font-bold font-mono @(isToday ? "text-accent" : "text-text-main")">
-                                            @day
-                                        </span>
-                                    </div>
+                            <div class="flex p-4 gap-4 @(entry.IsToday ? "bg-accent/5" : "")">
+                                @* Date Column *@
+                                <div class="flex flex-col items-center min-w-[3.5rem]">
+                                    <span class="text-xs uppercase font-bold text-text-dim">@entry.Date.ToString("ddd")</span>
+                                    <span class="text-2xl font-bold font-mono @(entry.IsToday ? "text-accent" : "text-text-main")">
+                                        @entry.Date.Day
+                                    </span>
+                                </div>
 
-                                    @* Events Column *@
-                                    <div class="flex-grow flex flex-col gap-2 pt-1">
-                                        @if (!events.Any())
+                                @* Events Column *@
+                                <div class="flex-grow flex flex-col gap-2 pt-1">
+                                    @if (!entry.Events.Any())
+                                    {
+                                        <span class="text-xs text-text-dim italic">No events scheduled.</span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var evt in entry.Events)
                                         {
-                                            <span class="text-xs text-text-dim italic">No events scheduled.</span>
-                                        }
-                                        else
-                                        {
-                                            @foreach (var evt in events)
+                                            @if (!string.IsNullOrEmpty(evt.Url))
                                             {
-                                                if (!string.IsNullOrEmpty(evt.Url))
-                                                {
-                                                    <a href="@evt.Url" target="_blank"
-                                                           class="calendar-event block text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass hover:brightness-110 active:scale-95 transition-all">
-                                                        <span class="font-bold block">@evt.Title</span>
-                                                        <span class="text-[10px] opacity-75 block">@evt.Tooltip</span>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <div class="calendar-event text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass">
-                                                        <span class="font-bold block">@evt.Title</span>
-                                                        @* Tooltip for items without URLs (e.g. Holidays) *@
-                                                        <span class="text-[10px] opacity-75 block">@evt.Tooltip</span>
-                                                    </div>
-                                                }
+                                                <a href="@evt.Url" target="_blank"
+                                                   class="calendar-event block text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass hover:brightness-110 active:scale-95 transition-all">
+                                                    <span class="font-bold block">@evt.Title</span>
+                                                    <span class="text-[10px] opacity-75 block">@evt.Tooltip</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <div class="calendar-event text-xs px-3 py-2 rounded border-l-4 shadow-sm @evt.CssClass">
+                                                    <span class="font-bold block">@evt.Title</span>
+                                                    <span class="text-[10px] opacity-75 block">@evt.Tooltip</span>
+                                                </div>
                                             }
                                         }
-                                    </div>
+                                    }
                                 </div>
-                            }
-                        }
-
-                        if (!hasMobileEvents)
-                        {
-                            <div class="p-8 text-center text-text-dim italic">
-                                No events scheduled for this month.
                             </div>
                         }
                     }
                 </div>
 
             </div>
-            monthIndex++;
         }
     </div>
 
@@ -326,42 +256,21 @@
 </div>
 
 @code {
-    private List<CalendarEvent> _allEvents = new();
+    private CalendarViewModel _viewModel = null!;
 
     protected override void OnInitialized()
     {
-        _allEvents = EventProvider.GetAllEvents();
+        _viewModel = CalendarViewModel.Build(
+            EventProvider.GetAllEvents(),
+            BuildTimeProvider.TermStart,
+            BuildTimeProvider.TermEnd,
+            BuildTimeProvider.LocalNow
+        );
     }
 
-    // IMPORTANT: Re-initialize JS navigation when the component renders (navigating back to this page)
+    // Re-initialize JS navigation when component renders (e.g. navigating back to this page)
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JSRuntime.InvokeVoidAsync("initCalendarNav");
     }
-
-    private List<DateTime> GetDynamicTermMonths()
-    {
-        var months = new List<DateTime>();
-        var start = BuildTimeProvider.TermStart;
-        var end = BuildTimeProvider.TermEnd;
-
-        var current = new DateTime(start.Year, start.Month, 1);
-        var lastMonth = new DateTime(end.Year, end.Month, 1);
-
-        while (current <= lastMonth)
-        {
-            months.Add(current);
-            current = current.AddMonths(1);
-        }
-        return months;
-    }
-
-    private List<CalendarEvent> GetEventsForDate(DateTime date)
-    {
-        return _allEvents
-        .Where(e => e.Date.Date == date.Date)
-        .OrderBy(e => e.Type)
-        .ToList();
-    }
-
 }

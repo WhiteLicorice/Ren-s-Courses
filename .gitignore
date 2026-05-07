@@ -1,5 +1,7 @@
 # Ignore Claude Code
 .claude
+CLAUDE.md
+AGENTS.md
 
 # Ignore utilities
 utilities/
