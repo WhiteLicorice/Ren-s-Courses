@@ -23,6 +23,10 @@ node_modules/
 # blazor-static output files
 output
 
+# Playwright E2E test artifacts
+playwright-report/
+.playwright/
+
 # dotenv files
 .env
 

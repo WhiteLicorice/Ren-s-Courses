@@ -3,6 +3,7 @@
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Live-222222?style=for-the-badge&logo=github&logoColor=white)](https://whitelicorice.github.io/Ren-s-Courses/)
 [![Netlify](https://img.shields.io/badge/Netlify-Mirror-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://renscourses.netlify.app)
 [![Shortlink](https://img.shields.io/badge/Shortlink-bit.ly%2Frenscourses-EE6123?style=for-the-badge&logo=bitly&logoColor=white)](https://bit.ly/renscourses)
+[![Playwright E2E](https://github.com/WhiteLicorice/Ren-s-Courses/actions/workflows/playwright.yml/badge.svg)](https://github.com/WhiteLicorice/Ren-s-Courses/actions/workflows/playwright.yml)
 
 This repository hosts a headless Learning Management System designed for courses I handle under the **University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.**
 
@@ -127,6 +128,66 @@ Key patterns:
   var fm = post.FrontMatter; // deserialized
   var md = post.RawMarkdown; // "---\ntitle: Test\n..."
   ```
+
+#### E2E Tests (Playwright)
+
+End-to-end tests run against the **pre-built static output** served by a lightweight file server. They cover every major user flow: home page filtering, materials & article pages, FAQs with accordion deep-linking, calendar navigation & popovers, the project showcase, desktop/mobile navigation, and the theme toggle.
+
+**Prerequisites**
+
+- Node.js 20+ (same as the project)
+- .NET 9 SDK
+
+**Local run**
+
+```bash
+# 1. Build the static site (output/ is generated and then the process exits)
+ASPNETCORE_ENVIRONMENT=Production dotnet run
+
+# 2. Install Playwright browsers (first time only)
+npx playwright install --with-deps chromium
+
+# 3. Run E2E tests (the config starts `serve output` automatically)
+npm run test:e2e
+
+# Run a specific spec file
+npx playwright test tests/e2e/home.spec.js
+
+# Run only in Chromium
+npx playwright test --project=chromium
+
+# Run only in Firefox
+npx playwright test --project=firefox
+```
+
+**Viewing the HTML report**
+
+```bash
+npx playwright show-report
+```
+
+The report is written to `playwright-report/` after every run.
+
+**Build time constraint**
+
+`CourseContentProvider` only surfaces materials when `STATIC_GEN_TIME` falls within `TERM_START`–`TERM_END`. The CI workflow pins `STATIC_GEN_TIME=2026-03-15T12:00:00Z` to guarantee materials are always visible. When running locally outside the term window, set the env var manually:
+
+```bash
+STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05-23" ASPNETCORE_ENVIRONMENT=Production dotnet run
+```
+
+**Suite coverage**
+
+| Spec file | Pages / flows covered |
+|---|---|
+| `home.spec.js` | `/` — title, glitch text, lead, chip filter |
+| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}` — tag cloud, post cards, TOC, code blocks, copy button |
+| `faqs.spec.js` | `/faqs` — sections, chip filter, accordion, hash deep-link, hashchange |
+| `calendar.spec.js` | `/calendar` — month nav, tag filter, popover open/close |
+| `projects.spec.js` | `/projects`, `/projects/{tag}` — tag cloud, card expand/collapse |
+| `navigation.spec.js` | Desktop nav (3 items + dropdown, scroll hide/show); mobile nav (overlay, backdrop, close) |
+| `theme.spec.js` | Light/dark toggle, localStorage, Prism CSS swap, icon state, persistence |
+| `edge-cases.spec.js` | `/null`, non-existent articles, all major routes for JS errors |
 
 #### JS Tests (Jest)
 

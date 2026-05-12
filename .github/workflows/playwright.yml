@@ -1,0 +1,81 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Freeze build time inside the academic term so materials are always
+# visible during E2E tests regardless of when the workflow runs.
+# Update STATIC_GEN_TIME and TERM_* at the start of each academic year.
+env:
+  ASPNETCORE_ENVIRONMENT: Production
+  WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
+  STATIC_GEN_TIME: "2026-03-15T12:00:00Z"
+  TERM_START: "2026-01-19"
+  TERM_END: "2026-05-23"
+
+jobs:
+  e2e:
+    name: Playwright E2E (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      # ── Node ──────────────────────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "26.1.0"
+          cache: "npm"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # Install only Chromium to keep the job fast.
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox
+
+      # ── .NET ──────────────────────────────────────────────────────────────────
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      # launchSettings.json configures the development server; removing it
+      # prevents port conflicts and forces the app to use Production defaults.
+      - name: Remove launchSettings.json
+        run: rm Properties/launchSettings.json
+
+      # ── Static site build ─────────────────────────────────────────────────────
+      # Production mode triggers UseBlazorStaticGenerator(shutdownApp: true),
+      # which generates the static output and exits.
+      - name: Build static site
+        run: dotnet run --project ${{ env.WEBAPP_CSPROJ }} --configuration Release
+        env:
+          STATIC_GEN_TIME: ${{ env.STATIC_GEN_TIME }}
+          TERM_START: ${{ env.TERM_START }}
+          TERM_END: ${{ env.TERM_END }}
+
+      # ── E2E tests ─────────────────────────────────────────────────────────────
+      # The playwright.config.js webServer block starts `serve` automatically,
+      # so no manual server startup step is needed.
+      - name: Run Playwright tests (Chromium)
+        run: npx playwright test --project=chromium
+
+      # ── Artifacts ─────────────────────────────────────────────────────────────
+      # Upload the HTML report on every run so failures can be inspected without
+      # re-running locally.
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

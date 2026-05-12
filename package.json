@@ -4,7 +4,8 @@
   "description": "A collection of materials for courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum. All material is copyrighted. All rights reserved.",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:e2e": "playwright test"
   },
   "jest": {
     "testEnvironment": "jsdom",
@@ -25,10 +26,12 @@
   },
   "homepage": "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog#readme",
   "devDependencies": {
+    "@playwright/test": "^1.48.0",
     "@tailwindcss/typography": "^0.5.19",
     "html-minifier-terser": "^7.2.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
+    "serve": "^14.2.0",
     "tailwindcss": "^4.0.0"
   },
   "dependencies": {
