@@ -11,7 +11,7 @@ authors:
 downloadLink: https://drive.google.com/file/d/1CVfIMnWxD1W-usztFejScGAhW81okdNw/view?usp=drive_link
 isDraft: false
 progressReportDates: [2026-02-06, 2026-02-27, 2026-03-20, 2026-05-08]
-defenseDates: [2026-04-17, 2026-05-15]
+defenseDates: [2026-04-17, 2026-05-19]
 deadline: 2026-05-21
 ---
 
