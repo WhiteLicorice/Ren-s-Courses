@@ -3,7 +3,6 @@
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
 @using BlazorStaticMinimalBlog.Services
-@using BlazorStaticMinimalBlog.Utilities
 @inject BlazorStaticContentService<FAQFrontmatter> faqService
 @inject FAQContentProvider FAQContentProvider
 
@@ -51,8 +50,9 @@
                         @foreach (var faq in group.Value)
                         {
                             <li>
-                                <a href="#@SlugHelper.Slugify(faq.FrontMatter.Question)"
-                                   class="text-sm text-text-dim hover:text-accent transition-colors font-mono">
+                                <a href="javascript:void(0)"
+                                   data-faq-target="@SlugHelper.Slugify(faq.FrontMatter.Question)"
+                                   class="text-sm text-text-dim hover:text-accent transition-colors font-mono cursor-pointer">
                                     @faq.FrontMatter.Question
                                 </a>
                             </li>

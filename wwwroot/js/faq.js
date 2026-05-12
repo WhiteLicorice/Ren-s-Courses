@@ -15,20 +15,21 @@ function _openDetailsForHash(hash) {
 }
 
 window.initFaqToc = function () {
-    // Intercept TOC anchor clicks. Without this, the browser fires a native scroll
-    // before the <details> is open, causing a jarring jump to the closed summary.
-    document.querySelectorAll('nav a[href^="#"]').forEach(function (link) {
+    // TOC links use data-faq-target (not href) to avoid <base href> resolution,
+    // which would cause href="#slug" to navigate to the base URL instead of
+    // scrolling within the current page.
+    document.querySelectorAll('[data-faq-target]').forEach(function (link) {
         link.addEventListener('click', function (e) {
-            var hash = link.getAttribute('href');
-            var id = hash.substring(1);
+            e.preventDefault();
+            var id = link.getAttribute('data-faq-target');
             var target = document.getElementById(id);
             if (target && target.tagName === 'DETAILS') {
-                e.preventDefault();
                 target.open = true;
                 setTimeout(function () {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 50);
-                history.pushState(null, null, hash);
+                // pushState resolves '#id' against the current page URL, not base href.
+                history.pushState(null, null, '#' + id);
             }
         });
     });

@@ -1,5 +1,3 @@
-using BlazorStaticMinimalBlog.Utilities;
-
 namespace Ren.Courses.Tests;
 
 public class FaqsPageTests
