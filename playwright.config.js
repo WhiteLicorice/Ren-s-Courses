@@ -12,8 +12,8 @@ const { defineConfig, devices } = require('@playwright/test');
  * Local run:
  *   npm run test:e2e
  *
- * CI run (Chromium only):
- *   npx playwright test --project=chromium
+ * CI run (Chromium + Firefox):
+ *   npx playwright test --project=chromium --project=firefox
  */
 module.exports = defineConfig({
   testDir: './tests/e2e',

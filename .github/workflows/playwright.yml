@@ -18,7 +18,7 @@ env:
 
 jobs:
   e2e:
-    name: Playwright E2E (Chromium)
+    name: Playwright E2E (Chromium + Firefox)
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -38,15 +38,38 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      # Install only Chromium to keep the job fast.
+      # Cache browser binaries keyed on package-lock.json so a Playwright
+      # version bump automatically busts the cache.
+      - name: Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+
+      # Full install (binaries + OS deps) on cache miss.
       - name: Install Playwright browsers
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium firefox
+
+      # On cache hit the binaries are restored, but OS-level deps still need apt.
+      - name: Install Playwright system dependencies
+        if: steps.cache-playwright.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium firefox
 
       # ── .NET ──────────────────────────────────────────────────────────────────
       - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       # launchSettings.json configures the development server; removing it
       # prevents port conflicts and forces the app to use Production defaults.
@@ -66,8 +89,8 @@ jobs:
       # ── E2E tests ─────────────────────────────────────────────────────────────
       # The playwright.config.js webServer block starts `serve` automatically,
       # so no manual server startup step is needed.
-      - name: Run Playwright tests (Chromium)
-        run: npx playwright test --project=chromium
+      - name: Run Playwright tests (Chromium + Firefox)
+        run: npx playwright test --project=chromium --project=firefox
 
       # ── Artifacts ─────────────────────────────────────────────────────────────
       # Upload the HTML report on every run so failures can be inspected without
