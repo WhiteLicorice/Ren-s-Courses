@@ -46,6 +46,14 @@ builder.Services.AddBlazorStaticService(opt =>
     opt.PageUrl = WebsiteKeys.DisabledPage;
     opt.Tags.AddTagPagesFromPosts = false;
     opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemovePostPages;
+})
+.AddBlazorStaticContentService<FAQFrontmatter>(opt =>
+{
+    opt.ContentPath = WebsiteKeys.FAQs.SourcePath;
+    opt.Tags.TagsPageUrl = WebsiteKeys.FAQs.PageUrl;
+    opt.PageUrl = WebsiteKeys.DisabledPage;
+    opt.Tags.AddTagPagesFromPosts = false;
+    opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemovePostPages;
 });
 
 builder.Services.AddRazorComponents();
@@ -58,6 +66,7 @@ await holidaysProvider.InitializeAsync();
 builder.Services.AddSingleton(holidaysProvider);
 
 builder.Services.AddSingleton<CourseContentProvider>();
+builder.Services.AddSingleton<FAQContentProvider>();
 builder.Services.AddSingleton<FrontmatterStatusService>();
 builder.Services.AddSingleton<CalendarEventProvider>();
 builder.Services.AddScoped<ThemeService>();
@@ -121,6 +130,12 @@ public static class WebsiteKeys
     public static class CalendarEvents
     {
         public const string SourcePath = "Content/Events";
+    }
+
+    public static class FAQs
+    {
+        public const string SourcePath = "Content/FAQs";
+        public const string PageUrl = "faqs";
     }
 
     // AfterContentParsedAndAddedAction callback: removes individual post pages

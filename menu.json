@@ -6,14 +6,20 @@
     "target": "_self"
   },
   {
-    "name": "Materials",
-    "link": "materials",
+    "name": "Showcase",
+    "link": "projects",
     "icon": null,
     "target": "_self"
   },
   {
-    "name": "Showcase",
-    "link": "projects",
+    "name": "FAQs",
+    "link": "faqs",
+    "icon": null,
+    "target": "_self"
+  },
+  {
+    "name": "Materials",
+    "link": "materials",
     "icon": null,
     "target": "_self"
   },

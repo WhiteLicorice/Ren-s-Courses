@@ -1,0 +1,122 @@
+@page "/faqs"
+@using BlazorStatic
+@using BlazorStatic.Services
+@using BlazorStaticMinimalBlog.Models
+@using BlazorStaticMinimalBlog.Services
+@using System.Text.RegularExpressions
+@inject BlazorStaticContentService<FAQFrontmatter> faqService
+@inject FAQContentProvider FAQContentProvider
+
+<div class="mx-auto max-w-6xl py-10 sm:py-16 animate-fade-in">
+
+    @* Header Section *@
+    <div class="text-center mb-12">
+        <h1 class="text-3xl font-bold tracking-tight text-text-main sm:text-5xl mb-4 font-mono">
+            <span class="text-accent">./</span>FAQs
+        </h1>
+        <p class="text-text-dim max-w-2xl mx-auto">
+            Frequently asked questions, grouped by course.
+        </p>
+        <div class="mt-12 mb-12 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
+    </div>
+
+    @if (!_visiblePosts.Any())
+    {
+        <div class="text-center text-text-dim font-mono mt-12 opacity-50">No FAQs available.</div>
+    }
+    else
+    {
+        @* Course filter chip bar — shows all distinct tags *@
+        <CourseFilter Tags="@_allTags" />
+
+        @* One section per course group *@
+        @foreach (var group in _groupedFaqs)
+        {
+            @* data-course-tags includes all tags from every FAQ in this section
+               so the filter chip for any secondary tag still shows the section. *@
+            <section data-course-tags="@string.Join(' ', group.Value.SelectMany(f => f.FrontMatter.Tags).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(t => t))"
+                     class="mb-16">
+
+                @* Section heading *@
+                <h2 class="text-2xl font-bold font-mono text-text-main mb-6 pb-3 border-b border-border-muted">
+                    <span class="text-accent">#</span>@group.Key
+                </h2>
+
+                @* Table of Contents *@
+                <nav class="mb-8 p-4 bg-surface border border-border-muted rounded-lg">
+                    <p class="text-xs font-mono text-text-dim mb-3 uppercase tracking-wider">
+                        <span class="text-accent mr-2">>></span>Questions
+                    </p>
+                    <ol class="list-decimal list-inside space-y-1.5">
+                        @foreach (var faq in group.Value)
+                        {
+                            <li>
+                                <a href="#@Slugify(faq.FrontMatter.Question)"
+                                   class="text-sm text-text-dim hover:text-accent transition-colors font-mono">
+                                    @faq.FrontMatter.Question
+                                </a>
+                            </li>
+                        }
+                    </ol>
+                </nav>
+
+                @* Accordion — one <details> per FAQ *@
+                <div class="space-y-2">
+                    @foreach (var faq in group.Value)
+                    {
+                        <details id="@Slugify(faq.FrontMatter.Question)"
+                                 class="group bg-surface border border-border-muted rounded-lg overflow-hidden transition-colors hover:border-accent/30 open:border-accent/50">
+                            <summary class="flex items-center justify-between p-4 cursor-pointer list-none select-none">
+                                <span class="font-mono font-bold text-text-main text-sm leading-snug pr-4">
+                                    <span class="text-accent mr-2">Q.</span>@faq.FrontMatter.Question
+                                </span>
+                                <svg class="w-4 h-4 shrink-0 text-text-dim transition-transform group-open:rotate-180"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 pt-3 border-t border-border-muted/50">
+                                <div class="prose max-w-none text-sm">
+                                    @((MarkupString)faq.HtmlContent)
+                                </div>
+                            </div>
+                        </details>
+                    }
+                </div>
+
+            </section>
+        }
+    }
+</div>
+
+@code {
+    private List<Post<FAQFrontmatter>> _visiblePosts = new();
+    private IReadOnlyList<string> _allTags = [];
+    private Dictionary<string, List<Post<FAQFrontmatter>>> _groupedFaqs = new();
+
+    protected override void OnInitialized()
+    {
+        _visiblePosts = FAQContentProvider.GetVisiblePosts().ToList();
+
+        _allTags = _visiblePosts
+            .SelectMany(p => p.FrontMatter.Tags)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        _groupedFaqs = _visiblePosts
+            .GroupBy(p => p.FrontMatter.Tags.FirstOrDefault() ?? "general")
+            .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderBy(p => p.FrontMatter.Published).ToList());
+    }
+
+    private static string Slugify(string text)
+    {
+        var s = text.ToLowerInvariant();
+        s = Regex.Replace(s, @"[^a-z0-9\s-]", "");
+        s = Regex.Replace(s, @"\s+", "-");
+        return s.Trim('-');
+    }
+}
