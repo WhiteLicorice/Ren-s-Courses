@@ -1,7 +1,5 @@
 // faq.js
-// Handles hash-based navigation for FAQ <details> accordion elements.
-// When the URL contains a hash matching a <details> id, that element is opened
-// and scrolled into view. Handles both page load and runtime hash changes.
+// FAQ accordion: hash-based deep linking and TOC in-page scroll handling.
 
 function _openDetailsForHash(hash) {
     if (!hash || hash.length <= 1) return;
@@ -9,21 +7,37 @@ function _openDetailsForHash(hash) {
     var target = document.getElementById(id);
     if (target && target.tagName === 'DETAILS') {
         target.open = true;
-        // Defer scroll so the browser has laid out the open state.
+        // Defer scroll so layout reflects the open state before scrolling.
         setTimeout(function () {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 50);
     }
 }
 
-window.addEventListener('hashchange', function () {
-    _openDetailsForHash(window.location.hash);
-});
+window.initFaqToc = function () {
+    // Intercept TOC anchor clicks. Without this, the browser fires a native scroll
+    // before the <details> is open, causing a jarring jump to the closed summary.
+    document.querySelectorAll('nav a[href^="#"]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            var hash = link.getAttribute('href');
+            var id = hash.substring(1);
+            var target = document.getElementById(id);
+            if (target && target.tagName === 'DETAILS') {
+                e.preventDefault();
+                target.open = true;
+                setTimeout(function () {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+                history.pushState(null, null, hash);
+            }
+        });
+    });
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
+    // Handle browser back/forward navigation and external deep links.
+    window.addEventListener('hashchange', function () {
         _openDetailsForHash(window.location.hash);
     });
-} else {
+
+    // Handle hash present on initial page load (e.g., shared link with anchor).
     _openDetailsForHash(window.location.hash);
-}
+};

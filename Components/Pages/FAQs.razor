@@ -3,7 +3,7 @@
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
 @using BlazorStaticMinimalBlog.Services
-@using System.Text.RegularExpressions
+@using BlazorStaticMinimalBlog.Utilities
 @inject BlazorStaticContentService<FAQFrontmatter> faqService
 @inject FAQContentProvider FAQContentProvider
 
@@ -51,7 +51,7 @@
                         @foreach (var faq in group.Value)
                         {
                             <li>
-                                <a href="/faqs#@Slugify(faq.FrontMatter.Question)"
+                                <a href="#@SlugHelper.Slugify(faq.FrontMatter.Question)"
                                    class="text-sm text-text-dim hover:text-accent transition-colors font-mono">
                                     @faq.FrontMatter.Question
                                 </a>
@@ -64,7 +64,7 @@
                 <div class="space-y-2">
                     @foreach (var faq in group.Value)
                     {
-                        <details id="@Slugify(faq.FrontMatter.Question)"
+                        <details id="@SlugHelper.Slugify(faq.FrontMatter.Question)"
                                  class="group bg-surface border border-border-muted rounded-lg overflow-hidden transition-colors hover:border-accent/30 open:border-accent/50">
                             <summary class="flex items-center justify-between p-4 cursor-pointer list-none select-none">
                                 <span class="font-mono font-bold text-text-main text-sm leading-snug pr-4">
@@ -112,11 +112,4 @@
                 g => g.OrderBy(p => p.FrontMatter.Published).ToList());
     }
 
-    private static string Slugify(string text)
-    {
-        var s = text.ToLowerInvariant();
-        s = Regex.Replace(s, @"[^a-z0-9\s-]", "");
-        s = Regex.Replace(s, @"\s+", "-");
-        return s.Trim('-');
-    }
 }
