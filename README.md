@@ -100,6 +100,8 @@ This project follows semantic commits. Start your commit message with a type, fo
 
 ### Tests
 
+#### .NET Tests (xUnit)
+
 Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq + bUnit. No fixture files on disk — test data defined inline via `EphemeralPost<T>` harness.
 
 ```bash
@@ -125,4 +127,37 @@ Key patterns:
   var fm = post.FrontMatter; // deserialized
   var md = post.RawMarkdown; // "---\ntitle: Test\n..."
   ```
+
+#### JS Tests (Jest)
+
+Client-side scripts in `wwwroot/js/` are tested with [Jest](https://jestjs.io/) + [jest-environment-jsdom](https://jestjs.io/docs/configuration#testenvironment-string). Test files live in `wwwroot/js/__tests__/`.
+
+```bash
+# Run all JS tests
+npm test
+
+# Watch mode (re-runs on file change)
+npx jest --watch
+
+# With coverage report
+npx jest --coverage
+```
+
+**Covered scripts:**
+
+| Script | What is tested |
+|---|---|
+| `toc.js` | `replaceState` (not `pushState`) on click; no-href links (Blazor nav safety); keyboard activation (Enter/Space); `hashchange` listener; scroll-on-load |
+| `faq.js` | `replaceState` on TOC link click; `_openDetailsForHash` opens accordion + scrolls on load; `hashchange` listener |
+| `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`; `initCalendarNav` + `changeMonth`; `openEventPopoverFromData`, `closeEventPopover` |
+| `course-filter.js` | `initCourseFilter` (localStorage restore); `toggleCourseFilter` (visibility, chips, persistence); `clearCourseFilter` |
+| `code-features.js` | Wrapping, double-wrap guard, language label mapping, copy button injection + clipboard write + timeout revert |
+| `scroll-button.js` | Button click scrolls to top; no-op when button absent |
+| `theme.js` | `switchPrismTheme` sets link href, `data-theme`, localStorage, theme-color meta; system preference fallback |
+
+**Setup file:** `wwwroot/js/__tests__/setup.js` — applies the `innerText` polyfill and `IntersectionObserver` stub globally before every test suite.
+
+**Key test patterns:**
+- History API: `history.pushState` is used to set `window.location.hash` before mocking, because `window.location.hash` is non-configurable in jsdom. `Object.getPrototypeOf(window.history).pushState.call(...)` bypasses active spies when real URL changes are needed.
+- Scripts are loaded by reading the source file and executing via `new Function(source)()` — this runs in the global scope so `window.generateTOC` etc. become available.
 

@@ -45,6 +45,9 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
+      - name: Run JS tests
+        run: npm test -- --no-coverage --ci
+
       # --- SETUP DOTNET ---
       - name: Setup .NET 9 SDK
         uses: actions/setup-dotnet@v5

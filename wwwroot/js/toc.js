@@ -45,7 +45,10 @@ window.generateTOC = () => {
             const li = document.createElement('li');
             const a = document.createElement('a');
 
-            a.href = `#${header.id}`;
+            // No href — avoids <base href> resolution and Blazor navigation interception,
+            // both of which would push an unwanted history entry before our replaceState.
+            // data-target is the source of truth; click/keydown handlers use it directly.
+            a.setAttribute('tabindex', '0');
 
             // 2. Handle Long Headers
             // Truncate text strictly to ~35 chars to prevent sidebar blowout,
@@ -54,7 +57,7 @@ window.generateTOC = () => {
             a.innerText = rawText.length > 35 ? rawText.substring(0, 35) + '...' : rawText;
             a.title = rawText;
 
-            a.className = 'block truncate transition-colors duration-200 hover:text-accent';
+            a.className = 'block truncate transition-colors duration-200 hover:text-accent cursor-pointer';
             a.dataset.target = header.id;
 
             // Indentation based on hierarchy
@@ -70,8 +73,8 @@ window.generateTOC = () => {
                 a.style.paddingLeft = '24px';
             }
 
-            // Click Handler: Smooth Scroll
-            a.addEventListener('click', (e) => {
+            // Shared activate handler — used for both click and keyboard (Enter/Space).
+            const activate = (e) => {
                 e.preventDefault();
                 if (header === mainTitle) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -80,6 +83,12 @@ window.generateTOC = () => {
                 }
                 // replaceState (not pushState) — hash updates are not separate history entries.
                 history.replaceState(null, null, `#${header.id}`);
+            };
+
+            a.addEventListener('click', activate);
+            // Keyboard: Enter scrolls; Space scrolls (and prevents page-scroll default).
+            a.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') activate(e);
             });
 
             li.appendChild(a);

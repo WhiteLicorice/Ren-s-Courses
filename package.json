@@ -4,7 +4,13 @@
   "description": "A collection of materials for courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum. All material is copyrighted. All rights reserved.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "roots": ["<rootDir>/wwwroot/js/__tests__"],
+    "testMatch": ["**/*.test.js"],
+    "setupFiles": ["<rootDir>/wwwroot/js/__tests__/setup.js"]
   },
   "repository": {
     "type": "git",
@@ -21,6 +27,8 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "html-minifier-terser": "^7.2.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "tailwindcss": "^4.0.0"
   },
   "dependencies": {
