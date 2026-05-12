@@ -28,8 +28,8 @@ window.initFaqToc = function () {
                 setTimeout(function () {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 50);
-                // pushState resolves '#id' against the current page URL, not base href.
-                history.pushState(null, null, '#' + id);
+                // replaceState (not pushState) — hash updates are not separate history entries.
+                history.replaceState(null, null, '#' + id);
             }
         });
     });

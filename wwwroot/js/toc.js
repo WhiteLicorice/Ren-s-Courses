@@ -78,7 +78,8 @@ window.generateTOC = () => {
                 } else {
                     header.scrollIntoView({ behavior: 'smooth' });
                 }
-                history.pushState(null, null, `#${header.id}`);
+                // replaceState (not pushState) — hash updates are not separate history entries.
+                history.replaceState(null, null, `#${header.id}`);
             });
 
             li.appendChild(a);
@@ -90,6 +91,20 @@ window.generateTOC = () => {
     // Inject TOC into DOM
     if (tocContainer) { tocContainer.innerHTML = ''; tocContainer.appendChild(createList()); }
     if (mobileTocContainer) { mobileTocContainer.innerHTML = ''; mobileTocContainer.appendChild(createList()); }
+
+    // Scroll to hash on load and on browser-driven hash changes (shared links, refresh, cross-page nav).
+    var scrollToHash = function () {
+        var hash = window.location.hash;
+        if (!hash) return;
+        var target = document.querySelector(hash);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    scrollToHash();
+
+    window.addEventListener('hashchange', scrollToHash);
 
     // ScrollSpy: IntersectionObserver to highlight active section
     if (tocContainer) {
