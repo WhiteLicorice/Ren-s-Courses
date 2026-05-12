@@ -51,7 +51,7 @@
                         @foreach (var faq in group.Value)
                         {
                             <li>
-                                <a href="#@Slugify(faq.FrontMatter.Question)"
+                                <a href="/faqs#@Slugify(faq.FrontMatter.Question)"
                                    class="text-sm text-text-dim hover:text-accent transition-colors font-mono">
                                     @faq.FrontMatter.Question
                                 </a>
