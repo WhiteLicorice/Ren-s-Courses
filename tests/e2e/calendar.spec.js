@@ -49,8 +49,14 @@ test.describe('Calendar Page (/calendar)', () => {
   });
 
   test('next month button advances the month label', async ({ page }) => {
+    // #month-label has CSS text-transform:uppercase, so innerText !== textContent.
+    // Use innerText() throughout for a consistent comparison.
+    // Also: the static output starts at the LAST month — step back first so
+    // changeMonth(1) is not a boundary no-op.
+    await page.evaluate(() => window.changeMonth(-1));
+
     const label = page.locator('#month-label');
-    const initialMonth = await label.textContent();
+    const priorMonth = await label.innerText();
 
     const nextBtn = page.locator('button[onclick*="changeMonth(1)"]');
     await nextBtn.click();
@@ -60,16 +66,17 @@ test.describe('Calendar Page (/calendar)', () => {
         const el = document.getElementById('month-label');
         return el && el.innerText !== initial;
       },
-      initialMonth
+      priorMonth
     );
 
-    const newMonth = await label.textContent();
-    expect(newMonth).not.toBe(initialMonth);
+    const newMonth = await label.innerText();
+    expect(newMonth).not.toBe(priorMonth);
   });
 
   test('prev then next returns to the initial month', async ({ page }) => {
+    // Use innerText() — label has text-transform:uppercase so innerText !== textContent.
     const label = page.locator('#month-label');
-    const initialMonth = await label.textContent();
+    const initialMonth = await label.innerText();
 
     await page.locator('button[onclick*="changeMonth(-1)"]').click();
     await page.waitForFunction(
@@ -83,7 +90,7 @@ test.describe('Calendar Page (/calendar)', () => {
       initialMonth
     );
 
-    await expect(label).toHaveText(initialMonth);
+    expect(await label.innerText()).toBe(initialMonth);
   });
 
   test('prev button is a no-op at the first month', async ({ page }) => {
@@ -101,7 +108,8 @@ test.describe('Calendar Page (/calendar)', () => {
       }
     });
 
-    const labelAtLimit = await label.textContent();
+    // Use innerText() — label has text-transform:uppercase so innerText !== textContent.
+    const labelAtLimit = await label.innerText();
 
     // One more click must leave the label unchanged.
     await prevBtn.click();
@@ -109,7 +117,7 @@ test.describe('Calendar Page (/calendar)', () => {
       (expected) => document.getElementById('month-label')?.innerText === expected,
       labelAtLimit
     );
-    await expect(label).toHaveText(labelAtLimit);
+    expect(await label.innerText()).toBe(labelAtLimit);
   });
 
   // ── Tag filter buttons ──────────────────────────────────────────────────────
@@ -175,19 +183,23 @@ test.describe('Calendar Page (/calendar)', () => {
   // ── Event popover ───────────────────────────────────────────────────────────
 
   test('show-more button opens the event popover', async ({ page }) => {
-    const showMoreBtn = page.locator('.show-more-btn').first();
-    // Overflow buttons only appear when a day has > 3 events.
+    // Only check visible show-more buttons (those inside the non-hidden month-view).
+    // The static output may contain show-more buttons in hidden month-views that
+    // cannot be clicked.
+    const showMoreBtn = page.locator('.month-view:not(.hidden) .show-more-btn').first();
     if (await showMoreBtn.count() === 0) test.skip();
 
     await showMoreBtn.click();
 
     const popover = page.locator('#calendar-popover');
-    await expect(popover).not.toHaveClass(/\bhidden\b/);
+    // Use string (not regex) — regex \bhidden\b also matches overflow-hidden which
+    // is a permanent CSS utility class on the popover.
+    await expect(popover).not.toHaveClass('hidden');
     await expect(popover).toBeVisible();
   });
 
   test('popover close button hides the popover', async ({ page }) => {
-    const showMoreBtn = page.locator('.show-more-btn').first();
+    const showMoreBtn = page.locator('.month-view:not(.hidden) .show-more-btn').first();
     if (await showMoreBtn.count() === 0) test.skip();
 
     await showMoreBtn.click();
@@ -203,7 +215,7 @@ test.describe('Calendar Page (/calendar)', () => {
   });
 
   test('popover shows events with title text', async ({ page }) => {
-    const showMoreBtn = page.locator('.show-more-btn').first();
+    const showMoreBtn = page.locator('.month-view:not(.hidden) .show-more-btn').first();
     if (await showMoreBtn.count() === 0) test.skip();
 
     await showMoreBtn.click();

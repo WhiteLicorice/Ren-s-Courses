@@ -10,9 +10,11 @@ test.describe('Home Page (/)', () => {
 
   // ── Static content ──────────────────────────────────────────────────────────
 
-  test('displays site title in h1', async ({ page }) => {
-    const heading = page.locator('h1').first();
-    await expect(heading).toContainText("Ren's Courses");
+  test('displays site brand name in the navbar', async ({ page }) => {
+    // Site brand lives in the navbar logo link, not in a page-level h1.
+    // The h1 is the glitch/welcome heading; brand is a <div> inside #main-navbar.
+    const brand = page.locator('#main-navbar').getByText("Ren's Courses");
+    await expect(brand).toBeVisible();
   });
 
   test('glitch text element exists with correct data-text attribute', async ({ page }) => {

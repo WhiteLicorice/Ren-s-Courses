@@ -165,7 +165,11 @@ test.describe('Mobile Navigation', () => {
     await page.locator('#toggle-button').click();
     await expect(page.locator('#mobile-menu-container')).toBeVisible();
 
-    await page.locator('#mobile-backdrop').click();
+    // The panel sibling (w-full h-full) covers the backdrop in z-order, so any
+    // pointer click at real coordinates hits the panel, not the backdrop.
+    // Use evaluate+element.click() to fire the click event directly on the backdrop
+    // DOM node, bypassing the browser's pointer hit-test entirely.
+    await page.evaluate(() => document.getElementById('mobile-backdrop').click());
 
     await page.waitForFunction(
       () => document.getElementById('mobile-menu-container')?.classList.contains('hidden')

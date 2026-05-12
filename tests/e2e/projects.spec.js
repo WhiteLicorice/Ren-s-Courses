@@ -12,19 +12,21 @@ test.describe('Projects Tag Cloud (/projects)', () => {
 
   test('tag cloud renders with links to /projects/{tag}', async ({ page }) => {
     // Reuses CatalogsList component — same structure as /materials tag cloud.
-    const tagLinks = page.locator('a[href*="/projects/"]');
+    // Static output uses relative hrefs: href="projects/cmsc-131" (no leading slash).
+    const tagLinks = page.locator('a[href*="projects/"]');
     await expect(tagLinks.first()).toBeVisible();
     expect(await tagLinks.count()).toBeGreaterThan(0);
   });
 
   test('each tag link href matches /projects/{tag} pattern', async ({ page }) => {
-    const firstLink = page.locator('a[href*="/projects/"]').first();
+    const firstLink = page.locator('a[href*="projects/"]').first();
     const href = await firstLink.getAttribute('href');
-    expect(href).toMatch(/\/projects\/[a-z0-9-]+/);
+    // Relative href — no leading slash in static output.
+    expect(href).toMatch(/projects\/[a-z0-9-]+/);
   });
 
   test('clicking a tag link navigates to the filtered showcase page', async ({ page }) => {
-    const firstLink = page.locator('a[href*="/projects/"]').first();
+    const firstLink = page.locator('a[href*="projects/"]').first();
     await firstLink.click();
     await page.waitForURL(/\/projects\//);
     expect(page.url()).toContain('/projects/');
