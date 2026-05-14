@@ -9,5 +9,5 @@ repository: https://github.com/FakeSquiffy-Games/cmsc-197-gdd-mp2
 thumbnail: null
 tags: [cmsc-197-gdd]
 published: 2026-04-14
-schoolYear: 2026
+schoolYear: 2025
 ---

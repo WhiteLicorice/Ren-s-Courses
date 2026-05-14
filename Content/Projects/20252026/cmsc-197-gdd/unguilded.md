@@ -9,5 +9,5 @@ repository: https://github.com/FakeSquiffy-Games/unguilded
 thumbnail: null
 tags: [cmsc-197-gdd]
 published: 2026-05-07
-schoolYear: 2026
+schoolYear: 2025
 ---

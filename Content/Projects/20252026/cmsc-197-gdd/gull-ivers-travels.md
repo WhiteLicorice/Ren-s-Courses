@@ -9,5 +9,5 @@ repository: https://github.com/FakeThird/gull-ivers-travels
 thumbnail: null
 tags: [cmsc-197-gdd]
 published: 2026-03-03
-schoolYear: 2026
+schoolYear: 2025
 ---

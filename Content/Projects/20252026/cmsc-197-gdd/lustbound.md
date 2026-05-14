@@ -9,5 +9,5 @@ repository: https://github.com/CL4-Bisk/cmsc197-GDD---MP2
 thumbnail: null
 tags: [cmsc-197-gdd]
 published: 2026-04-07
-schoolYear: 2026
+schoolYear: 2025
 ---

@@ -9,5 +9,5 @@ repository: https://github.com/TheAmazingTurtle/Floppy-Disk
 thumbnail: null
 tags: [cmsc-197-gdd]
 published: 2026-04-29
-schoolYear: 2026
+schoolYear: 2025
 ---

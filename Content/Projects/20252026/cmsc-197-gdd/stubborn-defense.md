@@ -9,5 +9,5 @@ repository: https://github.com/Blue-Shell-Studios/Stubborn-Defense
 thumbnail: null
 tags: [cmsc-197-gdd]
 published: 2026-05-05
-schoolYear: 2026
+schoolYear: 2025
 ---
