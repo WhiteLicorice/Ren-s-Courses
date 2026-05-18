@@ -4,108 +4,109 @@
 [![Netlify](https://img.shields.io/badge/Netlify-Mirror-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://renscourses.netlify.app)
 [![Shortlink](https://img.shields.io/badge/Shortlink-bit.ly%2Frenscourses-EE6123?style=for-the-badge&logo=bitly&logoColor=white)](https://bit.ly/renscourses)
 
-This repository hosts a headless Learning Management System designed for courses I handle under the **University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.**
+A headless Learning Management System for courses I teach under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.
+
+Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. The site compiles to static HTML and deploys to both GitHub Pages and Netlify on every push and on an hourly cron.
 
 ---
 
-### Legal Notice & License
+### Modules
 
-**All material is strictly copyrighted. All rights reserved.**
-
-This project is **NOT free to clone, fork, or distribute.** The source code and course materials are provided on GitHub for **reference and educational purposes only**.
-
-* View the detailed **[LICENSE](./LICENSE.md)** for a more in-depth read on permitted usage.
-* **Some modules and related services (e.g., Grades Viewer) are closed-source by design** and are intentionally excluded from this repository.
-
----
-
-### Roadmap by Module
-
-* [x] Course Site: Modernize the UX of the core LMS module.
-* [x] Submission Bin: Let students submit their deliverables on the course site itself, instead of email.
-* [x] Grades Viewer: Let students view their grades in real-time.
-* [x] Site Mirror: deploy a live mirror on Netlify for redundancy.
-* [x] Booking System: Let students book appointments in advance.
-* [x] Mailing List: Email those enrolled in each course (on a per course basis) as frontmatter is released.
-* [x] PWA Integration: Allow the course site to be installed on machines as an application.
-* [x] Calendar: Let students view upcoming events and deadlines. For instructors, allow dynamic scheduling of events.
-* [ ] Calendar Local Holidays: Look for an API that serves local holidays (this is hard, probably need to build my own).
-* [x] Calendar Custom Events: Provide an API for defining custom events on the calendar beyond holidays and frontmatter.
-* [ ] Search system: somehow integrate a search engine that parses generic frontmatter (possible, but low-priority since frontmatter count is manageable).
-* [x] Theming. Adaptive themes and controls.
-* [ ] Custom themes. Add more themes and provide an API to extend these themes (low-priority, since Light Mode and Dark Mode are sufficient).
+* [x] Course site -- materials, deadlines, and course content served as static pages
+* [x] Submission bin -- students submit deliverables through an embedded Google Form
+* [x] Grades viewer -- real-time grade lookups via a private Google Apps Script web app
+* [x] Site mirror -- live mirror on Netlify for redundancy
+* [x] Booking system -- students book consultations in advance
+* [x] Mailing list -- enrolled students get notified by email when new materials drop
+* [x] PWA -- the course site installs as a native app on desktop and mobile
+* [x] Calendar -- upcoming events, deadlines, and holidays in one view
+* [x] Calendar holidays -- Philippine holidays from the [Nager.Date API](https://date.nager.at/), with a calculated fallback if the API is down
+* [x] Calendar custom events -- instructors define arbitrary events via markdown frontmatter
+* [x] Theming -- light/dark toggle that persists across sessions, synced with Prism.js for code blocks
+* [x] FAQs -- per-course FAQ pages with accordion layout, hash deep-linking, and a course-tag filter
+* [x] Project showcase -- student projects organized by school year and course, with tag filtering
+* [x] RSS feeds -- per-course Atom feeds generated at build time by a Python sidecar script
+* [ ] Search -- a full-text search engine across all frontmatter (low priority; content volume is still manageable by hand)
+* [ ] Custom themes -- more themes beyond light/dark and an API to extend them (low priority)
 
 ---
 
-### Notes
+### How it works
 
-* Since the Course Site module runs entirely on CRON jobs and the BlazorStatic engine, updating of deadlines and release of upcoming materials may be delayed by a few minutes. In exchange, the course site is very, *very* fast and loads almost instantly even on slow networks. There is *zero lag*, versus other similar course sites built using heavyweight frameworks like React, Angular, Laravel, etc.
+The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, generates RSS feeds with a Python script, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified before being pushed to their respective deploy branches.
 
-* Headless architecture allows swapping in and out of modules, providing infinite flexibility versus monolithic frameworks like Moodle.
+`CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START`--`TERM_END` window. Outside that window, `/materials` is empty. The CI pins these as env vars so the build is deterministic.
 
-* The Grades Viewer module utilizes an L2 and L1 cache for speedy grade lookups. However, this means that cached grade sheets may be stale versus their live counterparts until the cache expires: 15 minutes for L1 and 60 minutes for L2. This is insignificant in practice as the live sheets are rarely updated...
+All client-side behavior is vanilla JS -- no framework. Theme, calendar, TOC, code block features, FAQ accordion, course filtering, and scroll-to-top are each their own script loaded via `<script>` tags.
 
-* The Submission Bin module runs on an external Google Forms, but it works as intended, and is sufficient for my purposes. Perhaps I will hoist this off to a proper web module in the future. However, no free-forever solution exists for independent developers. As the issue is simply UI, then this probably won't be addressed.
+---
 
-* A proper Dashboard will probably be never implemented due to architecture constraints. Instead, all managerial tasks will have to be done programmatically (I do not like Dashboards, anyway).
+### Grades viewer architecture
 
-### Grades Viewer Architecture
+The Grades Viewer is a private Google Apps Script web app deployed separately from this repo. Students access it through the nav menu. The source is closed because it handles student records, but I'm documenting the architecture here since it accounts for most of the backend engineering.
 
-The Grades Viewer module is a private Google Apps Script application deployed as a web app that lets students query their grades in real-time. It integrates with the course site through a menu link and shares the same visual identity. Because it handles student records, the source code is not public — but its architecture is worth describing here since it represents a substantial portion of the system's backend engineering.
+Google Apps Script imposes a 6-minute execution limit, a 100 KB per-key cache ceiling, and a 250-character cache key max. Under those constraints, the system provides sub-second grade lookups across multiple Google Sheets gradebooks.
 
-The core design constraint is that Google Apps Script imposes a 6-minute execution limit, a 100 KB per-key cache ceiling, and a 250-character cache key maximum. Under those constraints, the system provides sub-second lookups across multiple Google Sheets gradebooks while keeping every layer cache-aware and cache-invalidating.
+**Data model.** A static `CourseDirectory` maps academic years to courses to spreadsheet IDs and sub-sheet names. Adding a new course is one line in that directory. The form's year/course cascading dropdown runs client-side from a serialized JSON map -- no server round-trip.
 
-**Data model.** A static `CourseDirectory` maps academic years to courses to spreadsheet IDs and sub-sheet names. Adding a new course is a one-line entry in this directory — no code changes, no deployment needed. Each course config declares which sub-sheets to query, and those sub-sheet names become the section headers in the rendered output. The form's year-course cascading dropdown runs entirely client-side from a serialized JSON map, so filtering courses by academic year requires no server round-trip.
+**Caching.** Two layers. Layer 1 (student result cache, 10-minute TTL) stores parsed grades for a student-sheet pair. Layer 2 (sheet data cache, 60-minute TTL) stores raw sheet contents. Both cache keys are SHA-256 hashes that include the sheet's header row as a schema version -- when an instructor adds, renames, or reorders a column, both layers self-invalidate. A per-section refresh button on the frontend bypasses all caches for a single sub-sheet.
 
-**Caching.** A two-layer strategy isolates student results from sheet data. Layer 1 (student result cache, 10-minute TTL) stores the parsed grade array for a specific student-sheet combination. Layer 2 (sheet data cache, 60-minute TTL) stores the full raw sheet contents parsed from the Google Sheets API. Both cache keys are SHA-256 hashes that include a live schema version derived from the sheet's header row — when an instructor adds, renames, reorders, or deletes a grade column, the schema hash changes automatically and both cache layers invalidate without manual intervention. A per-section refresh button on the frontend bypasses all caches and re-fetches the live sheet for a single sub-sheet, returning updated grades without reloading the page.
+**Header mapping.** Gradebook columns are matched by semantic header names ("Student Number", "Student No.", "SN" all map to the same field). Any column not prefixed with an underscore is treated as a grade column. Instructors can add assessment columns without touching the code.
 
-**Header mapping.** Gradebook columns are identified by semantic headers rather than hard-coded column indices. The system recognizes variations like "Student Number," "Student No.," and "SN" for the same field, and any column whose name does not start with an underscore is treated as a grade column. This means instructors can add new assessment columns to their spreadsheets without touching the code.
+**Rendering.** Wide gradebooks get split into groups of 4 columns, each with its own repeated header row. No horizontal scrolling -- matters on mobile and during in-person consultations.
 
-**Rendering.** Since Google Sheets gradebooks often have many columns, the table renderer splits each sub-sheet's grades into sections of 4 columns, each with its own repeated header row. This ensures students never need to scroll horizontally to see column labels — a small UX detail that matters on mobile devices and during in-person grade consultations.
+**Frontend.** Light/dark theme (synced with localStorage and system preference), inline form validation with live error messages, ARIA roles and live regions for screen readers, `prefers-reduced-motion` support. Zero external dependencies beyond Google's `google.script.run` bridge.
 
-**Frontend.** The web app supports light and dark themes (synced with localStorage and system preference), includes inline form validation with live error messages, uses proper ARIA roles and live regions for screen readers, and respects `prefers-reduced-motion`. The theme toggle, collapsible grade sections, and refresh buttons all work with zero external dependencies beyond Google's built-in `google.script.run` bridge.
+---
 
-The Grades Viewer is accessed by students through the course site's menu bar under "Grades." It is intentionally separate from the main repository — partly for security, partly because Google Apps Script has its own deployment lifecycle (managed via `clasp` and TypeScript compilation) that differs from the .NET static-generation pipeline of the course site.
+### Legal notice
+
+**All material is copyrighted. All rights reserved.**
+
+This project is not free to clone, fork, or distribute. The source code and course materials are on GitHub for reference and educational purposes only. View the detailed [LICENSE](./LICENSE.md) for permitted usage. Some modules (e.g., Grades Viewer) are closed-source by design and excluded from this repository.
+
+---
 
 ## Contributing
 
-Contributions are welcome, but take note that your code will fall under the terms of the license. Please follow these guidelines to keep the project organized.
+Contributions are welcome under the terms of the license.
 
 ### Workflow
 
 1. Fork the repository.
-2. Create a new branch for your changes. Use a prefix that describes the type of change, followed by a specific name:
-* `feat/` for new features
-* `fix/` for bug fixes
-* `refactor/` for code restructuring
-* `docs/` for documentation updates
-* Example: `feat/vite-plugin-monkey`
-3. Make your changes and test them using `npm run dev`.
-4. Submit a Pull Request.
+2. Create a branch with a prefix that describes the change type:
+   * `feat/` for new features
+   * `fix/` for bug fixes
+   * `refactor/` for code restructuring
+   * `docs/` for documentation updates
+3. Make your changes and test with `dotnet run`.
+4. Submit a pull request.
 
-### Commit Messages
+### Commit messages
 
-This project follows semantic commits. Start your commit message with a type, followed by a colon and a brief description.
+This project uses semantic commits:
 
-* `feat:` A new feature
-* `fix:` A bug fix
-* `ux:` User interface or user experience improvements
-* `docs:` Documentation only changes
-* `style:` Changes that do not affect the meaning of the code (formatting, missing semi-colons, etc)
-* `refactor:` A code change that neither fixes a bug nor adds a feature, but makes the codebase better
-* `chore:` Build process or auxiliary tool changes
-* `meta:` License, metadata, dependency changes, etc.
-* `debug/test:` Testing, scaffolding, and debugging.
-* Example: `feat: add markdown export to doc manager`
+* `feat:` new feature
+* `fix:` bug fix
+* `ux:` UI or UX improvement
+* `docs:` documentation only
+* `style:` formatting, whitespace, semicolons -- no logic changes
+* `refactor:` code restructuring that does not fix a bug or add a feature
+* `chore:` build process or tooling changes
+* `meta:` license, metadata, dependency changes
+* `devops:` CI/CD pipeline changes
+* `debug/test:` testing and scaffolding
 
-### Tests
+---
 
-#### .NET Tests (xUnit)
+## Tests
 
-Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq + bUnit. No fixture files on disk — test data defined inline via `EphemeralPost<T>` harness.
+### .NET (xUnit)
+
+Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq + bUnit. No fixture files on disk -- test data is defined inline via the `EphemeralPost<T>` harness.
 
 ```bash
-# Kill any locked process before building
+# Kill any locked process first
 pwsh -Command "Get-Process | Where-Object { \$_.ProcessName -like '*Blazor*' } | Stop-Process -Force"
 
 # Run all tests
@@ -113,12 +114,12 @@ dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj
 ```
 
 Key patterns:
-- **Test collection** `BuildTimeProvider` sets `STATIC_GEN_TIME` + `TERM_START`/`TERM_END` env vars before any test in the collection runs. All tests using `BuildTimeProvider` or services that depend on it must opt into this collection.
-- **InternalsVisibleTo** lets tests access `internal` methods. Testability helpers (`BuildEvents()`, `CalculateFallbackHolidays()`, `GetVisiblePosts(IEnumerable)`) are marked `internal` — never change their public signature.
-- **PostGrid component** tested via bUnit with `TestContext.Render<PostGrid>()`. No DI services needed — all state comes through parameters.
-- **Pure function extraction**: Complex logic extracted as `internal static` methods for direct testing without DI setup.
-- **Environment-dependent date logic** frozen via `STATIC_GEN_TIME` env var for deterministic assertions. Current frozen time: 2026-03-15 18:00 PHT. Update this value when writing date-sensitive tests.
-- **EphemeralPost&lt;T&gt;**: In-memory markdown fixture harness. Define frontmatter + body in-line, no disk I/O:
+- `BuildTimeProvider` test collection sets `STATIC_GEN_TIME`, `TERM_START`, and `TERM_END` env vars before any test runs. All tests that depend on these must opt into the collection.
+- `InternalsVisibleTo` gives tests access to `internal` methods. Testability helpers (`BuildEvents()`, `CalculateFallbackHolidays()`, `GetVisiblePosts(IEnumerable)`) are marked `internal` -- do not change their visibility.
+- `PostGrid` tested via bUnit with `TestContext.Render<PostGrid>()`. No DI needed; all state comes through parameters.
+- Complex logic extracted as `internal static` methods for direct testing without DI.
+- Date logic frozen via `STATIC_GEN_TIME` env var. Current frozen time: 2026-03-15 18:00 PHT.
+- `EphemeralPost<T>`: in-memory markdown fixture harness. Define frontmatter + body inline, no disk I/O:
   ```csharp
   var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
   {
@@ -128,78 +129,65 @@ Key patterns:
   var md = post.RawMarkdown; // "---\ntitle: Test\n..."
   ```
 
-#### E2E Tests (Playwright)
+### E2E (Playwright)
 
-End-to-end tests run against the **pre-built static output** served by a lightweight file server. They cover every major user flow: home page filtering, materials & article pages, FAQs with accordion deep-linking, calendar navigation & popovers, the project showcase, desktop/mobile navigation, and the theme toggle.
+End-to-end tests run against the pre-built static output served by a lightweight file server. They cover every major user flow.
 
-**Prerequisites**
-
-- Node.js 20+ (same as the project)
-- .NET 9 SDK
-
-**Local run**
+**Prerequisites:** Node.js 20+, .NET 9 SDK.
 
 ```bash
-# 1. Build the static site (output/ is generated and then the process exits)
+# 1. Build the static site (output/ directory appears, then the process exits)
 ASPNETCORE_ENVIRONMENT=Production dotnet run
 
 # 2. Install Playwright browsers (first time only)
 npx playwright install --with-deps chromium
 
-# 3. Run E2E tests (the config starts `serve output` automatically)
+# 3. Run tests (the config starts `serve output` automatically)
 npm run test:e2e
 
-# Run a specific spec file
+# Single spec
 npx playwright test tests/e2e/home.spec.js
 
-# Run only in Chromium
+# Single browser
 npx playwright test --project=chromium
-
-# Run only in Firefox
-npx playwright test --project=firefox
 ```
 
-**Viewing the HTML report**
-
 ```bash
+# View HTML report
 npx playwright show-report
 ```
 
-The report is written to `playwright-report/` after every run.
-
-**Build time constraint**
-
-`CourseContentProvider` only surfaces materials when `STATIC_GEN_TIME` falls within `TERM_START`–`TERM_END`. The CI workflow pins `STATIC_GEN_TIME=2026-03-15T12:00:00Z` to guarantee materials are always visible. When running locally outside the term window, set the env var manually:
+**Build time constraint:** `CourseContentProvider` only surfaces materials when `STATIC_GEN_TIME` falls within `TERM_START`--`TERM_END`. CI pins `STATIC_GEN_TIME=2026-03-15T12:00:00Z`. To run locally outside the term window:
 
 ```bash
 STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05-23" ASPNETCORE_ENVIRONMENT=Production dotnet run
 ```
 
-**Suite coverage**
+**Suite coverage:**
 
-| Spec file | Pages / flows covered |
+| Spec file | What it covers |
 |---|---|
-| `home.spec.js` | `/` — title, glitch text, lead, chip filter |
-| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}` — tag cloud, post cards, TOC, code blocks, copy button |
-| `faqs.spec.js` | `/faqs` — sections, chip filter, accordion, hash deep-link, hashchange |
-| `calendar.spec.js` | `/calendar` — month nav, tag filter, popover open/close |
-| `projects.spec.js` | `/projects`, `/projects/{tag}` — tag cloud, card expand/collapse |
+| `home.spec.js` | `/` -- title, glitch text, lead, chip filter |
+| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}` -- tag cloud, post cards, TOC, code blocks, copy button |
+| `faqs.spec.js` | `/faqs` -- sections, chip filter, accordion, hash deep-link, hashchange |
+| `calendar.spec.js` | `/calendar` -- month nav, tag filter, popover open/close |
+| `projects.spec.js` | `/projects`, `/projects/{tag}` -- tag cloud, card expand/collapse |
 | `navigation.spec.js` | Desktop nav (3 items + dropdown, scroll hide/show); mobile nav (overlay, backdrop, close) |
 | `theme.spec.js` | Light/dark toggle, localStorage, Prism CSS swap, icon state, persistence |
-| `edge-cases.spec.js` | `/null`, non-existent articles, all major routes for JS errors |
+| `edge-cases.spec.js` | `/null`, non-existent articles, all major routes checked for JS errors |
 
-#### JS Tests (Jest)
+### JS (Jest)
 
-Client-side scripts in `wwwroot/js/` are tested with [Jest](https://jestjs.io/) + [jest-environment-jsdom](https://jestjs.io/docs/configuration#testenvironment-string). Test files live in `wwwroot/js/__tests__/`.
+Client-side scripts in `wwwroot/js/` are tested with Jest + jest-environment-jsdom. Test files live in `wwwroot/js/__tests__/`.
 
 ```bash
 # Run all JS tests
 npm test
 
-# Watch mode (re-runs on file change)
+# Watch mode
 npx jest --watch
 
-# With coverage report
+# With coverage
 npx jest --coverage
 ```
 
@@ -215,9 +203,8 @@ npx jest --coverage
 | `scroll-button.js` | Button click scrolls to top; no-op when button absent |
 | `theme.js` | `switchPrismTheme` sets link href, `data-theme`, localStorage, theme-color meta; system preference fallback |
 
-**Setup file:** `wwwroot/js/__tests__/setup.js` — applies the `innerText` polyfill and `IntersectionObserver` stub globally before every test suite.
+**Setup file:** `wwwroot/js/__tests__/setup.js` -- applies the `innerText` polyfill and `IntersectionObserver` stub globally before every test suite.
 
 **Key test patterns:**
-- History API: `history.pushState` is used to set `window.location.hash` before mocking, because `window.location.hash` is non-configurable in jsdom. `Object.getPrototypeOf(window.history).pushState.call(...)` bypasses active spies when real URL changes are needed.
-- Scripts are loaded by reading the source file and executing via `new Function(source)()` — this runs in the global scope so `window.generateTOC` etc. become available.
-
+- History API: `history.pushState` sets `window.location.hash` before mocking, because `window.location.hash` is non-configurable in jsdom. `Object.getPrototypeOf(window.history).pushState.call(...)` bypasses active spies when real URL changes are needed.
+- Scripts are loaded by reading the source file and executing via `new Function(source)()` -- runs in global scope so `window.generateTOC` etc. become available.
