@@ -58,7 +58,18 @@
             </div>
 
             <div class="max-w-4xl mx-auto">
-                <PostsList Posts="filteredPosts" />
+                @if (filteredPosts != null && !filteredPosts.Any())
+                {
+                    <div class="text-center py-20 text-text-dim">
+                        <p class="text-lg mb-4 font-mono">No materials found for <span class="text-accent font-bold">#@TagName</span></p>
+                        <a href="@blazorStaticContentService.Options.Tags.TagsPageUrl"
+                           class="text-accent hover:underline font-mono text-sm">View all materials</a>
+                    </div>
+                }
+                else
+                {
+                    <PostsList Posts="filteredPosts" />
+                }
             </div>
 
             <div class="mt-16 pt-8 border-t border-border-muted flex justify-center">

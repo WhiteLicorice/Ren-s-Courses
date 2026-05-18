@@ -216,6 +216,7 @@ function _updateCalendarChips() {
     document.querySelectorAll('.filter-btn').forEach(function (btn) {
         var tag = (btn.dataset.tag || '').toLowerCase();
         var active = _calendarSelectedTags.indexOf(tag) >= 0;
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         if (active) {
             btn.classList.add('bg-accent-dim', 'border-accent', 'text-accent', 'scale-105', 'shadow-lg');
             btn.classList.remove('bg-surface', 'border-border-muted', 'text-text-dim');

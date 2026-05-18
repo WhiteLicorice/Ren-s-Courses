@@ -41,6 +41,7 @@
         @foreach (var tag in ContentProvider.GetAllTags())
         {
             <button onclick="toggleCalendarTag('@tag')" data-tag="@tag"
+                    aria-pressed="false"
                     class="filter-btn cursor-pointer rounded border border-border-muted bg-surface px-3 py-1 font-mono text-xs font-bold text-text-dim transition-all hover:border-accent/50 hover:text-accent hover:shadow-lg hover:shadow-accent/10">
                 #@tag
             </button>

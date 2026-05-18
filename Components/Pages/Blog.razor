@@ -35,7 +35,10 @@
 @* --- VIEW 2: ARTICLE PAGE --- *@
 @if (post == null)
 {
-    <div class="text-center py-20 text-text-dim font-mono">404 - Post not found</div>
+    <div class="text-center py-20">
+        <p class="text-text-dim font-mono mb-4">404 - Post not found</p>
+        <a href="/" class="text-accent hover:underline font-mono text-sm">Return to homepage</a>
+    </div>
     return;
 }
 
