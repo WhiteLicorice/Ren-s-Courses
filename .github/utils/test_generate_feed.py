@@ -90,6 +90,32 @@ Body
             self.assertIn("No current materials. The term has ended.", feed_xml)
             self.assertNotIn("<item>", feed_xml)
 
+    def test_showcase_mode_skips_feed_generation(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "showcase-post.md",
+                """---
+title: Showcase Post
+published: 2026-05-20
+lead: Hidden from RSS in showcase mode.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-20T01:00:00Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                showcase_mode="true",
+            )
+
+            self.assertFalse(Path(output_dir, "feed.xml").exists())
+            self.assertEqual([], list(Path(output_dir).glob("feed*.xml")))
+
     @staticmethod
     def _write_post(content_dir: str, file_name: str, content: str) -> None:
         Path(content_dir, file_name).write_text(content, encoding="utf-8")
@@ -102,6 +128,7 @@ Body
         static_gen_time: str,
         term_start: str,
         term_end: str,
+        showcase_mode: str = "false",
     ) -> None:
         with mock.patch.object(generate_feed, "CONTENT_DIR", content_dir), \
              mock.patch.object(generate_feed, "OUTPUT_DIR", output_dir), \
@@ -111,6 +138,7 @@ Body
                      "STATIC_GEN_TIME": static_gen_time,
                      "TERM_START": term_start,
                      "TERM_END": term_end,
+                     "SHOWCASE_MODE": showcase_mode,
                  },
                  clear=False,
              ):

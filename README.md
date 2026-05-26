@@ -35,7 +35,7 @@ Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. T
 
 The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, generates RSS feeds with a Python script, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified before being pushed to their respective deploy branches.
 
-`CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START`--`TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials remain visible as an archive. The CI pins these as env vars so the build is deterministic.
+`CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START`--`TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
 
 All client-side behavior is vanilla JS -- no framework. Theme, calendar, TOC, code block features, FAQ accordion, course filtering, and scroll-to-top are each their own script loaded via `<script>` tags.
 

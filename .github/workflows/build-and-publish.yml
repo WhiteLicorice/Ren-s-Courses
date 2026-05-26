@@ -100,7 +100,11 @@ jobs:
 
       - name: Inject Feeds to Netlify Output
         run: |
-          cp feed*.xml ${{ env.WEBAPP_PATH }}output/
+          shopt -s nullglob
+          feeds=(feed*.xml)
+          if [ ${#feeds[@]} -gt 0 ]; then
+            cp "${feeds[@]}" ${{ env.WEBAPP_PATH }}output/
+          fi
 
       - name: Minify Netlify Output
         run: |
@@ -146,7 +150,11 @@ jobs:
 
       - name: Inject Feeds to GitHub Output
         run: |
-          cp feed*.xml ${{ env.WEBAPP_PATH }}output/
+          shopt -s nullglob
+          feeds=(feed*.xml)
+          if [ ${#feeds[@]} -gt 0 ]; then
+            cp "${feeds[@]}" ${{ env.WEBAPP_PATH }}output/
+          fi
 
       - name: Add .nojekyll
         run: touch ${{ env.WEBAPP_PATH }}output/.nojekyll
