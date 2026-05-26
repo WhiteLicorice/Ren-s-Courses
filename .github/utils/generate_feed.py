@@ -47,6 +47,10 @@ def get_current_time() -> datetime.datetime:
     print(f"[FeedGen] No frozen time found. Using UTC Now: {now}")
     return now
 
+def is_showcase_mode() -> bool:
+    showcase_mode = os.environ.get("SHOWCASE_MODE", "")
+    return showcase_mode.lower() == "true" or showcase_mode == "1"
+
 def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Optional[datetime.datetime]:
     """
     Robustly parses a date input into a timezone-aware UTC datetime object.
@@ -145,6 +149,10 @@ def generate_empty_feed() -> str:
 </rss>"""
 
 def generate_feed() -> None:
+    if is_showcase_mode():
+        print("[FeedGen] Showcase mode enabled. Skipping RSS feed generation.")
+        return
+
     now = get_current_time()
     start_str = os.environ.get("TERM_START")
     end_str = os.environ.get("TERM_END")
