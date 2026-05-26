@@ -14,6 +14,8 @@ env:
   # TODO: Configure these at the start of every academic year.
   TERM_START: "2026-01-19"
   TERM_END: "2026-05-26"
+  # Set to "true" to bypass term window — all non-draft content visible.
+  SHOWCASE_MODE: "false"
 
 jobs:
   build-and-deploy:
@@ -86,6 +88,7 @@ jobs:
           STATIC_GEN_TIME: ${{ env.STATIC_GEN_TIME }}
           TERM_START: ${{ env.TERM_START }}
           TERM_END: ${{ env.TERM_END }}
+          SHOWCASE_MODE: ${{ env.SHOWCASE_MODE }}
 
       # =================================================================
       # BUILD 1: NETLIFY (Base HREF = "/") -> Branch: netlify-pages

@@ -32,7 +32,8 @@ public class CourseContentProvider
         DateTime nowUtc = BuildTimeProvider.UtcNow;
         DateTime nowPh = BuildTimeProvider.LocalNow;
 
-        if (!showcaseMode && nowUtc > termEnd)
+        // termEnd here is the literal date when the term ends, not a day before
+        if (!showcaseMode && nowUtc >= termEnd)
             return Enumerable.Empty<Post<CourseFrontMatter>>();
 
         return sourcePosts.Where(p =>
