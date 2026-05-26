@@ -61,6 +61,20 @@ Body
 
         self.assertLess(now, end)
 
+    def test_exact_term_end_boundary_writes_empty_feed(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-26T16:00:00Z",  # exactly midnight PHT of day-after-term-end
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+            )
+
+            feed_path = Path(output_dir, "feed.xml")
+            self.assertTrue(feed_path.exists())
+            self.assertIn("No current materials", feed_path.read_text(encoding="utf-8"))
+
     def test_term_ended_writes_empty_feed(self):
         with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
             self._write_post(

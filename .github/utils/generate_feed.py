@@ -168,7 +168,7 @@ def generate_feed() -> None:
     print(f"[FeedGen] Term Window (UTC): {start} to {end}")
     
     # Compare UTC to UTC
-    if now > end:
+    if now >= end:
         print(f"[FeedGen] Term ended on {end}. Current time is {now}. Writing empty feed.")
         with open(os.path.join(OUTPUT_DIR, "feed.xml"), 'w', encoding='utf-8') as f:
             f.write(generate_empty_feed())
@@ -199,7 +199,6 @@ def generate_feed() -> None:
             # --- FILTERING LOGIC ---
             # FIXME: This does not seem to respect the IsDraft flag as intended. See logs later!
             is_draft = str(metadata.get('IsDraft', 'false')).lower() == 'true'
-            print(is_draft, filepath)
 
             if not pub_date or is_draft:
                 continue
