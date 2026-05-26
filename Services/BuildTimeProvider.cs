@@ -54,7 +54,7 @@ public static class BuildTimeProvider
         _termStart = ParseTermDate(Environment.GetEnvironmentVariable("TERM_START")!);
         Console.WriteLine($"[BuildTimeProvider] SUCCESS: Set TermStart to {_termStart:O}");
 
-        _termEnd = ParseTermDate(Environment.GetEnvironmentVariable("TERM_END")!);
+        _termEnd = ParseTermDate(Environment.GetEnvironmentVariable("TERM_END")!).AddDays(1);
         Console.WriteLine($"[BuildTimeProvider] SUCCESS: Set TermEnd to {_termEnd:O}");
 
         // 4. Initialize Showcase Mode

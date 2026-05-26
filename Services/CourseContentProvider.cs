@@ -29,9 +29,10 @@ public class CourseContentProvider
     {
         DateTime termStart = BuildTimeProvider.TermStart;
         DateTime termEnd = BuildTimeProvider.TermEnd;
+        DateTime nowUtc = BuildTimeProvider.UtcNow;
         DateTime nowPh = BuildTimeProvider.LocalNow;
 
-        if (!showcaseMode && nowPh > termEnd)
+        if (!showcaseMode && nowUtc >= termEnd)
             return Enumerable.Empty<Post<CourseFrontMatter>>();
 
         return sourcePosts.Where(p =>

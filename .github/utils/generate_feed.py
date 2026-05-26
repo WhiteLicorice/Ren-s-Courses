@@ -47,6 +47,10 @@ def get_current_time() -> datetime.datetime:
     print(f"[FeedGen] No frozen time found. Using UTC Now: {now}")
     return now
 
+def is_showcase_mode() -> bool:
+    showcase_mode = os.environ.get("SHOWCASE_MODE", "")
+    return showcase_mode.lower() == "true" or showcase_mode == "1"
+
 def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Optional[datetime.datetime]:
     """
     Robustly parses a date input into a timezone-aware UTC datetime object.
@@ -133,7 +137,22 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
 </channel>
 </rss>"""
 
+def generate_empty_feed() -> str:
+    return """<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses</title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>No current materials. The term has ended.</description>
+    <language>en-us</language>
+</channel>
+</rss>"""
+
 def generate_feed() -> None:
+    if is_showcase_mode():
+        print("[FeedGen] Showcase mode enabled. Skipping RSS feed generation.")
+        return
+
     now = get_current_time()
     start_str = os.environ.get("TERM_START")
     end_str = os.environ.get("TERM_END")
@@ -144,12 +163,15 @@ def generate_feed() -> None:
     # These use parse_date, so they are interpreted as Midnight PHT -> Converted to UTC
     start = parse_date(start_str)
     end = parse_date(end_str)
+    end += datetime.timedelta(days=1)
     
     print(f"[FeedGen] Term Window (UTC): {start} to {end}")
     
     # Compare UTC to UTC
-    if now > end:
-        print(f"[FeedGen] Term ended on {end}. Current time is {now}. Skipping feed generation.")
+    if now >= end:
+        print(f"[FeedGen] Term ended on {end}. Current time is {now}. Writing empty feed.")
+        with open(os.path.join(OUTPUT_DIR, "feed.xml"), 'w', encoding='utf-8') as f:
+            f.write(generate_empty_feed())
         return
     
     all_posts: List[PostItem] = []
@@ -177,7 +199,6 @@ def generate_feed() -> None:
             # --- FILTERING LOGIC ---
             # FIXME: This does not seem to respect the IsDraft flag as intended. See logs later!
             is_draft = str(metadata.get('IsDraft', 'false')).lower() == 'true'
-            print(is_draft, filepath)
 
             if not pub_date or is_draft:
                 continue
