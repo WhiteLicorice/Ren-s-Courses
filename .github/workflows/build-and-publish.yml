@@ -74,6 +74,9 @@ jobs:
         run: |
           pip install -r .github/utils/requirements.txt
 
+      - name: Run Python tests
+        run: python -m unittest discover -s .github/utils -p "test_*.py" -v
+
       # =================================================================
       # GENERATE RSS FEEDS
       # =================================================================

@@ -31,9 +31,6 @@ public class CourseContentProvider
         DateTime termEnd = BuildTimeProvider.TermEnd;
         DateTime nowPh = BuildTimeProvider.LocalNow;
 
-        if (!showcaseMode && nowPh > termEnd)
-            return Enumerable.Empty<Post<CourseFrontMatter>>();
-
         return sourcePosts.Where(p =>
             !p.FrontMatter.IsDraft
             && !p.FrontMatter.Tags.Any(t => GlobalHiddenTags.Contains(t))

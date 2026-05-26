@@ -133,6 +133,17 @@ def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
 </channel>
 </rss>"""
 
+def generate_empty_feed() -> str:
+    return """<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses</title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>No current materials. The term has ended.</description>
+    <language>en-us</language>
+</channel>
+</rss>"""
+
 def generate_feed() -> None:
     now = get_current_time()
     start_str = os.environ.get("TERM_START")
@@ -144,12 +155,15 @@ def generate_feed() -> None:
     # These use parse_date, so they are interpreted as Midnight PHT -> Converted to UTC
     start = parse_date(start_str)
     end = parse_date(end_str)
+    end += datetime.timedelta(days=1)
     
     print(f"[FeedGen] Term Window (UTC): {start} to {end}")
     
     # Compare UTC to UTC
     if now > end:
-        print(f"[FeedGen] Term ended on {end}. Current time is {now}. Skipping feed generation.")
+        print(f"[FeedGen] Term ended on {end}. Current time is {now}. Writing empty feed.")
+        with open(os.path.join(OUTPUT_DIR, "feed.xml"), 'w', encoding='utf-8') as f:
+            f.write(generate_empty_feed())
         return
     
     all_posts: List[PostItem] = []
