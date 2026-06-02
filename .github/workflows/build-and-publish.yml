@@ -15,7 +15,7 @@ env:
   TERM_START: "2026-01-19"
   TERM_END: "2026-05-28"
   # Set to "true" to bypass term window — all non-draft content visible.
-  SHOWCASE_MODE: "false"
+  SHOWCASE_MODE: "true"
 
 jobs:
   build-and-deploy:
