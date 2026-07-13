@@ -1,7 +1,8 @@
-# Ignore Claude Code
+# Ignore Claude Code artifacts
 .claude
 CLAUDE.md
 AGENTS.md
+FABLE.md
 
 # Ignore utilities
 utilities/
