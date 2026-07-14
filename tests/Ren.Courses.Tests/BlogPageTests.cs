@@ -11,7 +11,7 @@ namespace Ren.Courses.Tests;
 public class BlogPageTests
 {
     [Fact]
-    public void Article_WithSubmissions_RendersNamedSubmissionLinks()
+    public void Article_WithSubmissions_RendersCompactSubmissionMenuBesideDownload()
     {
         using var ctx = new BunitContext();
         var post = new Post<CourseFrontMatter>
@@ -22,6 +22,7 @@ public class BlogPageTests
             {
                 Title = "Test Material",
                 Published = new DateTime(2026, 3, 1),
+                DownloadLink = "https://example.com/material.pdf",
                 Submissions =
                 [
                     new() { Name = "Source code", Link = "https://forms.gle/source" },
@@ -37,10 +38,21 @@ public class BlogPageTests
         var cut = ctx.Render<Blog>(parameters => parameters
             .Add(p => p.FileName, "test-material"));
 
-        var section = cut.Find("section[aria-labelledby='submission-heading']");
-        Assert.Contains("Submit your work", section.QuerySelector("h2")!.TextContent);
+        var actions = cut.Find("[data-material-actions]");
+        var download = actions.QuerySelector("a[data-download-action]");
+        Assert.NotNull(download);
+        Assert.Equal("https://example.com/material.pdf", download.GetAttribute("href"));
 
-        var links = section.QuerySelectorAll("a");
+        var menu = actions.QuerySelector("[data-submission-menu]");
+        Assert.NotNull(menu);
+        var trigger = menu.QuerySelector("button[data-submission-trigger]");
+        Assert.NotNull(trigger);
+        Assert.Equal("Submit", trigger.TextContent.Trim());
+        Assert.Equal("false", trigger.GetAttribute("aria-expanded"));
+        Assert.Equal("submission-menu-panel", trigger.GetAttribute("aria-controls"));
+        Assert.NotNull(menu.QuerySelector("#submission-menu-panel"));
+
+        var links = menu.QuerySelectorAll("a");
         Assert.Equal(2, links.Length);
         Assert.Equal("Source code", links[0].TextContent.Trim());
         Assert.Equal("https://forms.gle/source", links[0].GetAttribute("href"));
@@ -50,7 +62,7 @@ public class BlogPageTests
     }
 
     [Fact]
-    public void Article_WithoutSubmissions_DoesNotRenderSubmissionSection()
+    public void Article_WithoutSubmissions_DoesNotRenderSubmissionMenu()
     {
         using var ctx = new BunitContext();
         var post = new Post<CourseFrontMatter>
@@ -71,7 +83,7 @@ public class BlogPageTests
         var cut = ctx.Render<Blog>(parameters => parameters
             .Add(p => p.FileName, "reading"));
 
-        Assert.Empty(cut.FindAll("section[aria-labelledby='submission-heading']"));
+        Assert.Empty(cut.FindAll("[data-submission-menu]"));
     }
 
     [Fact]

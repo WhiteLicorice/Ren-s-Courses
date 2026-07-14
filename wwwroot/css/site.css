@@ -356,7 +356,30 @@
 
 .diagram-canvas svg {
     display: block;
-    height: auto;
+    height: auto !important;
     margin-inline: auto;
-    max-width: 100%;
+    max-height: min(32rem, 70vh);
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* ============================== */
+/* 9. SUBMISSION MENU             */
+/* ============================== */
+.submission-menu-panel {
+    display: none;
+}
+
+.submission-menu[data-open] > .submission-menu-panel {
+    display: block;
+}
+
+.submission-menu[data-open] [data-submission-chevron] {
+    transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+    .submission-menu:not([data-hover-suppressed]):hover > .submission-menu-panel {
+        display: block;
+    }
 }

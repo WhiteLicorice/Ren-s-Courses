@@ -13,4 +13,5 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.initCalendarNav) window.initCalendarNav();
     if (window.initFaqToc) window.initFaqToc();
     if (window.initInteractiveDiagrams) window.initInteractiveDiagrams();
+    if (window.initSubmissionMenus) window.initSubmissionMenus();
 });

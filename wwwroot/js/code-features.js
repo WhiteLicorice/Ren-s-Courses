@@ -23,7 +23,7 @@ window.addCodeFeatures = () => {
     const iconCheck = `<polyline points="20 6 9 17 4 12"/>`;
 
     // Select code blocks inside the typography container (.prose)
-    const preBlocks = document.querySelectorAll('.prose pre');
+    const preBlocks = document.querySelectorAll('.prose pre:not([data-diagram-source])');
 
     preBlocks.forEach(pre => {
         // Prevent double-wrapping if function runs twice

@@ -38,7 +38,7 @@ function createMermaid() {
     return {
         initialize: jest.fn(),
         render: jest.fn(async (id, definition) => ({
-            svg: `<svg data-render-id="${id}"><title>${definition}</title></svg>`
+            svg: `<svg data-render-id="${id}" style="max-width: 80px"><title>${definition}</title></svg>`
         }))
     };
 }
@@ -69,6 +69,27 @@ test('renders the first step and enables the controls', async () => {
     expect(document.querySelector('[data-diagram-controls]').hidden).toBe(false);
     expect(document.querySelector('[data-diagram-source]').hidden).toBe(true);
     expect(document.querySelector('[data-diagram-action="previous"]').disabled).toBe(true);
+});
+
+test('hides every source fallback before asynchronous rendering can expose a new step', async () => {
+    buildWidget();
+    const mermaid = createMermaid();
+
+    const initialization = window.initInteractiveDiagrams(mermaid);
+
+    expect([...document.querySelectorAll('[data-diagram-source]')].every(source => source.hidden)).toBe(true);
+    await initialization;
+    document.querySelector('[data-diagram-action="next"]').click();
+    expect(document.querySelectorAll('[data-diagram-source]')[1].hidden).toBe(true);
+});
+
+test('removes Mermaid intrinsic width caps so CSS can size the SVG to its canvas', async () => {
+    buildWidget();
+    const mermaid = createMermaid();
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    expect(document.querySelector('[data-diagram-canvas] svg').style.maxWidth).toBe('');
 });
 
 test('next and previous controls change the visible step', async () => {

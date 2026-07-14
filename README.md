@@ -258,6 +258,7 @@ npx jest --coverage
 | `code-features.js` | Wrapping, double-wrap guard, language label mapping, copy button injection + clipboard write + timeout revert |
 | `interactive-diagrams.js` | Lazy Mermaid rendering; previous/next/play controls; single-step and render-error fallbacks |
 | `scroll-button.js` | Button click scrolls to top; no-op when button absent |
+| `submission-menu.js` | Submission dropdown click state, outside-click dismissal, Escape handling, and idempotent setup |
 | `theme.js` | `switchPrismTheme` sets link href, `data-theme`, localStorage, theme-color meta; system preference fallback |
 
 **Setup file:** `wwwroot/js/__tests__/setup.js` -- applies the `innerText` polyfill and `IntersectionObserver` stub globally before every test suite.

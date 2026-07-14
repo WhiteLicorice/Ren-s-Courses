@@ -59,6 +59,7 @@ async function renderStep(state, index) {
         const definition = source.textContent.trim();
         const result = await state.mermaid.render(`learning-diagram-${renderId++}`, definition);
         canvas.innerHTML = result.svg;
+        canvas.querySelector('svg')?.style.removeProperty('max-width');
         if (result.bindFunctions) result.bindFunctions(canvas);
         source.hidden = true;
         error.hidden = true;
@@ -137,7 +138,10 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
         .filter(widget => !widget.dataset.diagramInitialized);
     if (widgets.length === 0) return;
 
-    widgets.forEach(widget => widget.dataset.diagramInitialized = 'loading');
+    widgets.forEach(widget => {
+        widget.dataset.diagramInitialized = 'loading';
+        widget.querySelectorAll('[data-diagram-source]').forEach(source => source.hidden = true);
+    });
 
     try {
         const mermaid = await getMermaid(providedMermaid);
@@ -147,6 +151,8 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
         widgets.forEach(widget => {
             widget.dataset.diagramInitialized = 'error';
             const error = widget.querySelector('[data-diagram-error]');
+            const visibleSource = widget.querySelector('[data-diagram-step]:not([hidden]) [data-diagram-source]');
+            if (visibleSource) visibleSource.hidden = false;
             if (error) {
                 error.textContent = 'The interactive diagram renderer could not be loaded.';
                 error.hidden = false;

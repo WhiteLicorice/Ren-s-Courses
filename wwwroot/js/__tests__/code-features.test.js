@@ -46,6 +46,22 @@ describe('addCodeFeatures — wrapping', () => {
         expect(() => window.addCodeFeatures()).not.toThrow();
         expect(document.querySelector('.code-wrapper')).toBeNull();
     });
+
+    test('does not treat interactive diagram source as a Markdown code block', () => {
+        document.body.innerHTML = `
+            <div class="prose">
+                <section data-interactive-diagram>
+                    <pre data-diagram-source>flowchart LR\nA --> B</pre>
+                </section>
+            </div>`;
+        loadScript();
+
+        window.addCodeFeatures();
+
+        expect(document.querySelector('[data-diagram-source]').parentElement.classList)
+            .not.toContain('code-wrapper');
+        expect(document.querySelector('.copy-button')).toBeNull();
+    });
 });
 
 describe('addCodeFeatures — language label', () => {
