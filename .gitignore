@@ -8,7 +8,7 @@ utilities/
 wwwroot/css/app.css
 
 # Ignore generated PDF artifacts
-wwwroot/generated-pdfs/
+wwwroot/pdfs/
 
 # Standard .NET ignores
 bin/

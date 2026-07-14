@@ -111,7 +111,7 @@ public class PdfGeneratorService
                     var (hit, cachedUrl) = await _cache.TryHitAsync(src.Slug, fp, logger);
                     if (hit && cachedUrl is not null)
                     {
-                        var url = $"generated-pdfs/{cachedUrl}";
+                        var url = $"pdfs/{cachedUrl}";
                         _manifest.SetResult(src.RouteUrl, new PdfGenerationResult
                         {
                             Status = PdfGenerationStatus.Cached,
@@ -290,7 +290,7 @@ public class PdfGeneratorService
             File.Move(tmpFinal, finalPath, overwrite: true);
 
             // Record cache
-            var genUrl = $"generated-pdfs/{pdfName}";
+            var genUrl = $"pdfs/{pdfName}";
             await _cache.RecordAsync(slug, fingerprint, pdfName, logger);
 
             _manifest.SetResult(src.RouteUrl, new PdfGenerationResult

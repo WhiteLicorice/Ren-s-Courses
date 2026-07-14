@@ -110,13 +110,13 @@ public class PdfGenerationTests
         manifest.SetResult("test-post", new PdfGenerationResult
         {
             Status = PdfGenerationStatus.Generated,
-            RelativeUrl = "generated-pdfs/test-post.abc123.pdf"
+            RelativeUrl = "pdfs/test-post.abc123.pdf"
         });
 
         var result = manifest.GetResult("test-post");
         Assert.NotNull(result);
         Assert.Equal(PdfGenerationStatus.Generated, result.Status);
-        Assert.Equal("generated-pdfs/test-post.abc123.pdf", result.RelativeUrl);
+        Assert.Equal("pdfs/test-post.abc123.pdf", result.RelativeUrl);
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class PdfGenerationTests
         manifest.SetResult("cached-post", new PdfGenerationResult
         {
             Status = PdfGenerationStatus.Cached,
-            RelativeUrl = "generated-pdfs/cached-post.def456.pdf"
+            RelativeUrl = "pdfs/cached-post.def456.pdf"
         });
 
         var result = manifest.GetResult("cached-post");
@@ -171,7 +171,7 @@ public class PdfGenerationTests
         manifest.SetResult("test-post", new PdfGenerationResult
         {
             Status = PdfGenerationStatus.Generated,
-            RelativeUrl = "generated-pdfs/test-post.abc123.pdf"
+            RelativeUrl = "pdfs/test-post.abc123.pdf"
         });
 
         var result = manifest.GetResult("test-post");
@@ -180,8 +180,8 @@ public class PdfGenerationTests
 
         Assert.True(hasGenerated);
         // The generated link should be base-relative without leading slash
-        Assert.StartsWith("generated-pdfs/", result!.RelativeUrl);
-        Assert.DoesNotContain("/generated-pdfs", result.RelativeUrl.AsSpan(1));
+        Assert.StartsWith("pdfs/", result!.RelativeUrl);
+        Assert.DoesNotContain("/pdfs", result.RelativeUrl.AsSpan(1));
     }
 
     [Fact]
@@ -238,7 +238,7 @@ public class PdfGenerationTests
     public void GeneratedLink_UsesDownloadAttribute_BaseRelativeUrl()
     {
         // Verify generated link contract matches spec
-        var relativeUrl = "generated-pdfs/test-post.abc123.pdf";
+        var relativeUrl = "pdfs/test-post.abc123.pdf";
         var leafSlug = "test-post";
 
         var href = relativeUrl;
@@ -249,7 +249,7 @@ public class PdfGenerationTests
         // Has download attribute (simulated by href containing slug)
         Assert.Equal("test-post.pdf", download);
         // data-download-source="generated"
-        Assert.Contains("generated-pdfs/", href);
+        Assert.Contains("pdfs/", href);
     }
 
     [Fact]
@@ -589,7 +589,7 @@ public class MockToolchainProvider : IToolchainProvider
     public MockToolchainProvider(string basePath)
     {
         BasePath = basePath;
-        OutputDirectory = Path.Combine(basePath, "wwwroot", "generated-pdfs");
+        OutputDirectory = Path.Combine(basePath, "wwwroot", "pdfs");
         CacheStateDirectory = Path.Combine(basePath, "artifacts", "material-pdfs", "state");
         WorkDirectory = Path.Combine(basePath, "artifacts", "material-pdfs", "work");
         TemplatesPath = Path.Combine(basePath, "PdfTemplates");
@@ -621,7 +621,7 @@ public sealed class RecordingToolchainProvider : IToolchainProvider
     {
         TemplatesPath = Path.Combine(root, "PdfTemplates");
         MermaidConfigPath = Path.Combine(root, ".mmdc.json");
-        OutputDirectory = Path.Combine(root, "wwwroot", "generated-pdfs");
+        OutputDirectory = Path.Combine(root, "wwwroot", "pdfs");
         CacheStateDirectory = Path.Combine(root, "artifacts", "material-pdfs", "state");
         WorkDirectory = Path.Combine(root, "artifacts", "material-pdfs", "work");
         PuppeteerCachePath = Path.Combine(root, "artifacts", "puppeteer");

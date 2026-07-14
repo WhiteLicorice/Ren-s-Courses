@@ -58,7 +58,7 @@ jobs:
         with:
           path: |
             artifacts/material-pdfs/state
-            wwwroot/generated-pdfs
+            wwwroot/pdfs
           key: ${{ runner.os }}-material-pdfs-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-material-pdfs-

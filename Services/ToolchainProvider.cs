@@ -52,7 +52,7 @@ public class ToolchainProvider : IToolchainProvider
     public string TemplatesPath => Path.Combine(_contentRoot, "PdfTemplates");
     public string MermaidConfigPath => Path.Combine(_contentRoot, ".mmdc.json");
     public string NodeModulesPath => Path.Combine(_contentRoot, "node_modules");
-    public string OutputDirectory => Path.Combine(_contentRoot, "wwwroot", "generated-pdfs");
+    public string OutputDirectory => Path.Combine(_contentRoot, "wwwroot", "pdfs");
     public string CacheStateDirectory => Path.Combine(_artifactsDir, "material-pdfs", "state");
     public string WorkDirectory => Path.Combine(_artifactsDir, "material-pdfs", "work");
     public string PuppeteerCachePath => Path.Combine(_artifactsDir, "puppeteer");

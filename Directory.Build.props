@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <DefaultItemExcludes>$(DefaultItemExcludes);**/bin/**/*;**/obj/**/*;artifacts/**/*;node_modules/**/*;output/**/*;tests/**/*;wwwroot/generated-pdfs/**/*</DefaultItemExcludes>
-    <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);**/bin/**/*;**/obj/**/*;artifacts/**/*;node_modules/**/*;output/**/*;tests/**/*;wwwroot/generated-pdfs/**/*</DefaultExcludesInProjectFolder>
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/bin/**/*;**/obj/**/*;artifacts/**/*;node_modules/**/*;output/**/*;tests/**/*;wwwroot/pdfs/**/*</DefaultItemExcludes>
+    <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);**/bin/**/*;**/obj/**/*;artifacts/**/*;node_modules/**/*;output/**/*;tests/**/*;wwwroot/pdfs/**/*</DefaultExcludesInProjectFolder>
   </PropertyGroup>
 </Project>
