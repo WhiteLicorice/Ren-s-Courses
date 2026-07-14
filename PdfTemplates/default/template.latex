@@ -1,0 +1,128 @@
+% Default Pandoc LaTeX template for generated course PDFs
+% Academic article, 11pt, black-and-white, ~1-inch margins
+
+\documentclass[11pt]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{bookmark}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{ifxetex}
+\usepackage{ifluatex}
+
+% Font configuration - use bundled Tectonic fonts
+\usepackage{mathptmx}  % Times-like font included with Tectonic
+\usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+
+% --- Hyperlinks ---
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=black,
+  citecolor=black,
+  bookmarks=true,
+  pdfauthor={$for(author)$$author$$sep$, $endfor$},
+  pdftitle={$title$}
+}
+
+% --- Code listings (black and white) ---
+\definecolor{codebg}{gray}{0.95}
+\definecolor{codeframe}{gray}{0.80}
+
+\lstset{
+  basicstyle=\small\ttfamily,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  breakatwhitespace=false,
+  tabsize=4,
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny\ttfamily,
+  numbersep=5pt,
+  xleftmargin=10pt,
+  framexleftmargin=10pt,
+  captionpos=b
+}
+
+% --- Headings ---
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+% --- Page style ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{$title$}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Image sizing ---
+\usepackage[export]{adjustbox}
+\graphicspath{{./}{../}}
+\maxsizebox{\textwidth}{0.8\textheight}{\includegraphics[keepaspectratio]{#1}}
+
+% --- Title page ---
+$if(title)$
+\title{$title$}
+$endif$
+$if(subtitle)$
+\newcommand{\mysubtitle}{$subtitle$}
+$endif$
+$if(lead)$
+\newcommand{\mylead}{$lead$}
+$endif$
+$for(author)$
+\author{$author$}
+$endfor$
+$if(published)$
+\date{$published$}
+$endif$
+
+\begin{document}
+
+% --- Title block ---
+\begin{center}
+  {\LARGE \textbf{$title$}} \\[6pt]
+  $if(subtitle)$
+  {\large $subtitle$} \\[12pt]
+  $endif$
+  $if(lead)$
+  {\textit{$lead$}} \\[12pt]
+  $endif$
+  $if(author)$
+  {\normalsize $for(author)$$author$$sep$, $endfor$} \\[4pt]
+  $endif$
+  $if(published)$
+  {\normalsize $published$} \\[4pt]
+  $endif$
+  $if(deadline)$
+  {\normalsize \textbf{Deadline:} $deadline$} \\[4pt]
+  $endif$
+  $if(tags)$
+  {\normalsize \textbf{Topics:} $tags$} \\[4pt]
+  $endif$
+\end{center}
+
+\vspace{12pt}
+\hrule
+\vspace{12pt}
+
+% --- Body ---
+$body$
+
+\end{document}

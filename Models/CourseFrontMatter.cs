@@ -21,4 +21,10 @@ public class CourseFrontMatter : IFrontMatter, IFrontMatterWithTags
     public string? DownloadLink { get; set; }
     public List<SubmissionLink> Submissions { get; set; } = new();
     public List<LearningDiagram> Diagrams { get; set; } = new();
+
+    /// <summary>
+    /// Optional PDF generation customization.
+    /// Missing value uses default template with no extra variables.
+    /// </summary>
+    public PdfConfig? Pdf { get; set; }
 }

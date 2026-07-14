@@ -7,6 +7,9 @@ utilities/
 # Ignore generated Tailwind CSS
 wwwroot/css/app.css
 
+# Ignore generated PDF artifacts
+wwwroot/generated-pdfs/
+
 # Standard .NET ignores
 bin/
 obj/

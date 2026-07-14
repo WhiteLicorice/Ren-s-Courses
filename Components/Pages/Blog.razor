@@ -8,6 +8,7 @@
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 @inject IJSRuntime JSRuntime
 @inject FrontmatterStatusService StatusService
+@inject PdfGenerationManifest PdfManifest
 
 @* --- VIEW 1: HOME PAGE --- *@
 @if (string.IsNullOrWhiteSpace(FileName))
@@ -105,13 +106,38 @@
                         <time>@post.FrontMatter.Published.ToString("MMMM d, yyyy", new CultureInfo("en-US"))</time>
                     </div>
 
-                    @if (!string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink) || post.FrontMatter.Submissions.Count > 0)
+                    @{
+                        var pdfResult = PdfManifest.GetResult(post.Url);
+                        var hasGenerated = pdfResult?.Status is PdfGenerationStatus.Generated or PdfGenerationStatus.Cached
+                            && pdfResult?.RelativeUrl is not null;
+                        var hasFallback = !string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink);
+                    }
+                    @if (hasGenerated || hasFallback || post.FrontMatter.Submissions.Count > 0)
                     {
                         <div class="relative flex w-full flex-wrap items-start justify-center gap-4" data-material-actions>
-                            @if (!string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink))
+                            @if (hasGenerated)
+                            {
+                                var leafSlug = post.Url.Split('/').Last();
+                                <a href="@pdfResult!.RelativeUrl"
+                                    download="@(leafSlug).pdf"
+                                    data-download-action
+                                    data-download-source="generated"
+                                    class="group mt-1 flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-main">
+                                    <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor"
+                                        class="h-4 w-4 transition-transform group-hover:translate-y-0.5">
+                                        <path
+                                            d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+                                        <path
+                                            d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                                    </svg>
+                                    <span class="border-b border-accent/30 pb-0.5 group-hover:border-text-main">Download</span>
+                                </a>
+                            }
+                            else if (hasFallback)
                             {
                                 <a href="@post.FrontMatter.DownloadLink" target="_blank" rel="noopener noreferrer"
                                     data-download-action
+                                    data-download-source="fallback"
                                     class="group mt-1 flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-main">
                                     <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor"
                                         class="h-4 w-4 transition-transform group-hover:translate-y-0.5">

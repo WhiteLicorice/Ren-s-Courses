@@ -206,6 +206,7 @@ public class BlogPageTests
 
     private static void ConfigureArticleScripts(BunitContext ctx)
     {
+        ctx.Services.AddSingleton(new PdfGenerationManifest());
         ctx.JSInterop.SetupVoid("addCodeFeatures");
         ctx.JSInterop.SetupVoid("generateTOC");
         ctx.JSInterop.SetupVoid("initScrollButton");
