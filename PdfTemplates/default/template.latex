@@ -103,11 +103,11 @@ $endif$
 \usepackage{framed}
 \definecolor{shadecolor}{RGB}{248,248,248}
 
-% Headings
+% Headings — numbers hidden in body, retained in TOC
 \usepackage{titlesec}
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+\titleformat{\section}{\large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{}{0pt}{}
 \titleformat{\paragraph}[hang]{\normalsize\bfseries}{\theparagraph}{1em}{}
 \titlespacing*{\paragraph}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 \titleformat{\subparagraph}[hang]{\normalsize\itshape}{\thesubparagraph}{1em}{}
