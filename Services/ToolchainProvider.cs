@@ -1,72 +1,37 @@
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using BlazorStaticMinimalBlog.Models;
 using Microsoft.Extensions.Logging;
 
 namespace BlazorStaticMinimalBlog.Services;
 
-/// <summary>
-/// Bootstraps pinned Pandoc and Tectonic binaries.
-/// Downloads, verifies SHA-256, extracts atomically.
-/// Never invokes ambient PATH versions.
-/// </summary>
 public interface IToolchainProvider
 {
-    /// <summary>
-    /// Ensure toolchain is bootstrapped. Returns false on unsupported platform or failure.
-    /// </summary>
     Task<bool> BootstrapAsync(ILogger logger, CancellationToken ct = default);
-
-    /// <summary>Path to Pandoc executable, or null if unavailable.</summary>
-    string? PandocPath { get; }
-
-    /// <summary>Path to Tectonic executable, or null if unavailable.</summary>
-    string? TectonicPath { get; }
-
-    /// <summary>Runtime identifier (win-x64 or linux-x64).</summary>
     string RuntimeIdentifier { get; }
-
-    /// <summary>Physical path of the PDF template directory.</summary>
+    bool IsSupported { get; }
+    string? PandocPath { get; }
+    string? TectonicPath { get; }
+    string TectonicBundleUrl { get; }
     string TemplatesPath { get; }
-
-    /// <summary>Physical path of the committed .mmdc.json.</summary>
     string MermaidConfigPath { get; }
-
-    /// <summary>Physical path of the Tectonic bundle, or null.</summary>
-    string? TectonicBundlePath { get; }
-
-    /// <summary>Physical path of the Puppeteer browser cache.</summary>
-    string PuppeteerCachePath { get; }
-
-    /// <summary>Physical path of the Mermaid CLI entry point.</summary>
-    string MermaidCliPath { get; }
-
-    /// <summary>Directory where generated PDFs should be placed.</summary>
     string OutputDirectory { get; }
-
-    /// <summary>Directory for cache state.</summary>
     string CacheStateDirectory { get; }
-
-    /// <summary>Directory for work files.</summary>
     string WorkDirectory { get; }
+    string PuppeteerCachePath { get; }
+    string NodeModulesPath { get; }
 }
 
 public class ToolchainProvider : IToolchainProvider
 {
     private readonly string _artifactsDir;
+    private readonly string _contentRoot;
 
     public ToolchainProvider(string contentRootPath)
     {
+        _contentRoot = contentRootPath;
         _artifactsDir = Path.Combine(contentRootPath, "artifacts");
-        TemplatesPath = Path.Combine(contentRootPath, "PdfTemplates");
-        MermaidConfigPath = Path.Combine(contentRootPath, ".mmdc.json");
-        OutputDirectory = Path.Combine(contentRootPath, "wwwroot", "generated-pdfs");
-        CacheStateDirectory = Path.Combine(_artifactsDir, "material-pdfs", "state");
-        WorkDirectory = Path.Combine(_artifactsDir, "material-pdfs", "work");
-        PuppeteerCachePath = Path.Combine(_artifactsDir, "puppeteer");
-        MermaidCliPath = Path.Combine(contentRootPath, "node_modules", "@mermaid-js", "mermaid-cli", "node_modules", ".bin", "mmdc");
-        if (!OperatingSystem.IsWindows())
-            MermaidCliPath = Path.Combine(contentRootPath, "node_modules", "@mermaid-js", "mermaid-cli", "node_modules", ".bin", "mmdc");
     }
 
     public string RuntimeIdentifier =>
@@ -74,182 +39,223 @@ public class ToolchainProvider : IToolchainProvider
         OperatingSystem.IsLinux() ? "linux-x64" :
         "unsupported";
 
+    public bool IsSupported =>
+        RuntimeIdentifier != "unsupported" &&
+        RuntimeInformation.ProcessArchitecture == Architecture.X64;
+
     public string? PandocPath { get; private set; }
     public string? TectonicPath { get; private set; }
-    public string? TectonicBundlePath { get; private set; }
-    public string TemplatesPath { get; }
-    public string MermaidConfigPath { get; }
-    public string OutputDirectory { get; }
-    public string CacheStateDirectory { get; }
-    public string WorkDirectory { get; }
-    public string PuppeteerCachePath { get; }
-    public string MermaidCliPath { get; }
+
+    public string TectonicBundleUrl => ToolchainManifest.Current.Tectonic.BundleUrl
+        ?? throw new InvalidOperationException("The Tectonic bundle URL is not configured.");
+
+    public string TemplatesPath => Path.Combine(_contentRoot, "PdfTemplates");
+    public string MermaidConfigPath => Path.Combine(_contentRoot, ".mmdc.json");
+    public string NodeModulesPath => Path.Combine(_contentRoot, "node_modules");
+    public string OutputDirectory => Path.Combine(_contentRoot, "wwwroot", "generated-pdfs");
+    public string CacheStateDirectory => Path.Combine(_artifactsDir, "material-pdfs", "state");
+    public string WorkDirectory => Path.Combine(_artifactsDir, "material-pdfs", "work");
+    public string PuppeteerCachePath => Path.Combine(_artifactsDir, "puppeteer");
 
     public async Task<bool> BootstrapAsync(ILogger logger, CancellationToken ct = default)
     {
-        var rid = RuntimeIdentifier;
-        if (rid == "unsupported")
+        if (!IsSupported)
         {
-            logger.LogWarning("Unsupported runtime platform. PDF generation disabled.");
+            logger.LogWarning("Unsupported platform: {Rid} / {Arch}",
+                RuntimeIdentifier, RuntimeInformation.ProcessArchitecture);
             return false;
         }
 
+        var rid = RuntimeIdentifier;
+
         try
         {
-            // Bootstrap Pandoc
-            var pandocInfo = ToolchainManifest.Current.Pandoc;
-            if (pandocInfo.Archives.TryGetValue(rid, out var pandocArchive))
-            {
-                PandocPath = await DownloadAndExtractAsync("pandoc", pandocInfo.Version, rid,
-                    pandocArchive, logger, ct);
-            }
+            var pandocOk = await BootstrapToolAsync("pandoc",
+                ToolchainManifest.Current.Pandoc, rid, logger, ct);
 
-            // Bootstrap Tectonic
-            var tectonicInfo = ToolchainManifest.Current.Tectonic;
-            if (tectonicInfo.Archives.TryGetValue(rid, out var tectonicArchive))
-            {
-                TectonicPath = await DownloadAndExtractAsync("tectonic", tectonicInfo.Version, rid,
-                    tectonicArchive, logger, ct);
+            var tectonicOk = await BootstrapToolAsync("tectonic",
+                ToolchainManifest.Current.Tectonic, rid, logger, ct);
 
-                // Download Tectonic bundle
-                if (tectonicInfo.BundleUrl is not null)
-                {
-                    TectonicBundlePath = await DownloadBundleAsync(tectonicInfo.BundleUrl, logger, ct);
-                }
-            }
-
-            // Ensure output, cache, and work directories exist
             Directory.CreateDirectory(OutputDirectory);
             Directory.CreateDirectory(CacheStateDirectory);
             Directory.CreateDirectory(WorkDirectory);
             Directory.CreateDirectory(PuppeteerCachePath);
 
-            logger.LogInformation("PDF toolchain bootstrapped: Pandoc={Pandoc}, Tectonic={Tectonic}",
-                PandocPath ?? "N/A", TectonicPath ?? "N/A");
+            if (pandocOk && tectonicOk)
+                logger.LogInformation("Toolchain ready: Pandoc={P}, Tectonic={T}",
+                    PandocPath, TectonicPath);
+            else
+                logger.LogWarning("Toolchain incomplete: Pandoc={P} Tectonic={T}",
+                    pandocOk, tectonicOk);
 
-            return true;
+            return pandocOk && tectonicOk;
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Toolchain bootstrap failed. PDF generation will use fallbacks.");
+            logger.LogWarning(ex, "Toolchain bootstrap failed");
             return false;
         }
     }
 
-    private async Task<string> DownloadAndExtractAsync(string tool, string version, string rid,
-        ToolArchive archive, ILogger logger, CancellationToken ct)
+    private async Task<bool> BootstrapToolAsync(string name, ToolInfo info, string rid,
+        ILogger logger, CancellationToken ct)
     {
-        var toolDir = Path.Combine(_artifactsDir, "pdf-toolchain", tool, version, rid);
-        var executablePath = Path.GetFullPath(Path.Combine(toolDir, archive.ExecutablePath));
-
-        if (File.Exists(executablePath))
+        if (!info.Archives.TryGetValue(rid, out var archive))
         {
-            logger.LogDebug("Found cached {Tool} at {Path}", tool, executablePath);
-            return executablePath;
+            logger.LogWarning("No archive for {Tool}/{Rid}", name, rid);
+            return false;
         }
 
-        Directory.CreateDirectory(toolDir);
+        var versionDir = Path.Combine(_artifactsDir, "pdf-toolchain", name, info.Version, rid);
+        var exePath = Path.GetFullPath(Path.Combine(versionDir, archive.ExecutablePath));
 
-        // Download
-        var archiveExt = Path.GetExtension(archive.Url) switch
+        // Check cache
+        if (File.Exists(exePath) && new FileInfo(exePath).Length > 0)
         {
-            ".zip" => ".zip",
-            ".gz" => ".tar.gz",
-            _ => ".tmp"
-        };
-        var downloadPath = Path.Combine(toolDir, $"download{archiveExt}");
-        var finalDownloadPath = Path.Combine(toolDir, $"downloaded{archiveExt}");
+            if (OperatingSystem.IsLinux())
+            {
+                File.SetUnixFileMode(exePath,
+                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                    UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+            }
+            logger.LogDebug("Found cached {Tool} at {Path}", name, exePath);
+            if (name == "pandoc") PandocPath = exePath;
+            else TectonicPath = exePath;
+            return true;
+        }
 
-        logger.LogInformation("Downloading {Tool} {Version}...", tool, version);
-        using (var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
+        // Download with retry
+        var downloadDir = Path.Combine(_artifactsDir, "pdf-toolchain", name, info.Version, rid);
+        Directory.CreateDirectory(downloadDir);
+
+        var ext = archive.Url.EndsWith(".zip") ? ".zip" : ".tar.gz";
+        var partialPath = Path.Combine(downloadDir, $"download{ext}.partial");
+        var archivePath = Path.Combine(downloadDir, $"archive{ext}");
+
+        logger.LogInformation("Downloading {Tool} {Version}...", name, info.Version);
+
+        bool downloaded = false;
+        for (int attempt = 0; attempt < 2; attempt++)
         {
-            var response = await client.GetAsync(archive.Url, HttpCompletionOption.ResponseHeadersRead, ct);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+                var response = await client.GetAsync(archive.Url,
+                    HttpCompletionOption.ResponseHeadersRead, ct);
+                response.EnsureSuccessStatusCode();
 
-            await using var stream = await response.Content.ReadAsStreamAsync(ct);
-            await using var fileStream = File.Create(downloadPath);
-            await stream.CopyToAsync(fileStream, ct);
+                await using var src = await response.Content.ReadAsStreamAsync(ct);
+                await using var dst = File.Create(partialPath);
+                await src.CopyToAsync(dst, ct);
+                downloaded = true;
+                break;
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+            {
+                logger.LogWarning("Download attempt {A} timed out for {Tool}", attempt + 1, name);
+                if (attempt == 0) continue;
+            }
+            catch (Exception ex) when (attempt == 0)
+            {
+                logger.LogWarning(ex, "Download attempt 1 failed for {Tool}, retrying", name);
+            }
+        }
+
+        if (!downloaded)
+        {
+            logger.LogWarning("Failed to download {Tool} after retries", name);
+            return false;
         }
 
         // Verify SHA-256
-        logger.LogInformation("Verifying checksum for {Tool}...", tool);
-        var hash = await ComputeSha256Async(downloadPath, ct);
+        var hash = await ComputeSha256Async(partialPath, ct);
         if (!string.Equals(hash, archive.Sha256, StringComparison.OrdinalIgnoreCase))
         {
-            File.Delete(downloadPath);
-            throw new InvalidOperationException(
-                $"SHA-256 mismatch for {tool}: expected {archive.Sha256}, got {hash}");
+            try { File.Delete(partialPath); } catch { }
+            logger.LogWarning("SHA-256 mismatch for {Tool}: expected {Expected} got {Actual}",
+                name, archive.Sha256, hash);
+            return false;
         }
 
-        // Atomically rename (partial file → downloaded)
-        if (File.Exists(finalDownloadPath))
-            File.Delete(finalDownloadPath);
-        File.Move(downloadPath, finalDownloadPath);
+        // Rename partial → archive
+        try { File.Delete(archivePath); } catch { }
+        File.Move(partialPath, archivePath);
 
-        // Extract
-        logger.LogInformation("Extracting {Tool}...", tool);
-        if (archiveExt == ".zip")
+        // Extract to temp sibling dir
+        var tempDir = downloadDir + ".tmp." + Guid.NewGuid().ToString("N")[..8];
+        try
         {
-            ZipFile.ExtractToDirectory(finalDownloadPath, toolDir, overwriteFiles: true);
+            Directory.CreateDirectory(tempDir);
+            logger.LogInformation("Extracting {Tool}...", name);
+
+            if (ext == ".zip")
+                ZipFile.ExtractToDirectory(archivePath, tempDir, overwriteFiles: true);
+            else
+                await ExtractTarGzAsync(archivePath, tempDir, ct);
+
+            // Validate expected executable exists
+            var extractedExe = Path.GetFullPath(Path.Combine(tempDir, archive.ExecutablePath));
+            if (!File.Exists(extractedExe) || new FileInfo(extractedExe).Length == 0)
+            {
+                logger.LogWarning("Extracted {Tool} missing expected executable {Exe}",
+                    name, archive.ExecutablePath);
+                return false;
+            }
+
+            // Set executable bit on Linux
+            if (OperatingSystem.IsLinux())
+            {
+                File.SetUnixFileMode(extractedExe,
+                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                    UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+            }
+
+            // Atomically rename temp into final position
+            if (Directory.Exists(versionDir))
+                Directory.Delete(versionDir, recursive: true);
+            Directory.Move(tempDir, versionDir);
+
+            if (name == "pandoc")
+            {
+                PandocPath = exePath;
+                // For Pandoc, the exe may be at a different relative location
+                // within the extracted tree. Re-resolve from versionDir.
+                var resolvedExe = Path.GetFullPath(Path.Combine(versionDir, archive.ExecutablePath));
+                if (File.Exists(resolvedExe))
+                    PandocPath = resolvedExe;
+            }
+            else
+            {
+                TectonicPath = Path.GetFullPath(Path.Combine(versionDir, archive.ExecutablePath));
+            }
+
+            // Clean up archive
+            try { File.Delete(archivePath); } catch { }
+
+            return true;
         }
-        else if (archiveExt == ".tar.gz")
+        catch
         {
-            await ExtractTarGzAsync(finalDownloadPath, toolDir, ct);
+            if (Directory.Exists(tempDir))
+                try { Directory.Delete(tempDir, recursive: true); } catch { }
+            throw;
         }
-
-        // Set executable permissions on Linux
-        if (!OperatingSystem.IsWindows() && File.Exists(executablePath))
-        {
-            File.SetUnixFileMode(executablePath,
-                UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
-                UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
-        }
-
-        // Cleanup archive
-        try { File.Delete(finalDownloadPath); } catch { /* best-effort */ }
-
-        return executablePath;
     }
 
-    private async Task<string> DownloadBundleAsync(string bundleUrl, ILogger logger, CancellationToken ct)
+    private static async Task<string> ComputeSha256Async(string path, CancellationToken ct)
     {
-        var bundleDir = Path.Combine(_artifactsDir, "tectonic-cache");
-        Directory.CreateDirectory(bundleDir);
-
-        var bundlePath = Path.Combine(bundleDir, "bundle.tar");
-        if (File.Exists(bundlePath))
-        {
-            logger.LogDebug("Found cached Tectonic bundle at {Path}", bundlePath);
-            return bundlePath;
-        }
-
-        logger.LogInformation("Downloading Tectonic bundle...");
-        using (var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
-        {
-            var response = await client.GetAsync(bundleUrl, HttpCompletionOption.ResponseHeadersRead, ct);
-            response.EnsureSuccessStatusCode();
-
-            await using var stream = await response.Content.ReadAsStreamAsync(ct);
-            await using var fileStream = File.Create(bundlePath);
-            await stream.CopyToAsync(fileStream, ct);
-        }
-
-        return bundlePath;
-    }
-
-    private static async Task<string> ComputeSha256Async(string filePath, CancellationToken ct)
-    {
-        await using var stream = File.OpenRead(filePath);
-        var hash = await SHA256.HashDataAsync(stream, ct);
+        await using var s = File.OpenRead(path);
+        var hash = await SHA256.HashDataAsync(s, ct);
         return Convert.ToHexString(hash).ToLowerInvariant();
     }
 
     private static async Task ExtractTarGzAsync(string gzPath, string targetDir, CancellationToken ct)
     {
-        // .NET 9 has TarReader in System.Formats.Tar
-        await using var gzStream = File.OpenRead(gzPath);
-        await using var decompressed = new System.IO.Compression.GZipStream(gzStream, CompressionMode.Decompress);
+        await using var gz = File.OpenRead(gzPath);
+        await using var decompressed = new GZipStream(gz, CompressionMode.Decompress);
         await System.Formats.Tar.TarFile.ExtractToDirectoryAsync(decompressed, targetDir, overwriteFiles: true, ct);
     }
+
 }

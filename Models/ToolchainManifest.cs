@@ -9,7 +9,7 @@ namespace BlazorStaticMinimalBlog.Models;
 public class ToolchainManifest
 {
     /// <summary>Generator schema version — bump when generation behavior changes.</summary>
-    public const int GeneratorSchemaVersion = 1;
+    public const int GeneratorSchemaVersion = 3;
 
     /// <summary>Current manifest instance with pinned values.</summary>
     public static ToolchainManifest Current { get; } = new()
@@ -57,8 +57,7 @@ public class ToolchainManifest
         MermaidConfig = new MermaidToolInfo
         {
             CliVersion = "11.16.0",
-            PuppeteerVersion = "25.3.0",
-            ConfigSha256 = "" // populated at runtime from committed .mmdc.json
+            PuppeteerVersion = "25.3.0"
         }
     };
 
@@ -98,5 +97,4 @@ public class MermaidToolInfo
 {
     public string CliVersion { get; set; } = "";
     public string PuppeteerVersion { get; set; } = "";
-    public string ConfigSha256 { get; set; } = "";
 }

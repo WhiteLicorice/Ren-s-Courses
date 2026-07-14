@@ -75,13 +75,21 @@ builder.Services.AddScoped<ThemeService>();
 // PDF generation services
 var pdfManifest = new PdfGenerationManifest();
 builder.Services.AddSingleton(pdfManifest);
-builder.Services.AddSingleton<IProcessRunner>(sp =>
-    new SystemProcessRunner(timeoutMs: 180_000));
+builder.Services.AddSingleton<IProcessRunner>(sp => new SystemProcessRunner());
 builder.Services.AddSingleton<IToolchainProvider>(
     sp => new ToolchainProvider(builder.Environment.ContentRootPath));
 builder.Services.AddSingleton<IPdfCacheService, PdfCacheService>();
 builder.Services.AddSingleton<IMermaidRenderer, MermaidRenderer>();
-builder.Services.AddSingleton<PdfGeneratorService>();
+builder.Services.AddSingleton<PdfGeneratorService>(sp =>
+{
+    var toolchain = sp.GetRequiredService<IToolchainProvider>();
+    var runner = sp.GetRequiredService<IProcessRunner>();
+    var mermaid = sp.GetRequiredService<IMermaidRenderer>();
+    var cache = sp.GetRequiredService<IPdfCacheService>();
+    var manifest = sp.GetRequiredService<PdfGenerationManifest>();
+    return new PdfGeneratorService(toolchain, runner, mermaid, cache, manifest,
+        builder.Environment.ContentRootPath);
+});
 
 var menuFilePath = Path.Combine(builder.Environment.ContentRootPath, "menu.json");
 builder.Services.AddSingleton(new MenuConfigService(menuFilePath));

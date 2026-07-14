@@ -1,5 +1,7 @@
-% Default Pandoc LaTeX template for generated course PDFs
+% Pandoc 3.10-derived LaTeX template for generated course PDFs
 % Academic article, 11pt, black-and-white, ~1-inch margins
+%
+% Derived from Pandoc's default LaTeX template.
 
 \documentclass[11pt]{article}
 
@@ -12,110 +14,126 @@
 \usepackage{hyperref}
 \usepackage{fancyhdr}
 \usepackage{bookmark}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{listings}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc}
+\newcounter{none}
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{caption}
 \usepackage{ifxetex}
 \usepackage{ifluatex}
+\usepackage{amsmath,amssymb}
+$if(math)$
+  $math$
+$endif$
 
 % Font configuration - use bundled Tectonic fonts
-\usepackage{mathptmx}  % Times-like font included with Tectonic
+\usepackage{mathptmx}
 \usepackage[scaled=.90]{helvet}
 \usepackage{courier}
+\ifxetex
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes-regular.otf}[
+    BoldFont=texgyretermes-bold.otf,
+    ItalicFont=texgyretermes-italic.otf,
+    BoldItalicFont=texgyretermes-bolditalic.otf]
+  \setmonofont{lmmono10-regular.otf}
+\fi
 
-% --- Hyperlinks ---
-\hypersetup{
-  colorlinks=true,
-  linkcolor=black,
-  urlcolor=black,
-  citecolor=black,
-  bookmarks=true,
-  pdfauthor={$for(author)$$author$$sep$, $endfor$},
-  pdftitle={$title$}
-}
-
-% --- Code listings (black and white) ---
-\definecolor{codebg}{gray}{0.95}
-\definecolor{codeframe}{gray}{0.80}
-
-\lstset{
-  basicstyle=\small\ttfamily,
-  backgroundcolor=\color{codebg},
-  frame=single,
-  rulecolor=\color{codeframe},
-  breaklines=true,
-  breakatwhitespace=false,
-  tabsize=4,
-  showstringspaces=false,
-  numbers=left,
-  numberstyle=\tiny\ttfamily,
-  numbersep=5pt,
-  xleftmargin=10pt,
-  framexleftmargin=10pt,
-  captionpos=b
-}
-
-% --- Headings ---
-\usepackage{titlesec}
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
-
-% --- Page style ---
+% Page style
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\textit{$title$}}
 \fancyhead[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
-% --- Image sizing ---
-\usepackage[export]{adjustbox}
-\graphicspath{{./}{../}}
-\maxsizebox{\textwidth}{0.8\textheight}{\includegraphics[keepaspectratio]{#1}}
+% Hyperlinks
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=black,
+  citecolor=black,
+  bookmarks=true,
+$if(title)$
+  pdftitle={$title$},
+$endif$
+$if(author)$
+  pdfauthor={$for(author)$$author$$sep$, $endfor$},
+$endif$
+}
 
-% --- Title page ---
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+% Headings
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+% Image sizing
+\usepackage[export]{adjustbox}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{%
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi}
+\makeatother
+
+% Tightlist macro for Pandoc
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% --- Title block ---
 $if(title)$
 \title{$title$}
 $endif$
+
 $if(subtitle)$
 \newcommand{\mysubtitle}{$subtitle$}
 $endif$
+
 $if(lead)$
 \newcommand{\mylead}{$lead$}
 $endif$
+
 $for(author)$
 \author{$author$}
 $endfor$
+
 $if(published)$
 \date{$published$}
 $endif$
 
 \begin{document}
 
-% --- Title block ---
+% --- Title ---
 \begin{center}
   {\LARGE \textbf{$title$}} \\[6pt]
-  $if(subtitle)$
-  {\large $subtitle$} \\[12pt]
-  $endif$
-  $if(lead)$
-  {\textit{$lead$}} \\[12pt]
-  $endif$
-  $if(author)$
+$if(subtitle)$
+  {\large \mysubtitle} \\[12pt]
+$endif$
+$if(lead)$
+  {\textit{\mylead}} \\[12pt]
+$endif$
+$if(author)$
   {\normalsize $for(author)$$author$$sep$, $endfor$} \\[4pt]
-  $endif$
-  $if(published)$
+$endif$
+$if(published)$
   {\normalsize $published$} \\[4pt]
-  $endif$
-  $if(deadline)$
+$endif$
+$if(deadline)$
   {\normalsize \textbf{Deadline:} $deadline$} \\[4pt]
-  $endif$
-  $if(tags)$
+$endif$
+$if(tags)$
   {\normalsize \textbf{Topics:} $tags$} \\[4pt]
-  $endif$
+$endif$
 \end{center}
 
 \vspace{12pt}

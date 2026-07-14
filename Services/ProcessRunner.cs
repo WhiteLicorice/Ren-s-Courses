@@ -1,22 +1,14 @@
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
 
 namespace BlazorStaticMinimalBlog.Services;
 
-/// <summary>
-/// Injectable process runner abstraction for testability.
-/// </summary>
 public interface IProcessRunner
 {
     Task<ProcessResult> RunAsync(string executable, string[] args,
         string? workingDirectory = null,
         Dictionary<string, string?>? environmentVariables = null,
-        CancellationToken ct = default);
-
-    Task<ProcessResult> RunWithInputAsync(string executable, string[] args,
-        string input,
-        string? workingDirectory = null,
-        Dictionary<string, string?>? environmentVariables = null,
+        int timeoutMs = 180_000,
         CancellationToken ct = default);
 }
 
@@ -28,23 +20,12 @@ public class ProcessResult
     public bool TimedOut { get; set; }
 }
 
-/// <summary>
-/// Real implementation using System.Diagnostics.Process.
-/// Always uses ProcessStartInfo.ArgumentList (never shell invocation).
-/// Build process args via ArgumentList to avoid shell injection.
-/// </summary>
 public class SystemProcessRunner : IProcessRunner
 {
-    private readonly int _timeoutMs;
-
-    public SystemProcessRunner(int timeoutMs = 180_000)
-    {
-        _timeoutMs = timeoutMs;
-    }
-
     public async Task<ProcessResult> RunAsync(string executable, string[] args,
         string? workingDirectory = null,
         Dictionary<string, string?>? environmentVariables = null,
+        int timeoutMs = 180_000,
         CancellationToken ct = default)
     {
         var psi = new ProcessStartInfo
@@ -57,169 +38,74 @@ public class SystemProcessRunner : IProcessRunner
             CreateNoWindow = true
         };
 
-        foreach (var arg in args)
-            psi.ArgumentList.Add(arg);
+        foreach (var a in args)
+            psi.ArgumentList.Add(a);
 
         if (environmentVariables is not null)
         {
-            foreach (var kvp in environmentVariables)
+            foreach (var kv in environmentVariables)
             {
-                if (kvp.Value is null)
-                    psi.EnvironmentVariables.Remove(kvp.Key);
+                if (kv.Value is null)
+                    psi.EnvironmentVariables.Remove(kv.Key);
                 else
-                    psi.EnvironmentVariables[kvp.Key] = kvp.Value;
+                    psi.EnvironmentVariables[kv.Key] = kv.Value;
             }
         }
 
         using var process = new Process { StartInfo = psi };
-        var outputBuilder = new StringBuilder();
-        var errorBuilder = new StringBuilder();
-
         try
         {
             process.Start();
         }
-        catch (System.ComponentModel.Win32Exception ex)
+        catch (Win32Exception ex)
         {
             return new ProcessResult
             {
                 ExitCode = -1,
-                StdErr = $"Failed to start process: {ex.Message}",
-                TimedOut = false
+                StdErr = $"Failed to start process: {ex.Message}"
             };
         }
 
-        // Read asynchronously to avoid deadlocks
-        var readTask = Task.Run(() =>
-        {
-            string? line;
-            while ((line = process.StandardOutput.ReadLine()) is not null)
-                outputBuilder.AppendLine(line);
-        }, ct);
+        var readOut = process.StandardOutput.ReadToEndAsync();
+        var readErr = process.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(timeoutMs);
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, timeout.Token);
 
-        var readErrorTask = Task.Run(() =>
+        try
         {
-            string? line;
-            while ((line = process.StandardError.ReadLine()) is not null)
-                errorBuilder.AppendLine(line);
-        }, ct);
-
-        var waitTask = process.WaitForExitAsync(ct);
-        var completedTask = await Task.WhenAny(waitTask, Task.Delay(_timeoutMs, ct));
-
-        if (completedTask != waitTask)
-        {
-            try { process.Kill(entireProcessTree: true); } catch { /* best-effort */ }
-            return new ProcessResult
-            {
-                ExitCode = -1,
-                StdOut = outputBuilder.ToString(),
-                StdErr = errorBuilder.ToString() + "\n[timed out after " + (_timeoutMs / 1000) + "s]",
-                TimedOut = true
-            };
+            await process.WaitForExitAsync(linked.Token);
         }
-
-        await readTask;
-        await readErrorTask;
-
-        return new ProcessResult
+        catch (OperationCanceledException)
         {
-            ExitCode = process.ExitCode,
-            StdOut = outputBuilder.ToString(),
-            StdErr = errorBuilder.ToString()
-        };
-    }
-
-    public async Task<ProcessResult> RunWithInputAsync(string executable, string[] args,
-        string input,
-        string? workingDirectory = null,
-        Dictionary<string, string?>? environmentVariables = null,
-        CancellationToken ct = default)
-    {
-        var psi = new ProcessStartInfo
-        {
-            FileName = executable,
-            WorkingDirectory = workingDirectory ?? "",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            RedirectStandardInput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        foreach (var arg in args)
-            psi.ArgumentList.Add(arg);
-
-        if (environmentVariables is not null)
-        {
-            foreach (var kvp in environmentVariables)
+            try
             {
-                if (kvp.Value is null)
-                    psi.EnvironmentVariables.Remove(kvp.Key);
-                else
-                    psi.EnvironmentVariables[kvp.Key] = kvp.Value;
+                if (!process.HasExited)
+                    process.Kill(entireProcessTree: true);
             }
-        }
+            catch { /* best effort */ }
 
-        using var process = new Process { StartInfo = psi };
-        var outputBuilder = new StringBuilder();
-        var errorBuilder = new StringBuilder();
+            try { await process.WaitForExitAsync(CancellationToken.None); }
+            catch { /* best effort */ }
 
-        try
-        {
-            process.Start();
-        }
-        catch (System.ComponentModel.Win32Exception ex)
-        {
+            var stdOut = await readOut;
+            var stdErr = await readErr;
+            if (ct.IsCancellationRequested)
+                throw;
+
             return new ProcessResult
             {
                 ExitCode = -1,
-                StdErr = $"Failed to start process: {ex.Message}",
-                TimedOut = false
-            };
-        }
-
-        await process.StandardInput.WriteAsync(input);
-        await process.StandardInput.FlushAsync();
-        process.StandardInput.Close();
-
-        var readTask = Task.Run(() =>
-        {
-            string? line;
-            while ((line = process.StandardOutput.ReadLine()) is not null)
-                outputBuilder.AppendLine(line);
-        }, ct);
-
-        var readErrorTask = Task.Run(() =>
-        {
-            string? line;
-            while ((line = process.StandardError.ReadLine()) is not null)
-                errorBuilder.AppendLine(line);
-        }, ct);
-
-        var waitTask = process.WaitForExitAsync(ct);
-        var completedTask = await Task.WhenAny(waitTask, Task.Delay(_timeoutMs, ct));
-
-        if (completedTask != waitTask)
-        {
-            try { process.Kill(entireProcessTree: true); } catch { }
-            return new ProcessResult
-            {
-                ExitCode = -1,
-                StdOut = outputBuilder.ToString(),
-                StdErr = errorBuilder.ToString() + "\n[timed out after " + (_timeoutMs / 1000) + "s]",
+                StdOut = stdOut,
+                StdErr = stdErr + $"\n[timed out after {timeoutMs}ms]",
                 TimedOut = true
             };
         }
 
-        await readTask;
-        await readErrorTask;
-
         return new ProcessResult
         {
             ExitCode = process.ExitCode,
-            StdOut = outputBuilder.ToString(),
-            StdErr = errorBuilder.ToString()
+            StdOut = await readOut,
+            StdErr = await readErr
         };
     }
 }

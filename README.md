@@ -219,6 +219,43 @@ STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05
 `--no-launch-profile` is required for static generation because the local launch profiles set
 `ASPNETCORE_ENVIRONMENT=Development` and otherwise start a persistent development server.
 
+### Native material PDFs
+
+The production `dotnet run` entry point generates a PDF for every non-draft Markdown file under
+`Content/Materials` before the static pages are rendered. The first run downloads pinned Pandoc,
+Tectonic, and browser dependencies into the ignored `artifacts/` directory. Later runs reuse the
+per-material cache and skip the toolchain entirely when every fingerprint still matches.
+
+The complete Markdown file is part of its fingerprint, so changing either frontmatter or body
+content invalidates only that material. Template files, Mermaid configuration, pinned dependency
+metadata, and referenced local media are fingerprinted as well. If one PDF fails, the site build
+continues and that material uses its `downloadLink`; if no fallback exists, only its Download
+action is omitted.
+
+For a CI-equivalent local build in PowerShell:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+$env:TERM_START = "2026-01-19"
+$env:TERM_END = "2026-05-28"
+$env:SHOWCASE_MODE = "true"
+$env:STATIC_GEN_TIME = "2026-07-14T00:00:00Z"
+dotnet run --no-launch-profile --configuration Release
+```
+
+The default customizable Pandoc template is `PdfTemplates/default/template.latex`. A material can
+select another committed template and expose template-specific values through nested frontmatter:
+
+```yaml
+pdf:
+  template: default
+  variables:
+    courseLabel: CMSC 131
+```
+
+Templates can read these as `pdf.variables.courseLabel`. Template names are allowlisted to lowercase
+letters, digits, hyphens, and underscores and must resolve inside `PdfTemplates/`.
+
 **Suite coverage:**
 
 | Spec file | What it covers |

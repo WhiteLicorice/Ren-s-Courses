@@ -146,6 +146,7 @@ public class PdfGenerationTests
         });
 
         var result = manifest.GetResult("cached-post");
+        Assert.NotNull(result);
         Assert.Equal(PdfGenerationStatus.Cached, result.Status);
     }
 
@@ -330,7 +331,7 @@ public class PdfGenerationTests
     [Fact]
     public async Task ProcessRunner_ExecutableNotFound_ReturnsError()
     {
-        var runner = new SystemProcessRunner(timeoutMs: 5_000);
+        var runner = new SystemProcessRunner();
         var result = await runner.RunAsync("nonexistent-executable-that-should-not-exist-12345",
             ["--version"]);
 
@@ -342,7 +343,7 @@ public class PdfGenerationTests
     [Fact]
     public void ToolchainManifest_HasSchemaVersion()
     {
-        Assert.Equal(1, ToolchainManifest.GeneratorSchemaVersion);
+        Assert.Equal(3, ToolchainManifest.GeneratorSchemaVersion);
     }
 
     [Fact]
@@ -366,6 +367,52 @@ public class PdfGenerationTests
         var json2 = ToolchainManifest.Current.ToFingerprintJson();
 
         Assert.Equal(json1, json2);
+    }
+
+    [Fact]
+    public async Task Generator_DiscoversNestedMaterial_ThenReusesCacheWithoutBootstrapping()
+    {
+        using var tempDir = new TempDirectory();
+        var materials = Path.Combine(tempDir.Path, "Content", "Materials", "nested");
+        var templates = Path.Combine(tempDir.Path, "PdfTemplates", "default");
+        Directory.CreateDirectory(materials);
+        Directory.CreateDirectory(templates);
+        await File.WriteAllTextAsync(Path.Combine(templates, "template.latex"), "$body$");
+        await File.WriteAllTextAsync(Path.Combine(tempDir.Path, ".mmdc.json"), "{}");
+        await File.WriteAllTextAsync(Path.Combine(tempDir.Path, "package-lock.json"), "{}");
+        await File.WriteAllTextAsync(Path.Combine(materials, "lesson.md"),
+            "---\ntitle: Nested lesson\npublished: 2026-03-01\ndownloadLink: https://example.com/fallback.pdf\n---\n\nBody\n");
+
+        var toolchain = new RecordingToolchainProvider(tempDir.Path);
+        var runner = new RecordingPdfProcessRunner();
+        var cache = new PdfCacheService(toolchain);
+        var firstManifest = new PdfGenerationManifest();
+        var first = new PdfGeneratorService(toolchain, runner, new NoOpMermaidRenderer(),
+            cache, firstManifest, tempDir.Path);
+
+        await first.RunAsync(NullLogger.Instance);
+
+        var generated = firstManifest.GetResult("nested/lesson");
+        Assert.NotNull(generated);
+        Assert.Equal(PdfGenerationStatus.Generated, generated.Status);
+        Assert.True(File.Exists(Path.Combine(toolchain.OutputDirectory,
+            Path.GetFileName(generated.RelativeUrl!))));
+        Assert.Equal(1, toolchain.BootstrapCount);
+        Assert.Contains(runner.Invocations, call => call.Executable == toolchain.PandocPath);
+        Assert.Contains(runner.Invocations, call => call.Executable == toolchain.TectonicPath &&
+            call.Args.Contains("--outdir") && call.Args.Contains("--bundle"));
+
+        runner.Invocations.Clear();
+        var secondManifest = new PdfGenerationManifest();
+        var second = new PdfGeneratorService(toolchain, runner, new NoOpMermaidRenderer(),
+            cache, secondManifest, tempDir.Path);
+
+        await second.RunAsync(NullLogger.Instance);
+
+        Assert.Equal(PdfGenerationStatus.Cached,
+            secondManifest.GetResult("nested/lesson")?.Status);
+        Assert.Equal(1, toolchain.BootstrapCount);
+        Assert.Empty(runner.Invocations);
     }
 
     // --- Helper: compute a deterministic test fingerprint ---
@@ -480,6 +527,8 @@ public class CacheTests
         var (hit, _) = await cache.TryHitAsync("test-doc", "newfingerprint1234567890", NullLogger.Instance);
 
         Assert.False(hit);
+        Assert.False(File.Exists(outputPath));
+        Assert.Empty(Directory.GetFiles(toolchain.CacheStateDirectory, "test-doc.json"));
     }
 
     [Fact]
@@ -546,24 +595,95 @@ public class MockToolchainProvider : IToolchainProvider
         TemplatesPath = Path.Combine(basePath, "PdfTemplates");
         MermaidConfigPath = Path.Combine(basePath, ".mmdc.json");
         PuppeteerCachePath = Path.Combine(basePath, "artifacts", "puppeteer");
-        MermaidCliPath = Path.Combine(basePath, "node_modules", "@mermaid-js", "mermaid-cli", "index.js");
     }
 
     public string BasePath { get; }
     public string RuntimeIdentifier => OperatingSystem.IsWindows() ? "win-x64" : "linux-x64";
+    public bool IsSupported => true;
     public string? PandocPath => null;
     public string? TectonicPath => null;
-    public string? TectonicBundlePath => null;
+    public string TectonicBundleUrl => "https://example.com/bundle.tar";
     public string TemplatesPath { get; }
     public string MermaidConfigPath { get; }
     public string OutputDirectory { get; }
     public string CacheStateDirectory { get; }
     public string WorkDirectory { get; }
     public string PuppeteerCachePath { get; }
-    public string MermaidCliPath { get; }
+    public string NodeModulesPath => Path.Combine(BasePath, "node_modules");
 
     public Task<bool> BootstrapAsync(ILogger logger, CancellationToken ct = default)
         => Task.FromResult(true);
+}
+
+public sealed class RecordingToolchainProvider : IToolchainProvider
+{
+    public RecordingToolchainProvider(string root)
+    {
+        TemplatesPath = Path.Combine(root, "PdfTemplates");
+        MermaidConfigPath = Path.Combine(root, ".mmdc.json");
+        OutputDirectory = Path.Combine(root, "wwwroot", "generated-pdfs");
+        CacheStateDirectory = Path.Combine(root, "artifacts", "material-pdfs", "state");
+        WorkDirectory = Path.Combine(root, "artifacts", "material-pdfs", "work");
+        PuppeteerCachePath = Path.Combine(root, "artifacts", "puppeteer");
+        NodeModulesPath = Path.Combine(root, "node_modules");
+    }
+
+    public int BootstrapCount { get; private set; }
+    public string RuntimeIdentifier => "test-x64";
+    public bool IsSupported => true;
+    public string? PandocPath => "fake-pandoc";
+    public string? TectonicPath => "fake-tectonic";
+    public string TectonicBundleUrl => "https://example.com/bundle.tar";
+    public string TemplatesPath { get; }
+    public string MermaidConfigPath { get; }
+    public string OutputDirectory { get; }
+    public string CacheStateDirectory { get; }
+    public string WorkDirectory { get; }
+    public string PuppeteerCachePath { get; }
+    public string NodeModulesPath { get; }
+
+    public Task<bool> BootstrapAsync(ILogger logger, CancellationToken ct = default)
+    {
+        BootstrapCount++;
+        Directory.CreateDirectory(OutputDirectory);
+        Directory.CreateDirectory(CacheStateDirectory);
+        Directory.CreateDirectory(WorkDirectory);
+        return Task.FromResult(true);
+    }
+}
+
+public sealed class RecordingPdfProcessRunner : IProcessRunner
+{
+    public List<(string Executable, string[] Args)> Invocations { get; } = new();
+
+    public async Task<ProcessResult> RunAsync(string executable, string[] args,
+        string? workingDirectory = null,
+        Dictionary<string, string?>? environmentVariables = null,
+        int timeoutMs = 180_000,
+        CancellationToken ct = default)
+    {
+        Invocations.Add((executable, args));
+        if (executable == "fake-pandoc")
+        {
+            var output = args[Array.IndexOf(args, "--output") + 1];
+            await File.WriteAllTextAsync(output, "\\begin{document}ok\\end{document}", ct);
+        }
+        else if (executable == "fake-tectonic")
+        {
+            var outDir = args[Array.IndexOf(args, "--outdir") + 1];
+            await File.WriteAllTextAsync(Path.Combine(outDir, "document.pdf"), "%PDF-1.7\n", ct);
+        }
+
+        return new ProcessResult { ExitCode = 0 };
+    }
+}
+
+public sealed class NoOpMermaidRenderer : IMermaidRenderer
+{
+    public bool IsAvailable => true;
+
+    public Task<bool> RenderToPdfAsync(string mermaidDefinition, string outputPdfPath,
+        string inputFile, ILogger logger, CancellationToken ct = default) => Task.FromResult(true);
 }
 
 /// <summary>

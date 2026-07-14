@@ -1,54 +1,53 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace BlazorStaticMinimalBlog.Services;
 
 /// <summary>
-/// Renders Mermaid diagram definitions as PDF vector assets using pinned mermaid-cli.
+/// Renders Mermaid definitions as PDF vector assets using pinned mermaid-cli.
 /// </summary>
 public interface IMermaidRenderer
 {
-    /// <summary>
-    /// Render a single Mermaid definition to a PDF file.
-    /// Returns true on success, false on failure.
-    /// </summary>
     Task<bool> RenderToPdfAsync(string mermaidDefinition, string outputPdfPath,
-        ILogger logger, CancellationToken ct = default);
-
-    /// <summary>
-    /// Check whether Mermaid CLI is available.
-    /// </summary>
+        string inputFile, ILogger logger, CancellationToken ct = default);
     bool IsAvailable { get; }
 }
 
 public class MermaidRenderer : IMermaidRenderer
 {
-    private readonly IToolchainProvider _toolchain;
     private readonly IProcessRunner _processRunner;
+    private readonly string _mmdcPath;
+    private readonly string _configPath;
+    private readonly string _nodePath;
+    private readonly string _puppeteerCache;
 
     public MermaidRenderer(IToolchainProvider toolchain, IProcessRunner processRunner)
     {
-        _toolchain = toolchain;
         _processRunner = processRunner;
+
+        // Platform-independent entry point
+        _mmdcPath = Path.Combine(toolchain.NodeModulesPath, "@mermaid-js", "mermaid-cli", "src", "cli.js");
+        _configPath = toolchain.MermaidConfigPath;
+        _puppeteerCache = toolchain.PuppeteerCachePath;
+
+        _nodePath = FindNode();
     }
 
-    public bool IsAvailable => File.Exists(_toolchain.MermaidCliPath);
+    public bool IsAvailable => File.Exists(_nodePath) && File.Exists(_mmdcPath);
 
     public async Task<bool> RenderToPdfAsync(string mermaidDefinition, string outputPdfPath,
-        ILogger logger, CancellationToken ct = default)
+        string inputFile, ILogger logger, CancellationToken ct = default)
     {
         if (!IsAvailable)
         {
-            logger.LogWarning("Mermaid CLI not available. Skipping diagram render.");
+            logger.LogWarning("Mermaid CLI unavailable. Node={Node} Mmdc={Mmdc}", _nodePath, _mmdcPath);
             return false;
         }
 
-        // Write mermaid definition to a temporary file
-        var mmdcDir = Path.Combine(_toolchain.WorkDirectory, "mmdc");
-        Directory.CreateDirectory(mmdcDir);
-
-        var inputFile = Path.Combine(mmdcDir, $"input_{Path.GetRandomFileName()}.mmd");
-        var configFile = _toolchain.MermaidConfigPath;
+        if (string.IsNullOrWhiteSpace(mermaidDefinition))
+        {
+            logger.LogWarning("Empty Mermaid definition treated as failure");
+            return false;
+        }
 
         try
         {
@@ -56,60 +55,41 @@ public class MermaidRenderer : IMermaidRenderer
 
             var args = new[]
             {
+                _mmdcPath,
                 "-i", inputFile,
                 "-o", outputPdfPath,
-                "-p", configFile,
-                "-b", "pdf"
+                "-e", "pdf",
+                "-c", _configPath,
+                "--pdfFit"
             };
 
-            // Set puppeteer cache directory
             var env = new Dictionary<string, string?>
             {
-                ["PUPPETEER_CACHE_DIR"] = _toolchain.PuppeteerCachePath
+                ["PUPPETEER_CACHE_DIR"] = _puppeteerCache
             };
 
-            var nodeBin = FindNodeExecutable();
-            var mmdcScript = _toolchain.MermaidCliPath;
-
-            string executable;
-            string[] processArgs;
-
-            if (nodeBin is not null)
-            {
-                executable = nodeBin;
-                processArgs = new[] { mmdcScript }.Concat(args).ToArray();
-            }
-            else
-            {
-                // Fallback: try mmdc directly
-                executable = mmdcScript;
-                processArgs = args;
-            }
-
-            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            timeoutCts.CancelAfter(TimeSpan.FromSeconds(60));
-
-            var result = await _processRunner.RunAsync(executable, processArgs,
-                workingDirectory: mmdcDir,
+            var result = await _processRunner.RunAsync(_nodePath, args,
+                workingDirectory: Path.GetDirectoryName(inputFile),
                 environmentVariables: env,
-                ct: timeoutCts.Token);
+                timeoutMs: 60_000,
+                ct: ct);
 
             if (result.TimedOut)
             {
-                logger.LogWarning("Mermaid render timed out after 60s");
+                logger.LogWarning("Mermaid render timed out (60s)");
                 return false;
             }
 
             if (result.ExitCode != 0)
             {
-                logger.LogWarning("Mermaid CLI exited code {Code}: {Err}",
+                logger.LogWarning("Mermaid CLI exit {Code}: {Err}",
                     result.ExitCode, Truncate(result.StdErr, 200));
                 return false;
             }
 
             if (!File.Exists(outputPdfPath))
             {
-                logger.LogWarning("Mermaid CLI produced no output file");
+                logger.LogWarning("Mermaid CLI produced no output");
                 return false;
             }
 
@@ -117,7 +97,7 @@ public class MermaidRenderer : IMermaidRenderer
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("Mermaid render cancelled (timeout)");
+            logger.LogWarning("Mermaid render cancelled");
             return false;
         }
         catch (Exception ex)
@@ -125,61 +105,23 @@ public class MermaidRenderer : IMermaidRenderer
             logger.LogWarning(ex, "Mermaid render failed");
             return false;
         }
-        finally
-        {
-            try { if (File.Exists(inputFile)) File.Delete(inputFile); } catch { /* best-effort */ }
-        }
     }
 
-    private static string? FindNodeExecutable()
+    private static string FindNode()
     {
-        // Check common locations
-        var candidates = OperatingSystem.IsWindows()
-            ? new[] { "node.exe", "node.cmd" }
-            : new[] { "node" };
-
-        // Check PATH
-        foreach (var candidate in candidates)
+        foreach (var dir in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator))
         {
             try
             {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = candidate,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                };
-                // Just check if it exists
-                var process = new Process { StartInfo = psi };
-                // Try finding via PATH resolution
-                var found = Which(candidate);
-                if (found is not null) return found;
+                var name = OperatingSystem.IsWindows() ? "node.exe" : "node";
+                var full = Path.Combine(dir, name);
+                if (File.Exists(full)) return full;
             }
-            catch { /* not found */ }
+            catch { }
         }
-
-        return null;
+        return "node";
     }
 
-    private static string? Which(string name)
-    {
-        var pathEnv = Environment.GetEnvironmentVariable("PATH");
-        if (pathEnv is null) return null;
-
-        foreach (var dir in pathEnv.Split(Path.PathSeparator))
-        {
-            try
-            {
-                var fullPath = Path.Combine(dir, name);
-                if (File.Exists(fullPath))
-                    return fullPath;
-            }
-            catch { /* invalid path segment */ }
-        }
-        return null;
-    }
-
-    private static string Truncate(string value, int maxLen) =>
-        value.Length <= maxLen ? value : value[..maxLen] + "...";
+    private static string Truncate(string s, int n) =>
+        s.Length <= n ? s : s[..n] + "...";
 }
