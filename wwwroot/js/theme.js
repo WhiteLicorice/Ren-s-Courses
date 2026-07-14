@@ -29,6 +29,7 @@ window.switchPrismTheme = (theme) => {
 
     // 3. Update DOM
     document.documentElement.setAttribute('data-theme', targetMode);
+    if (window.refreshInteractiveDiagrams) window.refreshInteractiveDiagrams();
 
     // 4. Clean Storage (Since we rely on System Settings, we keep storage clean)
     if (theme === 'default') {

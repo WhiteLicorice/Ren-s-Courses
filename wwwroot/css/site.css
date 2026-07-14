@@ -338,3 +338,25 @@
         scroll-behavior: auto !important;
     }
 }
+
+/* ============================== */
+/* 8. INTERACTIVE DIAGRAMS        */
+/* ============================== */
+.diagram-controls[hidden],
+[data-diagram-step][hidden],
+[data-diagram-error][hidden],
+.diagram-source[hidden] {
+    display: none;
+}
+
+.diagram-controls button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.diagram-canvas svg {
+    display: block;
+    height: auto;
+    margin-inline: auto;
+    max-width: 100%;
+}

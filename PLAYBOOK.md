@@ -24,3 +24,12 @@ Confirmed 2026-07-14:
 Confirmed 2026-07-14:
 
 - Generated article pages use `output/articles/{slug}.html`, not `output/articles/{slug}/index.html`. This was verified by generating and locally rendering a temporary material through the production entry path.
+- Run local production generation with `dotnet run --no-launch-profile` after setting `ASPNETCORE_ENVIRONMENT=Production`. The repository launch profiles force Development and otherwise start a persistent server; this was confirmed by comparing the timed-out default-profile run with a successful production run.
+
+## Interactive Diagrams
+
+Confirmed 2026-07-14:
+
+- Materials optionally declare `diagrams`, each with `title`, optional `description`, and ordered `steps`. Every step has a `title`, optional `description`, and a complete Mermaid definition in `mermaid`. The contract lives in `Models/CourseFrontMatter.cs`, `Models/LearningDiagram.cs`, and `Models/LearningDiagramStep.cs`.
+- `Components/InteractiveDiagram.razor` renders diagrams before the Markdown body with Previous, Next, and Play controls. `wwwroot/js/interactive-diagrams.js` lazy-loads pinned Mermaid 11.16.0 only on pages with widgets, uses strict security, rerenders for site theme changes, and preserves authored source when loading or rendering fails.
+- Verify YAML and static markup with `StaticGenerationTests` and `BlogPageTests`; verify controls, error fallback, single-step behavior, and theme refresh with `interactive-diagrams.test.js`. A production generation plus Chromium check confirmed nested frontmatter, SVG rendering, every step transition, and submission actions together.

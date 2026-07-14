@@ -1,0 +1,65 @@
+@using BlazorStaticMinimalBlog.Models
+
+@if (Diagram.Steps.Count > 0)
+{
+    <section class="interactive-diagram not-prose my-10 overflow-hidden rounded-lg border border-border-muted bg-surface"
+        data-interactive-diagram aria-labelledby="@DiagramTitleId">
+        <header class="border-b border-border-muted px-5 py-4 sm:px-6">
+            <h2 id="@DiagramTitleId" class="font-mono text-xl font-bold text-text-main">@Diagram.Title</h2>
+            @if (!string.IsNullOrWhiteSpace(Diagram.Description))
+            {
+                <p class="mt-2 text-sm leading-6 text-text-dim">@Diagram.Description</p>
+            }
+        </header>
+
+        <div class="diagram-controls flex flex-wrap items-center gap-2 border-b border-border-muted px-5 py-3 sm:px-6"
+            data-diagram-controls hidden>
+            <button type="button" data-diagram-action="previous"
+                class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">
+                Previous
+            </button>
+            <output class="min-w-24 text-center font-mono text-xs text-text-dim" data-diagram-status
+                aria-live="polite">Step 1 of @Diagram.Steps.Count</output>
+            <button type="button" data-diagram-action="next"
+                class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">
+                Next
+            </button>
+            <button type="button" data-diagram-action="play" aria-pressed="false"
+                class="ml-auto rounded border border-accent/50 px-3 py-2 font-mono text-xs text-accent transition-colors hover:bg-accent hover:text-white">
+                Play
+            </button>
+        </div>
+
+        <div class="p-5 sm:p-6">
+            @for (var stepIndex = 0; stepIndex < Diagram.Steps.Count; stepIndex++)
+            {
+                var step = Diagram.Steps[stepIndex];
+                var stepTitleId = $"learning-diagram-{DiagramIndex}-step-{stepIndex}-title";
+                <section data-diagram-step hidden="@(stepIndex > 0)" aria-labelledby="@stepTitleId">
+                    <p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">
+                        Step @(stepIndex + 1)
+                    </p>
+                    <h3 id="@stepTitleId" class="text-lg font-semibold text-text-main">@step.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(step.Description))
+                    {
+                        <p class="mt-2 text-sm leading-6 text-text-dim">@step.Description</p>
+                    }
+                    <div class="diagram-canvas mt-5 overflow-x-auto" data-diagram-canvas></div>
+                    <pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim"
+                        data-diagram-source>@step.Mermaid</pre>
+                    <p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p>
+                </section>
+            }
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public LearningDiagram Diagram { get; set; } = new();
+
+    [Parameter]
+    public int DiagramIndex { get; set; }
+
+    private string DiagramTitleId => $"learning-diagram-{DiagramIndex}-title";
+}

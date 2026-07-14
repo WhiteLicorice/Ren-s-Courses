@@ -12,4 +12,5 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.initScrollButton) window.initScrollButton();
     if (window.initCalendarNav) window.initCalendarNav();
     if (window.initFaqToc) window.initFaqToc();
+    if (window.initInteractiveDiagrams) window.initInteractiveDiagrams();
 });

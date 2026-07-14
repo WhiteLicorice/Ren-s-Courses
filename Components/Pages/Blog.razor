@@ -173,6 +173,11 @@
 
             @* CONTENT *@
             <div class="prose max-w-none py-10">
+                @for (var diagramIndex = 0; diagramIndex < post.FrontMatter.Diagrams.Count; diagramIndex++)
+                {
+                    <InteractiveDiagram Diagram="@post.FrontMatter.Diagrams[diagramIndex]"
+                        DiagramIndex="@diagramIndex" />
+                }
                 @((MarkupString)post.HtmlContent)
             </div>
 
@@ -233,5 +238,6 @@
         await JSRuntime.InvokeVoidAsync("addCodeFeatures");
         await JSRuntime.InvokeVoidAsync("generateTOC");
         await JSRuntime.InvokeVoidAsync("initScrollButton");
+        await JSRuntime.InvokeVoidAsync("initInteractiveDiagrams");
     }
 }

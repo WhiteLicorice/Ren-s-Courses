@@ -20,4 +20,5 @@ public class CourseFrontMatter : IFrontMatter, IFrontMatterWithTags
 
     public string? DownloadLink { get; set; }
     public List<SubmissionLink> Submissions { get; set; } = new();
+    public List<LearningDiagram> Diagrams { get; set; } = new();
 }

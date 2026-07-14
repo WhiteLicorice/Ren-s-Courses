@@ -14,6 +14,7 @@ Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. T
 
 * [x] Course site -- materials, deadlines, and course content served as static pages
 * [x] Submission bins -- materials link directly to their relevant Google Forms through optional frontmatter
+* [x] Interactive diagrams -- materials can present Mermaid diagrams as controlled, step-by-step walkthroughs
 * [x] Grades viewer -- real-time grade lookups via a private Google Apps Script web app
 * [x] Site mirror -- live mirror on Netlify for redundancy
 * [x] Booking system -- students book consultations in advance
@@ -48,6 +49,32 @@ submissions:
   - name: Individual reflection
     link: https://forms.gle/example
 ```
+
+Materials can also define interactive diagrams in frontmatter. Each step is a complete
+[Mermaid](https://mermaid.js.org/) definition, so steps can use flowcharts, sequence diagrams,
+state diagrams, or any other diagram type supported by Mermaid. Diagrams appear before the
+Markdown body with Previous, Next, and Play controls:
+
+```yaml
+diagrams:
+  - title: Bubble sort
+    description: Follow one pass through the array.
+    steps:
+      - title: Compare the first pair
+        description: Five is greater than two, so the values are out of order.
+        mermaid: |
+          flowchart LR
+              A[5] --> B[2]
+      - title: Swap the pair
+        description: Move the smaller value to the left.
+        mermaid: |
+          flowchart LR
+              B[2] --> A[5]
+```
+
+Mermaid is loaded from its pinned CDN module only when a page contains a diagram. If the
+library cannot load or a step contains invalid syntax, the authored Mermaid source remains
+visible so the explanation does not become a blank panel.
 
 ---
 
@@ -163,7 +190,7 @@ End-to-end tests run against the pre-built static output served by a lightweight
 
 ```bash
 # 1. Build the static site (output/ directory appears, then the process exits)
-ASPNETCORE_ENVIRONMENT=Production dotnet run
+ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
 
 # 2. Install Playwright browsers (first time only)
 npx playwright install --with-deps chromium
@@ -186,8 +213,11 @@ npx playwright show-report
 **Build time constraint:** `CourseContentProvider` only surfaces materials published on or before `STATIC_GEN_TIME` and inside the `TERM_START`--`TERM_END` window. CI pins `STATIC_GEN_TIME=2026-03-15T12:00:00Z`. To preview in-term visibility locally before the term ends:
 
 ```bash
-STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05-23" ASPNETCORE_ENVIRONMENT=Production dotnet run
+STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05-23" ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
 ```
+
+`--no-launch-profile` is required for static generation because the local launch profiles set
+`ASPNETCORE_ENVIRONMENT=Development` and otherwise start a persistent development server.
 
 **Suite coverage:**
 
@@ -226,6 +256,7 @@ npx jest --coverage
 | `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`; `initCalendarNav` + `changeMonth`; `openEventPopoverFromData`, `closeEventPopover` |
 | `course-filter.js` | `initCourseFilter` (localStorage restore); `toggleCourseFilter` (visibility, chips, persistence); `clearCourseFilter` |
 | `code-features.js` | Wrapping, double-wrap guard, language label mapping, copy button injection + clipboard write + timeout revert |
+| `interactive-diagrams.js` | Lazy Mermaid rendering; previous/next/play controls; single-step and render-error fallbacks |
 | `scroll-button.js` | Button click scrolls to top; no-op when button absent |
 | `theme.js` | `switchPrismTheme` sets link href, `data-theme`, localStorage, theme-color meta; system preference fallback |
 

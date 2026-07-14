@@ -18,6 +18,29 @@ public class StaticGenerationTests
             {
                 new() { Name = "Lab report", Link = "https://forms.gle/example" }
             },
+            Diagrams = new List<LearningDiagram>
+            {
+                new()
+                {
+                    Title = "Bubble sort",
+                    Description = "Follow one pass through the array.",
+                    Steps =
+                    [
+                        new()
+                        {
+                            Title = "Compare",
+                            Description = "Compare adjacent values.",
+                            Mermaid = "flowchart LR\n    A[5] --> B[2]"
+                        },
+                        new()
+                        {
+                            Title = "Swap",
+                            Description = "Move the smaller value left.",
+                            Mermaid = "flowchart LR\n    B[2] --> A[5]"
+                        }
+                    ]
+                }
+            },
             Deadline = new DateTime(2026, 3, 20),
             Tags = new List<string> { "cmsc-131", "homework" },
             Authors = new List<ArticleAuthor>
@@ -37,6 +60,12 @@ public class StaticGenerationTests
         var submission = Assert.Single(fm.Submissions);
         Assert.Equal("Lab report", submission.Name);
         Assert.Equal("https://forms.gle/example", submission.Link);
+        var diagram = Assert.Single(fm.Diagrams);
+        Assert.Equal("Bubble sort", diagram.Title);
+        Assert.Equal("Follow one pass through the array.", diagram.Description);
+        Assert.Equal(2, diagram.Steps.Count);
+        Assert.Equal("Compare", diagram.Steps[0].Title);
+        Assert.Equal("flowchart LR\n    A[5] --> B[2]", diagram.Steps[0].Mermaid.TrimEnd());
         Assert.NotNull(fm.Deadline);
         Assert.Equal(new DateTime(2026, 3, 20), fm.Deadline.Value);
         Assert.Contains("cmsc-131", fm.Tags);
@@ -86,6 +115,7 @@ public class StaticGenerationTests
         Assert.False(fm.NoDeadline);
         Assert.Null(fm.DownloadLink);
         Assert.Empty(fm.Submissions);
+        Assert.Empty(fm.Diagrams);
         Assert.Empty(fm.Authors);
         Assert.Contains("cmsc-131", fm.Tags);
     }

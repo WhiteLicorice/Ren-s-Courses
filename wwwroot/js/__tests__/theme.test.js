@@ -32,6 +32,7 @@ afterEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute('data-theme');
     document.head.innerHTML = '';
+    delete window.refreshInteractiveDiagrams;
 });
 
 describe('switchPrismTheme', () => {
@@ -99,6 +100,14 @@ describe('switchPrismTheme', () => {
         document.head.appendChild(meta);
         window.switchPrismTheme('light');
         expect(document.querySelector('meta[name="theme-color"]').content).toBe('#f8f9fa');
+    });
+
+    test('refreshes interactive diagrams after changing the site theme', () => {
+        window.refreshInteractiveDiagrams = jest.fn();
+
+        window.switchPrismTheme('light');
+
+        expect(window.refreshInteractiveDiagrams).toHaveBeenCalledTimes(1);
     });
 
     test('no-op when prism-theme-link element is absent', () => {
