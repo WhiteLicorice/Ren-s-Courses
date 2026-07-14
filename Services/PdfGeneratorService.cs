@@ -329,11 +329,14 @@ public class PdfGeneratorService
 
         var tmplFile = Path.Combine(tmplDir, "template.latex");
 
+        var luaFilter = Path.Combine(tmplDir, "code-block.lua");
+
         var args = new List<string>
         {
             "--from", "markdown",
             "--to", "latex",
             "--template", tmplFile,
+            "--lua-filter", luaFilter,
             "--output", texPath,
             "--standalone"
         };
