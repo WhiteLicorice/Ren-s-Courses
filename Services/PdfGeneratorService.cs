@@ -346,11 +346,20 @@ public class PdfGeneratorService
 
         AddMeta("title", src.FrontMatter.Title);
         AddMeta("subtitle", src.FrontMatter.Subtitle);
-        AddMeta("lead", src.FrontMatter.Lead);
         AddMeta("published", src.FrontMatter.Published != default ? src.FrontMatter.Published.ToString("yyyy-MM-dd") : null);
+        AddMeta("publishedFormatted", src.FrontMatter.Published != default
+            ? src.FrontMatter.Published.ToString("MMMM dd, yyyy", System.Globalization.CultureInfo.InvariantCulture)
+            : null);
         AddMeta("deadline", src.FrontMatter.Deadline?.ToString("yyyy-MM-dd"));
+        AddMeta("deadlineFormatted", src.FrontMatter.Deadline?.ToString("MMMM dd, yyyy", System.Globalization.CultureInfo.InvariantCulture));
         if (src.FrontMatter.NoDeadline)
             args.Add("-Mno-deadline=true");
+
+        // First tag, normalized (uppercase, hyphens → spaces) for footer
+        if (src.FrontMatter.Tags.Count > 0)
+            AddMeta("firstTag", string.Join(" ", src.FrontMatter.Tags[0]
+                .Split('-').Select(s => s.ToUpperInvariant())));
+
         foreach (var a in src.FrontMatter.Authors)
         {
             var name = a.Name ?? a.Nickname ?? "";

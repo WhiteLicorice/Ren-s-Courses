@@ -48,8 +48,8 @@ $endif$
 \lhead{University of the Philippines Visayas}
 \chead{}
 \rhead{Division of Physical Sciences and Mathematics}
-\lfoot{$pdf.variables.courseLabel$}
-\cfoot{$pdf.variables.labNumber$}
+\lfoot{$firstTag$}
+\cfoot{$subtitle$}
 \rfoot{Page \thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
@@ -102,14 +102,6 @@ $if(title)$
 \title{$title$}
 $endif$
 
-$if(subtitle)$
-\newcommand{\mysubtitle}{$subtitle$}
-$endif$
-
-$if(lead)$
-\newcommand{\mylead}{$lead$}
-$endif$
-
 $for(author)$
 \author{$author$}
 $endfor$
@@ -122,28 +114,20 @@ $endif$
 
 % --- Title ---
 \begin{center}
-  {\LARGE \textbf{$title$}} \\[6pt]
-$if(subtitle)$
-  {\large \mysubtitle} \\[12pt]
-$endif$
-$if(lead)$
-  {\textit{\mylead}} \\[12pt]
-$endif$
+  {\LARGE \textbf{$title$}} \\[12pt]
 $if(author)$
-  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[4pt]
+  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[18pt]
 $endif$
-$if(published)$
-  {\normalsize $published$} \\[4pt]
-$endif$
-$if(deadline)$
-  {\normalsize \textbf{Deadline:} $deadline$} \\[4pt]
-$endif$
-$if(tags)$
-  {\normalsize \textbf{Topics:} $tags$} \\[4pt]
+$if(publishedFormatted)$
+  $if(deadlineFormatted)$
+  {\normalsize Published: $publishedFormatted$\hfill Deadline: $deadlineFormatted$} \\[12pt]
+  $else$
+  {\normalsize Published: $publishedFormatted$} \\[12pt]
+  $endif$
 $endif$
 \end{center}
 
-\vspace{12pt}
+\vspace{0pt}
 \hrule
 \vspace{12pt}
 
