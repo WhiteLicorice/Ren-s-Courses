@@ -1,0 +1,135 @@
+% Pandoc 3.10-derived LaTeX template for generated course PDFs
+% Academic article, 11pt, black-and-white, ~1-inch margins
+%
+% Derived from Pandoc's default LaTeX template.
+
+\documentclass[11pt]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{bookmark}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc}
+\newcounter{none}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{ifxetex}
+\usepackage{ifluatex}
+\usepackage{amsmath,amssymb}
+$if(math)$
+  $math$
+$endif$
+
+% Font configuration - use bundled Tectonic fonts
+\usepackage{mathptmx}
+\usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+\ifxetex
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes-regular.otf}[
+    BoldFont=texgyretermes-bold.otf,
+    ItalicFont=texgyretermes-italic.otf,
+    BoldItalicFont=texgyretermes-bolditalic.otf]
+  \setmonofont{lmmono10-regular.otf}
+\fi
+
+% Page style -- matches the original UPV DPSM lab-manual template
+\setlength{\headheight}{13.6pt}
+\addtolength{\topmargin}{-1.6pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{University of the Philippines Visayas}
+\chead{}
+\rhead{Division of Physical Sciences and Mathematics}
+\lfoot{$firstTag$}
+\cfoot{$subtitle$}
+\rfoot{Page \thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Hyperlinks
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=black,
+  citecolor=black,
+  bookmarks=true,
+$if(title)$
+  pdftitle={$title$},
+$endif$
+$if(author)$
+  pdfauthor={$for(author)$$author$$sep$, $endfor$},
+$endif$
+}
+
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+% Headings
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+% Image sizing
+\usepackage[export]{adjustbox}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{%
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi}
+\makeatother
+
+% Tightlist macro for Pandoc
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% --- Title block ---
+$if(title)$
+\title{$title$}
+$endif$
+
+$for(author)$
+\author{$author$}
+$endfor$
+
+$if(published)$
+\date{$published$}
+$endif$
+
+\begin{document}
+
+% --- Title ---
+\begin{center}
+  {\LARGE \textbf{$title$}} \\[12pt]
+$if(author)$
+  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[4pt]
+$endif$
+\end{center}
+
+$if(publishedFormatted)$
+\noindent{\normalsize Published: $publishedFormatted$\hfill$if(deadlineFormatted)$ Deadline: $deadlineFormatted$$endif$}
+\vspace{12pt}
+$endif$
+
+\vspace{0pt}
+\hrule
+\vspace{12pt}
+
+% --- Body ---
+$body$
+
+\end{document}

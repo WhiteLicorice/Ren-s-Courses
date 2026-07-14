@@ -44,6 +44,25 @@ jobs:
           node-version: '26.1.0'
           cache: 'npm'
 
+      - name: Restore PDF toolchain cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            artifacts/pdf-toolchain
+            artifacts/tectonic-cache
+            artifacts/puppeteer
+          key: ${{ runner.os }}-pdf-toolchain-${{ hashFiles('Models/ToolchainManifest.cs', 'package-lock.json') }}
+
+      - name: Restore generated material PDF cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            artifacts/material-pdfs/state
+            wwwroot/generated-pdfs
+          key: ${{ runner.os }}-material-pdfs-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-material-pdfs-
+
       - name: Install NPM dependencies
         run: npm ci
 

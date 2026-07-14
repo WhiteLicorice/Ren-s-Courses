@@ -219,6 +219,99 @@ STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05
 `--no-launch-profile` is required for static generation because the local launch profiles set
 `ASPNETCORE_ENVIRONMENT=Development` and otherwise start a persistent development server.
 
+### Native material PDFs
+
+The production `dotnet run` entry point generates a PDF for every non-draft Markdown file under
+`Content/Materials` before the static pages are rendered. The first run downloads pinned Pandoc,
+Tectonic, and browser dependencies into the ignored `artifacts/` directory. Later runs reuse the
+per-material cache and skip the toolchain entirely when every fingerprint still matches.
+
+The complete Markdown file is part of its fingerprint, so changing either frontmatter or body
+content invalidates only that material. Template files, Mermaid configuration, pinned dependency
+metadata, and referenced local media are fingerprinted as well. If one PDF fails, the site build
+continues and that material uses its `downloadLink`; if no fallback exists, only its Download
+action is omitted.
+
+For a CI-equivalent local build in PowerShell:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+$env:TERM_START = "2026-01-19"
+$env:TERM_END = "2026-05-28"
+$env:SHOWCASE_MODE = "true"
+$env:STATIC_GEN_TIME = "2026-07-14T00:00:00Z"
+dotnet run --no-launch-profile --configuration Release
+```
+
+### PDF template system
+
+PDF generation uses Pandoc to convert Markdown to LaTeX, then Tectonic to compile LaTeX to PDF.
+The template that controls the PDF's visual appearance is a Pandoc LaTeX template.
+
+#### Default template (`PdfTemplates/default/template.latex`)
+
+The default template is derived from Pandoc's built-in article template. It has been tweaked to
+match the original UPV DPSM lab-manual format:
+
+| Element     | Content                                      |
+|-------------|----------------------------------------------|
+| Left header | University of the Philippines Visayas        |
+| Right header| Division of Physical Sciences and Mathematics|
+| Left footer | `courseLabel` variable (e.g., "CMSC 131")   |
+| Center footer| `labNumber` variable (e.g., "Laboratory Manual 5") |
+| Right footer| Page number                                  |
+| Title block | Title, subtitle, lead, "Prepared by" author, published date, deadline, topics |
+
+The template reads `pdf.variables.courseLabel` and `pdf.variables.labNumber` from the material's
+frontmatter. When these variables are absent, the corresponding footer fields render empty.
+
+The author line shows the full `Name` field (not the `Nickname` display alias used on the website).
+This ensures the PDF carries the author's complete legal name in the "Prepared by" attribution.
+
+#### Defining a custom template
+
+Create a new directory under `PdfTemplates/`, commit a `template.latex` file inside it:
+
+```
+PdfTemplates/
+├── default/
+│   └── template.latex       ← shipped default
+└── my-custom/
+    └── template.latex       ← your custom template
+```
+
+Template names must match `[a-z0-9][a-z0-9_-]*` (lowercase letters, digits, hyphens, underscores).
+Any file under the template directory is fingerprinted; changing a template invalidates every
+material that uses it.
+
+A minimal template must render `$body$`:
+
+```latex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\begin{document}
+$body$
+\end{document}
+```
+
+Full Pandoc template syntax is documented at <https://pandoc.org/MANUAL.html#template-syntax>.
+
+#### Assigning a template to a material
+
+Set the `pdf.template` key in the material's frontmatter. Omit it to use `default`:
+
+```yaml
+pdf:
+  template: my-custom
+  variables:
+    courseLabel: CMSC 131
+    labNumber: Laboratory Manual 5
+    # … any key-value pairs your template expects
+```
+
+Variables are exposed to the template as `$pdf.variables.<key>$`. Both string and numeric values
+are supported; nested objects are passed as their string representation.
+
 **Suite coverage:**
 
 | Spec file | What it covers |

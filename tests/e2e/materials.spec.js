@@ -122,6 +122,19 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
     expect(text && text.trim().length).toBeGreaterThan(0);
   });
 
+  test('native Download action downloads the generated PDF', async ({ page }) => {
+    const link = page.locator('[data-download-action][data-download-source="generated"]');
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('download', 'cmsc-124-lab0.pdf');
+
+    const downloadPromise = page.waitForEvent('download');
+    await link.click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toMatch(/^cmsc-124-lab0(?:\.[0-9a-f]{12})?\.pdf$/);
+    expect(await download.failure()).toBeNull();
+  });
+
   test('desktop TOC (#toc-content) is populated with anchor links', async ({ page }) => {
     // toc.js generates links with data-target (not href) to avoid Blazor nav interference.
     await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });

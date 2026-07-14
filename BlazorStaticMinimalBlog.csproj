@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="BlazorStatic" Version="1.0.0-beta.17" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +26,16 @@
   <ItemGroup>
     <Watch Include="Content/**/*" />
   </ItemGroup>
+
+  <!-- Restore Node dependencies on a clean checkout or after package metadata changes. -->
+  <Target Name="EnsureNodeDependencies"
+          BeforeTargets="TailwindBuild"
+          Inputs="package.json;package-lock.json"
+          Outputs="node_modules/.renscourses-npm-install.stamp">
+    <Message Text="Restoring Node.js dependencies..." Importance="high" />
+    <Exec Command="npm ci" />
+    <Touch Files="node_modules/.renscourses-npm-install.stamp" AlwaysCreate="true" />
+  </Target>
 
   <!--Bundle tailwind css on build-->
   <Target Name="TailwindBuild" BeforeTargets="Build">

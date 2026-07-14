@@ -72,10 +72,43 @@ builder.Services.AddSingleton<FrontmatterStatusService>();
 builder.Services.AddSingleton<CalendarEventProvider>();
 builder.Services.AddScoped<ThemeService>();
 
+// PDF generation services
+var pdfManifest = new PdfGenerationManifest();
+builder.Services.AddSingleton(pdfManifest);
+builder.Services.AddSingleton<IProcessRunner>(sp => new SystemProcessRunner());
+builder.Services.AddSingleton<IToolchainProvider>(
+    sp => new ToolchainProvider(builder.Environment.ContentRootPath));
+builder.Services.AddSingleton<IPdfCacheService, PdfCacheService>();
+builder.Services.AddSingleton<IMermaidRenderer, MermaidRenderer>();
+builder.Services.AddSingleton<PdfGeneratorService>(sp =>
+{
+    var toolchain = sp.GetRequiredService<IToolchainProvider>();
+    var runner = sp.GetRequiredService<IProcessRunner>();
+    var mermaid = sp.GetRequiredService<IMermaidRenderer>();
+    var cache = sp.GetRequiredService<IPdfCacheService>();
+    var manifest = sp.GetRequiredService<PdfGenerationManifest>();
+    return new PdfGeneratorService(toolchain, runner, mermaid, cache, manifest,
+        builder.Environment.ContentRootPath);
+});
+
 var menuFilePath = Path.Combine(builder.Environment.ContentRootPath, "menu.json");
 builder.Services.AddSingleton(new MenuConfigService(menuFilePath));
 
 var app = builder.Build();
+
+// Run PDF generation before middleware and BlazorStatic.
+// Must not fail the build — catch all exceptions and log warnings.
+try
+{
+    var pdfGenerator = app.Services.GetRequiredService<PdfGeneratorService>();
+    var pdfLogger = app.Services.GetRequiredService<ILogger<PdfGeneratorService>>();
+    await pdfGenerator.RunAsync(pdfLogger);
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning(ex, "PDF generation failed. Site will use fallback download links.");
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
