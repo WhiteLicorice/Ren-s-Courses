@@ -150,12 +150,12 @@ $endif$
 \begin{center}
   {\LARGE \textbf{$title$}} \\[12pt]
 $if(author)$
-  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[4pt]
+  {\normalsize \textbf{Prepared by:} $for(author)$$author$$sep$, $endfor$} \\[4pt]
 $endif$
 \end{center}
 
 $if(publishedFormatted)$
-\noindent{\normalsize Published: $publishedFormatted$\hfill$if(deadlineFormatted)$ Deadline: $deadlineFormatted$$endif$}
+\noindent{\normalsize \textbf{Published:} $publishedFormatted$\hfill$if(deadlineFormatted)$ \textbf{Deadline:} $deadlineFormatted$$endif$}
 \vspace{12pt}
 $endif$
 
