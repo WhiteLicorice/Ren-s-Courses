@@ -34,7 +34,7 @@ Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. T
 
 ### How it works
 
-The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, generates RSS feeds with a Python script, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified before being pushed to their respective deploy branches.
+The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, runs Python tests for the RSS feed generator, generates per-course Atom feeds, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified before being pushed to their respective deploy branches.
 
 `CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START`--`TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
 
@@ -250,8 +250,12 @@ The template that controls the PDF's visual appearance is a Pandoc LaTeX templat
 
 #### Default template (`PdfTemplates/default/template.latex`)
 
-The default template is derived from Pandoc's built-in article template. It has been tweaked to
-match the original UPV DPSM lab-manual format:
+The default template is derived from Pandoc's built-in article template. It has been tweaked to match the original UPV DPSM lab-manual format and includes:
+
+- **Code blocks** — framed with line numbers and a light gray background via `fancyvrb`/`fvextra`.
+  A Pandoc Lua filter (`code-block.lua`) ensures all fenced code blocks use the `Highlighting`
+  environment, including unlabeled blocks (```` ``` ```` with no language tag) that Pandoc would
+  otherwise route through bare `verbatim`.
 
 | Element     | Content                                      |
 |-------------|----------------------------------------------|
@@ -275,7 +279,8 @@ Create a new directory under `PdfTemplates/`, commit a `template.latex` file ins
 ```
 PdfTemplates/
 ├── default/
-│   └── template.latex       ← shipped default
+│   ├── template.latex       ← shipped default
+│   └── code-block.lua       ← Pandoc Lua filter (code block styling)
 └── my-custom/
     └── template.latex       ← your custom template
 ```
@@ -321,6 +326,7 @@ are supported; nested objects are passed as their string representation.
 | `faqs.spec.js` | `/faqs` -- sections, chip filter, accordion, hash deep-link, hashchange |
 | `calendar.spec.js` | `/calendar` -- month nav, tag filter, popover open/close |
 | `projects.spec.js` | `/projects`, `/projects/{tag}` -- tag cloud, card expand/collapse |
+| `interactive-diagrams.spec.js` | `/articles/{slug}` -- Mermaid diagram lazy loading, Previous/Next/Play controls, viewport repair for malformed SVGs |
 | `navigation.spec.js` | Desktop nav (3 items + dropdown, scroll hide/show); mobile nav (overlay, backdrop, close) |
 | `theme.spec.js` | Light/dark toggle, localStorage, Prism CSS swap, icon state, persistence |
 | `edge-cases.spec.js` | `/null`, non-existent articles, all major routes checked for JS errors |
@@ -359,3 +365,11 @@ npx jest --coverage
 **Key test patterns:**
 - History API: `history.pushState` sets `window.location.hash` before mocking, because `window.location.hash` is non-configurable in jsdom. `Object.getPrototypeOf(window.history).pushState.call(...)` bypasses active spies when real URL changes are needed.
 - Scripts are loaded by reading the source file and executing via `new Function(source)()` -- runs in global scope so `window.generateTOC` etc. become available.
+
+### Python (unittest)
+
+The RSS feed generator (`.github/utils/generate_feed.py`) has 7 unit tests covering feed generation, date parsing, term-end boundary handling, empty-feed output, and showcase-mode skipping. Tests run in CI before feed generation.
+
+```bash
+python -m unittest discover -s .github/utils -p "test_*.py" -v
+```
