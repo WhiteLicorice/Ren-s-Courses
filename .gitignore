@@ -1,8 +1,5 @@
-# Ignore Claude Code artifacts
+# Ignore Claude Code working directory
 .claude
-CLAUDE.md
-AGENTS.md
-FABLE.md
 
 # Ignore utilities
 utilities/
