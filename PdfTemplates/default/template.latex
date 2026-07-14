@@ -72,9 +72,35 @@ $if(author)$
 $endif$
 }
 
+% Always load verbatim extensions (Pandoc may or may not load fancyvrb)
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+
+% Dummy Highlighting — Pandoc redefines it in highlighting-macros when code blocks exist
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{}
+
 $if(highlighting-macros)$
 $highlighting-macros$
 $endif$
+
+% Code blocks — frames + line numbers + line wrapping
+\RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
+  commandchars=\\\{\},
+  frame=single,
+  framerule=0.4pt,
+  framesep=6pt,
+  rulecolor=\color{black!25},
+  numbers=left,
+  numbersep=8pt,
+  breaklines=true,
+  breakautoindent=false,
+  breakindent=1em,
+  fontsize=\small
+}
+
+% Shaded background for code blocks (Pandoc's wrapper)
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
 
 % Headings
 \usepackage{titlesec}
