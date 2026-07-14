@@ -116,16 +116,14 @@ $endif$
 \begin{center}
   {\LARGE \textbf{$title$}} \\[12pt]
 $if(author)$
-  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[18pt]
-$endif$
-$if(publishedFormatted)$
-  $if(deadlineFormatted)$
-  {\normalsize Published: $publishedFormatted$\hfill Deadline: $deadlineFormatted$} \\[12pt]
-  $else$
-  {\normalsize Published: $publishedFormatted$} \\[12pt]
-  $endif$
+  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[4pt]
 $endif$
 \end{center}
+
+$if(publishedFormatted)$
+\noindent{\normalsize Published: $publishedFormatted$\hfill$if(deadlineFormatted)$ Deadline: $deadlineFormatted$$endif$}
+\vspace{12pt}
+$endif$
 
 \vspace{0pt}
 \hrule
