@@ -8,6 +8,8 @@
 % --- Packages ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{upquote}
+\usepackage{microtype}
 \usepackage[margin=1in]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
@@ -18,6 +20,7 @@
 \usepackage{calc}
 \newcounter{none}
 \usepackage{xcolor}
+\usepackage[normalem]{ulem}
 \usepackage{float}
 \usepackage{caption}
 \usepackage{ifxetex}
