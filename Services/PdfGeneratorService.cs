@@ -353,12 +353,24 @@ public class PdfGeneratorService
             args.Add("-Mno-deadline=true");
         foreach (var a in src.FrontMatter.Authors)
         {
-            var name = a.Nickname ?? a.Name ?? "";
+            var name = a.Name ?? a.Nickname ?? "";
             if (!string.IsNullOrEmpty(name))
                 args.Add($"-Mauthor={name}");
         }
         foreach (var t in src.FrontMatter.Tags)
             args.Add($"-Mtags={t}");
+
+        // Pass PdfConfig variables as nested metadata (pdf.variables.*)
+        if (src.FrontMatter.Pdf?.Variables is { } pdfVars)
+        {
+            foreach (var (key, value) in pdfVars)
+            {
+                if (value is null) continue;
+                var v = value is string s ? s : value.ToString();
+                if (!string.IsNullOrWhiteSpace(v))
+                    args.Add($"-Mpdf.variables.{key}={v}");
+            }
+        }
 
         // Resource path: source directory, media directories, work dir
         var srcDir = Path.GetDirectoryName(src.SourcePath) ?? ".";

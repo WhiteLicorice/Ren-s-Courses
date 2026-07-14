@@ -243,18 +243,74 @@ $env:STATIC_GEN_TIME = "2026-07-14T00:00:00Z"
 dotnet run --no-launch-profile --configuration Release
 ```
 
-The default customizable Pandoc template is `PdfTemplates/default/template.latex`. A material can
-select another committed template and expose template-specific values through nested frontmatter:
+### PDF template system
+
+PDF generation uses Pandoc to convert Markdown to LaTeX, then Tectonic to compile LaTeX to PDF.
+The template that controls the PDF's visual appearance is a Pandoc LaTeX template.
+
+#### Default template (`PdfTemplates/default/template.latex`)
+
+The default template is derived from Pandoc's built-in article template. It has been tweaked to
+match the original UPV DPSM lab-manual format:
+
+| Element     | Content                                      |
+|-------------|----------------------------------------------|
+| Left header | University of the Philippines Visayas        |
+| Right header| Division of Physical Sciences and Mathematics|
+| Left footer | `courseLabel` variable (e.g., "CMSC 131")   |
+| Center footer| `labNumber` variable (e.g., "Laboratory Manual 5") |
+| Right footer| Page number                                  |
+| Title block | Title, subtitle, lead, "Prepared by" author, published date, deadline, topics |
+
+The template reads `pdf.variables.courseLabel` and `pdf.variables.labNumber` from the material's
+frontmatter. When these variables are absent, the corresponding footer fields render empty.
+
+The author line shows the full `Name` field (not the `Nickname` display alias used on the website).
+This ensures the PDF carries the author's complete legal name in the "Prepared by" attribution.
+
+#### Defining a custom template
+
+Create a new directory under `PdfTemplates/`, commit a `template.latex` file inside it:
+
+```
+PdfTemplates/
+├── default/
+│   └── template.latex       ← shipped default
+└── my-custom/
+    └── template.latex       ← your custom template
+```
+
+Template names must match `[a-z0-9][a-z0-9_-]*` (lowercase letters, digits, hyphens, underscores).
+Any file under the template directory is fingerprinted; changing a template invalidates every
+material that uses it.
+
+A minimal template must render `$body$`:
+
+```latex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\begin{document}
+$body$
+\end{document}
+```
+
+Full Pandoc template syntax is documented at <https://pandoc.org/MANUAL.html#template-syntax>.
+
+#### Assigning a template to a material
+
+Set the `pdf.template` key in the material's frontmatter. Omit it to use `default`:
 
 ```yaml
 pdf:
-  template: default
+  template: my-custom
   variables:
     courseLabel: CMSC 131
+    labNumber: Laboratory Manual 5
+    # … any key-value pairs your template expects
 ```
 
-Templates can read these as `pdf.variables.courseLabel`. Template names are allowlisted to lowercase
-letters, digits, hyphens, and underscores and must resolve inside `PdfTemplates/`.
+Variables are exposed to the template as `$pdf.variables.<key>$`. Both string and numeric values
+are supported; nested objects are passed as their string representation.
 
 **Suite coverage:**
 

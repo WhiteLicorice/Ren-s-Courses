@@ -40,12 +40,19 @@ $endif$
   \setmonofont{lmmono10-regular.otf}
 \fi
 
-% Page style
+% Page style -- matches the original UPV DPSM lab-manual template
+\setlength{\headheight}{13.6pt}
+\addtolength{\topmargin}{-1.6pt}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\textit{$title$}}
-\fancyhead[R]{\small\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
+\lhead{University of the Philippines Visayas}
+\chead{}
+\rhead{Division of Physical Sciences and Mathematics}
+\lfoot{$pdf.variables.courseLabel$}
+\cfoot{$pdf.variables.labNumber$}
+\rfoot{Page \thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
 
 % Hyperlinks
 \hypersetup{
@@ -123,7 +130,7 @@ $if(lead)$
   {\textit{\mylead}} \\[12pt]
 $endif$
 $if(author)$
-  {\normalsize $for(author)$$author$$sep$, $endfor$} \\[4pt]
+  {\normalsize Prepared by $for(author)$$author$$sep$, $endfor$} \\[4pt]
 $endif$
 $if(published)$
   {\normalsize $published$} \\[4pt]
