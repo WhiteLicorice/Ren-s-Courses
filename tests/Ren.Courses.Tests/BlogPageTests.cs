@@ -89,6 +89,7 @@ public class BlogPageTests
         Assert.Equal("Submit", trigger.TextContent.Trim());
         Assert.Equal("false", trigger.GetAttribute("aria-expanded"));
         Assert.Equal("submission-menu-panel", trigger.GetAttribute("aria-controls"));
+        Assert.NotNull(trigger.QuerySelector("svg[data-submit-icon]"));
         Assert.NotNull(menu.QuerySelector("#submission-menu-panel"));
 
         var links = menu.QuerySelectorAll("a");

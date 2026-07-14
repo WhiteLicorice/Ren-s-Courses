@@ -73,6 +73,18 @@ async function renderStep(state, index) {
     }
 }
 
+function updateStageRatio(state) {
+    const ratios = state.steps
+        .map(step => step.querySelector('[data-diagram-canvas] svg')?.getAttribute('viewBox'))
+        .map(viewBox => viewBox?.trim().split(/[\s,]+/).map(Number))
+        .filter(parts => parts?.length === 4 && parts.every(Number.isFinite) && parts[2] > 0 && parts[3] > 0)
+        .map(parts => parts[2] / parts[3]);
+
+    if (ratios.length > 0) {
+        state.widget.style.setProperty('--diagram-stage-ratio', String(Math.min(...ratios)));
+    }
+}
+
 function showStep(state, index) {
     state.current = index;
     state.steps.forEach((step, stepIndex) => {
@@ -128,6 +140,7 @@ async function enhanceDiagram(widget, mermaid) {
     for (let index = 0; index < steps.length; index++) {
         await renderStep(state, index);
     }
+    updateStageRatio(state);
 
     widget.querySelector('[data-diagram-controls]').hidden = false;
     state.playButton.disabled = steps.length < 2;
@@ -179,5 +192,6 @@ window.refreshInteractiveDiagrams = async () => {
         for (let index = 0; index < state.steps.length; index++) {
             await renderStep(state, index);
         }
+        updateStageRatio(state);
     }
 };

@@ -38,7 +38,7 @@ function createMermaid() {
     return {
         initialize: jest.fn(),
         render: jest.fn(async (id, definition) => ({
-            svg: `<svg data-render-id="${id}" style="max-width: 80px"><title>${definition}</title></svg>`
+            svg: `<svg data-render-id="${id}" viewBox="0 0 200 100" style="max-width: 80px"><title>${definition}</title></svg>`
         }))
     };
 }
@@ -93,6 +93,16 @@ test('removes Mermaid intrinsic width caps so CSS can size the SVG to its canvas
     await window.initInteractiveDiagrams(mermaid);
 
     expect(document.querySelector('[data-diagram-canvas] svg').style.maxWidth).toBe('');
+});
+
+test('sets one stable stage ratio from the rendered step viewboxes', async () => {
+    buildWidget();
+    const mermaid = createMermaid();
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    expect(document.querySelector('[data-interactive-diagram]')
+        .style.getPropertyValue('--diagram-stage-ratio')).toBe('2');
 });
 
 test('next and previous controls change the visible step', async () => {

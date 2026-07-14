@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using BlazorStatic;
 using BlazorStatic.Services;
 
@@ -9,11 +10,15 @@ namespace Ren.Courses.Tests;
 public class WebsiteKeysTests
 {
     [Fact]
-    public void VersionedAsset_AppendsBuildVersion()
+    public void VersionedAsset_AppendsAssetContentHash()
     {
         var result = WebsiteKeys.VersionedAsset("css/site.css");
+        var assetPath = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "..", "..", "wwwroot", "css", "site.css"));
+        var bytes = File.ReadAllBytes(assetPath);
+        var expectedHash = Convert.ToHexString(SHA256.HashData(bytes))[..12].ToLowerInvariant();
 
-        Assert.Matches("^css/site\\.css\\?v=[0-9a-f]+$", result);
+        Assert.Equal($"css/site.css?v={expectedHash}", result);
     }
 
     // ----------------------------------------------------------------

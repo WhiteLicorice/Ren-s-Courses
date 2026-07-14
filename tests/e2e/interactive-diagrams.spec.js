@@ -31,3 +31,19 @@ test('diagram steps are pre-rendered in a compact, stable stage', async ({ page 
   expect(measurements.widgetHeightAfter).toBe(measurements.widgetHeightBefore);
   expect(measurements.visibleStepHasSvg).toBe(true);
 });
+
+test('diagram stage follows the drawing aspect ratio', async ({ page }) => {
+  const stageHeight = async slug => {
+    await page.goto(`/articles/${slug}`);
+    const widget = page.locator('[data-interactive-diagram]');
+    await expect(widget).toHaveAttribute('data-diagram-initialized', 'true');
+    return widget.locator('[data-diagram-step]:not([hidden]) [data-diagram-canvas]')
+      .evaluate(canvas => canvas.getBoundingClientRect().height);
+  };
+
+  const bfsHeight = await stageHeight('demo-interactive-bfs');
+  const bubbleSortHeight = await stageHeight('demo-interactive-bubble-sort');
+
+  expect(bfsHeight).toBeGreaterThan(bubbleSortHeight);
+  expect(bubbleSortHeight).toBeLessThanOrEqual(128);
+});

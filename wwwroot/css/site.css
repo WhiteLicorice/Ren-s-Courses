@@ -356,8 +356,12 @@
 
 .diagram-canvas {
     display: grid;
-    height: clamp(14rem, 32vw, 18rem);
+    aspect-ratio: var(--diagram-stage-ratio, 1);
+    margin-inline: auto;
+    max-height: 18rem;
+    min-height: 6rem;
     place-items: center;
+    width: min(100%, 26rem);
 }
 
 .diagram-canvas svg {
@@ -366,7 +370,7 @@
     margin-inline: auto;
     max-height: 100%;
     max-width: 26rem !important;
-    width: min(100%, 26rem) !important;
+    width: 100% !important;
 }
 
 /* ============================== */

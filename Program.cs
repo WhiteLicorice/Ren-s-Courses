@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Security.Cryptography;
 using BlazorStaticMinimalBlog.Components;
 using BlazorStaticMinimalBlog.Models;
 using BlazorStaticMinimalBlog.Services;
@@ -104,10 +105,32 @@ public static class WebsiteKeys
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
     public static string BlogLead { get; set; } = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
 
-    private static readonly string AssetVersion =
-        File.GetLastWriteTimeUtc(typeof(WebsiteKeys).Assembly.Location).Ticks.ToString("x");
+    public static string VersionedAsset(string path)
+    {
+        var assetPath = FindAsset(path);
+        if (assetPath is null) return path;
 
-    public static string VersionedAsset(string path) => $"{path}?v={AssetVersion}";
+        using var stream = File.OpenRead(assetPath);
+        var hash = Convert.ToHexString(SHA256.HashData(stream))[..12].ToLowerInvariant();
+        return $"{path}?v={hash}";
+    }
+
+    private static string? FindAsset(string path)
+    {
+        var relativePath = Path.Combine("wwwroot", path.Replace('/', Path.DirectorySeparatorChar));
+        var workingDirectoryPath = Path.GetFullPath(relativePath);
+        if (File.Exists(workingDirectoryPath)) return workingDirectoryPath;
+
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
+             directory is not null;
+             directory = directory.Parent)
+        {
+            var candidate = Path.Combine(directory.FullName, relativePath);
+            if (File.Exists(candidate)) return candidate;
+        }
+
+        return null;
+    }
 
     // Non-empty placeholder for content types where individual pages are not needed.
     // Generation of individual post pages is suppressed via AfterContentParsedAndAddedAction.
