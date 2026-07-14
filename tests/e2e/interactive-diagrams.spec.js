@@ -47,3 +47,32 @@ test('diagram stage follows the drawing aspect ratio', async ({ page }) => {
   expect(bfsHeight).toBeGreaterThan(bubbleSortHeight);
   expect(bubbleSortHeight).toBeLessThanOrEqual(128);
 });
+
+test('repairs a malformed Mermaid viewport before showing a step', async ({ page }) => {
+  await page.goto('/articles/demo-interactive-bfs');
+  const widget = page.locator('[data-interactive-diagram]');
+  await expect(widget).toHaveAttribute('data-diagram-initialized', 'true');
+
+  const measurements = await widget.evaluate(element => {
+    const secondStep = element.querySelectorAll('[data-diagram-step]')[1];
+    const svg = secondStep.querySelector('svg');
+    svg.setAttribute('viewBox', '0 0 2000 2000');
+    svg.style.setProperty('width', '40px', 'important');
+    svg.style.setProperty('height', '40px', 'important');
+    svg.style.setProperty('max-width', '40px', 'important');
+
+    element.querySelector('[data-diagram-action="next"]').click();
+
+    const drawing = svg.querySelector('.root').getBoundingClientRect();
+    const svgBounds = svg.getBoundingClientRect();
+    return {
+      drawingWidth: drawing.width,
+      svgWidth: svgBounds.width,
+      viewBox: svg.getAttribute('viewBox')
+    };
+  });
+
+  expect(measurements.svgWidth).toBeGreaterThan(400);
+  expect(measurements.drawingWidth).toBeGreaterThan(200);
+  expect(measurements.viewBox).not.toBe('0 0 2000 2000');
+});

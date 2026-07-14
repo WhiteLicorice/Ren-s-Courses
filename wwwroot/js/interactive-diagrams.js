@@ -73,12 +73,60 @@ async function renderStep(state, index) {
     }
 }
 
-function updateStageRatio(state) {
-    const ratios = state.steps
-        .map(step => step.querySelector('[data-diagram-canvas] svg')?.getAttribute('viewBox'))
-        .map(viewBox => viewBox?.trim().split(/[\s,]+/).map(Number))
-        .filter(parts => parts?.length === 4 && parts.every(Number.isFinite) && parts[2] > 0 && parts[3] > 0)
-        .map(parts => parts[2] / parts[3]);
+function normalizeStepSvg(step) {
+    const svg = step.querySelector('[data-diagram-canvas] svg');
+    if (!svg) return null;
+
+    svg.style.setProperty('display', 'block', 'important');
+    svg.style.setProperty('height', '100%', 'important');
+    svg.style.setProperty('max-width', 'none', 'important');
+    svg.style.setProperty('width', '100%', 'important');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    const fallbackRatio = () => {
+        const parts = svg.getAttribute('viewBox')?.trim().split(/[\s,]+/).map(Number);
+        return parts?.length === 4 && parts.every(Number.isFinite) && parts[2] > 0 && parts[3] > 0
+            ? parts[2] / parts[3]
+            : null;
+    };
+    const drawing = svg.querySelector('.root');
+    if (!drawing || typeof drawing.getBBox !== 'function') return fallbackRatio();
+
+    let bounds;
+    try {
+        bounds = drawing.getBBox();
+    } catch {
+        return fallbackRatio();
+    }
+    if (![bounds.x, bounds.y, bounds.width, bounds.height].every(Number.isFinite)
+        || bounds.width <= 0 || bounds.height <= 0) return fallbackRatio();
+
+    const padding = 8;
+    const width = bounds.width + padding * 2;
+    const height = bounds.height + padding * 2;
+    svg.setAttribute('viewBox', `${bounds.x - padding} ${bounds.y - padding} ${width} ${height}`);
+    return width / height;
+}
+
+function normalizeDiagram(state) {
+    const ratios = state.steps.map(step => {
+        const wasHidden = step.hidden;
+        const originalStyle = step.getAttribute('style');
+        if (wasHidden) {
+            step.hidden = false;
+            step.style.cssText = 'position:absolute;visibility:hidden;width:100%;pointer-events:none';
+        }
+
+        try {
+            return normalizeStepSvg(step);
+        } finally {
+            if (wasHidden) {
+                step.hidden = true;
+                if (originalStyle === null) step.removeAttribute('style');
+                else step.setAttribute('style', originalStyle);
+            }
+        }
+    }).filter(ratio => ratio !== null);
 
     if (ratios.length > 0) {
         state.widget.style.setProperty('--diagram-stage-ratio', String(Math.min(...ratios)));
@@ -90,6 +138,7 @@ function showStep(state, index) {
     state.steps.forEach((step, stepIndex) => {
         step.hidden = stepIndex !== index;
     });
+    normalizeStepSvg(state.steps[index]);
 
     state.status.textContent = `Step ${index + 1} of ${state.steps.length}`;
     state.previousButton.disabled = index === 0;
@@ -140,7 +189,7 @@ async function enhanceDiagram(widget, mermaid) {
     for (let index = 0; index < steps.length; index++) {
         await renderStep(state, index);
     }
-    updateStageRatio(state);
+    normalizeDiagram(state);
 
     widget.querySelector('[data-diagram-controls]').hidden = false;
     state.playButton.disabled = steps.length < 2;
@@ -192,6 +241,6 @@ window.refreshInteractiveDiagrams = async () => {
         for (let index = 0; index < state.steps.length; index++) {
             await renderStep(state, index);
         }
-        updateStageRatio(state);
+        normalizeDiagram(state);
     }
 };

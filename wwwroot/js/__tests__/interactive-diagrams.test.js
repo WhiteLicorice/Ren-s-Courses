@@ -86,13 +86,15 @@ test('hides every source fallback before asynchronous rendering can expose a new
     expect(document.querySelectorAll('[data-diagram-source]')[1].hidden).toBe(true);
 });
 
-test('removes Mermaid intrinsic width caps so CSS can size the SVG to its canvas', async () => {
+test('overrides Mermaid intrinsic width caps so the SVG fills its canvas', async () => {
     buildWidget();
     const mermaid = createMermaid();
 
     await window.initInteractiveDiagrams(mermaid);
 
-    expect(document.querySelector('[data-diagram-canvas] svg').style.maxWidth).toBe('');
+    const svg = document.querySelector('[data-diagram-canvas] svg');
+    expect(svg.style.maxWidth).toBe('none');
+    expect(svg.style.getPropertyPriority('max-width')).toBe('important');
 });
 
 test('sets one stable stage ratio from the rendered step viewboxes', async () => {
@@ -103,6 +105,31 @@ test('sets one stable stage ratio from the rendered step viewboxes', async () =>
 
     expect(document.querySelector('[data-interactive-diagram]')
         .style.getPropertyValue('--diagram-stage-ratio')).toBe('2');
+});
+
+test('reframes a malformed Mermaid viewport around the actual drawing bounds', async () => {
+    buildWidget();
+    const mermaid = createMermaid();
+    mermaid.render.mockResolvedValue({
+        svg: '<svg viewBox="0 0 2000 2000" style="width: 40px; height: 40px; max-width: 40px"><g class="root"></g></svg>'
+    });
+    Object.defineProperty(SVGElement.prototype, 'getBBox', {
+        configurable: true,
+        value: jest.fn(() => ({ x: 10, y: 20, width: 200, height: 100 }))
+    });
+
+    try {
+        await window.initInteractiveDiagrams(mermaid);
+
+        const svg = document.querySelector('[data-diagram-canvas] svg');
+        expect(svg.getAttribute('viewBox')).toBe('2 12 216 116');
+        expect(svg.style.getPropertyValue('width')).toBe('100%');
+        expect(svg.style.getPropertyPriority('width')).toBe('important');
+        expect(svg.style.getPropertyValue('height')).toBe('100%');
+        expect(svg.style.getPropertyValue('max-width')).toBe('none');
+    } finally {
+        delete SVGElement.prototype.getBBox;
+    }
 });
 
 test('next and previous controls change the visible step', async () => {
