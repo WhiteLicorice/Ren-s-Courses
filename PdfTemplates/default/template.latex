@@ -84,6 +84,7 @@ $highlighting-macros$
 $endif$
 
 % Code blocks — frames + line numbers + line wrapping
+% Labeled code blocks (```lang): Highlighting env with syntax coloring
 \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
   commandchars=\\\{\},
   frame=single,
