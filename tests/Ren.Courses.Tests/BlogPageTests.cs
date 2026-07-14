@@ -8,8 +8,47 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Ren.Courses.Tests;
 
+[Collection("BuildTimeProvider")]
 public class BlogPageTests
 {
+    [Fact]
+    public void Home_UsesParsedPostsEvenWhenProviderCapturedAnEmptyService()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "interactive-demo",
+            HtmlContent = "<p>Demo</p>",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Interactive demo",
+                Published = new DateTime(2026, 3, 1),
+                Tags = ["demo"]
+            }
+        };
+        var parsedPosts = CreateServiceWithPosts([post]);
+        var providerWithEmptySnapshot = new CourseContentProvider(CreateServiceWithPosts([]));
+
+        ctx.Services.AddSingleton(parsedPosts);
+        ctx.Services.AddSingleton(providerWithEmptySnapshot);
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var previousShowcaseMode = BuildTimeProvider.IsShowcaseMode;
+        try
+        {
+            BuildTimeProvider.IsShowcaseMode = true;
+            var cut = ctx.Render<Blog>();
+
+            Assert.Contains("Interactive demo", cut.Markup);
+            Assert.Single(cut.FindAll("article[data-course-tags]"));
+        }
+        finally
+        {
+            BuildTimeProvider.IsShowcaseMode = previousShowcaseMode;
+        }
+    }
+
     [Fact]
     public void Article_WithSubmissions_RendersCompactSubmissionMenuBesideDownload()
     {
@@ -183,6 +222,18 @@ public class BlogPageTests
             .GetField("<Posts>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
 
         postsField!.SetValue(service, posts);
+
+        var optionsType = typeof(BlazorStaticContentService<CourseFrontMatter>).Assembly
+            .GetTypes()
+            .First(type => type.Name == "BlazorStaticContentOptions`1")
+            .MakeGenericType(typeof(CourseFrontMatter));
+        var options = RuntimeHelpers.GetUninitializedObject(optionsType);
+        optionsType.GetProperty("PageUrl")!.SetValue(options, "articles");
+        var optionsField = typeof(BlazorStaticContentService<CourseFrontMatter>)
+            .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+            .First(field => field.FieldType == optionsType);
+        optionsField.SetValue(service, options);
+
         return service;
     }
 }

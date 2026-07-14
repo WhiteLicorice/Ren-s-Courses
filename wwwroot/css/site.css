@@ -354,13 +354,19 @@
     opacity: 0.45;
 }
 
+.diagram-canvas {
+    display: grid;
+    height: clamp(14rem, 32vw, 18rem);
+    place-items: center;
+}
+
 .diagram-canvas svg {
     display: block;
-    height: auto !important;
+    height: 100% !important;
     margin-inline: auto;
-    max-height: min(32rem, 70vh);
-    max-width: 100% !important;
-    width: 100% !important;
+    max-height: 100%;
+    max-width: 26rem !important;
+    width: min(100%, 26rem) !important;
 }
 
 /* ============================== */

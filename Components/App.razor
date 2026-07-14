@@ -13,19 +13,22 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
     @* --- STYLES --- *@
-    <link href="css/app.css" rel="stylesheet" />
-    <link href="css/site.css" rel="stylesheet" />
+    <link href="@(WebsiteKeys.VersionedAsset("css/app.css"))" rel="stylesheet" />
+    <link href="@(WebsiteKeys.VersionedAsset("css/site.css"))" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
 
     @* --- PRISM THEMES --- *@
-    @* Use absolute paths (/) to prevent 404s on article pages *@
-    <link rel="preload" href="css/prism-dark.css" as="style">
-    <link rel="preload" href="css/prism-light.css" as="style">
+    @* Version local themes so a new build cannot reuse stale CSS. *@
+    <link rel="preload" href="@(WebsiteKeys.VersionedAsset("css/prism-dark.css"))" as="style">
+    <link rel="preload" href="@(WebsiteKeys.VersionedAsset("css/prism-light.css"))" as="style">
 
     @* Default Link *@
-    <link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css">
+    <link id="prism-theme-link" rel="stylesheet"
+        href="@(WebsiteKeys.VersionedAsset("css/prism-dark.css"))"
+        data-dark-href="@(WebsiteKeys.VersionedAsset("css/prism-dark.css"))"
+        data-light-href="@(WebsiteKeys.VersionedAsset("css/prism-light.css"))">
 
     @* --- BOOT SCRIPT --- *@
     <script>
@@ -48,7 +51,8 @@
 
             // Apply Codebox Theme
             if (mode === 'light') {
-                document.getElementById('prism-theme-link').href = "css/prism-light.css";
+                var prismTheme = document.getElementById('prism-theme-link');
+                prismTheme.href = prismTheme.dataset.lightHref;
             }
 
             // Set initial theme-color for browser chrome
@@ -100,19 +104,19 @@
     <Routes />
 
     @* --- CUSTOM SCRIPTS --- *@
-    <script src="js/theme.js"></script>
-    <script src="js/calendar.js"></script>
-    <script src="js/code-features.js"></script>
-    <script src="js/interactive-diagrams.js"></script>
-    <script src="js/scroll-button.js"></script>
-    <script src="js/submission-menu.js"></script>
-    <script src="js/toc.js"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/theme.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/calendar.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/code-features.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/interactive-diagrams.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/scroll-button.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/submission-menu.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/toc.js"))"></script>
 
-    <script src="js/course-filter.js"></script>
-    <script src="js/faq.js"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/course-filter.js"))"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/faq.js"))"></script>
 
     @* IMPORTANT: This must come last, as it is the orchestrator. *@
-    <script src="js/site.js"></script>
+    <script src="@(WebsiteKeys.VersionedAsset("js/site.js"))"></script>
 
     @* Keep Android open banner! *@
     <script src="https://keepandroidopen.org/banner.js?id=header&hidebutton=off"></script>

@@ -18,7 +18,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "TERM_START": "2026-01-15",
         "TERM_END": "2026-05-31",
-        "SHOWCASE_MODE": "false"
+        "SHOWCASE_MODE": "true"
       }
     },
     "https": {
@@ -30,7 +30,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "TERM_START": "2026-01-15",
         "TERM_END": "2026-05-31",
-        "SHOWCASE_MODE": "false"
+        "SHOWCASE_MODE": "true"
       },
       "IIS Express": {
         "commandName": "IISExpress",
@@ -38,7 +38,8 @@
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development",
           "TERM_START": "2026-01-15",
-          "TERM_END": "2026-05-31"
+          "TERM_END": "2026-05-31",
+          "SHOWCASE_MODE": "true"
         }
       }
     }

@@ -1,6 +1,6 @@
 // wwwroot/js/service-worker.js
 
-const CACHE_NAME = 'ren-courses-online-first-v1';
+const CACHE_NAME = 'ren-courses-online-first-v2';
 
 // ONLY cache local files. 
 // This ensures the SW installs successfully 100% of the time.
@@ -8,7 +8,7 @@ const ASSETS_TO_CACHE = [
     './',
     'index.html',
     'css/app.css',
-    'css/code-styles.css',
+    'css/site.css',
     'js/site.js',
     'site.webmanifest',
     'android-chrome-192x192.png',

@@ -8,6 +8,14 @@ namespace Ren.Courses.Tests;
 [Collection("BuildTimeProvider")]
 public class WebsiteKeysTests
 {
+    [Fact]
+    public void VersionedAsset_AppendsBuildVersion()
+    {
+        var result = WebsiteKeys.VersionedAsset("css/site.css");
+
+        Assert.Matches("^css/site\\.css\\?v=[0-9a-f]+$", result);
+    }
+
     // ----------------------------------------------------------------
     // 1. RemovePostPages removes pages matching service PageUrl prefix
     // ----------------------------------------------------------------

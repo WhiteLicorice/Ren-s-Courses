@@ -113,8 +113,8 @@
     public List<Post<CourseFrontMatter>>? Posts { get; set; }
     protected override void OnInitialized()
     {
-        var sourcePosts = Posts ?? ContentProvider.GetVisiblePosts();
-        posts = sourcePosts
+        var sourcePosts = Posts ?? blazorStaticContentService.Posts;
+        posts = ContentProvider.GetVisiblePosts(sourcePosts)
         .OrderByDescending(p => p.FrontMatter.Published)
         .ToList();
         base.OnInitialized();

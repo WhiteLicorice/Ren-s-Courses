@@ -54,7 +54,7 @@ afterEach(() => {
     jest.restoreAllMocks();
 });
 
-test('renders the first step and enables the controls', async () => {
+test('renders every step before enabling the controls', async () => {
     buildWidget();
     const mermaid = createMermaid();
 
@@ -65,9 +65,12 @@ test('renders the first step and enables the controls', async () => {
         securityLevel: 'strict',
         theme: 'dark'
     }));
-    expect(mermaid.render).toHaveBeenCalledTimes(1);
+    expect(mermaid.render).toHaveBeenCalledTimes(2);
     expect(document.querySelector('[data-diagram-controls]').hidden).toBe(false);
-    expect(document.querySelector('[data-diagram-source]').hidden).toBe(true);
+    expect([...document.querySelectorAll('[data-diagram-canvas]')]
+        .every(canvas => canvas.querySelector('svg'))).toBe(true);
+    expect([...document.querySelectorAll('[data-diagram-source]')]
+        .every(source => source.hidden)).toBe(true);
     expect(document.querySelector('[data-diagram-action="previous"]').disabled).toBe(true);
 });
 
@@ -165,7 +168,7 @@ test('does not initialize Mermaid when the page has no diagram widgets', async (
     expect(mermaid.render).not.toHaveBeenCalled();
 });
 
-test('rerenders the visible step when the site theme changes', async () => {
+test('rerenders every step when the site theme changes', async () => {
     buildWidget();
     const mermaid = createMermaid();
     await window.initInteractiveDiagrams(mermaid);
@@ -174,6 +177,6 @@ test('rerenders the visible step when the site theme changes', async () => {
     await window.refreshInteractiveDiagrams();
 
     expect(mermaid.initialize).toHaveBeenLastCalledWith(expect.objectContaining({ theme: 'default' }));
-    expect(mermaid.render).toHaveBeenCalledTimes(2);
+    expect(mermaid.render).toHaveBeenCalledTimes(4);
     expect(document.querySelector('[data-diagram-source]').hidden).toBe(true);
 });

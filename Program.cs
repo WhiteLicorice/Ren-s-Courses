@@ -104,6 +104,11 @@ public static class WebsiteKeys
     public const string BlogPostStorageAddress = $"{GitHubRepo}/tree/main/Content/Blog";
     public static string BlogLead { get; set; } = "Ren's Courses is a headless Learning Management System designed for CS units I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics. All rights reserved.";
 
+    private static readonly string AssetVersion =
+        File.GetLastWriteTimeUtc(typeof(WebsiteKeys).Assembly.Location).Ticks.ToString("x");
+
+    public static string VersionedAsset(string path) => $"{path}?v={AssetVersion}";
+
     // Non-empty placeholder for content types where individual pages are not needed.
     // Generation of individual post pages is suppressed via AfterContentParsedAndAddedAction.
     public const string DisabledPage = "_disabled";

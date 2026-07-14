@@ -82,7 +82,6 @@ function showStep(state, index) {
     state.status.textContent = `Step ${index + 1} of ${state.steps.length}`;
     state.previousButton.disabled = index === 0;
     state.nextButton.disabled = index === state.steps.length - 1;
-    void renderStep(state, index);
 }
 
 function startPlayback(state) {
@@ -97,7 +96,7 @@ function startPlayback(state) {
     }, DIAGRAM_PLAY_INTERVAL_MS);
 }
 
-function enhanceDiagram(widget, mermaid) {
+async function enhanceDiagram(widget, mermaid) {
     const steps = Array.from(widget.querySelectorAll('[data-diagram-step]'));
     if (steps.length === 0) return;
 
@@ -126,6 +125,10 @@ function enhanceDiagram(widget, mermaid) {
         else startPlayback(state);
     });
 
+    for (let index = 0; index < steps.length; index++) {
+        await renderStep(state, index);
+    }
+
     widget.querySelector('[data-diagram-controls]').hidden = false;
     state.playButton.disabled = steps.length < 2;
     widget.dataset.diagramInitialized = 'true';
@@ -146,7 +149,9 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
     try {
         const mermaid = await getMermaid(providedMermaid);
         configureMermaid(mermaid);
-        widgets.forEach(widget => enhanceDiagram(widget, mermaid));
+        for (const widget of widgets) {
+            await enhanceDiagram(widget, mermaid);
+        }
     } catch {
         widgets.forEach(widget => {
             widget.dataset.diagramInitialized = 'error';
@@ -167,11 +172,12 @@ window.refreshInteractiveDiagrams = async () => {
     configuredTheme = undefined;
     configureMermaid(diagramStates[0].mermaid);
 
-    await Promise.all(diagramStates.map(state => {
+    for (const state of diagramStates) {
         state.steps.forEach(step => {
             delete step.dataset.renderedTheme;
-            step.querySelector('[data-diagram-canvas]').replaceChildren();
         });
-        return renderStep(state, state.current);
-    }));
+        for (let index = 0; index < state.steps.length; index++) {
+            await renderStep(state, index);
+        }
+    }
 };
