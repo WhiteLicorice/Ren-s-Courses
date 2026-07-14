@@ -24,12 +24,6 @@
     "target": "_self"
   },
   {
-    "name": "Submissions",
-    "link": "https://forms.gle/mRFBXwhuR3LdvSN3A",
-    "icon": null,
-    "target": "_blank"
-  },
-  {
     "name": "Bookings",
     "link": "bookings",
     "icon": null,

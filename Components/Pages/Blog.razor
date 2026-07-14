@@ -119,6 +119,37 @@
                             <span class="border-b border-accent/30 group-hover:border-text-main pb-0.5">Download</span>
                         </a>
                     }
+
+                    @if (post.FrontMatter.Submissions.Count > 0)
+                    {
+                        <section aria-labelledby="submission-heading"
+                            class="mt-4 w-full max-w-lg rounded-lg border border-accent/30 bg-surface p-4 text-left">
+                            <div class="mb-3">
+                                <h2 id="submission-heading" class="font-mono text-sm font-bold text-text-main">
+                                    <span aria-hidden="true" class="text-accent mr-2">>></span>Submit your work
+                                </h2>
+                                <p class="mt-1 text-sm text-text-dim">
+                                    Select the form that matches your deliverable.
+                                </p>
+                            </div>
+                            <ul class="flex flex-col gap-2">
+                                @foreach (var submission in post.FrontMatter.Submissions)
+                                {
+                                    <li>
+                                        <a href="@submission.Link" target="_blank" rel="noopener noreferrer"
+                                            class="group flex min-h-11 items-center justify-between gap-3 rounded-md border border-border-muted px-4 py-2.5 text-sm font-medium text-text-main transition-colors hover:border-accent hover:text-accent">
+                                            <span>@submission.Name</span>
+                                            <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor"
+                                                class="h-4 w-4 shrink-0 text-text-dim transition-colors group-hover:text-accent">
+                                                <path d="M4.25 5.5A1.25 1.25 0 0 1 5.5 4.25h3a.75.75 0 0 1 0 1.5h-3a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25H14a.25.25 0 0 0 .25-.25v-3a.75.75 0 0 1 1.5 0v3A1.25 1.25 0 0 1 14.5 16h-9a1.25 1.25 0 0 1-1.25-1.25V5.5Z" />
+                                                <path d="M10.25 4.75a.75.75 0 0 1 .75-.75h4.25a.75.75 0 0 1 .75.75V9a.75.75 0 0 1-1.5 0V6.56l-4.72 4.72a.75.75 0 1 1-1.06-1.06l4.72-4.72H11a.75.75 0 0 1-.75-.75Z" />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </section>
+                    }
                 </div>
             </header>
 

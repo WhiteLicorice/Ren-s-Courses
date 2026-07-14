@@ -19,4 +19,5 @@ public class CourseFrontMatter : IFrontMatter, IFrontMatterWithTags
     public List<DateTime> DefenseDates { get; set; } = new();
 
     public string? DownloadLink { get; set; }
+    public List<SubmissionLink> Submissions { get; set; } = new();
 }

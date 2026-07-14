@@ -14,6 +14,10 @@ public class StaticGenerationTests
             Published = new DateTime(2026, 2, 1),
             IsDraft = false,
             DownloadLink = "https://example.com/download",
+            Submissions = new List<SubmissionLink>
+            {
+                new() { Name = "Lab report", Link = "https://forms.gle/example" }
+            },
             Deadline = new DateTime(2026, 3, 20),
             Tags = new List<string> { "cmsc-131", "homework" },
             Authors = new List<ArticleAuthor>
@@ -30,6 +34,9 @@ public class StaticGenerationTests
         Assert.Equal(new DateTime(2026, 2, 1), fm.Published);
         Assert.False(fm.IsDraft);
         Assert.Equal("https://example.com/download", fm.DownloadLink);
+        var submission = Assert.Single(fm.Submissions);
+        Assert.Equal("Lab report", submission.Name);
+        Assert.Equal("https://forms.gle/example", submission.Link);
         Assert.NotNull(fm.Deadline);
         Assert.Equal(new DateTime(2026, 3, 20), fm.Deadline.Value);
         Assert.Contains("cmsc-131", fm.Tags);
@@ -78,6 +85,7 @@ public class StaticGenerationTests
         Assert.Null(fm.Deadline);
         Assert.False(fm.NoDeadline);
         Assert.Null(fm.DownloadLink);
+        Assert.Empty(fm.Submissions);
         Assert.Empty(fm.Authors);
         Assert.Contains("cmsc-131", fm.Tags);
     }

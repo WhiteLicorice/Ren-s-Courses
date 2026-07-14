@@ -13,7 +13,7 @@ Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. T
 ### Modules
 
 * [x] Course site -- materials, deadlines, and course content served as static pages
-* [x] Submission bin -- students submit deliverables through an embedded Google Form
+* [x] Submission bins -- materials link directly to their relevant Google Forms through optional frontmatter
 * [x] Grades viewer -- real-time grade lookups via a private Google Apps Script web app
 * [x] Site mirror -- live mirror on Netlify for redundancy
 * [x] Booking system -- students book consultations in advance
@@ -38,6 +38,16 @@ The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `mas
 `CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START`--`TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
 
 All client-side behavior is vanilla JS -- no framework. Theme, calendar, TOC, code block features, FAQ accordion, course filtering, and scroll-to-top are each their own script loaded via `<script>` tags.
+
+Materials that require deliverables can define one or more submission forms in frontmatter. The list is optional; each entry is rendered as a named action on that material's article page:
+
+```yaml
+submissions:
+  - name: Source code
+    link: https://forms.gle/example
+  - name: Individual reflection
+    link: https://forms.gle/example
+```
 
 ---
 
