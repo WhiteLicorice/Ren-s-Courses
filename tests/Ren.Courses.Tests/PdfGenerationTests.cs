@@ -759,6 +759,7 @@ public class MockToolchainProvider : IToolchainProvider
     public string WorkDirectory { get; }
     public string PuppeteerCachePath { get; }
     public string NodeModulesPath => Path.Combine(BasePath, "node_modules");
+    public string PuppeteerConfigPath => Path.Combine(BasePath, "puppeteer-config.json");
 
     public Task<bool> BootstrapAsync(ILogger logger, CancellationToken ct = default)
         => Task.FromResult(true);
@@ -775,6 +776,7 @@ public sealed class RecordingToolchainProvider : IToolchainProvider
         WorkDirectory = Path.Combine(root, "artifacts", "material-pdfs", "work");
         PuppeteerCachePath = Path.Combine(root, "artifacts", "puppeteer");
         NodeModulesPath = Path.Combine(root, "node_modules");
+        PuppeteerConfigPath = Path.Combine(root, "puppeteer-config.json");
     }
 
     public int BootstrapCount { get; private set; }
@@ -790,6 +792,7 @@ public sealed class RecordingToolchainProvider : IToolchainProvider
     public string WorkDirectory { get; }
     public string PuppeteerCachePath { get; }
     public string NodeModulesPath { get; }
+    public string PuppeteerConfigPath { get; } = "";
 
     public Task<bool> BootstrapAsync(ILogger logger, CancellationToken ct = default)
     {

@@ -17,6 +17,7 @@ public class MermaidRenderer : IMermaidRenderer
     private readonly IProcessRunner _processRunner;
     private readonly string _mmdcPath;
     private readonly string _configPath;
+    private readonly string _puppeteerConfigPath;
     private readonly string _nodePath;
     private readonly string _puppeteerCache;
 
@@ -27,6 +28,7 @@ public class MermaidRenderer : IMermaidRenderer
         // Platform-independent entry point
         _mmdcPath = Path.Combine(toolchain.NodeModulesPath, "@mermaid-js", "mermaid-cli", "src", "cli.js");
         _configPath = toolchain.MermaidConfigPath;
+        _puppeteerConfigPath = toolchain.PuppeteerConfigPath;
         _puppeteerCache = toolchain.PuppeteerCachePath;
 
         _nodePath = FindNode();
@@ -53,7 +55,7 @@ public class MermaidRenderer : IMermaidRenderer
         {
             await File.WriteAllTextAsync(inputFile, mermaidDefinition, ct);
 
-            var args = new[]
+            var args = new List<string>
             {
                 _mmdcPath,
                 "-i", inputFile,
@@ -63,12 +65,18 @@ public class MermaidRenderer : IMermaidRenderer
                 "--pdfFit"
             };
 
+            if (File.Exists(_puppeteerConfigPath))
+            {
+                args.Add("-p");
+                args.Add(_puppeteerConfigPath);
+            }
+
             var env = new Dictionary<string, string?>
             {
                 ["PUPPETEER_CACHE_DIR"] = _puppeteerCache
             };
 
-            var result = await _processRunner.RunAsync(_nodePath, args,
+            var result = await _processRunner.RunAsync(_nodePath, args.ToArray(),
                 workingDirectory: Path.GetDirectoryName(inputFile),
                 environmentVariables: env,
                 timeoutMs: 60_000,

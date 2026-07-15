@@ -21,6 +21,7 @@ public interface IToolchainProvider
     string WorkDirectory { get; }
     string PuppeteerCachePath { get; }
     string NodeModulesPath { get; }
+    string PuppeteerConfigPath { get; }
 }
 
 public class ToolchainProvider : IToolchainProvider
@@ -52,6 +53,7 @@ public class ToolchainProvider : IToolchainProvider
     public string TemplatesPath => Path.Combine(_contentRoot, "PdfTemplates");
     public string MermaidConfigPath => Path.Combine(_contentRoot, ".mmdc.json");
     public string NodeModulesPath => Path.Combine(_contentRoot, "node_modules");
+    public string PuppeteerConfigPath => Path.Combine(_contentRoot, "puppeteer-config.json");
     public string OutputDirectory => Path.Combine(_contentRoot, "wwwroot", "pdfs");
     public string CacheStateDirectory => Path.Combine(_artifactsDir, "material-pdfs", "state");
     public string WorkDirectory => Path.Combine(_artifactsDir, "material-pdfs", "work");
