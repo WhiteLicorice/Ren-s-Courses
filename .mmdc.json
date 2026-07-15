@@ -18,13 +18,25 @@
     "tertiaryColor": "#f8fafc",
     "lineColor": "#1f2937",
     "textColor": "#1e293b",
-    "mainBkg": "#ffffff",
+    "mainBkg": "#dbeafe",
     "nodeBorder": "#1f2937",
     "clusterBkg": "#f1f5f9",
     "clusterBorder": "#64748b",
     "titleColor": "#0f172a",
     "edgeLabelBackground": "#ffffff",
-    "nodeTextColor": "#1e293b"
+    "nodeTextColor": "#1e293b",
+    "actorBkg": "#dbeafe",
+    "actorBorder": "#1e40af",
+    "actorTextColor": "#1e293b",
+    "actorLineColor": "#64748b",
+    "signalColor": "#1f2937",
+    "signalTextColor": "#1e293b",
+    "activationBkgColor": "#e0e7ff",
+    "activationBorderColor": "#1e40af",
+    "noteBkgColor": "#fef9c3",
+    "noteBorderColor": "#ca8a04",
+    "labelBoxBkgColor": "#e0e7ff",
+    "labelBoxBorderColor": "#1e40af"
   },
   "deterministicIds": true
 }

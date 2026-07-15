@@ -379,7 +379,7 @@ public class PdfGeneratorService
 
         var args = new List<string>
         {
-            "--from", "markdown",
+            "--from", "markdown+lists_without_preceding_blankline",
             "--to", "latex",
             "--template", tmplFile,
             "--lua-filter", luaFilter,

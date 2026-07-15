@@ -300,6 +300,64 @@ public class DiagramMarkerTests
         Assert.Contains("real", keys);
     }
 
+    [Fact]
+    public void FindReferencedKeys_IgnoresMarkerInsideLabeledFence()
+    {
+        var markdown = "<!-- diagram: a -->\n```csharp\n<!-- diagram: inside-cs -->\n```\n<!-- diagram: b -->";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Equal(2, keys.Count);
+        Assert.Contains("a", keys);
+        Assert.Contains("b", keys);
+        Assert.DoesNotContain("inside-cs", keys);
+    }
+
+    [Fact]
+    public void Substitute_IgnoresMarkerInsideLabeledFence()
+    {
+        var markdown = "```md\n<!-- diagram: doc-example -->\n```\n<!-- diagram: real -->";
+        var result = DiagramMarkers.Substitute(markdown, key => key == "real" ? "[REAL]" : null);
+        Assert.Contains("<!-- diagram: doc-example -->", result);
+        Assert.Contains("[REAL]", result);
+    }
+
+    [Fact]
+    public void FindReferencedKeys_MarkerBetweenLabeledCodeBlocks_IsFound()
+    {
+        // The closer of first block (bare ```) must NOT pair with opener of second block,
+        // incorrectly classifying the prose between them as "inside a fence".
+        var markdown = "```md\ncode block one\n```\n<!-- diagram: between -->\n```csharp\ncode block two\n```";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Single(keys);
+        Assert.Contains("between", keys);
+    }
+
+    [Fact]
+    public void FindReferencedKeys_UnclosedFence_RunsToEof()
+    {
+        var markdown = "```\n<!-- diagram: inside-unclosed -->\nno closer here";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Empty(keys);
+    }
+
+    [Fact]
+    public void FindReferencedKeys_IndentedFence_Recognized()
+    {
+        var markdown = "<!-- diagram: a -->\n   ```\n<!-- diagram: inside-indented -->\n   ```\n<!-- diagram: b -->";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Equal(2, keys.Count);
+        Assert.Contains("a", keys);
+        Assert.Contains("b", keys);
+    }
+
+    [Fact]
+    public void Substitute_MarkerInProseBetweenLabeledBlocks_IsSubstituted()
+    {
+        var markdown = "```csharp\ncode\n```\n<!-- diagram: mid -->\n```md\ndocs\n```";
+        var result = DiagramMarkers.Substitute(markdown, key => key == "mid" ? "[MIDDLE]" : null);
+        Assert.Contains("[MIDDLE]", result);
+        Assert.DoesNotContain("<!-- diagram: mid -->", result);
+    }
+
     // --- FindDuplicateKeys ---
 
     [Fact]

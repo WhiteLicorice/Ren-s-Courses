@@ -17,41 +17,108 @@ public static class DiagramMarkers
 
     /// <summary>
     /// Returns (contentStart, contentEnd) ranges for fenced code blocks (``` and ~~~).
+    /// Uses CommonMark line-based state machine: labeled fences (```csharp), indented
+    /// fences (≤3 spaces), tilde fences, and unclosed fences are all handled correctly.
     /// Markers inside these ranges are ignored by FindReferencedKeys and Substitute.
     /// </summary>
     internal static List<(int start, int end)> GetFencedRanges(string text)
     {
         var ranges = new List<(int, int)>();
-        // Match opening/closing fences: ```+ or ~~~+ at start of line, optional info string on opener
-        var fenceLine = new Regex(@"^(?<fence>```+|~~~+)\s*$", RegexOptions.Multiline);
+        int pos = 0;
+        bool inFence = false;
+        char fenceChar = '\0';
+        int fenceLen = 0;
+        int contentStart = 0;
 
-        var fences = new List<(int index, int length, char type)>();
-        foreach (Match m in fenceLine.Matches(text))
+        while (pos < text.Length)
         {
-            var fenceStr = m.Groups["fence"].Value;
-            fences.Add((m.Index, fenceStr.Length, fenceStr[0]));
-        }
+            int lineEnd = text.IndexOf('\n', pos);
+            int lineLen = (lineEnd >= 0 ? lineEnd : text.Length) - pos;
 
-        // Greedy pair matching
-        for (int i = 0; i < fences.Count; i++)
-        {
-            var opener = fences[i];
-            for (int j = i + 1; j < fences.Count; j++)
+            // Exclude \r from line content for CRLF
+            int contentLen = lineLen;
+            if (contentLen > 0 && text[pos + contentLen - 1] == '\r')
+                contentLen--;
+
+            var line = text.AsSpan(pos, contentLen);
+
+            int indent = 0;
+            while (indent < line.Length && (line[indent] == ' ' || line[indent] == '\t'))
+                indent++;
+
+            if (!inFence)
             {
-                var closer = fences[j];
-                if (closer.type == opener.type && closer.length >= opener.length)
+                if (indent <= 3 && line.Length - indent >= 3)
                 {
-                    var openerLineEnd = text.IndexOf('\n', opener.index);
-                    if (openerLineEnd < 0) openerLineEnd = text.Length - 1;
-                    var contentStart = openerLineEnd + 1;
-                    ranges.Add((contentStart, closer.index));
-                    i = j; // skip past this pair
-                    break;
+                    char c = line[indent];
+                    if (c == '`' || c == '~')
+                    {
+                        int runLen = 0;
+                        while (indent + runLen < line.Length && line[indent + runLen] == c)
+                            runLen++;
+
+                        if (runLen >= 3 && IsValidFenceOpener(line, indent, runLen, c))
+                        {
+                            inFence = true;
+                            fenceChar = c;
+                            fenceLen = runLen;
+                            contentStart = (lineEnd >= 0) ? lineEnd + 1 : text.Length;
+                        }
+                    }
                 }
             }
+            else
+            {
+                if (indent <= 3 && line.Length - indent >= fenceLen && line[indent] == fenceChar)
+                {
+                    if (IsFenceCloser(line, indent, fenceChar, fenceLen))
+                    {
+                        ranges.Add((contentStart, pos));
+                        inFence = false;
+                    }
+                }
+            }
+
+            pos = (lineEnd >= 0) ? lineEnd + 1 : text.Length;
         }
 
+        if (inFence)
+            ranges.Add((contentStart, text.Length));
+
         return ranges;
+    }
+
+    private static bool IsValidFenceOpener(ReadOnlySpan<char> line, int indent, int runLen, char c)
+    {
+        if (c == '~')
+        {
+            // Tilde fences: rest of line must be whitespace only (no info string in CommonMark)
+            for (int i = indent + runLen; i < line.Length; i++)
+            {
+                if (line[i] != ' ' && line[i] != '\t') return false;
+            }
+            return true;
+        }
+        // Backtick fences: info string allowed, but must not contain backticks
+        for (int i = indent + runLen; i < line.Length; i++)
+        {
+            if (line[i] == '`') return false;
+        }
+        return true;
+    }
+
+    private static bool IsFenceCloser(ReadOnlySpan<char> line, int indent, char fenceChar, int minLen)
+    {
+        int runLen = 0;
+        while (indent + runLen < line.Length && line[indent + runLen] == fenceChar)
+            runLen++;
+        if (runLen < minLen) return false;
+        // Rest of line must be whitespace only
+        for (int i = indent + runLen; i < line.Length; i++)
+        {
+            if (line[i] != ' ' && line[i] != '\t') return false;
+        }
+        return true;
     }
 
     private static bool IsInFencedRange(int index, List<(int start, int end)> ranges)
