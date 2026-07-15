@@ -343,7 +343,7 @@ public class PdfGenerationTests
     [Fact]
     public void ToolchainManifest_HasSchemaVersion()
     {
-        Assert.Equal(6, ToolchainManifest.GeneratorSchemaVersion);
+        Assert.Equal(7, ToolchainManifest.GeneratorSchemaVersion);
     }
 
     [Fact]

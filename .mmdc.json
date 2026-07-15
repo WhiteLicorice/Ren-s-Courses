@@ -2,6 +2,7 @@
   "theme": "neutral",
   "backgroundColor": "white",
   "fontSize": 14,
+  "htmlLabels": false,
   "sequence": {
     "showSequenceNumbers": false
   },

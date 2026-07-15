@@ -92,11 +92,7 @@ public static class DiagramMarkers
     {
         if (c == '~')
         {
-            // Tilde fences: rest of line must be whitespace only (no info string in CommonMark)
-            for (int i = indent + runLen; i < line.Length; i++)
-            {
-                if (line[i] != ' ' && line[i] != '\t') return false;
-            }
+            // Tilde fences: CommonMark allows any info string, including backticks
             return true;
         }
         // Backtick fences: info string allowed, but must not contain backticks

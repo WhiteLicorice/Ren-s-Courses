@@ -268,6 +268,15 @@ public class DiagramMarkerTests
     }
 
     [Fact]
+    public void FindReferencedKeys_IgnoresMarkerInsideLabeledTildeFence()
+    {
+        var markdown = "<!-- diagram: a -->\n~~~python\n<!-- diagram: inside-tilde -->\n~~~";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Single(keys);
+        Assert.Contains("a", keys);
+    }
+
+    [Fact]
     public void Substitute_LeavesFenceInternalMarkersUntouched()
     {
         var markdown = "<!-- diagram: a -->\n```\n<!-- diagram: inside -->\n```\n<!-- diagram: b -->";
