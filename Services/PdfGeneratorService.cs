@@ -217,9 +217,20 @@ public class PdfGeneratorService
                 foreach (var diagram in fm.Diagrams)
                 {
                     var key = diagram.Key;
-                    if (string.IsNullOrWhiteSpace(key) || !referencedKeys.Contains(key) || !builtKeys.Add(key))
+                    if (string.IsNullOrWhiteSpace(key))
                     {
-                        // Skip unreferenced, blank-key, or duplicate-key diagrams
+                        stepIdx += diagram.Steps.Count;
+                        continue;
+                    }
+                    if (!referencedKeys.Contains(key))
+                    {
+                        stepIdx += diagram.Steps.Count;
+                        continue;
+                    }
+                    if (!builtKeys.Add(key))
+                    {
+                        logger.LogWarning("Duplicate diagram key '{Key}' in {Url}; first declaration wins",
+                            key, src.RouteUrl);
                         stepIdx += diagram.Steps.Count;
                         continue;
                     }

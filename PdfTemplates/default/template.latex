@@ -22,6 +22,7 @@
 \usepackage{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage{float}
+\floatplacement{figure}{H}
 \usepackage{caption}
 \usepackage{ifxetex}
 \usepackage{ifluatex}

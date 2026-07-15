@@ -315,6 +315,55 @@ public class BlogPageTests
         Assert.Contains("learning-diagram-1-title", widgets[1].InnerHtml);
     }
 
+    [Fact]
+    public void Article_TwoDistinctDiagrams_RendersSequentialDistinctIds()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "two-diagrams",
+            HtmlContent = "<!-- diagram: a -->\n<!-- diagram: b -->",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Two Diagrams",
+                Published = new DateTime(2026, 3, 1),
+                Diagrams =
+                [
+                    new()
+                    {
+                        Key = "a",
+                        Title = "First",
+                        Steps =
+                        [
+                            new() { Title = "S1", Mermaid = "flowchart LR\n A-->B" }
+                        ]
+                    },
+                    new()
+                    {
+                        Key = "b",
+                        Title = "Second",
+                        Steps =
+                        [
+                            new() { Title = "S1", Mermaid = "flowchart LR\n C-->D" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "two-diagrams"));
+
+        var widgets = cut.FindAll("section[data-interactive-diagram]");
+        Assert.Equal(2, widgets.Count);
+        Assert.Contains("learning-diagram-0-title", widgets[0].InnerHtml);
+        Assert.Contains("learning-diagram-1-title", widgets[1].InnerHtml);
+    }
+
     private static void ConfigureArticleScripts(BunitContext ctx)
     {
         ctx.Services.AddSingleton(new PdfGenerationManifest());

@@ -1,7 +1,7 @@
 {
   "theme": "neutral",
   "backgroundColor": "white",
-  "fontSize": 12,
+  "fontSize": 14,
   "sequence": {
     "showSequenceNumbers": false
   },
@@ -11,20 +11,20 @@
   },
   "themeVariables": {
     "background": "#ffffff",
-    "primaryColor": "#f0f0f0",
-    "primaryBorderColor": "#333333",
-    "primaryTextColor": "#000000",
-    "secondaryColor": "#e0e0e0",
-    "tertiaryColor": "#ffffff",
-    "lineColor": "#333333",
-    "textColor": "#000000",
+    "primaryColor": "#dbeafe",
+    "primaryBorderColor": "#1e40af",
+    "primaryTextColor": "#1e293b",
+    "secondaryColor": "#e0e7ff",
+    "tertiaryColor": "#f8fafc",
+    "lineColor": "#1f2937",
+    "textColor": "#1e293b",
     "mainBkg": "#ffffff",
-    "nodeBorder": "#333333",
-    "clusterBkg": "#f8f8f8",
-    "clusterBorder": "#666666",
-    "titleColor": "#000000",
+    "nodeBorder": "#1f2937",
+    "clusterBkg": "#f1f5f9",
+    "clusterBorder": "#64748b",
+    "titleColor": "#0f172a",
     "edgeLabelBackground": "#ffffff",
-    "nodeTextColor": "#000000"
+    "nodeTextColor": "#1e293b"
   },
   "deterministicIds": true
 }

@@ -343,7 +343,7 @@ public class PdfGenerationTests
     [Fact]
     public void ToolchainManifest_HasSchemaVersion()
     {
-        Assert.Equal(4, ToolchainManifest.GeneratorSchemaVersion);
+        Assert.Equal(5, ToolchainManifest.GeneratorSchemaVersion);
     }
 
     [Fact]
@@ -488,6 +488,33 @@ public class PdfGenerationTests
         Assert.Contains("Before", result);
         Assert.Contains("After", result);
         Assert.Contains(logger.Warnings, w => w.Contains("unknown"));
+    }
+
+    [Fact]
+    public void BuildAugmentedMarkdown_DuplicateKey_UsesProvidedSection()
+    {
+        // BuildAugmentedMarkdown receives sectionsByKey already resolved
+        // (first-wins in GenerateOneAsync). Verifies it substitutes correctly.
+        var raw = "---\ntitle: Test\npublished: 2026-01-01\n---\n<!-- diagram: dup -->";
+        var src = MakeMaterialSource(raw);
+        var sections = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["dup"] = "\n## First\n\n### S1\n\n![S1](mmd_0000.pdf)\n"
+        };
+        var logger = new CollectingLogger();
+
+        var result = new PdfGeneratorService(
+            new MockToolchainProvider("."),
+            new RecordingPdfProcessRunner(),
+            new NoOpMermaidRenderer(),
+            new PdfCacheService(new MockToolchainProvider(".")),
+            new PdfGenerationManifest(),
+            ".")
+            .BuildAugmentedMarkdown(src, sections, logger);
+
+        Assert.Contains("## First", result);
+        Assert.DoesNotContain("## Second", result);
+        Assert.Empty(logger.Warnings);
     }
 
     [Fact]

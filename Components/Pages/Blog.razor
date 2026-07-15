@@ -9,6 +9,7 @@
 @inject IJSRuntime JSRuntime
 @inject FrontmatterStatusService StatusService
 @inject PdfGenerationManifest PdfManifest
+@inject ILogger<Blog> Logger
 
 @* --- VIEW 1: HOME PAGE --- *@
 @if (string.IsNullOrWhiteSpace(FileName))
@@ -278,6 +279,14 @@
         if (string.IsNullOrWhiteSpace(FileName)) return;
         post = blazorStaticContentService.Posts.FirstOrDefault(x => x.Url == FileName);
         _bodySegments = post is null ? [] : DiagramMarkers.ResolveSegments(post.HtmlContent, post.FrontMatter.Diagrams);
+
+        // Warn on duplicate diagram keys (server-side during static generation)
+        if (post is not null)
+        {
+            foreach (var dup in DiagramMarkers.FindDuplicateKeys(post.FrontMatter.Diagrams))
+                Logger.LogWarning("Duplicate diagram key '{Key}' in {Url}; first declaration wins",
+                    dup, post.Url);
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

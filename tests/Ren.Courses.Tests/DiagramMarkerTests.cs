@@ -244,4 +244,118 @@ public class DiagramMarkerTests
         Assert.Equal("<p>Body</p>", segments[0].Html);
         Assert.Null(segments[0].Diagram);
     }
+
+    // --- Fence-aware tests ---
+
+    [Fact]
+    public void FindReferencedKeys_IgnoresMarkerInsideFencedCodeBlock()
+    {
+        var markdown = "<!-- diagram: a -->\n```\n<!-- diagram: inside-fence -->\n```\n<!-- diagram: b -->";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Equal(2, keys.Count);
+        Assert.Contains("a", keys);
+        Assert.Contains("b", keys);
+        Assert.DoesNotContain("inside-fence", keys);
+    }
+
+    [Fact]
+    public void FindReferencedKeys_IgnoresMarkerInsideTildeFence()
+    {
+        var markdown = "<!-- diagram: a -->\n~~~\n<!-- diagram: inside-tilde -->\n~~~";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Single(keys);
+        Assert.Contains("a", keys);
+    }
+
+    [Fact]
+    public void Substitute_LeavesFenceInternalMarkersUntouched()
+    {
+        var markdown = "<!-- diagram: a -->\n```\n<!-- diagram: inside -->\n```\n<!-- diagram: b -->";
+        var result = DiagramMarkers.Substitute(markdown, key => key switch
+        {
+            "a" => "[A]",
+            "b" => "[B]",
+            _ => null
+        });
+        Assert.Contains("[A]", result);
+        Assert.Contains("[B]", result);
+        Assert.Contains("<!-- diagram: inside -->", result);
+    }
+
+    [Fact]
+    public void Substitute_MultipleBacktickLengths_MatchesPairsCorrectly()
+    {
+        var markdown = "````\n<!-- diagram: x -->\n````\n```\n<!-- diagram: y -->\n```";
+        // x is inside 4-backtick fence, y is inside 3-backtick fence — both ignored
+        var result = DiagramMarkers.Substitute(markdown, _ => "[DIAGRAM]");
+        Assert.DoesNotContain("[DIAGRAM]", result);
+    }
+
+    [Fact]
+    public void FindReferencedKeys_NestedFenceMarkers_OuterFenceWins()
+    {
+        var markdown = "```\nouter\n~~~\n<!-- diagram: nested -->\n~~~\n```\n<!-- diagram: real -->";
+        var keys = DiagramMarkers.FindReferencedKeys(markdown);
+        Assert.Single(keys);
+        Assert.Contains("real", keys);
+    }
+
+    // --- FindDuplicateKeys ---
+
+    [Fact]
+    public void FindDuplicateKeys_NoDiagrams_Empty()
+    {
+        var dups = DiagramMarkers.FindDuplicateKeys([]);
+        Assert.Empty(dups);
+    }
+
+    [Fact]
+    public void FindDuplicateKeys_UniqueKeys_Empty()
+    {
+        var diagrams = new List<LearningDiagram>
+        {
+            new() { Key = "a", Title = "A" },
+            new() { Key = "b", Title = "B" }
+        };
+        Assert.Empty(DiagramMarkers.FindDuplicateKeys(diagrams));
+    }
+
+    [Fact]
+    public void FindDuplicateKeys_DuplicateKey_Returned()
+    {
+        var diagrams = new List<LearningDiagram>
+        {
+            new() { Key = "dup", Title = "First" },
+            new() { Key = "dup", Title = "Second" },
+            new() { Key = "unique", Title = "Third" }
+        };
+        var dups = DiagramMarkers.FindDuplicateKeys(diagrams);
+        Assert.Single(dups);
+        Assert.Contains("dup", dups);
+    }
+
+    [Fact]
+    public void FindDuplicateKeys_BlankKeys_Ignored()
+    {
+        var diagrams = new List<LearningDiagram>
+        {
+            new() { Key = "", Title = "No Key" },
+            new() { Key = "", Title = "Also No Key" }
+        };
+        Assert.Empty(DiagramMarkers.FindDuplicateKeys(diagrams));
+    }
+
+    [Fact]
+    public void FindDuplicateKeys_BlankAndReal_BlankIgnored()
+    {
+        var diagrams = new List<LearningDiagram>
+        {
+            new() { Key = "real", Title = "Real" },
+            new() { Key = "", Title = "Blank" },
+            new() { Key = "real", Title = "Duplicate Real" }
+        };
+        var dups = DiagramMarkers.FindDuplicateKeys(diagrams);
+        Assert.Single(dups);
+        Assert.Contains("real", dups);
+    }
 }

@@ -96,8 +96,8 @@ diagrams:
 
 ## Reading the sequence
 
-<!-- diagram: factorial-recursion -->
-
 The growing activation bars represent pending stack frames; the dashed arrows show values returning as the stack unwinds.
 
 The submission buttons above are placeholders. They open `example.com` and do not submit data.
+
+<!-- diagram: factorial-recursion -->
