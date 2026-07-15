@@ -1,9 +1,9 @@
 % Pandoc 3.10-derived LaTeX template for generated course PDFs
-% Academic article, 11pt, black-and-white, ~1-inch margins
+% Academic article, 12pt, ~1-inch margins
 %
 % Derived from Pandoc's default LaTeX template.
 
-\documentclass[11pt]{article}
+\documentclass[a4paper, 12pt]{article}
 
 % --- Packages ---
 \usepackage[utf8]{inputenc}
