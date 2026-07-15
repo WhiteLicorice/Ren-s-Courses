@@ -52,12 +52,13 @@ submissions:
 
 Materials can also define interactive diagrams in frontmatter. Each step is a complete
 [Mermaid](https://mermaid.js.org/) definition, so steps can use flowcharts, sequence diagrams,
-state diagrams, or any other diagram type supported by Mermaid. Diagrams appear before the
-Markdown body with Previous, Next, and Play controls:
+state diagrams, or any other diagram type supported by Mermaid. Diagrams render where the body
+references them with a marker comment on its own line:
 
 ```yaml
 diagrams:
   - title: Bubble sort
+    key: bubble-sort-pass
     description: Follow one pass through the array.
     steps:
       - title: Compare the first pair
@@ -71,6 +72,19 @@ diagrams:
           flowchart LR
               B[2] --> A[5]
 ```
+
+```markdown
+## What to try
+
+<!-- diagram: bubble-sort-pass -->
+
+Use Previous and Next to step through the pass.
+```
+
+Diagrams not referenced by a marker are never rendered (strict mode). A single diagram can
+appear multiple times by repeating the marker. Markers sit on their own line; the syntax is
+`<!-- diagram: key -->`. Placement determines where the widget appears in both the web page
+and the generated PDF.
 
 Mermaid is loaded from its pinned CDN module only when a page contains a diagram. If the
 library cannot load or a step contains invalid syntax, the authored Mermaid source remains

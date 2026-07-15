@@ -9,7 +9,7 @@ namespace BlazorStaticMinimalBlog.Models;
 public class ToolchainManifest
 {
     /// <summary>Generator schema version — bump when generation behavior changes.</summary>
-    public const int GeneratorSchemaVersion = 3;
+    public const int GeneratorSchemaVersion = 7;
 
     /// <summary>Current manifest instance with pinned values.</summary>
     public static ToolchainManifest Current { get; } = new()

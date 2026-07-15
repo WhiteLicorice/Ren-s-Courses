@@ -204,14 +204,47 @@ public class PdfGeneratorService
 
         try
         {
-            var diagramPdfs = new List<(int stepIdx, string pdfPath)>();
+            // Compute referenced keys from body markers
+            var referencedKeys = DiagramMarkers.FindReferencedKeys(src.BodyMarkdown);
 
-            // Render Mermaid diagrams
-            if (fm.Diagrams.Count > 0)
+            // Build diagram sections by key (first-wins, only referenced diagrams rendered)
+            var sectionsByKey = new Dictionary<string, string>(StringComparer.Ordinal);
+            var builtKeys = new HashSet<string>(StringComparer.Ordinal);
+
+            if (fm.Diagrams.Count > 0 && referencedKeys.Count > 0)
             {
                 int stepIdx = 0;
                 foreach (var diagram in fm.Diagrams)
                 {
+                    var key = diagram.Key;
+                    if (string.IsNullOrWhiteSpace(key))
+                    {
+                        stepIdx += diagram.Steps.Count;
+                        continue;
+                    }
+                    if (!referencedKeys.Contains(key))
+                    {
+                        stepIdx += diagram.Steps.Count;
+                        continue;
+                    }
+                    if (!builtKeys.Add(key))
+                    {
+                        logger.LogWarning("Duplicate diagram key '{Key}' in {Url}; first declaration wins",
+                            key, src.RouteUrl);
+                        stepIdx += diagram.Steps.Count;
+                        continue;
+                    }
+
+                    var sb = new StringBuilder();
+                    sb.AppendLine();
+                    sb.AppendLine($"## {diagram.Title}");
+                    if (!string.IsNullOrWhiteSpace(diagram.Description))
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine(diagram.Description);
+                    }
+                    sb.AppendLine();
+
                     foreach (var step in diagram.Steps)
                     {
                         if (string.IsNullOrWhiteSpace(step.Mermaid))
@@ -233,14 +266,27 @@ public class PdfGeneratorService
                             goto diagramFailed;
                         }
 
-                        diagramPdfs.Add((stepIdx, outputPdf));
+                        sb.AppendLine($"### {step.Title}");
+                        if (!string.IsNullOrWhiteSpace(step.Description))
+                        {
+                            sb.AppendLine();
+                            sb.AppendLine(step.Description);
+                            sb.AppendLine();
+                        }
+
+                        var rel = Path.GetFileName(outputPdf).Replace('\\', '/');
+                        sb.AppendLine($"![{step.Title}]({rel})");
+                        sb.AppendLine();
+
                         stepIdx++;
                     }
+
+                    sectionsByKey[key] = sb.ToString();
                 }
             }
 
             // Build augmented Markdown
-            var augmentedMd = BuildAugmentedMarkdown(src, diagramPdfs);
+            var augmentedMd = BuildAugmentedMarkdown(src, sectionsByKey, logger);
             var mdPath = Path.Combine(workDir, "document.md");
             await File.WriteAllTextAsync(mdPath, augmentedMd, ct);
 
@@ -333,7 +379,7 @@ public class PdfGeneratorService
 
         var args = new List<string>
         {
-            "--from", "markdown",
+            "--from", "markdown+lists_without_preceding_blankline",
             "--to", "latex",
             "--template", tmplFile,
             "--lua-filter", luaFilter,
@@ -466,52 +512,21 @@ public class PdfGeneratorService
         return true;
     }
 
-    private string BuildAugmentedMarkdown(MaterialSource src, List<(int idx, string path)> diagramPdfs)
+    internal string BuildAugmentedMarkdown(MaterialSource src, Dictionary<string, string> sectionsByKey, ILogger logger)
     {
-        var body = src.BodyMarkdown;
-        if (diagramPdfs.Count == 0) return src.RawMarkdown;
-
-        var sb = new StringBuilder();
         // Keep frontmatter intact
-        sb.Append(src.RawMarkdown[..src.BodyStart]);
+        var fmBlock = src.RawMarkdown[..src.BodyStart];
 
-        // Insert diagram sections
-        int stepIdx = 0;
-        foreach (var diagram in src.FrontMatter.Diagrams)
+        // Substitute markers in body with diagram sections
+        var augmentedBody = DiagramMarkers.Substitute(src.BodyMarkdown, key =>
         {
-            sb.AppendLine();
-            sb.AppendLine($"## {diagram.Title}");
-            if (!string.IsNullOrWhiteSpace(diagram.Description))
-            {
-                sb.AppendLine();
-                sb.AppendLine(diagram.Description);
-            }
-            sb.AppendLine();
+            if (sectionsByKey.TryGetValue(key, out var section))
+                return section;
+            logger.LogWarning("Unknown diagram key '{Key}' referenced in {Url}", key, src.RouteUrl);
+            return null; // Drop marker line for unknown keys
+        });
 
-            foreach (var step in diagram.Steps)
-            {
-                sb.AppendLine($"### {step.Title}");
-                if (!string.IsNullOrWhiteSpace(step.Description))
-                {
-                    sb.AppendLine();
-                    sb.AppendLine(step.Description);
-                    sb.AppendLine();
-                }
-
-                // Insert relative path for diagram PDF
-                if (stepIdx < diagramPdfs.Count)
-                {
-                    // Use forward-slash relative path
-                    var rel = Path.GetFileName(diagramPdfs[stepIdx].path).Replace('\\', '/');
-                    sb.AppendLine($"![{step.Title}]({rel})");
-                    sb.AppendLine();
-                }
-                stepIdx++;
-            }
-        }
-
-        sb.Append(body);
-        return sb.ToString();
+        return fmBlock + augmentedBody;
     }
 
     private void UpdateFallbackResult(MaterialSource src)
@@ -702,7 +717,7 @@ public class PdfGeneratorService
         return Convert.ToHexString(sha.Hash!).ToLowerInvariant();
     }
 
-    private static (T? fm, int bodyStart) ParseFrontMatter<T>(string raw, IDeserializer deser) where T : class
+    internal static (T? fm, int bodyStart) ParseFrontMatter<T>(string raw, IDeserializer deser) where T : class
     {
         var match = FrontMatterBlock.Match(raw);
         if (!match.Success)

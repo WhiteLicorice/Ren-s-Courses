@@ -16,6 +16,7 @@ submissions:
     link: https://example.com/submissions/recursion-explanation
 diagrams:
   - title: Evaluating factorial(3)
+    key: factorial-recursion
     description: Each call waits for the next smaller factorial before it can return.
     steps:
       - title: Call factorial(3)
@@ -98,3 +99,5 @@ diagrams:
 The growing activation bars represent pending stack frames; the dashed arrows show values returning as the stack unwinds.
 
 The submission buttons above are placeholders. They open `example.com` and do not submit data.
+
+<!-- diagram: factorial-recursion -->

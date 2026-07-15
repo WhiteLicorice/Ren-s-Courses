@@ -16,6 +16,7 @@ submissions:
     link: https://example.com/submissions/bubble-sort-reflection
 diagrams:
   - title: Bubble sort — first pass
+    key: bubble-sort-pass
     description: Compare neighboring values and swap them when the left value is larger.
     steps:
       - title: Start with the unsorted array
@@ -53,6 +54,8 @@ diagrams:
 ---
 
 ## What to try
+
+<!-- diagram: bubble-sort-pass -->
 
 Use **Previous** and **Next** to inspect each comparison, then select **Play** to run the pass automatically.
 

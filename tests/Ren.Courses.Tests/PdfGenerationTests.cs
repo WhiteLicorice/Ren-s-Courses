@@ -343,7 +343,7 @@ public class PdfGenerationTests
     [Fact]
     public void ToolchainManifest_HasSchemaVersion()
     {
-        Assert.Equal(3, ToolchainManifest.GeneratorSchemaVersion);
+        Assert.Equal(7, ToolchainManifest.GeneratorSchemaVersion);
     }
 
     [Fact]
@@ -413,6 +413,155 @@ public class PdfGenerationTests
             secondManifest.GetResult("nested/lesson")?.Status);
         Assert.Equal(1, toolchain.BootstrapCount);
         Assert.Empty(runner.Invocations);
+    }
+
+    // --- BuildAugmentedMarkdown ---
+
+    private static MaterialSource MakeMaterialSource(string raw)
+    {
+        var deser = new YamlDotNet.Serialization.DeserializerBuilder()
+            .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention.Instance)
+            .IgnoreUnmatchedProperties()
+            .Build();
+        var (fm, bodyStart) = PdfGeneratorService.ParseFrontMatter<CourseFrontMatter>(raw, deser);
+        return new MaterialSource
+        {
+            RouteUrl = "test-material",
+            Slug = "test-material",
+            SourcePath = "",
+            RawMarkdown = raw,
+            FrontMatter = fm ?? new CourseFrontMatter(),
+            BodyStart = bodyStart
+        };
+    }
+
+    [Fact]
+    public void BuildAugmentedMarkdown_SectionReplacesMarkerAtExactPosition()
+    {
+        var raw = "---\ntitle: Test\npublished: 2026-01-01\n---\nBefore\n<!-- diagram: k -->\nAfter";
+        var src = MakeMaterialSource(raw);
+        var sections = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["k"] = "\n## Diagram\n\nBody\n"
+        };
+        var logger = new CollectingLogger();
+
+        var result = new PdfGeneratorService(
+            new MockToolchainProvider("."),
+            new RecordingPdfProcessRunner(),
+            new NoOpMermaidRenderer(),
+            new PdfCacheService(new MockToolchainProvider(".")),
+            new PdfGenerationManifest(),
+            ".")
+            .BuildAugmentedMarkdown(src, sections, logger);
+
+        Assert.Contains("---\ntitle: Test\npublished: 2026-01-01\n---", result);
+        Assert.Contains("Before", result);
+        Assert.Contains("## Diagram", result);
+        Assert.Contains("After", result);
+
+        var beforeIdx = result.IndexOf("Before", StringComparison.Ordinal);
+        var diagramIdx = result.IndexOf("## Diagram", StringComparison.Ordinal);
+        var afterIdx = result.IndexOf("After", StringComparison.Ordinal);
+        Assert.True(beforeIdx < diagramIdx, "Diagram should appear after 'Before'");
+        Assert.True(diagramIdx < afterIdx, "Diagram should appear before 'After'");
+    }
+
+    [Fact]
+    public void BuildAugmentedMarkdown_UnresolvedKey_DropsMarkerAndLogsWarning()
+    {
+        var raw = "---\ntitle: Test\npublished: 2026-01-01\n---\nBefore\n<!-- diagram: unknown -->\nAfter";
+        var src = MakeMaterialSource(raw);
+        var sections = new Dictionary<string, string>(StringComparer.Ordinal);
+        var logger = new CollectingLogger();
+
+        var result = new PdfGeneratorService(
+            new MockToolchainProvider("."),
+            new RecordingPdfProcessRunner(),
+            new NoOpMermaidRenderer(),
+            new PdfCacheService(new MockToolchainProvider(".")),
+            new PdfGenerationManifest(),
+            ".")
+            .BuildAugmentedMarkdown(src, sections, logger);
+
+        Assert.DoesNotContain("<!-- diagram: unknown -->", result);
+        Assert.Contains("Before", result);
+        Assert.Contains("After", result);
+        Assert.Contains(logger.Warnings, w => w.Contains("unknown"));
+    }
+
+    [Fact]
+    public void BuildAugmentedMarkdown_DuplicateKey_UsesProvidedSection()
+    {
+        // BuildAugmentedMarkdown receives sectionsByKey already resolved
+        // (first-wins in GenerateOneAsync). Verifies it substitutes correctly.
+        var raw = "---\ntitle: Test\npublished: 2026-01-01\n---\n<!-- diagram: dup -->";
+        var src = MakeMaterialSource(raw);
+        var sections = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["dup"] = "\n## First\n\n### S1\n\n![S1](mmd_0000.pdf)\n"
+        };
+        var logger = new CollectingLogger();
+
+        var result = new PdfGeneratorService(
+            new MockToolchainProvider("."),
+            new RecordingPdfProcessRunner(),
+            new NoOpMermaidRenderer(),
+            new PdfCacheService(new MockToolchainProvider(".")),
+            new PdfGenerationManifest(),
+            ".")
+            .BuildAugmentedMarkdown(src, sections, logger);
+
+        Assert.Contains("## First", result);
+        Assert.DoesNotContain("## Second", result);
+        Assert.Empty(logger.Warnings);
+    }
+
+    [Fact]
+    public void BuildAugmentedMarkdown_NoMarkers_ReturnsOriginalContent()
+    {
+        var raw = "---\ntitle: Test\npublished: 2026-01-01\n---\nBody text here";
+        var src = MakeMaterialSource(raw);
+        var sections = new Dictionary<string, string>(StringComparer.Ordinal);
+        var logger = new CollectingLogger();
+
+        var result = new PdfGeneratorService(
+            new MockToolchainProvider("."),
+            new RecordingPdfProcessRunner(),
+            new NoOpMermaidRenderer(),
+            new PdfCacheService(new MockToolchainProvider(".")),
+            new PdfGenerationManifest(),
+            ".")
+            .BuildAugmentedMarkdown(src, sections, logger);
+
+        Assert.Equal(raw, result);
+        Assert.Empty(logger.Warnings);
+    }
+
+    [Fact]
+    public void BuildAugmentedMarkdown_PreservesFrontmatterBlock()
+    {
+        var raw = "---\ntitle: My Title\npublished: 2026-01-01\ntags:\n  - demo\n---\n<!-- diagram: k -->";
+        var src = MakeMaterialSource(raw);
+        var sections = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["k"] = "\n## Diagram\n\nContent\n"
+        };
+        var logger = new CollectingLogger();
+
+        var result = new PdfGeneratorService(
+            new MockToolchainProvider("."),
+            new RecordingPdfProcessRunner(),
+            new NoOpMermaidRenderer(),
+            new PdfCacheService(new MockToolchainProvider(".")),
+            new PdfGenerationManifest(),
+            ".")
+            .BuildAugmentedMarkdown(src, sections, logger);
+
+        Assert.StartsWith("---", result);
+        Assert.Contains("title: My Title", result);
+        Assert.Contains("tags:", result);
+        Assert.Contains("  - demo", result);
     }
 
     // --- Helper: compute a deterministic test fingerprint ---
@@ -701,5 +850,23 @@ public class TempDirectory : IDisposable
     public void Dispose()
     {
         try { Directory.Delete(Path, recursive: true); } catch { /* best-effort */ }
+    }
+}
+
+/// <summary>
+/// Collects warning messages for test assertions.
+/// </summary>
+public class CollectingLogger : ILogger
+{
+    public List<string> Warnings { get; } = new();
+
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+    public bool IsEnabled(LogLevel logLevel) => true;
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    {
+        if (logLevel == LogLevel.Warning)
+            Warnings.Add(formatter(state, exception));
     }
 }

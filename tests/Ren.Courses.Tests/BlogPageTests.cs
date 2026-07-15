@@ -133,7 +133,7 @@ public class BlogPageTests
         var post = new Post<CourseFrontMatter>
         {
             Url = "sorting",
-            HtmlContent = "<p>Body</p>",
+            HtmlContent = "<p>Before</p>\n<!-- diagram: k -->\n<p>After</p>",
             FrontMatter = new CourseFrontMatter
             {
                 Title = "Sorting",
@@ -142,6 +142,7 @@ public class BlogPageTests
                 [
                     new()
                     {
+                        Key = "k",
                         Title = "Bubble sort",
                         Description = "A single pass.",
                         Steps =
@@ -177,6 +178,14 @@ public class BlogPageTests
         Assert.Equal(2, widget.QuerySelectorAll("[data-diagram-step]").Length);
         Assert.Contains("flowchart LR", widget.QuerySelector("[data-diagram-source]")!.TextContent);
         Assert.Equal(3, widget.QuerySelectorAll("button").Length);
+
+        // Placement assertion: widget sits between "Before" and "After" in markup
+        var markup = cut.Markup;
+        var beforeIdx = markup.IndexOf("Before", StringComparison.Ordinal);
+        var widgetIdx = markup.IndexOf("data-interactive-diagram", StringComparison.Ordinal);
+        var afterIdx = markup.IndexOf("After", StringComparison.Ordinal);
+        Assert.True(beforeIdx < widgetIdx, "Widget should appear after 'Before' text");
+        Assert.True(widgetIdx < afterIdx, "Widget should appear before 'After' text");
     }
 
     [Fact]
@@ -202,6 +211,157 @@ public class BlogPageTests
             .Add(p => p.FileName, "reading"));
 
         Assert.Empty(cut.FindAll("section[data-interactive-diagram]"));
+    }
+
+    [Fact]
+    public void Article_DiagramDeclaredNoMarker_DoesNotRenderWidget()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "strict-mode",
+            HtmlContent = "<p>Body with no marker</p>",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Strict Mode",
+                Published = new DateTime(2026, 3, 1),
+                Diagrams =
+                [
+                    new()
+                    {
+                        Key = "unreferenced",
+                        Title = "Should not appear",
+                        Steps =
+                        [
+                            new() { Title = "Step", Mermaid = "flowchart LR\n A-->B" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "strict-mode"));
+
+        Assert.Empty(cut.FindAll("section[data-interactive-diagram]"));
+    }
+
+    [Fact]
+    public void Article_MarkerWithUnknownKey_NoExceptionNoWidget()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "unknown-key",
+            HtmlContent = "<p>Body</p>\n<!-- diagram: nonexistent -->\n<p>More</p>",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Unknown Key",
+                Published = new DateTime(2026, 3, 1)
+            }
+        };
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "unknown-key"));
+
+        Assert.Empty(cut.FindAll("section[data-interactive-diagram]"));
+    }
+
+    [Fact]
+    public void Article_SameKeyTwice_RendersTwoWidgetsWithDistinctIds()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "twice",
+            HtmlContent = "<!-- diagram: k -->\nmid\n<!-- diagram: k -->",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Duplicate",
+                Published = new DateTime(2026, 3, 1),
+                Diagrams =
+                [
+                    new()
+                    {
+                        Key = "k",
+                        Title = "Repeat",
+                        Steps =
+                        [
+                            new() { Title = "S1", Mermaid = "flowchart LR\n A-->B" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "twice"));
+
+        var widgets = cut.FindAll("section[data-interactive-diagram]");
+        Assert.Equal(2, widgets.Count);
+        Assert.Contains("learning-diagram-0-title", widgets[0].InnerHtml);
+        Assert.Contains("learning-diagram-1-title", widgets[1].InnerHtml);
+    }
+
+    [Fact]
+    public void Article_TwoDistinctDiagrams_RendersSequentialDistinctIds()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "two-diagrams",
+            HtmlContent = "<!-- diagram: a -->\n<!-- diagram: b -->",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Two Diagrams",
+                Published = new DateTime(2026, 3, 1),
+                Diagrams =
+                [
+                    new()
+                    {
+                        Key = "a",
+                        Title = "First",
+                        Steps =
+                        [
+                            new() { Title = "S1", Mermaid = "flowchart LR\n A-->B" }
+                        ]
+                    },
+                    new()
+                    {
+                        Key = "b",
+                        Title = "Second",
+                        Steps =
+                        [
+                            new() { Title = "S1", Mermaid = "flowchart LR\n C-->D" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "two-diagrams"));
+
+        var widgets = cut.FindAll("section[data-interactive-diagram]");
+        Assert.Equal(2, widgets.Count);
+        Assert.Contains("learning-diagram-0-title", widgets[0].InnerHtml);
+        Assert.Contains("learning-diagram-1-title", widgets[1].InnerHtml);
     }
 
     private static void ConfigureArticleScripts(BunitContext ctx)
