@@ -219,12 +219,11 @@
 
             @* CONTENT *@
             <div class="prose max-w-none py-10">
-                @for (var diagramIndex = 0; diagramIndex < post.FrontMatter.Diagrams.Count; diagramIndex++)
+                @foreach (var segment in _bodySegments)
                 {
-                    <InteractiveDiagram Diagram="@post.FrontMatter.Diagrams[diagramIndex]"
-                        DiagramIndex="@diagramIndex" />
+                    if (segment.Html is not null) { @((MarkupString)segment.Html) }
+                    else { <InteractiveDiagram Diagram="@segment.Diagram" DiagramIndex="@segment.DiagramIndex" /> }
                 }
-                @((MarkupString)post.HtmlContent)
             </div>
 
             <div class="border-t border-border-muted pt-8 pb-12">
@@ -266,6 +265,7 @@
     [Parameter] public string? FileName { get; set; }
     Post<CourseFrontMatter>? post;
     IReadOnlyList<string> _allTags = [];
+    List<DiagramMarkers.BodySegment> _bodySegments = [];
 
     protected override void OnInitialized()
     {
@@ -277,6 +277,7 @@
 
         if (string.IsNullOrWhiteSpace(FileName)) return;
         post = blazorStaticContentService.Posts.FirstOrDefault(x => x.Url == FileName);
+        _bodySegments = post is null ? [] : DiagramMarkers.ResolveSegments(post.HtmlContent, post.FrontMatter.Diagrams);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

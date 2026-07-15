@@ -22,6 +22,7 @@ public class StaticGenerationTests
             {
                 new()
                 {
+                    Key = "bubble-sort",
                     Title = "Bubble sort",
                     Description = "Follow one pass through the array.",
                     Steps =
@@ -61,6 +62,7 @@ public class StaticGenerationTests
         Assert.Equal("Lab report", submission.Name);
         Assert.Equal("https://forms.gle/example", submission.Link);
         var diagram = Assert.Single(fm.Diagrams);
+        Assert.Equal("bubble-sort", diagram.Key);
         Assert.Equal("Bubble sort", diagram.Title);
         Assert.Equal("Follow one pass through the array.", diagram.Description);
         Assert.Equal(2, diagram.Steps.Count);

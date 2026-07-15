@@ -16,6 +16,7 @@ submissions:
     link: https://example.com/submissions/bfs-code
 diagrams:
   - title: Breadth-first search from A
+    key: bfs-traversal
     description: Green nodes are visited; red nodes are currently in the queue.
     steps:
       - title: Enqueue the starting node
@@ -82,6 +83,8 @@ diagrams:
 ---
 
 ## Queue trace
+
+<!-- diagram: bfs-traversal -->
 
 The step descriptions mirror the queue states `A` → `B, C` → `C, D, E` → `D, E, F` → empty.
 
