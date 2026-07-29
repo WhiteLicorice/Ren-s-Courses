@@ -264,27 +264,28 @@ The template that controls the PDF's visual appearance is a Pandoc LaTeX templat
 
 #### Default template (`PdfTemplates/default/template.latex`)
 
-The default template is derived from Pandoc's built-in article template. It has been tweaked to match the original UPV DPSM lab-manual format and includes:
+The single default template follows the official UPV DPSM OBE visual system while adapting
+to both formal syllabi and laboratory manuals, activities, and notes. It includes:
 
 - **Code blocks** — framed with line numbers and a light gray background via `fancyvrb`/`fvextra`.
   A Pandoc Lua filter (`code-block.lua`) ensures all fenced code blocks use the `Highlighting`
   environment, including unlabeled blocks (```` ``` ```` with no language tag) that Pandoc would
   otherwise route through bare `verbatim`.
+- **Institutional branding** — UPV and DPSM logos, the official division masthead, maroon title,
+  compact sans-serif typography, running page/document header, and UPV-colored footer bars.
+- **General-material fallback** — without syllabus variables, the title block shows the material's
+  title, subtitle, full author name, publication date, and deadline.
+- **Formal syllabus mode** — `documentType`, `courseCode`, `academicTerm`, `meetingSchedule`, and
+  `venue` activate compact OBE title and institutional typography.
+- **Wide tables and rubrics** — six-or-more-column tables in ordinary materials automatically use
+  the ruled landscape renderer. Any section with `rubric` in its heading is rendered in landscape
+  in its entirety, including its heading and notes, regardless of table width or document type.
+  Other formal-syllabus tables require an explicit `.landscape` fenced Div, preserving portrait
+  CO/grading matrices while their study schedules stay landscape.
 
-| Element     | Content                                      |
-|-------------|----------------------------------------------|
-| Left header | University of the Philippines Visayas        |
-| Right header| Division of Physical Sciences and Mathematics|
-| Left footer | `courseLabel` variable (e.g., "CMSC 131")   |
-| Center footer| `labNumber` variable (e.g., "Laboratory Manual 5") |
-| Right footer| Page number                                  |
-| Title block | Title, subtitle, lead, "Prepared by" author, published date, deadline, topics |
-
-The template reads `pdf.variables.courseLabel` and `pdf.variables.labNumber` from the material's
-frontmatter. When these variables are absent, the corresponding footer fields render empty.
-
-The author line shows the full `Name` field (not the `Nickname` display alias used on the website).
-This ensures the PDF carries the author's complete legal name in the "Prepared by" attribution.
+The two logo assets live beside `template.latex`. The generator copies template image assets into
+the isolated work directory before Tectonic runs. Every file in the template directory is part of
+the PDF fingerprint, so changing either logo invalidates affected PDFs.
 
 #### Defining a custom template
 
@@ -294,7 +295,10 @@ Create a new directory under `PdfTemplates/`, commit a `template.latex` file ins
 PdfTemplates/
 ├── default/
 │   ├── template.latex       ← shipped default
-│   └── code-block.lua       ← Pandoc Lua filter (code block styling)
+│   ├── code-block.lua       ← Pandoc Lua filter (code block styling)
+│   ├── wide-table.lua       ← automatic/explicit tables and rubric landscapes
+│   ├── upv-seal.png
+│   └── dpsm-logo.png
 └── my-custom/
     └── template.latex       ← your custom template
 ```
@@ -321,15 +325,18 @@ Set the `pdf.template` key in the material's frontmatter. Omit it to use `defaul
 
 ```yaml
 pdf:
-  template: my-custom
+  template: default
   variables:
-    courseLabel: CMSC 131
-    labNumber: Laboratory Manual 5
-    # … any key-value pairs your template expects
+    documentType: Course Syllabus
+    courseCode: CMSC 131
+    academicTerm: 1st Semester, A.Y. 2025–2026
+    meetingSchedule: "Lecture: MTh 9:00–11:00 AM"
+    venue: MILC
 ```
 
 Variables are exposed to the template as `$pdf.variables.<key>$`. Both string and numeric values
-are supported; nested objects are passed as their string representation.
+are supported; nested objects are passed as their string representation. A custom template may
+define a different set of variables.
 
 **Suite coverage:**
 

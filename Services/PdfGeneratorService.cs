@@ -375,17 +375,24 @@ public class PdfGeneratorService
 
         var tmplFile = Path.Combine(tmplDir, "template.latex");
 
-        var luaFilter = Path.Combine(tmplDir, "code-block.lua");
-
         var args = new List<string>
         {
             "--from", "markdown+lists_without_preceding_blankline",
             "--to", "latex",
             "--template", tmplFile,
-            "--lua-filter", luaFilter,
             "--output", texPath,
             "--standalone"
         };
+
+        var luaFilters = Directory.EnumerateFiles(tmplDir, "*.lua")
+            .OrderBy(path => Path.GetFileName(path).Equals(
+                "code-block.lua", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+            .ThenBy(path => path, StringComparer.Ordinal);
+        foreach (var luaFilter in luaFilters)
+        {
+            args.Add("--lua-filter");
+            args.Add(luaFilter);
+        }
 
         void AddMeta(string key, string? value)
         {
@@ -393,6 +400,22 @@ public class PdfGeneratorService
                 args.Add($"-M{key}={value}");
         }
 
+        var texDirectory = Path.GetDirectoryName(texPath) ?? ".";
+        var templateAssetsDirectory = Path.Combine(texDirectory, "template-assets");
+        Directory.CreateDirectory(templateAssetsDirectory);
+        foreach (var asset in Directory.EnumerateFiles(tmplDir))
+        {
+            var extension = Path.GetExtension(asset);
+            if (extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
+                extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase) ||
+                extension.Equals(".svg", StringComparison.OrdinalIgnoreCase))
+            {
+                File.Copy(asset, Path.Combine(templateAssetsDirectory, Path.GetFileName(asset)), overwrite: true);
+            }
+        }
+        AddMeta("templateAssets", "template-assets");
         AddMeta("title", src.FrontMatter.Title);
         AddMeta("subtitle", src.FrontMatter.Subtitle);
         AddMeta("published", src.FrontMatter.Published != default ? src.FrontMatter.Published.ToString("yyyy-MM-dd") : null);

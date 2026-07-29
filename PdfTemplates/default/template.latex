@@ -1,25 +1,42 @@
-% Pandoc 3.10-derived LaTeX template for generated course PDFs
-% Academic article, 12pt, ~1-inch margins
-%
-% Derived from Pandoc's default LaTeX template.
+% Unified Pandoc LaTeX template for UP Visayas DPSM course materials.
+% Formal syllabus metadata selects compact OBE typography; wide tables use
+% the shared ruled landscape renderer in every document type.
 
-\documentclass[a4paper, 12pt]{article}
+\documentclass[a4paper,$if(pdf.variables.academicTerm)$10pt$else$11pt$endif$]{article}
 
-% --- Packages ---
+% --- Core packages ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{upquote}
 \usepackage{microtype}
-\usepackage[margin=1in]{geometry}
-\usepackage{setspace}
+\usepackage[
+$if(pdf.variables.academicTerm)$
+  left=0.58in,
+  right=0.58in,
+  top=0.58in,
+  bottom=0.62in,
+$else$
+  left=0.68in,
+  right=0.68in,
+  top=0.70in,
+  bottom=0.68in,
+$endif$
+  headheight=15pt,
+  headsep=0.18in,
+  footskip=0.38in
+]{geometry}
 \usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage[table]{xcolor}
+\usepackage{setspace}
+\usepackage{ragged2e}
 \usepackage{hyperref}
-\usepackage{fancyhdr}
 \usepackage{bookmark}
+\usepackage{fancyhdr}
+\usepackage{eso-pic}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc}
 \newcounter{none}
-\usepackage{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage{float}
 \floatplacement{figure}{H}
@@ -27,42 +44,84 @@
 \usepackage{ifxetex}
 \usepackage{ifluatex}
 \usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{pdflscape}
 $if(math)$
   $math$
 $endif$
 
-% Font configuration - use bundled Tectonic fonts
-\usepackage{mathptmx}
-\usepackage[scaled=.90]{helvet}
+% --- Institutional palette ---
+\definecolor{upmaroon}{HTML}{8F1537}
+\definecolor{upgreen}{HTML}{007A5E}
+\definecolor{upgray}{HTML}{6F6F6F}
+\definecolor{tablegray}{HTML}{EEEEEE}
+\definecolor{shadecolor}{RGB}{248,248,248}
+
+% --- Fonts: bundle-owned TeX Gyre Heros keeps builds host-independent ---
+\usepackage{tgheros}
+\usepackage{tgtermes}
+\renewcommand{\familydefault}{\sfdefault}
 \usepackage{courier}
 \ifxetex
   \usepackage{fontspec}
-  \setmainfont{texgyretermes-regular.otf}[
-    BoldFont=texgyretermes-bold.otf,
-    ItalicFont=texgyretermes-italic.otf,
-    BoldItalicFont=texgyretermes-bolditalic.otf]
+  \setsansfont{texgyreheros-regular.otf}[
+    BoldFont=texgyreheros-bold.otf,
+    ItalicFont=texgyreheros-italic.otf,
+    BoldItalicFont=texgyreheros-bolditalic.otf]
+  \setmainfont{texgyreheros-regular.otf}[
+    BoldFont=texgyreheros-bold.otf,
+    ItalicFont=texgyreheros-italic.otf,
+    BoldItalicFont=texgyreheros-bolditalic.otf]
   \setmonofont{lmmono10-regular.otf}
 \fi
 
-% Page style -- matches the original UPV DPSM lab-manual template
-\setlength{\headheight}{13.6pt}
-\addtolength{\topmargin}{-1.6pt}
+% --- Reusable metadata ---
+\newcommand{\DocumentType}{$if(pdf.variables.documentType)$$pdf.variables.documentType$$else$Course Material$endif$}
+\newcommand{\CourseCode}{$if(pdf.variables.courseCode)$$pdf.variables.courseCode$$else$$firstTag$$endif$}
+\newcommand{\TemplateAssets}{\detokenize{$templateAssets$}}
+\newcommand{\CourseTitleFont}{\fontfamily{qtm}\fontseries{b}\selectfont}
+\newif\ifsyllabuslandscape
+\syllabuslandscapefalse
+\newcommand{\SyllabusLandscapeBegin}{%
+  \clearpage
+  \syllabuslandscapetrue
+  \begin{landscape}%
+  \pagestyle{empty}%
+}
+\newcommand{\SyllabusLandscapeEnd}{%
+  \end{landscape}%
+  \syllabuslandscapefalse
+  \clearpage
+  \pagestyle{fancy}%
+}
+
+% --- Running page furniture from the OBE form ---
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{University of the Philippines Visayas}
-\chead{}
-\rhead{Division of Physical Sciences and Mathematics}
-\lfoot{$firstTag$}
-\cfoot{$subtitle$}
-\rfoot{Page \thepage}
-\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\scriptsize\color{upgray}\thepage\ \textbar{} Page}
+\fancyhead[R]{\scriptsize\color{upgray}\MakeUppercase{\CourseCode\ \DocumentType}}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0.25pt}
 \renewcommand{\footrulewidth}{0pt}
 
-% Hyperlinks
+\fancypagestyle{firstpage}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\AddToShipoutPictureBG{%
+  \ifsyllabuslandscape\else
+    \AtPageLowerLeft{\color{upmaroon}\rule{\paperwidth}{0.26in}}%
+    \AtPageLowerLeft{\raisebox{0.26in}{\color{upgreen}\rule{\paperwidth}{0.055in}}}%
+  \fi
+}
+
+% --- Links and PDF metadata ---
 \hypersetup{
   colorlinks=true,
   linkcolor=black,
-  urlcolor=black,
+  urlcolor=blue,
   citecolor=black,
   bookmarks=true,
 $if(title)$
@@ -72,20 +131,15 @@ $if(author)$
   pdfauthor={$for(author)$$author$$sep$, $endfor$},
 $endif$
 }
+\urlstyle{same}
 
-% Always load verbatim extensions (Pandoc may or may not load fancyvrb)
+% --- Code blocks ---
 \usepackage{fancyvrb}
 \usepackage{fvextra}
-
-% Dummy Highlighting — Pandoc redefines it in highlighting-macros when code blocks exist
 \DefineVerbatimEnvironment{Highlighting}{Verbatim}{}
-
 $if(highlighting-macros)$
 $highlighting-macros$
 $endif$
-
-% Code blocks — frames + line numbers + line wrapping
-% Labeled code blocks (```lang): Highlighting env with syntax coloring
 \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
   commandchars=\\\{\},
   frame=single,
@@ -99,23 +153,71 @@ $endif$
   breakindent=1em,
   fontsize=\small
 }
-
-% Shaded background for code blocks (Pandoc's wrapper)
 \usepackage{framed}
-\definecolor{shadecolor}{RGB}{248,248,248}
 
-% Headings — numbers hidden in body, retained in TOC
-\usepackage{titlesec}
-\titleformat{\section}{\large\bfseries}{}{0pt}{}
-\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
-\titleformat{\subsubsection}{\normalsize\itshape}{}{0pt}{}
-\titleformat{\paragraph}[hang]{\normalsize\bfseries}{\theparagraph}{1em}{}
-\titlespacing*{\paragraph}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
-\titleformat{\subparagraph}[hang]{\normalsize\itshape}{\thesubparagraph}{1em}{}
-\titlespacing*{\subparagraph}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+% --- Body typography ---
+\setlength{\parindent}{0pt}
+$if(pdf.variables.academicTerm)$
+\setlength{\parskip}{0.42em}
+$else$
+\setlength{\parskip}{0.48em}
+$endif$
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=1.65em}
+\setlist[description]{
+  style=multiline,
+$if(pdf.variables.academicTerm)$
+  leftmargin=1.92in,
+  labelwidth=1.60in,
+  labelsep=0.22in,
+  font=\normalfont\bfseries,
+  itemsep=0.44em,
+  parsep=0.22em
+$else$
+  leftmargin=2.05in,
+  labelwidth=1.82in,
+  font=\normalfont\bfseries,
+  itemsep=0.55em
+$endif$
+}
 
-% Image sizing
-\usepackage[export]{adjustbox}
+$if(pdf.variables.academicTerm)$
+\titleformat{\section}
+  {\normalsize\bfseries}
+  {}{0pt}{}
+$else$
+\titleformat{\section}
+  {\normalsize\bfseries}
+  {}{0pt}{}
+  [\vspace{0.08em}\titlerule]
+$endif$
+\titleformat{\subsection}
+  {\small\bfseries}
+  {}{0pt}{}
+\titleformat{\subsubsection}
+  {\small\itshape\bfseries}
+  {}{0pt}{}
+\titleformat{\paragraph}[hang]
+  {\small\bfseries}
+  {\theparagraph}{1em}{}
+\titleformat{\subparagraph}[hang]
+  {\small\itshape}
+  {\thesubparagraph}{1em}{}
+$if(pdf.variables.academicTerm)$
+\titlespacing*{\section}{0pt}{1.05em}{0.40em}
+\titlespacing*{\subsection}{0pt}{0.75em}{0.24em}
+$else$
+\titlespacing*{\section}{0pt}{1.25em}{0.55em}
+\titlespacing*{\subsection}{0pt}{0.9em}{0.32em}
+$endif$
+\titlespacing*{\subsubsection}{0pt}{0.7em}{0.25em}
+
+% --- Tables ---
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4pt}
+\arrayrulecolor{black!35}
+
+% --- Image sizing ---
 \makeatletter
 \newsavebox\pandoc@box
 \newcommand*\pandocbounded[1]{%
@@ -128,43 +230,79 @@ $endif$
   \fi}
 \makeatother
 
-% Tightlist macro for Pandoc
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-% --- Title block ---
-$if(title)$
-\title{$title$}
-$endif$
-
-$for(author)$
-\author{$author$}
-$endfor$
-
-$if(published)$
-\date{$published$}
-$endif$
-
 \begin{document}
+\thispagestyle{firstpage}
 
-% --- Title ---
+% --- UPV / DPSM masthead ---
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+  \centering
+  \includegraphics[height=0.62in]{\TemplateAssets/upv-seal.png}\hspace{0.05in}%
+  \includegraphics[height=0.62in]{\TemplateAssets/dpsm-logo.png}
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+  {\bfseries DIVISION OF PHYSICAL SCIENCES AND MATHEMATICS}\\[-0.02in]
+  {\small College of Arts and Sciences \textbar{} University of the Philippines Visayas}\\[-0.02in]
+  {\scriptsize Miagao, Iloilo, 5023, Philippines \textbar{} Tel. No. (033) 513-7020}\\[-0.03in]
+  {\scriptsize Email Address: psm.upvisayas@up.edu.ph}
+\end{minipage}
+
+\vspace{0.12in}
+\hrule
+\vspace{0.16in}
+
+% --- Document title ---
 \begin{center}
-  {\LARGE \textbf{$title$}} \\[12pt]
+  {\normalsize\bfseries\MakeUppercase{\DocumentType}}\par
+  \vspace{0.15in}
+$if(pdf.variables.courseCode)$
+$if(pdf.variables.academicTerm)$
+  {\LARGE\CourseTitleFont\bfseries\color{upmaroon}$pdf.variables.courseCode$: $title$}\par
+$else$
+  {\LARGE\bfseries\color{upmaroon}$pdf.variables.courseCode$: $title$}\par
+$endif$
+$else$
+  {\LARGE\bfseries\color{upmaroon}$title$}\par
+$endif$
+$if(pdf.variables.academicTerm)$
+  \vspace{0.06in}
+  {\normalsize $pdf.variables.academicTerm$}\par
+$else$
+$if(subtitle)$
+  \vspace{0.06in}
+  {\normalsize $subtitle$}\par
+$endif$
+$endif$
+$if(pdf.variables.meetingSchedule)$
+  \vspace{0.04in}
+  {\small $pdf.variables.meetingSchedule$}\par
+$endif$
+$if(pdf.variables.venue)$
+  \vspace{0.03in}
+  {\small $pdf.variables.venue$}\par
+$endif$
+$if(pdf.variables.academicTerm)$
+$else$
 $if(author)$
-  {\normalsize \textbf{Prepared by:} $for(author)$$author$$sep$, $endfor$} \\[4pt]
+  \vspace{0.08in}
+  {\small\textbf{Prepared by:} $for(author)$$author$$sep$, $endfor$}\par
+$endif$
+$if(publishedFormatted)$
+  \vspace{0.08in}
+  {\small\textbf{Published:} $publishedFormatted$
+  $if(deadlineFormatted)$\hspace{0.35in}\textbf{Deadline:} $deadlineFormatted$$endif$}\par
+$endif$
 $endif$
 \end{center}
 
-$if(publishedFormatted)$
-\noindent{\normalsize \textbf{Published:} $publishedFormatted$\hfill$if(deadlineFormatted)$ \textbf{Deadline:} $deadlineFormatted$$endif$}
-\vspace{12pt}
-$endif$
+\vspace{0.09in}
 
-\vspace{0pt}
-\hrule
-\vspace{12pt}
-
-% --- Body ---
+% --- Markdown body ---
+\justifying
 $body$
 
 \end{document}
