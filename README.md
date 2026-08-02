@@ -271,6 +271,8 @@ to both formal syllabi and laboratory manuals, activities, and notes. It include
   A Pandoc Lua filter (`code-block.lua`) ensures all fenced code blocks use the `Highlighting`
   environment, including unlabeled blocks (```` ``` ```` with no language tag) that Pandoc would
   otherwise route through bare `verbatim`.
+- **Explicit page breaks** — put `<!-- newpage -->` on its own line, with blank lines around it,
+  to force the following content onto a new PDF page. The marker affects only PDF generation.
 - **Institutional branding** — UPV and DPSM logos, the official division masthead, maroon title,
   compact sans-serif typography, running page/document header, and UPV-colored footer bars.
 - **General-material fallback** — without syllabus variables, the title block shows the material's
@@ -296,6 +298,7 @@ PdfTemplates/
 ├── default/
 │   ├── template.latex       ← shipped default
 │   ├── code-block.lua       ← Pandoc Lua filter (code block styling)
+│   ├── page-break.lua       ← Markdown page-break marker
 │   ├── wide-table.lua       ← automatic/explicit tables and rubric landscapes
 │   ├── upv-seal.png
 │   └── dpsm-logo.png

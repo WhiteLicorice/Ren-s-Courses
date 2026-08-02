@@ -82,7 +82,7 @@ local function schedule_table(table_element, title)
   local page_header = string.format(
     "\\multicolumn{%d}{@{}l@{}}{\\makebox[\\linewidth]{"
       .. "\\scriptsize\\color{upgray}\\thepage\\ \\textbar{} Page"
-      .. "\\hfill\\MakeUppercase{\\CourseCode\\ \\DocumentType}}} \\\\",
+      .. "\\hfill\\RunningHeaderText}} \\\\",
     columns
   )
   local page_rule = string.format(
@@ -196,7 +196,7 @@ local function landscape_rubric(blocks)
   return {
     pandoc.RawBlock(
       "latex",
-      "\\SyllabusLandscapeBegin\n\\begingroup\n\\small"
+      "\\SyllabusLandscapeBegin\n\\LandscapeContentHeader\n\\begingroup\n\\small"
     ),
     pandoc.RawBlock("latex", render_blocks(blocks)),
     pandoc.RawBlock(

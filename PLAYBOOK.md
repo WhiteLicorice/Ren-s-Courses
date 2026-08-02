@@ -38,8 +38,13 @@ Confirmed 2026-07-29:
 - The one maintained `PdfTemplates/default` profile adapts by metadata: formal OBE syllabus variables select compact title/institutional typography, while ordinary materials retain their general title metadata. This supersedes the earlier same-day split-profile guidance.
 - Formal syllabus metadata uses `pdf.variables.documentType`, `courseCode`, `academicTerm`, `meetingSchedule`, and `venue`. The template assets `upv-seal.png` and `dpsm-logo.png` live beside each template that uses them.
 - `PdfGeneratorService.RunPandocAsync` runs every `.lua` file in the selected template directory in deterministic order, with `code-block.lua` first. `PdfTemplates/default/wide-table.lua` automatically renders tables with at least six columns as ruled landscape pages in ordinary materials, and renders every section whose heading contains `rubric` in landscape regardless of table width or document type. Other formal-syllabus tables require a `.landscape` fenced Div so compact CO/grading matrices remain portrait. Footer bars are zero-width overlays so they cannot expand longtable and clip the right border; shaded header rows explicitly cover the final padding so the outer corners close.
+- `PdfTemplates/default/page-break.lua` converts a standalone `<!-- newpage -->` Markdown comment to LaTeX `\newpage`. It is intentionally template-local, so the marker affects generated PDFs without adding page semantics to web rendering; template-directory fingerprinting invalidates affected PDFs automatically. Verified with pinned Pandoc 3.10 through the production template/filter sequence, followed by a production run that regenerated all 42 PDFs with zero fallbacks.
 - `PdfGeneratorService.RunPandocAsync` copies supported image/PDF/SVG files from the selected template into an isolated `template-assets` work directory and passes that relative path as `templateAssets`. This avoids absolute-path Tectonic inputs while preserving template-directory fingerprint invalidation.
 - Verification path: run `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj --no-restore`, then a production `dotnet run --no-launch-profile --configuration Release` with the documented term environment variables; inspect a generated PDF for both the branded title page and a code-block page.
+
+Confirmed 2026-07-30:
+
+- Running headers keep page 1 empty, show the material subtitle on even pages, and show `Prepared by: <full author name>` on odd pages after page 1. The same `\RunningHeaderText` macro drives portrait pages, rotated rubric pages, and landscape longtable headers; PDF metadata deliberately ignores `nickname`. Verify pages 1–3 and a rotated rubric page in generated materials, then run `PdfGenerationTests`.
 
 ## Static Generation
 

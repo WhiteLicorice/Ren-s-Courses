@@ -434,7 +434,7 @@ public class PdfGeneratorService
 
         foreach (var a in src.FrontMatter.Authors)
         {
-            var name = a.Name ?? a.Nickname ?? "";
+            var name = a.Name ?? "";
             if (!string.IsNullOrEmpty(name))
                 args.Add($"-Mauthor={name}");
         }

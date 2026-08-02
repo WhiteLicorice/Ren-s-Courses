@@ -415,6 +415,34 @@ public class PdfGenerationTests
         Assert.Empty(runner.Invocations);
     }
 
+    [Fact]
+    public async Task Generator_PassesSubtitleAndFullAuthorNameToPandoc()
+    {
+        using var tempDir = new TempDirectory();
+        var materials = Path.Combine(tempDir.Path, "Content", "Materials");
+        var templates = Path.Combine(tempDir.Path, "PdfTemplates", "default");
+        Directory.CreateDirectory(materials);
+        Directory.CreateDirectory(templates);
+        await File.WriteAllTextAsync(Path.Combine(templates, "template.latex"), "$body$");
+        await File.WriteAllTextAsync(Path.Combine(tempDir.Path, ".mmdc.json"), "{}");
+        await File.WriteAllTextAsync(Path.Combine(tempDir.Path, "package-lock.json"), "{}");
+        await File.WriteAllTextAsync(Path.Combine(materials, "lesson.md"),
+            "---\ntitle: Lesson\nsubtitle: CMSC 124 Lab 0\npublished: 2026-03-01\nauthors:\n  - name: Full Author Name\n    nickname: Nickname\n---\n\nBody\n");
+
+        var toolchain = new RecordingToolchainProvider(tempDir.Path);
+        var runner = new RecordingPdfProcessRunner();
+        var generator = new PdfGeneratorService(toolchain, runner, new NoOpMermaidRenderer(),
+            new PdfCacheService(toolchain), new PdfGenerationManifest(), tempDir.Path);
+
+        await generator.RunAsync(NullLogger.Instance);
+
+        var pandoc = Assert.Single(runner.Invocations,
+            call => call.Executable == toolchain.PandocPath);
+        Assert.Contains("-Msubtitle=CMSC 124 Lab 0", pandoc.Args);
+        Assert.Contains("-Mauthor=Full Author Name", pandoc.Args);
+        Assert.DoesNotContain(pandoc.Args, arg => arg.Contains("Nickname", StringComparison.Ordinal));
+    }
+
     // --- BuildAugmentedMarkdown ---
 
     private static MaterialSource MakeMaterialSource(string raw)

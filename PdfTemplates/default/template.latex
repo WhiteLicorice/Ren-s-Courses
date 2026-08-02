@@ -79,6 +79,15 @@ $endif$
 % --- Reusable metadata ---
 \newcommand{\DocumentType}{$if(pdf.variables.documentType)$$pdf.variables.documentType$$else$Course Material$endif$}
 \newcommand{\CourseCode}{$if(pdf.variables.courseCode)$$pdf.variables.courseCode$$else$$firstTag$$endif$}
+\newcommand{\MaterialSubtitle}{$if(subtitle)$$subtitle$$endif$}
+\newcommand{\PreparedBy}{$if(author)$Prepared by: $for(author)$$author$$sep$, $endfor$$endif$}
+\newcommand{\RunningHeaderText}{%
+  \ifodd\value{page}\PreparedBy\else\MaterialSubtitle\fi}
+\newcommand{\LandscapeContentHeader}{%
+  \noindent\makebox[\linewidth]{%
+    \scriptsize\color{upgray}\thepage\ \textbar{} Page%
+    \hfill\RunningHeaderText}\par
+  \vspace{0.3ex}{\color{black!50}\hrule height 0.25pt}\vspace{1.0ex}}
 \newcommand{\TemplateAssets}{\detokenize{$templateAssets$}}
 \newcommand{\CourseTitleFont}{\fontfamily{qtm}\fontseries{b}\selectfont}
 \newif\ifsyllabuslandscape
@@ -100,7 +109,7 @@ $endif$
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\scriptsize\color{upgray}\thepage\ \textbar{} Page}
-\fancyhead[R]{\scriptsize\color{upgray}\MakeUppercase{\CourseCode\ \DocumentType}}
+\fancyhead[R]{\scriptsize\color{upgray}\RunningHeaderText}
 \fancyfoot[C]{}
 \renewcommand{\headrulewidth}{0.25pt}
 \renewcommand{\footrulewidth}{0pt}
