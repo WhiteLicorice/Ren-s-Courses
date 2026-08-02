@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
+          submodules: recursive
       
       # --- FREEZE TIME ---
       # This ensures both builds use the EXACT same "Now" timestamp
@@ -43,6 +44,9 @@ jobs:
         with:
           node-version: '26.1.0'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            Dependencies/RensMarkdownTemplates/package-lock.json
 
       - name: Restore PDF toolchain cache
         uses: actions/cache@v4
@@ -50,8 +54,8 @@ jobs:
           path: |
             artifacts/pdf-toolchain
             artifacts/tectonic-cache
-            artifacts/puppeteer
-          key: ${{ runner.os }}-pdf-toolchain-${{ hashFiles('Models/ToolchainManifest.cs', 'package-lock.json') }}
+            Dependencies/RensMarkdownTemplates/artifacts/puppeteer
+          key: ${{ runner.os }}-pdf-toolchain-${{ hashFiles('Dependencies/RensMarkdownTemplates/src/RensMarkdownTemplates/Models/ToolchainManifest.cs', 'Dependencies/RensMarkdownTemplates/package-lock.json') }}
 
       - name: Restore generated material PDF cache
         uses: actions/cache@v4

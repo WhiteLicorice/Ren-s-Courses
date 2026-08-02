@@ -32,13 +32,11 @@
   },
   "homepage": "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog#readme",
   "devDependencies": {
-    "@mermaid-js/mermaid-cli": "11.16.0",
     "@playwright/test": "^1.48.0",
     "@tailwindcss/typography": "^0.5.19",
     "html-minifier-terser": "^7.2.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "puppeteer": "25.3.0",
     "serve": "^14.2.0",
     "tailwindcss": "^4.0.0"
   },

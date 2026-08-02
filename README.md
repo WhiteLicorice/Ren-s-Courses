@@ -8,6 +8,10 @@ A headless Learning Management System for courses I teach under the University o
 
 Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. The site compiles to static HTML and deploys to both GitHub Pages and Netlify on every push and on an hourly cron.
 
+Clone with `git clone --recurse-submodules`, or run
+`git submodule update --init --recursive` in an existing checkout. PDF builds require
+the pinned `Dependencies/RensMarkdownTemplates` submodule.
+
 ---
 
 ### Modules
@@ -236,12 +240,13 @@ STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05
 ### Native material PDFs
 
 The production `dotnet run` entry point generates a PDF for every non-draft Markdown file under
-`Content/Materials` before the static pages are rendered. The first run downloads pinned Pandoc,
-Tectonic, and browser dependencies into the ignored `artifacts/` directory. Later runs reuse the
+`Content/Materials` before the static pages are rendered. The generator comes from the pinned
+`Dependencies/RensMarkdownTemplates` submodule. The first run downloads Pandoc, Tectonic, and
+browser dependencies into ignored cache directories. Later runs reuse the
 per-material cache and skip the toolchain entirely when every fingerprint still matches.
 
 The complete Markdown file is part of its fingerprint, so changing either frontmatter or body
-content invalidates only that material. Template files, Mermaid configuration, pinned dependency
+content invalidates only that material. Shared templates, Mermaid configuration, pinned dependency
 metadata, and referenced local media are fingerprinted as well. If one PDF fails, the site build
 continues and that material uses its `downloadLink`; if no fallback exists, only its Download
 action is omitted.
@@ -260,9 +265,11 @@ dotnet run --no-launch-profile --configuration Release
 ### PDF template system
 
 PDF generation uses Pandoc to convert Markdown to LaTeX, then Tectonic to compile LaTeX to PDF.
-The template that controls the PDF's visual appearance is a Pandoc LaTeX template.
+The generator, templates, filters, pinned tools, and canonical frontmatter contract are maintained
+in `Dependencies/RensMarkdownTemplates`. Make changes there first, then update this repository's
+submodule pin after the shared tests and Mermaid fixture render pass.
 
-#### Default template (`PdfTemplates/default/template.latex`)
+#### Default template (`Dependencies/RensMarkdownTemplates/templates/default/template.latex`)
 
 The single default template follows the official UPV DPSM OBE visual system while adapting
 to both formal syllabi and laboratory manuals, activities, and notes. It includes:
@@ -291,10 +298,11 @@ the PDF fingerprint, so changing either logo invalidates affected PDFs.
 
 #### Defining a custom template
 
-Create a new directory under `PdfTemplates/`, commit a `template.latex` file inside it:
+Create a new directory under the shared repository's `templates/`, commit a `template.latex` file
+inside it, and update the consumer pin:
 
 ```
-PdfTemplates/
+templates/
 ├── default/
 │   ├── template.latex       ← shipped default
 │   ├── code-block.lua       ← Pandoc Lua filter (code block styling)
@@ -340,6 +348,10 @@ pdf:
 Variables are exposed to the template as `$pdf.variables.<key>$`. Both string and numeric values
 are supported; nested objects are passed as their string representation. A custom template may
 define a different set of variables.
+
+Do not copy generator classes, templates, filters, or assets into this repository. The shared
+repository README documents direct CLI use, repository integration, Mermaid marker behavior, and
+the pin-update procedure.
 
 **Suite coverage:**
 

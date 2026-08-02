@@ -73,11 +73,19 @@ builder.Services.AddSingleton<CalendarEventProvider>();
 builder.Services.AddScoped<ThemeService>();
 
 // PDF generation services
+var markdownPipelineRoot = Path.Combine(
+    builder.Environment.ContentRootPath, "Dependencies", "RensMarkdownTemplates");
+var pdfOptions = new PdfGeneratorOptions
+{
+    ContentRoot = builder.Environment.ContentRootPath,
+    PipelineRoot = markdownPipelineRoot
+};
 var pdfManifest = new PdfGenerationManifest();
 builder.Services.AddSingleton(pdfManifest);
+builder.Services.AddSingleton(pdfOptions);
 builder.Services.AddSingleton<IProcessRunner>(sp => new SystemProcessRunner());
 builder.Services.AddSingleton<IToolchainProvider>(
-    sp => new ToolchainProvider(builder.Environment.ContentRootPath));
+    sp => new ToolchainProvider(pdfOptions));
 builder.Services.AddSingleton<IPdfCacheService, PdfCacheService>();
 builder.Services.AddSingleton<IMermaidRenderer, MermaidRenderer>();
 builder.Services.AddSingleton<PdfGeneratorService>(sp =>
@@ -87,8 +95,7 @@ builder.Services.AddSingleton<PdfGeneratorService>(sp =>
     var mermaid = sp.GetRequiredService<IMermaidRenderer>();
     var cache = sp.GetRequiredService<IPdfCacheService>();
     var manifest = sp.GetRequiredService<PdfGenerationManifest>();
-    return new PdfGeneratorService(toolchain, runner, mermaid, cache, manifest,
-        builder.Environment.ContentRootPath);
+    return new PdfGeneratorService(toolchain, runner, mermaid, cache, manifest, pdfOptions);
 });
 
 var menuFilePath = Path.Combine(builder.Environment.ContentRootPath, "menu.json");

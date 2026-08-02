@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using BlazorStaticMinimalBlog.Models;
-using BlazorStaticMinimalBlog.Services;
+using RensMarkdownTemplates.Services;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

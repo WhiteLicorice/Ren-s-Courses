@@ -1,0 +1,3 @@
+[submodule "Dependencies/RensMarkdownTemplates"]
+	path = Dependencies/RensMarkdownTemplates
+	url = https://github.com/WhiteLicorice/RensMarkdownTemplates.git

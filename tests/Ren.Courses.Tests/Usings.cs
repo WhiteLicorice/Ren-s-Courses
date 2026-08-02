@@ -4,3 +4,5 @@ global using BlazorStatic;
 global using BlazorStaticMinimalBlog.Models;
 global using BlazorStaticMinimalBlog.Services;
 global using BlazorStaticMinimalBlog.ViewModels;
+global using RensMarkdownTemplates.Models;
+global using RensMarkdownTemplates.Services;
