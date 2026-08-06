@@ -6,8 +6,14 @@ namespace BlazorStaticMinimalBlog.Models;
 /// Represents frontmatter for user-defined custom calendar events.
 /// Allows creating calendar entries beyond holidays and course-related events.
 /// </summary>
-public class CalendarEventFrontmatter : IFrontMatter
+public class CalendarEventFrontmatter : IFrontMatter, IFrontMatterWithTags
 {
+    /// <summary>
+    /// Course tags. Custom events with tags are course-scoped: they are hidden
+    /// when none of their tags match an active course.
+    /// </summary>
+    public List<string> Tags { get; set; } = new();
+
     /// <summary>
     /// The title/name of the custom event (e.g., "University Week", "Registration Period").
     /// </summary>

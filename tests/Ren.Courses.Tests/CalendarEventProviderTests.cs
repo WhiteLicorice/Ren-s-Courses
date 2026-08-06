@@ -364,7 +364,114 @@ public class CalendarEventProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 11. Every EventType enum value maps to a non-empty CSS class
+    // 11. Custom event of inactive course is filtered out
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisibleCustomEvents_InactiveCourseTag_Excluded()
+    {
+        var customEvents = new List<Post<CalendarEventFrontmatter>>
+        {
+            new()
+            {
+                FrontMatter = new CalendarEventFrontmatter
+                {
+                    Title = "CMSC 141 Midterms",
+                    Dates = [TestDate1],
+                    Tags = ["cmsc-141"]
+                },
+                Url = "cmsc-141-midterms",
+                HtmlContent = "<p>midterms</p>"
+            }
+        };
+
+        var results = CalendarEventProvider.GetVisibleCustomEvents(customEvents, showcaseMode: false);
+
+        Assert.Empty(results);
+    }
+
+    // ----------------------------------------------------------------
+    // 12. Custom event of active course is kept
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisibleCustomEvents_ActiveCourseTag_Kept()
+    {
+        var customEvents = new List<Post<CalendarEventFrontmatter>>
+        {
+            new()
+            {
+                FrontMatter = new CalendarEventFrontmatter
+                {
+                    Title = "CMSC 131 Midterms",
+                    Dates = [TestDate1],
+                    Tags = ["cmsc-131"]
+                },
+                Url = "cmsc-131-midterms",
+                HtmlContent = "<p>midterms</p>"
+            }
+        };
+
+        var results = CalendarEventProvider.GetVisibleCustomEvents(customEvents, showcaseMode: false);
+
+        var evt = Assert.Single(results);
+        Assert.Equal("CMSC 131 Midterms", evt.FrontMatter.Title);
+    }
+
+    // ----------------------------------------------------------------
+    // 13. Untagged custom event is not course-scoped — always kept
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisibleCustomEvents_Untagged_Kept()
+    {
+        var customEvents = new List<Post<CalendarEventFrontmatter>>
+        {
+            new()
+            {
+                FrontMatter = new CalendarEventFrontmatter
+                {
+                    Title = "University Week",
+                    Dates = [TestDate1],
+                    Tags = []
+                },
+                Url = "univ-week",
+                HtmlContent = "<p>fun</p>"
+            }
+        };
+
+        var results = CalendarEventProvider.GetVisibleCustomEvents(customEvents, showcaseMode: false);
+
+        var evt = Assert.Single(results);
+        Assert.Equal("University Week", evt.FrontMatter.Title);
+    }
+
+    // ----------------------------------------------------------------
+    // 14. Showcase mode keeps inactive-course events
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisibleCustomEvents_InactiveCourseTag_ShowcaseMode_Kept()
+    {
+        var customEvents = new List<Post<CalendarEventFrontmatter>>
+        {
+            new()
+            {
+                FrontMatter = new CalendarEventFrontmatter
+                {
+                    Title = "CMSC 141 Midterms",
+                    Dates = [TestDate1],
+                    Tags = ["cmsc-141"]
+                },
+                Url = "cmsc-141-midterms",
+                HtmlContent = "<p>midterms</p>"
+            }
+        };
+
+        var results = CalendarEventProvider.GetVisibleCustomEvents(customEvents, showcaseMode: true);
+
+        var evt = Assert.Single(results);
+        Assert.Equal("CMSC 141 Midterms", evt.FrontMatter.Title);
+    }
+
+    // ----------------------------------------------------------------
+    // 15. Every EventType enum value maps to a non-empty CSS class
     // ----------------------------------------------------------------
     [Fact]
     public void GetDefaultCssForEventType_AllEnumValues_ReturnNonEmptyString()

@@ -14,6 +14,21 @@ public static class BuildTimeProvider
     public static bool IsShowcaseMode { get; internal set; }
     public static TimeZoneInfo LocalTimeZone { get; private set; }
     public static DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(UtcNow, LocalTimeZone);
+    public static IReadOnlySet<string> ActiveCourses { get; } = ParseActiveCourses(Environment.GetEnvironmentVariable("ACTIVE_COURSES"));
+
+    // Tagged content is course-scoped: it is visible only when at least one of
+    // its tags matches an active course.
+    public static bool IsCourseActive(IEnumerable<string> tags) => tags.Any(ActiveCourses.Contains);
+
+    private static HashSet<string> ParseActiveCourses(string? raw)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(raw))
+            return set;
+        foreach (var course in raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            set.Add(course);
+        return set;
+    }
 
     static BuildTimeProvider()
     {
@@ -65,6 +80,7 @@ public static class BuildTimeProvider
         {
             Console.WriteLine("[BuildTimeProvider] Showcase mode ACTIVE — all content visible regardless of term window.");
         }
+        Console.WriteLine($"[BuildTimeProvider] Active courses: {string.Join(", ", ActiveCourses.OrderBy(c => c))}");
         Console.WriteLine("--------------------------------------------------");
     }
 

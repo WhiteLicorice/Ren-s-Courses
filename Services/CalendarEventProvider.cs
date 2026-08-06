@@ -37,11 +37,21 @@ public class CalendarEventProvider
 
         return BuildEvents(
             _holidaysProvider.GetHolidaysForRange(holidayStart, holidayEnd),
-            _calendarEventService.Posts,
+            GetVisibleCustomEvents(_calendarEventService.Posts, BuildTimeProvider.IsShowcaseMode),
             _contentProvider.GetVisiblePosts(),
             _courseService.Options.PageUrl
         );
     }
+
+    // Tagged custom events are course-scoped: visible iff their course is
+    // active. Untagged events (holidays, university-wide) are always visible.
+    // Showcase mode bypasses the check.
+    internal static IEnumerable<Post<CalendarEventFrontmatter>> GetVisibleCustomEvents(
+        IEnumerable<Post<CalendarEventFrontmatter>> sourcePosts, bool showcaseMode)
+        => sourcePosts.Where(p =>
+            showcaseMode
+            || !p.FrontMatter.Tags.Any()
+            || BuildTimeProvider.IsCourseActive(p.FrontMatter.Tags));
 
     // Extracted for testability — pure function with no DI dependencies
     internal static List<CalendarEvent> BuildEvents(

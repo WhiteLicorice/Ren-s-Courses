@@ -16,9 +16,10 @@
       "applicationUrl": "http://localhost:5025",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TERM_START": "2026-01-15",
-        "TERM_END": "2026-05-31",
-        "SHOWCASE_MODE": "true"
+        "TERM_START": "2026-08-01",
+        "TERM_END": "2026-12-31",
+        "SHOWCASE_MODE": "false",
+        "ACTIVE_COURSES": "cmsc-124,cmsc-131"
       }
     },
     "https": {
@@ -28,18 +29,20 @@
       "applicationUrl": "https://localhost:7035;http://localhost:5025",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "TERM_START": "2026-01-15",
-        "TERM_END": "2026-05-31",
-        "SHOWCASE_MODE": "true"
+        "TERM_START": "2026-08-01",
+        "TERM_END": "2026-12-31",
+        "SHOWCASE_MODE": "false",
+        "ACTIVE_COURSES": "cmsc-124,cmsc-131"
       },
       "IIS Express": {
         "commandName": "IISExpress",
         "launchBrowser": true,
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development",
-          "TERM_START": "2026-01-15",
-          "TERM_END": "2026-05-31",
-          "SHOWCASE_MODE": "true"
+          "TERM_START": "2026-08-01",
+          "TERM_END": "2026-12-31",
+          "SHOWCASE_MODE": "false",
+          "ACTIVE_COURSES": "cmsc-124,cmsc-131"
         }
       }
     }

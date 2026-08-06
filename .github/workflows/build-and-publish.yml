@@ -12,10 +12,13 @@ env:
   WEBAPP_PATH: ./
   WEBAPP_CSPROJ: BlazorStaticMinimalBlog.csproj
   # TODO: Configure these at the start of every academic year.
-  TERM_START: "2026-01-19"
-  TERM_END: "2026-05-28"
-  # Set to "true" to bypass term window — all non-draft content visible.
-  SHOWCASE_MODE: "true"
+  TERM_START: "2026-08-01"
+  TERM_END: "2026-12-31"
+  # Set to "true" to bypass term window and active-course filtering — all non-draft content visible.
+  SHOWCASE_MODE: "false"
+  # Comma-separated courses offered this term. Course-scoped content (bookings,
+  # articles, calendar entries, FAQs) is hidden when no tag matches.
+  ACTIVE_COURSES: "cmsc-124,cmsc-131"
 
 jobs:
   build-and-deploy:

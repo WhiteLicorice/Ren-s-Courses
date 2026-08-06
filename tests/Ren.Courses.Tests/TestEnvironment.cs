@@ -13,6 +13,9 @@ public class TestEnvironmentFixture : IDisposable
         // Term window as PH local dates
         Environment.SetEnvironmentVariable("TERM_START", "2026-01-15");
         Environment.SetEnvironmentVariable("TERM_END", "2026-05-31");
+        // Active courses. Includes cmsc-125 so existing date-window tests stay
+        // green; inactive-course behavior is covered by tests using other tags.
+        Environment.SetEnvironmentVariable("ACTIVE_COURSES", "cmsc-124,cmsc-131,cmsc-125");
     }
 
     public void Dispose() { }

@@ -2,7 +2,8 @@
 @using BlazorStatic
 @using BlazorStatic.Services
 @using BlazorStaticMinimalBlog.Models
-@inject BlazorStaticContentService<BookingFrontmatter> bookingService
+@using BlazorStaticMinimalBlog.Services
+@inject BookingContentProvider bookingProvider
 
 <div class="mx-auto max-w-6xl py-10 sm:py-16 animate-fade-in">
 
@@ -18,7 +19,7 @@
     </div>
 
     @* Empty State *@
-    @if (!bookingService.Posts.Any())
+    @if (!bookingProvider.GetVisiblePosts().Any())
     {
         <div class="text-center text-text-dim font-mono mt-12 opacity-75">
             <p class="text-lg">No booking calendars available yet.</p>
@@ -29,7 +30,7 @@
     {
         @* Booking Cards Grid *@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-            @foreach (var item in bookingService.Posts.OrderBy(x => x.FrontMatter.Name))
+            @foreach (var item in bookingProvider.GetVisiblePosts())
             {
                 var booking = item.FrontMatter;
                 <div

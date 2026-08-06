@@ -68,6 +68,7 @@ builder.Services.AddSingleton(holidaysProvider);
 
 builder.Services.AddSingleton<CourseContentProvider>();
 builder.Services.AddSingleton<FAQContentProvider>();
+builder.Services.AddSingleton<BookingContentProvider>();
 builder.Services.AddSingleton<FrontmatterStatusService>();
 builder.Services.AddSingleton<CalendarEventProvider>();
 builder.Services.AddScoped<ThemeService>();

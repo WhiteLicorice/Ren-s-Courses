@@ -22,14 +22,25 @@ public class FAQContentProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 2. Post published before term start is excluded
+    // 2. Untagged post published before term start is excluded
+    //    (term-window fallback applies only to untagged content)
     // ----------------------------------------------------------------
     [Fact]
     public void GetVisiblePosts_BeforeTermStart_Excluded()
     {
         // termStart (UTC) = 2026-01-14 16:00 (from PH local "2026-01-15")
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-125", new DateTime(2026, 1, 1));
+        var post = new Post<FAQFrontmatter>
+        {
+            FrontMatter = new FAQFrontmatter
+            {
+                Question = "Untagged before term",
+                Tags = [],
+                Published = new DateTime(2026, 1, 1),
+            },
+            Url = "untagged-before-term",
+            HtmlContent = "<p>Answer</p>",
+        };
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -172,6 +183,50 @@ public class FAQContentProviderTests
         BuildTimeProvider.IsShowcaseMode = true;
         var provider = CreateEmptyProvider();
         var post = MakeFaqPost("cmsc-125", new DateTime(2026, 9, 1));
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.Contains(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 11. FAQ of inactive course is excluded (even in window)
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_InactiveCourseTag_Excluded()
+    {
+        var provider = CreateEmptyProvider();
+        var post = MakeFaqPost("cmsc-141", new DateTime(2026, 3, 1)); // in window, not active
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.DoesNotContain(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 12. FAQ of active course visible outside term window
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_ActiveCourseTag_VisibleOutsideTermWindow()
+    {
+        var provider = CreateEmptyProvider();
+        var post = MakeFaqPost("cmsc-124", new DateTime(2025, 6, 1)); // before termStart
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.Contains(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 13. Showcase mode bypasses the active-course check
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_InactiveCourseTag_ShowcaseMode_Visible()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+        var post = MakeFaqPost("cmsc-141", new DateTime(2026, 3, 1));
 
         var result = provider.GetVisiblePosts(new[] { post });
 

@@ -501,6 +501,137 @@ public class CourseContentProviderTests
         Assert.DoesNotContain(result, p => p.FrontMatter.Title == "Draft");
     }
 
+    // ================================================================
+    // Active Course Tests
+    // ================================================================
+
+    // ----------------------------------------------------------------
+    // 1. Tagged post whose course is not active is excluded (even in window)
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_InactiveCourseTag_Excluded()
+    {
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Inactive Course Post",
+                Published = new DateTime(2026, 3, 1), // inside term window
+                Tags = new List<string> { "cmsc-141" }, // not in ACTIVE_COURSES
+            },
+            Url = "inactive-course",
+            HtmlContent = "<p>Inactive</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.DoesNotContain(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 2. Tagged post of an active course is visible even outside the term window
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_ActiveCourseTag_VisibleOutsideTermWindow()
+    {
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Active Course Post",
+                Published = new DateTime(2025, 8, 24), // before termStart
+                Tags = new List<string> { "cmsc-131" }, // active course
+            },
+            Url = "active-course",
+            HtmlContent = "<p>Active</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.Contains(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 3. Multi-tag post visible if any tag matches an active course
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_MultiTagPostWithActiveTag_Visible()
+    {
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Multi-Tag Post",
+                Published = new DateTime(2026, 3, 1),
+                Tags = new List<string> { "cmsc-141", "cmsc-124" }, // cmsc-124 active
+            },
+            Url = "multi-tag",
+            HtmlContent = "<p>Multi</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.Contains(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 4. Active-course post still hidden if published in the future
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_ActiveCourseTag_FuturePublished_Excluded()
+    {
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Future Active Post",
+                Published = new DateTime(2026, 4, 1), // inside window but > LocalNow
+                Tags = new List<string> { "cmsc-131" },
+            },
+            Url = "future-active",
+            HtmlContent = "<p>Future</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.DoesNotContain(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 5. Showcase mode bypasses the active-course check
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_InactiveCourseTag_ShowcaseMode_Visible()
+    {
+        BuildTimeProvider.IsShowcaseMode = true;
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Inactive Showcase Post",
+                Published = new DateTime(2026, 3, 1),
+                Tags = new List<string> { "cmsc-141" },
+            },
+            Url = "inactive-showcase",
+            HtmlContent = "<p>Showcase</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        BuildTimeProvider.IsShowcaseMode = false;
+        Assert.Contains(post, result);
+    }
+
     private static CourseContentProvider CreateEmptyProvider()
         => new(CreateServiceWithPosts([]));
 

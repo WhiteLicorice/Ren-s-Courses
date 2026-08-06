@@ -27,21 +27,27 @@ public class CourseContentProvider
     internal IEnumerable<Post<CourseFrontMatter>> GetVisiblePosts(
         IEnumerable<Post<CourseFrontMatter>> sourcePosts, bool showcaseMode)
     {
-        DateTime termStart = BuildTimeProvider.TermStart;
-        DateTime termEnd = BuildTimeProvider.TermEnd;
-        DateTime nowUtc = BuildTimeProvider.UtcNow;
-        DateTime nowPh = BuildTimeProvider.LocalNow;
-
-        if (!showcaseMode && nowUtc >= termEnd)
+        if (!showcaseMode && BuildTimeProvider.UtcNow >= BuildTimeProvider.TermEnd)
             return Enumerable.Empty<Post<CourseFrontMatter>>();
 
         return sourcePosts.Where(p =>
             !p.FrontMatter.IsDraft
             && !p.FrontMatter.Tags.Any(t => GlobalHiddenTags.Contains(t))
-            && (showcaseMode || p.FrontMatter.Published >= termStart)
-            && (showcaseMode || p.FrontMatter.Published <= termEnd)
-            && (showcaseMode || p.FrontMatter.Published <= nowPh)
+            && (showcaseMode || IsVisibleOutsideShowcase(p.FrontMatter))
         ).OrderByDescending(p => p.FrontMatter.Published);
+    }
+
+    // Tagged posts are course-scoped: they are visible iff their course is
+    // active (the term window no longer gates them). Untagged posts fall back
+    // to the term-window check. Future releases stay hidden either way.
+    private static bool IsVisibleOutsideShowcase(CourseFrontMatter fm)
+    {
+        if (fm.Published > BuildTimeProvider.LocalNow)
+            return false;
+        if (fm.Tags.Any())
+            return BuildTimeProvider.IsCourseActive(fm.Tags);
+        return fm.Published >= BuildTimeProvider.TermStart
+            && fm.Published <= BuildTimeProvider.TermEnd;
     }
 
     public List<string> GetAllTags()
