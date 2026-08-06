@@ -204,6 +204,8 @@ Key patterns:
 
 End-to-end tests run against the pre-built static output served by a lightweight file server. They cover every major user flow.
 
+E2E is **not** run in GitHub CI — the Playwright suite takes too long for GitHub runners. CI runs the jest, .NET, and Python gates instead; the e2e suite is the release gate you run locally before presenting or shipping.
+
 **Prerequisites:** Node.js 20+, .NET 9 SDK.
 
 ```bash

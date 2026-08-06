@@ -20,7 +20,8 @@ public static class BuildTimeProvider
     // its tags matches an active course.
     public static bool IsCourseActive(IEnumerable<string> tags) => tags.Any(ActiveCourses.Contains);
 
-    private static HashSet<string> ParseActiveCourses(string? raw)
+    // Internal for direct unit testing via InternalsVisibleTo.
+    internal static HashSet<string> ParseActiveCourses(string? raw)
     {
         var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (string.IsNullOrWhiteSpace(raw))

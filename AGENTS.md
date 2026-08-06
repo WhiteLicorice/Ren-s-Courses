@@ -62,7 +62,17 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## 5. Preserve Session Learnings
+## 5. E2E Before Ship
+
+**Run the Playwright e2e suite before presenting work or shipping.**
+
+GitHub CI does not run e2e — the suite takes too long for GitHub runners. CI covers the jest, .NET, and Python gates only. A green CI without e2e is not a shippable state; the e2e suite is the release gate for rendered-site behavior.
+
+- Build first: `ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile`
+- Then run: `npm run test:e2e` (single spec: `npx playwright test tests/e2e/home.spec.js`)
+- Run the full suite when the change touches rendering, markup, or JS; run at least the affected specs otherwise.
+
+## 6. Preserve Session Learnings
 
 **Update durable project memory before presenting the end of a session to the user.**
 

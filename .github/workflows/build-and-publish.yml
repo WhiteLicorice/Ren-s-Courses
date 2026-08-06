@@ -73,6 +73,9 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
+      # Playwright e2e is intentionally NOT run in CI: the suite takes too
+      # long for GitHub runners. CI covers jest + .NET + Python gates; run
+      # `npm run test:e2e` locally before shipping (see AGENTS.md).
       - name: Run JS tests
         run: npm test -- --no-coverage --ci
 
