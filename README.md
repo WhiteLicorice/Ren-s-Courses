@@ -228,10 +228,10 @@ npx playwright test --project=chromium
 npx playwright show-report
 ```
 
-**Build time constraint:** `CourseContentProvider` only surfaces materials published on or before `STATIC_GEN_TIME` and inside the `TERM_START`--`TERM_END` window. CI pins `STATIC_GEN_TIME=2026-03-15T12:00:00Z`. To preview in-term visibility locally before the term ends:
+**Build time constraint:** `CourseContentProvider` only surfaces materials whose course is active. Tagged materials (course-scoped) are visible iff at least one tag matches `ACTIVE_COURSES`; untagged materials fall back to the `TERM_START`--`TERM_END` window. Future releases (published after `STATIC_GEN_TIME`) stay hidden, and after the term ends nothing is visible. `SHOWCASE_MODE=true` bypasses all of this and shows every non-draft post. To preview visibility locally before the term ends:
 
 ```bash
-STATIC_GEN_TIME="2026-03-15T12:00:00Z" TERM_START="2026-01-19" TERM_END="2026-05-23" ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
+STATIC_GEN_TIME="2026-08-06T10:00:00Z" TERM_START="2026-08-01" TERM_END="2026-12-31" ACTIVE_COURSES="cmsc-124,cmsc-131" ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
 ```
 
 `--no-launch-profile` is required for static generation because the local launch profiles set
@@ -255,10 +255,11 @@ For a CI-equivalent local build in PowerShell:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT = "Production"
-$env:TERM_START = "2026-01-19"
-$env:TERM_END = "2026-05-28"
-$env:SHOWCASE_MODE = "true"
-$env:STATIC_GEN_TIME = "2026-07-14T00:00:00Z"
+$env:TERM_START = "2026-08-01"
+$env:TERM_END = "2026-12-31"
+$env:ACTIVE_COURSES = "cmsc-124,cmsc-131"
+$env:SHOWCASE_MODE = "false"
+$env:STATIC_GEN_TIME = "2026-08-06T00:00:00Z"
 dotnet run --no-launch-profile --configuration Release
 ```
 

@@ -71,6 +71,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -117,6 +118,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -166,6 +168,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -204,6 +207,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -241,6 +245,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -266,6 +271,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -303,6 +309,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 
@@ -352,6 +359,7 @@ public class BlogPageTests
         };
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
         ctx.Services.AddSingleton<FrontmatterStatusService>();
         ConfigureArticleScripts(ctx);
 

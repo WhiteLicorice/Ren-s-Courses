@@ -35,7 +35,7 @@ title: Last Day Post
 subtitle: Boundary check
 published: 2026-05-25
 tags:
-  - cmsc-124
+  - fixture-course-a
 lead: Still visible on the last day.
 ---
 Body
@@ -48,6 +48,7 @@ Body
                 static_gen_time="2026-05-25T23:20:01Z",
                 term_start="2026-01-19",
                 term_end="2026-05-26",
+                active_courses="fixture-course-a",
             )
 
             feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
@@ -130,6 +131,91 @@ Body
             self.assertFalse(Path(output_dir, "feed.xml").exists())
             self.assertEqual([], list(Path(output_dir).glob("feed*.xml")))
 
+    def test_active_course_post_outside_term_window_included(self):
+        # Site shows active-course articles regardless of the term window;
+        # the feed must mirror that.
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "carry-over-post.md",
+                """---
+title: Carry Over Post
+published: 2025-08-24
+tags:
+  - fixture-course-a
+lead: Old material of an active course is still published.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertIn("Carry Over Post", feed_xml)
+
+    def test_inactive_course_post_excluded_from_feed(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "inactive-post.md",
+                """---
+title: Inactive Course Post
+published: 2026-05-20
+tags:
+  - fixture-course-c
+lead: Hidden from the site, so hidden from the feed.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertNotIn("Inactive Course Post", feed_xml)
+            self.assertNotIn("<item>", feed_xml)
+
+    def test_untagged_post_outside_term_window_excluded(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "old-untagged-post.md",
+                """---
+title: Old Untagged Post
+published: 2025-08-24
+lead: Untagged posts keep the term-window rule.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertNotIn("Old Untagged Post", feed_xml)
+
     @staticmethod
     def _write_post(content_dir: str, file_name: str, content: str) -> None:
         Path(content_dir, file_name).write_text(content, encoding="utf-8")
@@ -143,6 +229,7 @@ Body
         term_start: str,
         term_end: str,
         showcase_mode: str = "false",
+        active_courses: str = "",
     ) -> None:
         with mock.patch.object(generate_feed, "CONTENT_DIR", content_dir), \
              mock.patch.object(generate_feed, "OUTPUT_DIR", output_dir), \
@@ -153,6 +240,7 @@ Body
                      "TERM_START": term_start,
                      "TERM_END": term_end,
                      "SHOWCASE_MODE": showcase_mode,
+                     "ACTIVE_COURSES": active_courses,
                  },
                  clear=False,
              ):

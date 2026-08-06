@@ -77,6 +77,82 @@ public class WebsiteKeysTests
         Assert.Null(exception);
     }
 
+    // ================================================================
+    // RemoveHiddenArticlePages
+    // ================================================================
+
+    // ----------------------------------------------------------------
+    // 1. Removes article pages for invisible posts, keeps visible ones
+    // ----------------------------------------------------------------
+    [Fact]
+    public void RemoveHiddenArticlePages_RemovesInvisiblePostPages_KeepsVisible()
+    {
+        var (svc, contentService) = CreateServicePair<CourseFrontMatter>(
+            pageUrl: "articles",
+            pages: [
+                ("articles/active-post", "<p>active</p>"),
+                ("articles/inactive-post", "<p>inactive</p>"),
+                ("materials", "<p>listing</p>"),
+                ("materials/tag-fixture-course-a", "<p>tag</p>"),
+            ]);
+        SetPosts(contentService, new List<Post<CourseFrontMatter>>
+        {
+            MakePost("active-post", "fixture-course-a"),
+            MakePost("inactive-post", "fixture-course-c"),
+        });
+
+        WebsiteKeys.RemoveHiddenArticlePages(svc, contentService);
+
+        var remaining = svc.Options.PagesToGenerate.Select(p => GetUrl(p)).ToList();
+        Assert.Contains("articles/active-post", remaining);
+        Assert.DoesNotContain("articles/inactive-post", remaining);
+        Assert.Contains("materials", remaining);
+        Assert.Contains("materials/tag-fixture-course-a", remaining);
+    }
+
+    // ----------------------------------------------------------------
+    // 2. Showcase mode keeps every non-draft article page
+    // ----------------------------------------------------------------
+    [Fact]
+    public void RemoveHiddenArticlePages_ShowcaseMode_KeepsInactivePostPages()
+    {
+        var (svc, contentService) = CreateServicePair<CourseFrontMatter>(
+            pageUrl: "articles",
+            pages: [("articles/inactive-post", "<p>inactive</p>")]);
+        SetPosts(contentService, new List<Post<CourseFrontMatter>>
+        {
+            MakePost("inactive-post", "fixture-course-c"),
+        });
+
+        BuildTimeProvider.IsShowcaseMode = true;
+        try
+        {
+            WebsiteKeys.RemoveHiddenArticlePages(svc, contentService);
+        }
+        finally
+        {
+            BuildTimeProvider.IsShowcaseMode = false;
+        }
+
+        var remaining = svc.Options.PagesToGenerate.Select(p => GetUrl(p)).ToList();
+        Assert.Contains("articles/inactive-post", remaining);
+    }
+
+    // ----------------------------------------------------------------
+    // 3. Empty PagesToGenerate does not throw
+    // ----------------------------------------------------------------
+    [Fact]
+    public void RemoveHiddenArticlePages_EmptyPages_DoesNotThrow()
+    {
+        var (svc, contentService) = CreateServicePair<CourseFrontMatter>(
+            pageUrl: "articles",
+            pages: []);
+        SetPosts(contentService, []);
+
+        var exception = Record.Exception(() => WebsiteKeys.RemoveHiddenArticlePages(svc, contentService));
+        Assert.Null(exception);
+    }
+
     // ----------------------------------------------------------------
     // 4. Uses contentService.Options.PageUrl, not hardcoded "_disabled"
     // ----------------------------------------------------------------
@@ -105,6 +181,28 @@ public class WebsiteKeysTests
 
     private static string GetUrl(object page) =>
         (string)page.GetType().GetProperty("Url")!.GetValue(page)!;
+
+    private static Post<CourseFrontMatter> MakePost(string url, string tag) =>
+        new()
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = url,
+                Published = new DateTime(2026, 3, 1), // inside term window
+                Tags = new List<string> { tag },
+            },
+            Url = url,
+            HtmlContent = "<p>body</p>",
+        };
+
+    private static void SetPosts<T>(BlazorStaticContentService<T> contentService, List<Post<T>> posts)
+        where T : class, IFrontMatter, new()
+    {
+        var postsField = typeof(BlazorStaticContentService<T>)
+            .GetField("<Posts>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
+        postsField.SetValue(contentService, posts);
+    }
 
     /// <summary>
     /// Creates BlazorStaticService + BlazorStaticContentService{T} with controlled state.

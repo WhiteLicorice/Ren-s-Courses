@@ -377,7 +377,7 @@ public class CalendarEventProviderTests
                 {
                     Title = "CMSC 141 Midterms",
                     Dates = [TestDate1],
-                    Tags = ["cmsc-141"]
+                    Tags = ["fixture-course-c"]
                 },
                 Url = "cmsc-141-midterms",
                 HtmlContent = "<p>midterms</p>"
@@ -403,7 +403,7 @@ public class CalendarEventProviderTests
                 {
                     Title = "CMSC 131 Midterms",
                     Dates = [TestDate1],
-                    Tags = ["cmsc-131"]
+                    Tags = ["fixture-course-a"]
                 },
                 Url = "cmsc-131-midterms",
                 HtmlContent = "<p>midterms</p>"
@@ -457,7 +457,7 @@ public class CalendarEventProviderTests
                 {
                     Title = "CMSC 141 Midterms",
                     Dates = [TestDate1],
-                    Tags = ["cmsc-141"]
+                    Tags = ["fixture-course-c"]
                 },
                 Url = "cmsc-141-midterms",
                 HtmlContent = "<p>midterms</p>"

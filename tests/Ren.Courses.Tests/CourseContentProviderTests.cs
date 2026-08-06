@@ -22,7 +22,7 @@ public class CourseContentProviderTests
                 Title = "Valid Post",
                 Published = new DateTime(2026, 3, 1),
                 IsDraft = false,
-                Tags = new List<string> { "cmsc-131" },
+                Tags = new List<string> { "fixture-course-a" },
             },
             Url = "valid-post",
             HtmlContent = "<p>Valid Post</p>",
@@ -269,7 +269,7 @@ public class CourseContentProviderTests
                 {
                     Title = "Post 1",
                     Published = new DateTime(2026, 3, 1),
-                    Tags = new List<string> { "cmsc-131" },
+                    Tags = new List<string> { "fixture-course-a" },
                 },
                 Url = "post-1",
                 HtmlContent = "<p>Post 1</p>",
@@ -280,7 +280,7 @@ public class CourseContentProviderTests
                 {
                     Title = "Post 2",
                     Published = new DateTime(2026, 2, 15),
-                    Tags = new List<string> { "cmsc-124" },
+                    Tags = new List<string> { "fixture-course-b" },
                 },
                 Url = "post-2",
                 HtmlContent = "<p>Post 2</p>",
@@ -291,7 +291,7 @@ public class CourseContentProviderTests
                 {
                     Title = "Post 3",
                     Published = new DateTime(2026, 1, 20),
-                    Tags = new List<string> { "cmsc-131", "cmsc-141" },
+                    Tags = new List<string> { "fixture-course-a", "fixture-course-c" },
                 },
                 Url = "post-3",
                 HtmlContent = "<p>Post 3</p>",
@@ -305,9 +305,9 @@ public class CourseContentProviderTests
 
         Assert.Equal(3, tags.Count);
         Assert.Collection(tags,
-            t => Assert.Equal("cmsc-124", t),
-            t => Assert.Equal("cmsc-131", t),
-            t => Assert.Equal("cmsc-141", t));
+            t => Assert.Equal("fixture-course-a", t),
+            t => Assert.Equal("fixture-course-b", t),
+            t => Assert.Equal("fixture-course-c", t));
     }
 
     // ----------------------------------------------------------------
@@ -519,7 +519,7 @@ public class CourseContentProviderTests
             {
                 Title = "Inactive Course Post",
                 Published = new DateTime(2026, 3, 1), // inside term window
-                Tags = new List<string> { "cmsc-141" }, // not in ACTIVE_COURSES
+                Tags = new List<string> { "fixture-course-c" }, // not in ACTIVE_COURSES
             },
             Url = "inactive-course",
             HtmlContent = "<p>Inactive</p>",
@@ -544,7 +544,7 @@ public class CourseContentProviderTests
             {
                 Title = "Active Course Post",
                 Published = new DateTime(2025, 8, 24), // before termStart
-                Tags = new List<string> { "cmsc-131" }, // active course
+                Tags = new List<string> { "fixture-course-a" }, // active course
             },
             Url = "active-course",
             HtmlContent = "<p>Active</p>",
@@ -569,7 +569,7 @@ public class CourseContentProviderTests
             {
                 Title = "Multi-Tag Post",
                 Published = new DateTime(2026, 3, 1),
-                Tags = new List<string> { "cmsc-141", "cmsc-124" }, // cmsc-124 active
+                Tags = new List<string> { "fixture-course-c", "fixture-course-b" }, // b active
             },
             Url = "multi-tag",
             HtmlContent = "<p>Multi</p>",
@@ -594,7 +594,7 @@ public class CourseContentProviderTests
             {
                 Title = "Future Active Post",
                 Published = new DateTime(2026, 4, 1), // inside window but > LocalNow
-                Tags = new List<string> { "cmsc-131" },
+                Tags = new List<string> { "fixture-course-a" },
             },
             Url = "future-active",
             HtmlContent = "<p>Future</p>",
@@ -620,7 +620,7 @@ public class CourseContentProviderTests
             {
                 Title = "Inactive Showcase Post",
                 Published = new DateTime(2026, 3, 1),
-                Tags = new List<string> { "cmsc-141" },
+                Tags = new List<string> { "fixture-course-c" },
             },
             Url = "inactive-showcase",
             HtmlContent = "<p>Showcase</p>",

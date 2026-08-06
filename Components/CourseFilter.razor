@@ -1,7 +1,7 @@
 @* Shared per-page course filter chip bar. Place above card grids, left-aligned.
    Calls toggleCourseFilter(tag) / clearCourseFilter() from course-filter.js.
-   Pass ALL tags from the raw content service (no term filtering) so inactive
-   courses still appear as chip options. *@
+   Callers pass tags derived from visible posts only, so inactive courses do
+   not appear as chip options. *@
 
 @if (Tags.Any())
 {

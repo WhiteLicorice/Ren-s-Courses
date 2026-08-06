@@ -15,7 +15,7 @@ public class BookingContentProviderTests
     public void GetVisiblePosts_InactiveCourseTag_Excluded()
     {
         var provider = CreateEmptyProvider();
-        var booking = MakeBooking("cmsc-141", "CMSC 141 Lab");
+        var booking = MakeBooking("fixture-course-c", "CMSC 141 Lab");
 
         var result = provider.GetVisiblePosts(new[] { booking });
 
@@ -29,7 +29,7 @@ public class BookingContentProviderTests
     public void GetVisiblePosts_ActiveCourseTag_Included()
     {
         var provider = CreateEmptyProvider();
-        var booking = MakeBooking("cmsc-124", "CMSC 124 Lab");
+        var booking = MakeBooking("fixture-course-a", "CMSC 124 Lab");
 
         var result = provider.GetVisiblePosts(new[] { booking });
 
@@ -58,7 +58,7 @@ public class BookingContentProviderTests
     {
         BuildTimeProvider.IsShowcaseMode = true;
         var provider = CreateEmptyProvider();
-        var booking = MakeBooking("cmsc-141", "CMSC 141 Lab");
+        var booking = MakeBooking("fixture-course-c", "CMSC 141 Lab");
 
         var result = provider.GetVisiblePosts(new[] { booking });
 
@@ -75,8 +75,8 @@ public class BookingContentProviderTests
         var provider = CreateEmptyProvider();
         var bookings = new[]
         {
-            MakeBooking("cmsc-124", "Zulu Lab"),
-            MakeBooking("cmsc-131", "Alpha Lab"),
+            MakeBooking("fixture-course-a", "Zulu Lab"),
+            MakeBooking("fixture-course-b", "Alpha Lab"),
         };
 
         var result = provider.GetVisiblePosts(bookings).ToList();

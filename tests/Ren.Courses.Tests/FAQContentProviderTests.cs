@@ -14,7 +14,7 @@ public class FAQContentProviderTests
     public void GetVisiblePosts_ValidPost_ReturnsPost()
     {
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-125", new DateTime(2026, 3, 1));
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 3, 1));
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -55,7 +55,7 @@ public class FAQContentProviderTests
     {
         // termEnd (UTC) = 2026-05-30 16:00 (from PH local "2026-05-31")
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-125", new DateTime(2026, 6, 15));
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 6, 15));
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -70,7 +70,7 @@ public class FAQContentProviderTests
     {
         // LocalNow = 2026-03-15 18:00 PHT
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-125", new DateTime(2026, 3, 20));
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 3, 20));
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -97,8 +97,8 @@ public class FAQContentProviderTests
     public void GetVisiblePosts_OrderedByPublishedAscending()
     {
         var provider = CreateEmptyProvider();
-        var older = MakeFaqPost("cmsc-124", new DateTime(2026, 1, 20));
-        var newer = MakeFaqPost("cmsc-124", new DateTime(2026, 3, 1));
+        var older = MakeFaqPost("fixture-course-b", new DateTime(2026, 1, 20));
+        var newer = MakeFaqPost("fixture-course-b", new DateTime(2026, 3, 1));
 
         var result = provider.GetVisiblePosts(new[] { newer, older }).ToList();
 
@@ -115,9 +115,9 @@ public class FAQContentProviderTests
     {
         var posts = new List<Post<FAQFrontmatter>>
         {
-            MakeFaqPost("cmsc-125", new DateTime(2026, 2, 1)),
-            MakeFaqPost("cmsc-124", new DateTime(2026, 2, 15)),
-            MakeFaqPost("cmsc-125", new DateTime(2026, 3, 1)),
+            MakeFaqPost("fixture-course-a", new DateTime(2026, 2, 1)),
+            MakeFaqPost("fixture-course-b", new DateTime(2026, 2, 15)),
+            MakeFaqPost("fixture-course-a", new DateTime(2026, 3, 1)),
         };
 
         var service = CreateServiceWithPosts(posts);
@@ -126,8 +126,8 @@ public class FAQContentProviderTests
         var tags = provider.GetAllTags();
 
         Assert.Equal(2, tags.Count);
-        Assert.Equal("cmsc-124", tags[0]);
-        Assert.Equal("cmsc-125", tags[1]);
+        Assert.Equal("fixture-course-a", tags[0]);
+        Assert.Equal("fixture-course-b", tags[1]);
     }
 
     // ----------------------------------------------------------------
@@ -141,7 +141,7 @@ public class FAQContentProviderTests
             FrontMatter = new FAQFrontmatter
             {
                 Question = "Multi-tag question",
-                Tags = new List<string> { "cmsc-124", "cmsc-125" },
+                Tags = new List<string> { "fixture-course-b", "fixture-course-a" },
                 Published = new DateTime(2026, 2, 1),
             },
             Url = "multi-tag",
@@ -154,8 +154,8 @@ public class FAQContentProviderTests
         var tags = provider.GetAllTags();
 
         Assert.Equal(2, tags.Count);
-        Assert.Contains("cmsc-124", tags);
-        Assert.Contains("cmsc-125", tags);
+        Assert.Contains("fixture-course-b", tags);
+        Assert.Contains("fixture-course-a", tags);
     }
 
     // ----------------------------------------------------------------
@@ -166,7 +166,7 @@ public class FAQContentProviderTests
     {
         BuildTimeProvider.IsShowcaseMode = true;
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-125", new DateTime(2025, 6, 1));
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2025, 6, 1));
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -182,7 +182,7 @@ public class FAQContentProviderTests
     {
         BuildTimeProvider.IsShowcaseMode = true;
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-125", new DateTime(2026, 9, 1));
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 9, 1));
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -197,7 +197,7 @@ public class FAQContentProviderTests
     public void GetVisiblePosts_InactiveCourseTag_Excluded()
     {
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-141", new DateTime(2026, 3, 1)); // in window, not active
+        var post = MakeFaqPost("fixture-course-c", new DateTime(2026, 3, 1)); // in window, not active
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -211,7 +211,7 @@ public class FAQContentProviderTests
     public void GetVisiblePosts_ActiveCourseTag_VisibleOutsideTermWindow()
     {
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-124", new DateTime(2025, 6, 1)); // before termStart
+        var post = MakeFaqPost("fixture-course-b", new DateTime(2025, 6, 1)); // before termStart
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -226,7 +226,7 @@ public class FAQContentProviderTests
     {
         BuildTimeProvider.IsShowcaseMode = true;
         var provider = CreateEmptyProvider();
-        var post = MakeFaqPost("cmsc-141", new DateTime(2026, 3, 1));
+        var post = MakeFaqPost("fixture-course-c", new DateTime(2026, 3, 1));
 
         var result = provider.GetVisiblePosts(new[] { post });
 

@@ -6,6 +6,7 @@
 @using BlazorStaticMinimalBlog.Models
 @using BlazorStaticMinimalBlog.Services
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
+@inject CourseContentProvider CourseContentProvider
 @inject IJSRuntime JSRuntime
 @inject FrontmatterStatusService StatusService
 @inject PdfGenerationManifest PdfManifest
@@ -270,7 +271,8 @@
 
     protected override void OnInitialized()
     {
-        _allTags = blazorStaticContentService.Posts
+        // Chips derive from visible posts only — inactive courses are not offered.
+        _allTags = CourseContentProvider.GetVisiblePosts(blazorStaticContentService.Posts)
             .SelectMany(p => p.FrontMatter.Tags)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)

@@ -24,6 +24,7 @@ builder.Services.AddBlazorStaticService(opt =>
     opt.ContentPath = WebsiteKeys.Materials.SourcePath;
     opt.Tags.TagsPageUrl = WebsiteKeys.Materials.TagPageUrl;
     opt.PageUrl = WebsiteKeys.Materials.UrlPrefix;
+    opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemoveHiddenArticlePages;
 })
 .AddBlazorStaticContentService<ProjectFrontMatter>(opt =>
 {
@@ -222,6 +223,26 @@ public static class WebsiteKeys
         var prefix = contentService.Options.PageUrl + "/";
         var pagesToRemove = svc.Options.PagesToGenerate
             .Where(p => p.Url.StartsWith(prefix, StringComparison.Ordinal))
+            .ToList();
+        foreach (var page in pagesToRemove)
+            svc.Options.PagesToGenerate.Remove(page);
+    }
+
+    // AfterContentParsedAndAddedAction callback: drops individual article
+    // pages for posts that are not currently visible (inactive course, future
+    // release, or out-of-window untagged post). Listing and tag pages are
+    // untouched. Mirrors CourseContentProvider.GetVisiblePosts.
+    internal static void RemoveHiddenArticlePages(
+        BlazorStaticService svc, BlazorStaticContentService<CourseFrontMatter> contentService)
+    {
+        var prefix = contentService.Options.PageUrl + "/";
+        var visibleUrls = new CourseContentProvider(contentService)
+            .GetVisiblePosts()
+            .Select(p => p.Url)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var pagesToRemove = svc.Options.PagesToGenerate
+            .Where(p => p.Url.StartsWith(prefix, StringComparison.Ordinal)
+                && !visibleUrls.Contains(p.Url[prefix.Length..]))
             .ToList();
         foreach (var page in pagesToRemove)
             svc.Options.PagesToGenerate.Remove(page);

@@ -129,20 +129,20 @@ public class StaticGenerationTests
         {
             Title = "Valid Post",
             Published = new DateTime(2026, 2, 1),
-            Tags = new List<string> { "cmsc-131" }
+            Tags = new List<string> { "fixture-course-a" }
         });
         var draft = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
         {
             Title = "Draft Post",
             Published = new DateTime(2026, 3, 1),
             IsDraft = true,
-            Tags = new List<string> { "cmsc-124" }
+            Tags = new List<string> { "fixture-course-c" }
         });
         var minimal = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
         {
             Title = "Minimal Post",
             Published = new DateTime(2026, 3, 1),
-            Tags = new List<string> { "cmsc-131" }
+            Tags = new List<string> { "fixture-course-a" }
         });
 
         var posts = new List<Post<CourseFrontMatter>>

@@ -51,6 +51,11 @@ def is_showcase_mode() -> bool:
     showcase_mode = os.environ.get("SHOWCASE_MODE", "")
     return showcase_mode.lower() == "true" or showcase_mode == "1"
 
+def get_active_courses() -> set:
+    """Comma-separated ACTIVE_COURSES env var, mirroring BuildTimeProvider."""
+    raw = os.environ.get("ACTIVE_COURSES", "")
+    return {c.strip().lower() for c in raw.split(",") if c.strip()}
+
 def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Optional[datetime.datetime]:
     """
     Robustly parses a date input into a timezone-aware UTC datetime object.
@@ -175,6 +180,8 @@ def generate_feed() -> None:
         return
     
     all_posts: List[PostItem] = []
+    active_courses = get_active_courses()
+    print(f"[FeedGen] Active courses: {sorted(active_courses)}")
 
     if not os.path.exists(CONTENT_DIR):
         print(f"[FeedGen] Error: Content directory '{CONTENT_DIR}' not found.")
@@ -208,25 +215,32 @@ def generate_feed() -> None:
             if pub_date > now:
                 print(f"Skipping Future Post: {title} ({pub_date} > {now})")
                 continue
-            
-            if pub_date < start:
-                print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
-                continue
-            
-            if pub_date > end:
-                print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
-                continue
-            
-            # Prepare Data
-            filename = os.path.basename(filepath)
-            slug = os.path.splitext(filename)[0]
-            url = f"articles/{slug}"
-            
+
             # Handle Tags: YAML parser gives us a List or None. Ensure List.
             tags = metadata.get('tags', [])
             if not isinstance(tags, list):
                 # Fallback if someone wrote tags: "tag1, tag2" string
-                tags = [str(tags)] 
+                tags = [str(tags)]
+            tags = [str(t) for t in tags]
+
+            # Parity with CourseContentProvider: tagged posts are course-scoped
+            # and need an active course; untagged posts keep the term window.
+            if tags:
+                if not any(t.lower() in active_courses for t in tags):
+                    print(f"Skipping Inactive Course Post: {title} ({tags} not active)")
+                    continue
+            else:
+                if pub_date < start:
+                    print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
+                    continue
+                if pub_date > end:
+                    print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
+                    continue
+
+            # Prepare Data
+            filename = os.path.basename(filepath)
+            slug = os.path.splitext(filename)[0]
+            url = f"articles/{slug}"
 
             all_posts.append({
                 "title": title,
