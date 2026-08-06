@@ -131,9 +131,9 @@ Body
             self.assertFalse(Path(output_dir, "feed.xml").exists())
             self.assertEqual([], list(Path(output_dir).glob("feed*.xml")))
 
-    def test_active_course_post_outside_term_window_included(self):
-        # Site shows active-course articles regardless of the term window;
-        # the feed must mirror that.
+    def test_active_course_post_outside_term_window_excluded(self):
+        # Parity with the site: posts outside the term window are not
+        # published at all, even for active courses.
         with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
             self._write_post(
                 content_dir,
@@ -143,7 +143,7 @@ title: Carry Over Post
 published: 2025-08-24
 tags:
   - fixture-course-a
-lead: Old material of an active course is still published.
+lead: Old material of an active course is not published.
 ---
 Body
 """,
@@ -159,7 +159,8 @@ Body
             )
 
             feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
-            self.assertIn("Carry Over Post", feed_xml)
+            self.assertNotIn("Carry Over Post", feed_xml)
+            self.assertNotIn("<item>", feed_xml)
 
     def test_inactive_course_post_excluded_from_feed(self):
         with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:

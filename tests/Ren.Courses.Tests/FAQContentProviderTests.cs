@@ -205,13 +205,27 @@ public class FAQContentProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 12. FAQ of active course visible outside term window
+    // 12. FAQ of active course is excluded outside the term window
     // ----------------------------------------------------------------
     [Fact]
-    public void GetVisiblePosts_ActiveCourseTag_VisibleOutsideTermWindow()
+    public void GetVisiblePosts_ActiveCourseTag_OutsideTermWindow_Excluded()
     {
         var provider = CreateEmptyProvider();
         var post = MakeFaqPost("fixture-course-b", new DateTime(2025, 6, 1)); // before termStart
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.DoesNotContain(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 13. FAQ of active course inside the window is visible
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_ActiveCourseTag_InsideTermWindow_Visible()
+    {
+        var provider = CreateEmptyProvider();
+        var post = MakeFaqPost("fixture-course-b", new DateTime(2026, 3, 1)); // inside term window
 
         var result = provider.GetVisiblePosts(new[] { post });
 
@@ -219,7 +233,7 @@ public class FAQContentProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 13. Showcase mode bypasses the active-course check
+    // 14. Showcase mode bypasses the active-course check
     // ----------------------------------------------------------------
     [Fact]
     public void GetVisiblePosts_InactiveCourseTag_ShowcaseMode_Visible()

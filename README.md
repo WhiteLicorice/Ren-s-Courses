@@ -230,7 +230,7 @@ npx playwright test --project=chromium
 npx playwright show-report
 ```
 
-**Build time constraint:** `CourseContentProvider` only surfaces materials whose course is active. Tagged materials (course-scoped) are visible iff at least one tag matches `ACTIVE_COURSES`; untagged materials fall back to the `TERM_START`--`TERM_END` window. Future releases (published after `STATIC_GEN_TIME`) stay hidden, and after the term ends nothing is visible. `SHOWCASE_MODE=true` bypasses all of this and shows every non-draft post. To preview visibility locally before the term ends:
+**Build time constraint:** `CourseContentProvider` only surfaces materials published inside the `TERM_START`--`TERM_END` window. Tagged materials (course-scoped) additionally need at least one tag to match `ACTIVE_COURSES` — a course being active does not override the term window. Future releases (published after `STATIC_GEN_TIME`) stay hidden, and after the term ends nothing is visible. `SHOWCASE_MODE=true` bypasses all of this and shows every non-draft post. To preview visibility locally before the term ends:
 
 ```bash
 STATIC_GEN_TIME="2026-08-06T10:00:00Z" TERM_START="2026-08-01" TERM_END="2026-12-31" ACTIVE_COURSES="cmsc-124,cmsc-131" ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile

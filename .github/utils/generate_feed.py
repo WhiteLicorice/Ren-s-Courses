@@ -223,19 +223,18 @@ def generate_feed() -> None:
                 tags = [str(tags)]
             tags = [str(t) for t in tags]
 
-            # Parity with CourseContentProvider: tagged posts are course-scoped
-            # and need an active course; untagged posts keep the term window.
-            if tags:
-                if not any(t.lower() in active_courses for t in tags):
-                    print(f"Skipping Inactive Course Post: {title} ({tags} not active)")
-                    continue
-            else:
-                if pub_date < start:
-                    print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
-                    continue
-                if pub_date > end:
-                    print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
-                    continue
+            # Parity with CourseContentProvider: posts outside the term window
+            # are not published at all; tagged posts additionally need an
+            # active course.
+            if pub_date < start:
+                print(f"Skipping Past Term Post: {title} ({pub_date} < {start})")
+                continue
+            if pub_date > end:
+                print(f"Skipping Future Term Post: {title} ({pub_date} > {end})")
+                continue
+            if tags and not any(t.lower() in active_courses for t in tags):
+                print(f"Skipping Inactive Course Post: {title} ({tags} not active)")
+                continue
 
             # Prepare Data
             filename = os.path.basename(filepath)

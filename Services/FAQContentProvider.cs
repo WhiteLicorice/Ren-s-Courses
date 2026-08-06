@@ -30,17 +30,17 @@ public class FAQContentProvider
         ).OrderBy(p => p.FrontMatter.Published);
     }
 
-    // Tagged FAQs are course-scoped: visible iff their course is active.
-    // Untagged FAQs fall back to the term-window check. Future releases stay
-    // hidden either way.
+    // Tagged FAQs are course-scoped: visible iff their course is active AND
+    // published inside the term window. Posts outside the window are not
+    // published at all, even for active courses. Future releases stay hidden.
     private static bool IsVisibleOutsideShowcase(FAQFrontmatter fm)
     {
         if (fm.Published > BuildTimeProvider.LocalNow)
             return false;
-        if (fm.Tags.Any())
-            return BuildTimeProvider.IsCourseActive(fm.Tags);
-        return fm.Published >= BuildTimeProvider.TermStart
-            && fm.Published <= BuildTimeProvider.TermEnd;
+        if (fm.Published < BuildTimeProvider.TermStart
+            || fm.Published > BuildTimeProvider.TermEnd)
+            return false;
+        return !fm.Tags.Any() || BuildTimeProvider.IsCourseActive(fm.Tags);
     }
 
     public List<string> GetAllTags()

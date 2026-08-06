@@ -531,10 +531,10 @@ public class CourseContentProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 2. Tagged post of an active course is visible even outside the term window
+    // 2. Tagged post of an active course is excluded outside the term window
     // ----------------------------------------------------------------
     [Fact]
-    public void GetVisiblePosts_ActiveCourseTag_VisibleOutsideTermWindow()
+    public void GetVisiblePosts_ActiveCourseTag_OutsideTermWindow_Excluded()
     {
         var provider = CreateEmptyProvider();
 
@@ -552,11 +552,36 @@ public class CourseContentProviderTests
 
         var result = provider.GetVisiblePosts(new[] { post });
 
+        Assert.DoesNotContain(post, result);
+    }
+
+    // ----------------------------------------------------------------
+    // 3. Tagged post of an active course inside the window is visible
+    // ----------------------------------------------------------------
+    [Fact]
+    public void GetVisiblePosts_ActiveCourseTag_InsideTermWindow_Visible()
+    {
+        var provider = CreateEmptyProvider();
+
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Active Course Post",
+                Published = new DateTime(2026, 3, 1), // inside term window
+                Tags = new List<string> { "fixture-course-a" },
+            },
+            Url = "active-course",
+            HtmlContent = "<p>Active</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
         Assert.Contains(post, result);
     }
 
     // ----------------------------------------------------------------
-    // 3. Multi-tag post visible if any tag matches an active course
+    // 4. Multi-tag post visible if any tag matches an active course
     // ----------------------------------------------------------------
     [Fact]
     public void GetVisiblePosts_MultiTagPostWithActiveTag_Visible()
@@ -581,7 +606,7 @@ public class CourseContentProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 4. Active-course post still hidden if published in the future
+    // 5. Active-course post still hidden if published in the future
     // ----------------------------------------------------------------
     [Fact]
     public void GetVisiblePosts_ActiveCourseTag_FuturePublished_Excluded()
@@ -606,7 +631,7 @@ public class CourseContentProviderTests
     }
 
     // ----------------------------------------------------------------
-    // 5. Showcase mode bypasses the active-course check
+    // 6. Showcase mode bypasses the active-course check
     // ----------------------------------------------------------------
     [Fact]
     public void GetVisiblePosts_InactiveCourseTag_ShowcaseMode_Visible()

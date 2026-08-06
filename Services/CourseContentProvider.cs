@@ -37,17 +37,17 @@ public class CourseContentProvider
         ).OrderByDescending(p => p.FrontMatter.Published);
     }
 
-    // Tagged posts are course-scoped: they are visible iff their course is
-    // active (the term window no longer gates them). Untagged posts fall back
-    // to the term-window check. Future releases stay hidden either way.
+    // Tagged posts are course-scoped: visible iff their course is active AND
+    // published inside the term window. Posts outside the window are not
+    // published at all, even for active courses. Future releases stay hidden.
     private static bool IsVisibleOutsideShowcase(CourseFrontMatter fm)
     {
         if (fm.Published > BuildTimeProvider.LocalNow)
             return false;
-        if (fm.Tags.Any())
-            return BuildTimeProvider.IsCourseActive(fm.Tags);
-        return fm.Published >= BuildTimeProvider.TermStart
-            && fm.Published <= BuildTimeProvider.TermEnd;
+        if (fm.Published < BuildTimeProvider.TermStart
+            || fm.Published > BuildTimeProvider.TermEnd)
+            return false;
+        return !fm.Tags.Any() || BuildTimeProvider.IsCourseActive(fm.Tags);
     }
 
     public List<string> GetAllTags()
