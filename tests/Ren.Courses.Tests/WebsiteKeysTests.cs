@@ -154,7 +154,60 @@ public class WebsiteKeysTests
     }
 
     // ----------------------------------------------------------------
-    // 4. Uses contentService.Options.PageUrl, not hardcoded "_disabled"
+    // 4. Removes pages for future releases (published after now)
+    // ----------------------------------------------------------------
+    [Fact]
+    public void RemoveHiddenArticlePages_RemovesFutureReleasePages()
+    {
+        var (svc, contentService) = CreateServicePair<CourseFrontMatter>(
+            pageUrl: "articles",
+            pages: [("articles/future-post", "<p>future</p>")]);
+        SetPosts(contentService, new List<Post<CourseFrontMatter>>
+        {
+            new()
+            {
+                FrontMatter = new CourseFrontMatter
+                {
+                    Title = "Future",
+                    Published = new DateTime(2026, 4, 1), // > LocalNow
+                    Tags = new List<string> { "fixture-course-a" },
+                },
+                Url = "future-post",
+                HtmlContent = "<p>future</p>",
+            },
+        });
+
+        WebsiteKeys.RemoveHiddenArticlePages(svc, contentService);
+
+        var remaining = svc.Options.PagesToGenerate.Select(p => GetUrl(p)).ToList();
+        Assert.DoesNotContain("articles/future-post", remaining);
+    }
+
+    // ----------------------------------------------------------------
+    // 5. Does not touch non-article pages
+    // ----------------------------------------------------------------
+    [Fact]
+    public void RemoveHiddenArticlePages_DoesNotRemoveUnrelatedPages()
+    {
+        var (svc, contentService) = CreateServicePair<CourseFrontMatter>(
+            pageUrl: "articles",
+            pages: [
+                ("materials", "<p>listing</p>"),
+                ("projects/cmsc-124", "<p>projects</p>"),
+                ("articles/active-post", "<p>active</p>"),
+            ]);
+        SetPosts(contentService, new List<Post<CourseFrontMatter>>
+        {
+            MakePost("active-post", "fixture-course-a"),
+        });
+
+        WebsiteKeys.RemoveHiddenArticlePages(svc, contentService);
+
+        Assert.Equal(3, svc.Options.PagesToGenerate.Count);
+    }
+
+    // ----------------------------------------------------------------
+    // 6. Uses contentService.Options.PageUrl, not hardcoded "_disabled"
     // ----------------------------------------------------------------
     [Fact]
     public void RemovePostPages_UsesServicePageUrlPrefix()

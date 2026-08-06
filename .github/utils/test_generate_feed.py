@@ -190,6 +190,32 @@ Body
             self.assertNotIn("Inactive Course Post", feed_xml)
             self.assertNotIn("<item>", feed_xml)
 
+    def test_untagged_post_in_term_window_included(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "untagged-post.md",
+                """---
+title: Untagged In-Window Post
+published: 2026-05-20
+lead: Untagged posts keep the term-window rule.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertIn("Untagged In-Window Post", feed_xml)
+
     def test_untagged_post_outside_term_window_excluded(self):
         with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
             self._write_post(

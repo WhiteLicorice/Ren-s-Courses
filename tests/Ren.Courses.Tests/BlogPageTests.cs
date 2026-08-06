@@ -50,6 +50,48 @@ public class BlogPageTests
     }
 
     [Fact]
+    public void Home_CourseFilterChips_ExcludeInactiveCourses()
+    {
+        using var ctx = new BunitContext();
+        var posts = CreateServiceWithPosts([
+            new Post<CourseFrontMatter>
+            {
+                Url = "active-post",
+                HtmlContent = "<p>Active</p>",
+                FrontMatter = new CourseFrontMatter
+                {
+                    Title = "Active post",
+                    Published = new DateTime(2026, 3, 1),
+                    Tags = ["fixture-course-a"],
+                },
+            },
+            new Post<CourseFrontMatter>
+            {
+                Url = "inactive-post",
+                HtmlContent = "<p>Inactive</p>",
+                FrontMatter = new CourseFrontMatter
+                {
+                    Title = "Inactive post",
+                    Published = new DateTime(2026, 3, 1),
+                    Tags = ["fixture-course-c"],
+                },
+            },
+        ]);
+        ctx.Services.AddSingleton(posts);
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>();
+
+        var chips = cut.FindAll("button[data-tag]")
+            .Select(b => b.GetAttribute("data-tag"))
+            .ToList();
+        Assert.Contains("fixture-course-a", chips);
+        Assert.DoesNotContain("fixture-course-c", chips);
+    }
+
+    [Fact]
     public void Article_WithSubmissions_RendersCompactSubmissionMenuBesideDownload()
     {
         using var ctx = new BunitContext();

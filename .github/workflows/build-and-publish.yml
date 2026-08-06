@@ -87,6 +87,9 @@ jobs:
       - name: Remove launchSettings.json
         run: rm ${{ env.WEBAPP_PATH }}Properties/launchSettings.json
 
+      - name: Run .NET tests
+        run: dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj --configuration Release
+
       # =================================================================
       # SIDECAR SETUP: PYTHON
       # =================================================================
@@ -115,6 +118,7 @@ jobs:
           TERM_START: ${{ env.TERM_START }}
           TERM_END: ${{ env.TERM_END }}
           SHOWCASE_MODE: ${{ env.SHOWCASE_MODE }}
+          ACTIVE_COURSES: ${{ env.ACTIVE_COURSES }}
 
       # =================================================================
       # BUILD 1: NETLIFY (Base HREF = "/") -> Branch: netlify-pages
