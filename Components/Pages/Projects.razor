@@ -23,7 +23,16 @@
 
         @* Use the Generic Component *@
         @* T="ProjectFrontMatter" is the key difference from Materials.razor *@
-        <CatalogsList T="ProjectFrontMatter" Posts="projectService.Posts" BaseUrl="projects" />
+        @if (projectService.Posts.Any())
+        {
+            <CatalogsList T="ProjectFrontMatter" Posts="projectService.Posts" BaseUrl="projects" />
+        }
+        else
+        {
+            <div class="text-center text-text-dim font-mono mt-12 opacity-75">
+                <p class="text-lg">No projects available.</p>
+            </div>
+        }
     }
     else
     {

@@ -29,7 +29,16 @@
 
         <div class="text-left">
             <CourseFilter Tags="@_allTags" />
-            <PostsList Posts="@blazorStaticContentService.Posts" />
+            @if (_visiblePosts.Any())
+            {
+                <PostsList Posts="@blazorStaticContentService.Posts" />
+            }
+            else
+            {
+                <div class="text-center text-text-dim font-mono mt-12 opacity-75">
+                    <p class="text-lg">No Materials available.</p>
+                </div>
+            }
         </div>
     </div>
     return;
@@ -267,12 +276,15 @@
     [Parameter] public string? FileName { get; set; }
     Post<CourseFrontMatter>? post;
     IReadOnlyList<string> _allTags = [];
+    List<Post<CourseFrontMatter>> _visiblePosts = [];
     List<DiagramMarkers.BodySegment> _bodySegments = [];
 
     protected override void OnInitialized()
     {
+        _visiblePosts = CourseContentProvider.GetVisiblePosts(blazorStaticContentService.Posts)
+            .ToList();
         // Chips derive from visible posts only — inactive courses are not offered.
-        _allTags = CourseContentProvider.GetVisiblePosts(blazorStaticContentService.Posts)
+        _allTags = _visiblePosts
             .SelectMany(p => p.FrontMatter.Tags)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)

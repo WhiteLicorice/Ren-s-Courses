@@ -50,6 +50,20 @@ public class BlogPageTests
     }
 
     [Fact]
+    public void Home_NoVisiblePosts_ShowsNoMaterialsText()
+    {
+        using var ctx = new BunitContext();
+        ctx.Services.AddSingleton(CreateServiceWithPosts([]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>();
+
+        Assert.Contains("No Materials available.", cut.Markup);
+    }
+
+    [Fact]
     public void Home_CourseFilterChips_ExcludeInactiveCourses()
     {
         using var ctx = new BunitContext();
