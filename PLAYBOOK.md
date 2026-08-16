@@ -52,6 +52,12 @@ Confirmed 2026-08-02:
 - The shared repository's test gate replaces the removed local `PdfGenerationTests` and `DiagramMarkerTests`. Run `dotnet test tests/RensMarkdownTemplates.Tests/RensMarkdownTemplates.Tests.csproj` there, render its Mermaid fixture through the CLI, then run this repository's full .NET gate and production `dotnet run` after updating the pin.
 - At extraction commit `01e336b`, the shared suite passed 106 tests and this repository passed 125 tests. A cold production run generated all 42 PDFs with no fallbacks, and the unchanged warm run reported 42 cache hits in 0.153 seconds.
 
+Confirmed 2026-08-16:
+
+- Embedded-image handling in the shared pipeline changed after this repository's `01e336b` submodule pin. Shared commit `a042e75` stages resolved images into the isolated Tectonic work directory and reports unresolved references before compilation; without that change, Pandoc can emit a relative `\includegraphics` path that Tectonic cannot resolve from its work directory. Update the consumer pin before relying on embedded images.
+- Embedded images require both the source asset and the staging fix. Onboarding initially failed with a missing image and then, after the image was supplied, still failed because the site remained at `01e336b`; the sibling pipeline at `2ea717b` generated the same source successfully. Site startup records a failed result as unavailable, and with no `downloadLink` fallback `Blog.razor` intentionally omits Download.
+- The consumer pin advanced to shared release `v1.0.1` / commit `2ea717b` on 2026-08-16. With Onboarding referencing `Content/Materials/media/cmsc-124-lab0-figure-1.png`, the shared suite passed 114 tests, the site suite passed 170 tests, a cold production run generated all 42 PDFs with zero fallbacks/unavailable documents, and the focused materials Playwright gate passed 34 tests across Chromium and Firefox, including the native PDF download in both browsers.
+
 ## Static Generation
 
 Confirmed 2026-07-14:
