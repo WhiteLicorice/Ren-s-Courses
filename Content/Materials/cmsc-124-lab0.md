@@ -1146,5 +1146,5 @@ The 90-minute in-person practical exam takes place on **September 3** during you
 
 | Criterion | Points |
 |---|---|
-| In-person practical exam (section 9.4) | 40 |
+| In-person practical exam (section 9) | 40 |
 | **Total** | **40** |
