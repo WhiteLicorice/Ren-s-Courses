@@ -19,6 +19,8 @@ window.initFaqToc = function () {
     // which would cause href="#slug" to navigate to the base URL instead of
     // scrolling within the current page.
     document.querySelectorAll('[data-faq-target]').forEach(function (link) {
+        if (link.dataset.faqBound) return; // re-running must not double-bind
+        link.dataset.faqBound = 'true';
         link.addEventListener('click', function (e) {
             e.preventDefault();
             var id = link.getAttribute('data-faq-target');
@@ -29,15 +31,23 @@ window.initFaqToc = function () {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 50);
                 // replaceState (not pushState) — hash updates are not separate history entries.
-                history.replaceState(null, null, '#' + id);
+                // Path-absolute, not a bare '#id': replaceState resolves relative URLs
+                // against document.baseURI, and <base href="/"> would drop the page path.
+                history.replaceState(null, '', window.location.pathname + window.location.search + '#' + id);
             }
         });
     });
 
     // Handle browser back/forward navigation and external deep links.
-    window.addEventListener('hashchange', function () {
+    // Re-running initFaqToc must not stack listeners on the window.
+    var onHashChange = function () {
         _openDetailsForHash(window.location.hash);
-    });
+    };
+    if (window.__faqHashListener) {
+        window.removeEventListener('hashchange', window.__faqHashListener);
+    }
+    window.addEventListener('hashchange', onHashChange);
+    window.__faqHashListener = onHashChange;
 
     // Handle hash present on initial page load (e.g., shared link with anchor).
     _openDetailsForHash(window.location.hash);

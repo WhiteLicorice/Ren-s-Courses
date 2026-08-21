@@ -48,13 +48,17 @@ test.describe('Materials Filtered Page (/materials/cmsc-125)', () => {
     await page.waitForLoadState('load');
   });
 
+  // Exact name: the empty-state panel adds a second "View all materials" link when
+  // the course is outside ACTIVE_COURSES, which a substring match resolves to as well.
+  const backLinkOf = page => page.getByRole('link', { name: 'All Materials', exact: true });
+
   test('shows the "All Materials" back-link', async ({ page }) => {
-    const backLink = page.locator('a', { hasText: 'All Materials' });
+    const backLink = backLinkOf(page);
     await expect(backLink).toBeVisible();
   });
 
   test('"All Materials" back-link navigates to /materials', async ({ page }) => {
-    const backLink = page.locator('a', { hasText: 'All Materials' });
+    const backLink = backLinkOf(page);
     await backLink.click();
     await page.waitForURL(/\/materials\/?$/);
     expect(page.url()).toMatch(/\/materials\/?$/);
@@ -168,6 +172,98 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
       },
       targetId
     );
+  });
+
+  test('clicking a TOC link keeps the article path in the URL', async ({ page }) => {
+    // history.replaceState resolves relative URLs against document.baseURI, and
+    // App.razor sets <base href="/">, so a bare '#id' rewrites the URL to the site root.
+    await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
+    const link = page.locator('#toc-content a[data-target]').nth(2);
+    const targetId = await link.getAttribute('data-target');
+
+    await link.click();
+
+    await expect(page).toHaveURL(`/articles/cmsc-124-lab0#${targetId}`);
+  });
+
+  test('clicking a TOC link moves the highlight to that entry', async ({ page }) => {
+    await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
+    const link = page.locator('#toc-content a[data-target]').nth(2);
+    const targetId = await link.getAttribute('data-target');
+
+    await link.click();
+
+    const active = page.locator('#toc-content a.text-accent');
+    await expect(active).toHaveCount(1);
+    await expect(active).toHaveAttribute('data-target', targetId);
+    await expect(active).toHaveAttribute('aria-current', 'true');
+  });
+
+  test('the anchored heading clears the fixed navbar', async ({ page }) => {
+    await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
+    const link = page.locator('#toc-content a[data-target]').nth(2);
+    const targetId = await link.getAttribute('data-target');
+
+    await link.click();
+    // Let the smooth scroll settle before measuring.
+    await page.waitForFunction((id) => {
+      const el = document.getElementById(id);
+      return el && Math.abs(el.getBoundingClientRect().top) < 400;
+    }, targetId);
+    await page.waitForTimeout(600);
+
+    const navHeight = await page.evaluate(
+      () => document.getElementById('main-navbar').getBoundingClientRect().height);
+    const headingTop = await page.evaluate(
+      (id) => document.getElementById(id).getBoundingClientRect().top, targetId);
+
+    expect(headingTop).toBeGreaterThanOrEqual(navHeight);
+  });
+
+  test('loading a URL with a hash scrolls to and highlights that section', async ({ page }) => {
+    await page.goto('/articles/cmsc-124-lab0#kotlin');
+    await page.waitForFunction(() => typeof window.generateTOC === 'function');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('kotlin');
+      return el && Math.abs(el.getBoundingClientRect().top) < 400;
+    });
+    await page.waitForTimeout(600);
+
+    const active = page.locator('#toc-content a.text-accent');
+    await expect(active).toHaveCount(1);
+    await expect(active).toHaveAttribute('data-target', 'kotlin');
+  });
+
+  test('scroll spy tracks consecutive headings without skipping any', async ({ page }) => {
+    // The old IntersectionObserver band left dead zones, so headings that crossed it
+    // between samples were never highlighted.
+    await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
+    const ids = await page.locator('#toc-content a[data-target]')
+      .evaluateAll(links => links.slice(1, 5).map(a => a.dataset.target));
+
+    const seen = [];
+    for (const id of ids) {
+      await page.evaluate((headingId) => {
+        const el = document.getElementById(headingId);
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 40, behavior: 'instant' });
+      }, id);
+      await page.waitForTimeout(200);
+      seen.push(await page.locator('#toc-content a.text-accent').first().getAttribute('data-target'));
+    }
+
+    expect(seen).toEqual(ids);
+  });
+
+  test('no in-body link resolves to the site root with a fragment', async ({ page }) => {
+    // Markdown [text](#heading) renders as href="#heading", which <base href="/">
+    // would resolve to the site root; toc.js rewrites those to a path-absolute href.
+    const strays = await page.locator('.prose a').evaluateAll(links =>
+      links.map(a => a.href)
+        .filter(href => {
+          const url = new URL(href);
+          return url.origin === window.location.origin && url.pathname === '/' && url.hash !== '';
+        }));
+    expect(strays).toEqual([]);
   });
 
   test('code blocks are enhanced with a .code-wrapper container', async ({ page }) => {

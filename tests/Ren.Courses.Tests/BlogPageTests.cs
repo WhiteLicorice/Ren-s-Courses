@@ -428,13 +428,39 @@ public class BlogPageTests
         Assert.Contains("learning-diagram-1-title", widgets[1].InnerHtml);
     }
 
+    [Fact]
+    public void Article_RendersWithoutIssuingAnyJavaScriptInterop()
+    {
+        // The static output ships no Blazor runtime (App.razor loads plain <script src>
+        // tags only, and no @rendermode is applied), so JS init belongs to site.js on
+        // DOMContentLoaded. Any interop call from a page component is dead code; bUnit's
+        // strict JSInterop mode is what proves none is issued.
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "no-interop",
+            HtmlContent = "<h2 id=\"one\">One</h2>",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "No Interop",
+                Published = new DateTime(2026, 3, 1)
+            }
+        };
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ctx.Services.AddSingleton(new PdfGenerationManifest());
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "no-interop"));
+
+        Assert.Contains("No Interop", cut.Markup);
+    }
+
     private static void ConfigureArticleScripts(BunitContext ctx)
     {
         ctx.Services.AddSingleton(new PdfGenerationManifest());
-        ctx.JSInterop.SetupVoid("addCodeFeatures");
-        ctx.JSInterop.SetupVoid("generateTOC");
-        ctx.JSInterop.SetupVoid("initScrollButton");
-        ctx.JSInterop.SetupVoid("initInteractiveDiagrams");
     }
 
     private static BlazorStaticContentService<CourseFrontMatter> CreateServiceWithPosts(

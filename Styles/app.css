@@ -81,6 +81,14 @@ body {
     color: var(--text-main);
   }
 
+  /* Clear the fixed navbar (NavMenu.razor, h-16) when jumping to an anchor.
+     Keep in sync with TOC_NAV_OFFSET in wwwroot/js/toc.js. */
+  h1,
+  h2,
+  h3 {
+    scroll-margin-top: 5rem;
+  }
+
   th {
     color: var(--text-main);
   }

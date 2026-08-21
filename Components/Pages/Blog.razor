@@ -7,7 +7,6 @@
 @using BlazorStaticMinimalBlog.Services
 @inject BlazorStaticContentService<CourseFrontMatter> blazorStaticContentService
 @inject CourseContentProvider CourseContentProvider
-@inject IJSRuntime JSRuntime
 @inject FrontmatterStatusService StatusService
 @inject PdfGenerationManifest PdfManifest
 @inject ILogger<Blog> Logger
@@ -301,13 +300,5 @@
                 Logger.LogWarning("Duplicate diagram key '{Key}' in {Url}; first declaration wins",
                     dup, post.Url);
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JSRuntime.InvokeVoidAsync("addCodeFeatures");
-        await JSRuntime.InvokeVoidAsync("generateTOC");
-        await JSRuntime.InvokeVoidAsync("initScrollButton");
-        await JSRuntime.InvokeVoidAsync("initInteractiveDiagrams");
     }
 }

@@ -6,7 +6,6 @@
 @using BlazorStaticMinimalBlog.ViewModels
 @inject CalendarEventProvider EventProvider
 @inject CourseContentProvider ContentProvider
-@inject IJSRuntime JSRuntime
 
 <div class="mx-auto max-w-[1400px] py-10 sm:py-16 animate-fade-in select-none px-4">
 
@@ -267,11 +266,5 @@
             BuildTimeProvider.TermEnd,
             BuildTimeProvider.LocalNow
         );
-    }
-
-    // Re-initialize JS navigation when component renders (e.g. navigating back to this page)
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JSRuntime.InvokeVoidAsync("initCalendarNav");
     }
 }

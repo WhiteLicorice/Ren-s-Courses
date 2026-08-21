@@ -44,7 +44,7 @@ describe('initFaqToc — replaceState vs pushState', () => {
     let pushStateSpy;
 
     beforeEach(() => {
-        window.history.pushState({}, '', '/'); // ensure no hash before mocking
+        realPushState('/faqs'); // non-root path, no hash, before mocking
         buildDOM();
         jest.useFakeTimers();
         Element.prototype.scrollIntoView = jest.fn();
@@ -60,14 +60,23 @@ describe('initFaqToc — replaceState vs pushState', () => {
         // Note: global afterEach handles restoreAllMocks + URL reset.
     });
 
-    test('clicking a FAQ TOC link calls replaceState', () => {
+    test('clicking a FAQ TOC link keeps the page path in the URL', () => {
+        // A bare '#id' would be resolved against document.baseURI (App.razor sets
+        // <base href="/">), rewriting the URL to the site root.
         document.querySelector('[data-faq-target="q-what-is-cmsc"]').click();
-        expect(replaceStateSpy).toHaveBeenCalledWith(null, null, '#q-what-is-cmsc');
+        expect(replaceStateSpy).toHaveBeenCalledWith(null, '', '/faqs#q-what-is-cmsc');
     });
 
     test('clicking a FAQ TOC link does NOT call pushState', () => {
         document.querySelector('[data-faq-target="q-what-is-cmsc"]').click();
         expect(pushStateSpy).not.toHaveBeenCalled();
+    });
+
+    test('re-running initFaqToc does not double-bind the TOC links', () => {
+        window.initFaqToc();
+        document.querySelector('[data-faq-target="q-how-to-enroll"]').click();
+        jest.runAllTimers();
+        expect(document.getElementById('q-how-to-enroll').scrollIntoView).toHaveBeenCalledTimes(1);
     });
 
     test('clicking a link opens the target <details> element', () => {
@@ -148,5 +157,13 @@ describe('initFaqToc — hashchange listener', () => {
         jest.runAllTimers();
         expect(document.getElementById('q-how-to-enroll').scrollIntoView)
             .toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    });
+
+    test('re-running initFaqToc does not register a duplicate hashchange listener', () => {
+        window.initFaqToc();
+        realPushState('#q-how-to-enroll');
+        window.dispatchEvent(new Event('hashchange'));
+        jest.runAllTimers();
+        expect(document.getElementById('q-how-to-enroll').scrollIntoView).toHaveBeenCalledTimes(1);
     });
 });

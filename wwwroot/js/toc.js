@@ -6,6 +6,11 @@
  * Includes "ScrollSpy" logic to highlight the active section while scrolling.
  * * Styling: Uses semantic CSS variables (text-accent, border-muted) to support multiple themes.
  */
+
+// Clearance for the fixed navbar (NavMenu.razor, h-16) plus breathing room.
+// Keep in sync with the scroll-margin-top on .prose headings in Styles/app.css.
+const TOC_NAV_OFFSET = 80;
+
 window.generateTOC = () => {
     const prose = document.querySelector('.prose');
     const tocContainer = document.getElementById('toc-content');
@@ -20,6 +25,32 @@ window.generateTOC = () => {
     const headers = mainTitle ? [mainTitle, ...contentHeaders] : contentHeaders;
 
     if (headers.length === 0) return;
+
+    // Same-document URL with a fresh fragment. A bare '#id' would be resolved
+    // against document.baseURI, and App.razor's <base href="/"> makes that the
+    // site root — which is how the article path used to get dropped.
+    const hashUrl = (id) => `${window.location.pathname}${window.location.search}#${id}`;
+
+    const bothContainers = [tocContainer, mobileTocContainer].filter(Boolean);
+
+    // Move the active-section highlight to the entry for `id`, in every TOC list.
+    const setActive = (id) => {
+        bothContainers.forEach(container => {
+            container.querySelectorAll('a').forEach(link => {
+                const isActive = link.dataset.target === id;
+
+                link.classList.toggle('text-accent', isActive);
+                link.classList.toggle('font-medium', isActive);
+                if (link.classList.contains('border-l')) {
+                    link.classList.toggle('border-accent', isActive);
+                    link.classList.toggle('border-border-muted', !isActive);
+                }
+
+                if (isActive) link.setAttribute('aria-current', 'true');
+                else link.removeAttribute('aria-current');
+            });
+        });
+    };
 
     // Helper: Builds the UL/LI structure
     const createList = () => {
@@ -48,7 +79,9 @@ window.generateTOC = () => {
             // No href — avoids <base href> resolution and Blazor navigation interception,
             // both of which would push an unwanted history entry before our replaceState.
             // data-target is the source of truth; click/keydown handlers use it directly.
+            // role="link" restores the semantics an href-less anchor loses.
             a.setAttribute('tabindex', '0');
+            a.setAttribute('role', 'link');
 
             // 2. Handle Long Headers
             // Truncate text strictly to ~35 chars to prevent sidebar blowout,
@@ -81,8 +114,13 @@ window.generateTOC = () => {
                 } else {
                     header.scrollIntoView({ behavior: 'smooth' });
                 }
+                // Highlight now rather than waiting for the smooth scroll to settle.
+                setActive(header.id);
+                // Collapse the mobile accordion so it stops covering the target.
+                const accordion = a.closest('details');
+                if (accordion) accordion.removeAttribute('open');
                 // replaceState (not pushState) — hash updates are not separate history entries.
-                history.replaceState(null, null, `#${header.id}`);
+                history.replaceState(null, '', hashUrl(header.id));
             };
 
             a.addEventListener('click', activate);
@@ -101,11 +139,23 @@ window.generateTOC = () => {
     if (tocContainer) { tocContainer.innerHTML = ''; tocContainer.appendChild(createList()); }
     if (mobileTocContainer) { mobileTocContainer.innerHTML = ''; mobileTocContainer.appendChild(createList()); }
 
+    // Markdown-authored [text](#heading) links render as href="#heading", which
+    // <base href="/"> resolves to the site root. Rewriting to a path-absolute href
+    // keeps native fragment navigation on this page — and makes copy-link,
+    // middle-click and open-in-new-tab point at the right article.
+    prose.querySelectorAll('a[href^="#"]').forEach(link => {
+        const fragment = link.getAttribute('href');
+        if (fragment.length <= 1) return; // bare '#'
+        link.setAttribute('href', `${window.location.pathname}${window.location.search}${fragment}`);
+    });
+
     // Scroll to hash on load and on browser-driven hash changes (shared links, refresh, cross-page nav).
+    // getElementById, not querySelector: heading ids come from Markdig and can contain
+    // dots (e.g. 'build.sh-run'), which querySelector would read as a class selector.
     var scrollToHash = function () {
-        var hash = window.location.hash;
-        if (!hash) return;
-        var target = document.querySelector(hash);
+        var id = decodeURIComponent(window.location.hash.slice(1));
+        if (!id) return;
+        var target = document.getElementById(id);
         if (target) {
             target.scrollIntoView({ behavior: 'smooth' });
         }
@@ -113,34 +163,35 @@ window.generateTOC = () => {
 
     scrollToHash();
 
-    window.addEventListener('hashchange', scrollToHash);
+    // ScrollSpy: the last heading scrolled past the navbar line is the active one.
+    // A position check beats IntersectionObserver here — an observer band leaves
+    // dead zones, so headings crossing it between samples were skipped entirely.
+    const activeHeaderId = () => {
+        let id = headers[0].id;
+        headers.forEach(header => {
+            if (header.getBoundingClientRect().top - TOC_NAV_OFFSET <= 1) id = header.id;
+        });
+        return id;
+    };
 
-    // ScrollSpy: IntersectionObserver to highlight active section
-    if (tocContainer) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.id;
+    let spyPending = false;
+    const onScroll = () => {
+        if (spyPending) return;
+        spyPending = true;
+        window.requestAnimationFrame(() => {
+            setActive(activeHeaderId());
+            spyPending = false;
+        });
+    };
 
-                    // Reset all links
-                    tocContainer.querySelectorAll('a').forEach(link => {
-                        link.classList.remove('text-accent', 'border-accent', 'font-medium');
-                        if (link.classList.contains('border-l')) link.classList.add('border-border-muted');
-                    });
-
-                    // Activate current link
-                    const activeLink = tocContainer.querySelector(`a[data-target="${id}"]`);
-                    if (activeLink) {
-                        activeLink.classList.add('text-accent', 'font-medium');
-                        if (activeLink.classList.contains('border-l')) {
-                            activeLink.classList.remove('border-border-muted');
-                            activeLink.classList.add('border-accent');
-                        }
-                    }
-                }
-            });
-        }, { rootMargin: '-100px 0px -66% 0px' }); // Offset to trigger highlight slightly before section hits top
-
-        headers.forEach(h => observer.observe(h));
+    // Re-running generateTOC (or reloading the script) must not stack listeners.
+    if (window.__tocWindowListeners) {
+        window.removeEventListener('hashchange', window.__tocWindowListeners.hashchange);
+        window.removeEventListener('scroll', window.__tocWindowListeners.scroll);
     }
+    window.addEventListener('hashchange', scrollToHash);
+    window.addEventListener('scroll', onScroll);
+    window.__tocWindowListeners = { hashchange: scrollToHash, scroll: onScroll };
+
+    setActive(activeHeaderId());
 };

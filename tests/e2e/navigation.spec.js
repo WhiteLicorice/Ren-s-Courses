@@ -57,8 +57,9 @@ test.describe('Desktop Navigation', () => {
     await expect(page.locator('#desktop-dropdown-menu')).toBeVisible();
 
     const items = page.locator('#desktop-dropdown-menu a');
-    // 8 total menu items − 3 shown directly = 5 in the dropdown.
-    expect(await items.count()).toBe(5);
+    // 7 total menu items − 3 shown directly = 4 in the dropdown.
+    // (Was 8/5 before the Submissions tab was deprecated and dropped from menu.json.)
+    expect(await items.count()).toBe(4);
   });
 
   test('clicking outside the dropdown closes it', async ({ page }) => {
@@ -145,8 +146,8 @@ test.describe('Mobile Navigation', () => {
     await expect(page.locator('#mobile-menu-container')).toBeVisible();
 
     const links = page.locator('#mobile-menu-container a');
-    // All 8 menu.json items are rendered in the mobile menu.
-    expect(await links.count()).toBe(8);
+    // All 7 menu.json items are rendered in the mobile menu.
+    expect(await links.count()).toBe(7);
   });
 
   test('close button (#close-mobile-menu-button) hides the menu', async ({ page }) => {
