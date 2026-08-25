@@ -9,7 +9,7 @@ authors:
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
 isDraft: false
-noDeadline: true
+deadline: 2026-08-26
 ---
 
 ## Prerequisites
