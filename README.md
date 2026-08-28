@@ -16,33 +16,33 @@ the pinned `Dependencies/RensMarkdownTemplates` submodule.
 
 ### Modules
 
-* [x] Course site -- materials, deadlines, and course content served as static pages
-* [x] Submission bins -- materials link directly to their relevant Google Forms through optional frontmatter
-* [x] Interactive diagrams -- materials can present Mermaid diagrams as controlled, step-by-step walkthroughs
-* [x] Grades viewer -- real-time grade lookups via a private Google Apps Script web app
-* [x] Site mirror -- live mirror on Netlify for redundancy
-* [x] Booking system -- students book consultations in advance
-* [x] Mailing list -- enrolled students get notified by email when new materials drop
-* [x] PWA -- the course site installs as a native app on desktop and mobile
-* [x] Calendar -- upcoming events, deadlines, and holidays in one view
-* [x] Calendar holidays -- Philippine holidays from the [Nager.Date API](https://date.nager.at/), with a calculated fallback if the API is down
-* [x] Calendar custom events -- instructors define arbitrary events via markdown frontmatter
-* [x] Theming -- light/dark toggle that persists across sessions, synced with Prism.js for code blocks
-* [x] FAQs -- per-course FAQ pages with accordion layout, hash deep-linking, and a course-tag filter
-* [x] Project showcase -- student projects organized by school year and course, with tag filtering
-* [x] RSS feeds -- per-course Atom feeds generated at build time by a Python sidecar script
-* [ ] Search -- a full-text search engine across all frontmatter (low priority; content volume is still manageable by hand)
-* [ ] Custom themes -- more themes beyond light/dark and an API to extend them (low priority)
+* [x] Course site: materials, deadlines, and course content served as static pages
+* [x] Submission bins: materials link directly to their relevant Google Forms through optional frontmatter
+* [x] Interactive diagrams: materials can present Mermaid diagrams as controlled, step-by-step walkthroughs
+* [x] Grades viewer: real-time grade lookups via a private Google Apps Script web app
+* [x] Site mirror: live mirror on Netlify for redundancy
+* [x] Booking system: students book consultations in advance
+* [x] Mailing list: enrolled students get notified by email when new materials drop
+* [x] PWA: installs as a native app on desktop and mobile
+* [x] Calendar: upcoming events, deadlines, and holidays in one view
+* [x] Calendar holidays: Philippine holidays from the [Nager.Date API](https://date.nager.at/), with a calculated fallback if the API is down
+* [x] Calendar custom events: instructors define arbitrary events via markdown frontmatter
+* [x] Theming: light/dark toggle that persists across sessions, synced with Prism.js for code blocks
+* [x] FAQs: per-course FAQ pages with accordion layout, hash deep-linking, and a course-tag filter
+* [x] Project showcase: student projects organized by school year and course, with tag filtering
+* [x] RSS feeds: per-course Atom feeds generated at build time by a Python sidecar script
+* [ ] Search: a full-text search engine across all frontmatter (low priority, content volume is still manageable by hand)
+* [ ] Custom themes: more themes beyond light/dark and an API to extend them (low priority)
 
 ---
 
-### How it works
+### How It Works
 
 The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, runs Python tests for the RSS feed generator, generates per-course Atom feeds, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified before being pushed to their respective deploy branches.
 
-`CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START`--`TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
+`CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START` to `TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
 
-All client-side behavior is vanilla JS -- no framework. Theme, calendar, TOC, code block features, FAQ accordion, course filtering, and scroll-to-top are each their own script loaded via `<script>` tags.
+All client-side behavior is vanilla JS, no framework. Theme, calendar, TOC, code block features, FAQ accordion, course filtering, and scroll-to-top are each their own script loaded via `<script>` tags.
 
 Materials that require deliverables can define one or more submission forms in frontmatter. The list is optional; each entry is rendered as a named action on that material's article page:
 
@@ -96,7 +96,7 @@ visible so the explanation does not become a blank panel.
 
 ---
 
-### Grades viewer architecture
+### Grades Viewer Architecture
 
 The Grades Viewer is a private Google Apps Script web app deployed separately from this repo. Students access it through the nav menu. The source is closed because it handles student records, but I'm documenting the architecture here since it accounts for most of the backend engineering.
 
@@ -114,7 +114,7 @@ Google Apps Script imposes a 6-minute execution limit, a 100 KB per-key cache ce
 
 ---
 
-### Material Mailer architecture
+### Material Mailer Architecture
 
 The Material Mailer is a private Google Apps Script deployed as a time-driven trigger on a Google Sheets workbook. It powers the mailing list module listed above. Enrolled students receive an email whenever new course materials are published.
 
@@ -130,7 +130,7 @@ The Material Mailer is a private Google Apps Script deployed as a time-driven tr
 
 ---
 
-### Legal notice
+### Legal Notice
 
 **All material is copyrighted. All rights reserved.**
 
@@ -141,7 +141,6 @@ This project is not free to clone, fork, or distribute. The source code and cour
 ## Contributing
 
 Contributions are welcome under the terms of the license.
-
 ### Workflow
 
 1. Fork the repository.
@@ -204,7 +203,7 @@ Key patterns:
 
 End-to-end tests run against the pre-built static output served by a lightweight file server. They cover every major user flow.
 
-E2E is **not** run in GitHub CI — the Playwright suite takes too long for GitHub runners. CI runs the jest, .NET, and Python gates instead; the e2e suite is the release gate you run locally before presenting or shipping.
+E2E is **not** run in GitHub CI. The Playwright suite takes too long for GitHub runners. CI runs the jest, .NET, and Python gates instead. The e2e suite is the release gate you run locally before presenting or shipping.
 
 **Prerequisites:** Node.js 20+, .NET 9 SDK.
 
@@ -230,7 +229,7 @@ npx playwright test --project=chromium
 npx playwright show-report
 ```
 
-**Build time constraint:** `CourseContentProvider` only surfaces materials published inside the `TERM_START`--`TERM_END` window. Tagged materials (course-scoped) additionally need at least one tag to match `ACTIVE_COURSES` — a course being active does not override the term window. Future releases (published after `STATIC_GEN_TIME`) stay hidden, and after the term ends nothing is visible. `SHOWCASE_MODE=true` bypasses all of this and shows every non-draft post. To preview visibility locally before the term ends:
+**Build time constraint:** `CourseContentProvider` only surfaces materials published inside the `TERM_START` to `TERM_END` window. Tagged materials (course-scoped) additionally need at least one tag to match `ACTIVE_COURSES`. A course being active does not override the term window. Future releases (published after `STATIC_GEN_TIME`) stay hidden, and after the term ends nothing is visible. `SHOWCASE_MODE=true` bypasses all of this and shows every non-draft post. To preview visibility locally before the term ends:
 
 ```bash
 STATIC_GEN_TIME="2026-08-06T10:00:00Z" TERM_START="2026-08-01" TERM_END="2026-12-31" ACTIVE_COURSES="cmsc-124,cmsc-131" ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
@@ -277,19 +276,19 @@ submodule pin after the shared tests and Mermaid fixture render pass.
 The single default template follows the official UPV DPSM OBE visual system while adapting
 to both formal syllabi and laboratory manuals, activities, and notes. It includes:
 
-- **Code blocks** — framed with line numbers and a light gray background via `fancyvrb`/`fvextra`.
+- **Code blocks**: framed with line numbers and a light gray background via `fancyvrb`/`fvextra`.
   A Pandoc Lua filter (`code-block.lua`) ensures all fenced code blocks use the `Highlighting`
   environment, including unlabeled blocks (```` ``` ```` with no language tag) that Pandoc would
   otherwise route through bare `verbatim`.
-- **Explicit page breaks** — put `<!-- newpage -->` on its own line, with blank lines around it,
+- **Explicit page breaks**: put `<!-- newpage -->` on its own line, with blank lines around it,
   to force the following content onto a new PDF page. The marker affects only PDF generation.
-- **Institutional branding** — UPV and DPSM logos, the official division masthead, maroon title,
+- **Institutional branding**: UPV and DPSM logos, the official division masthead, maroon title,
   compact sans-serif typography, running page/document header, and UPV-colored footer bars.
-- **General-material fallback** — without syllabus variables, the title block shows the material's
+- **General-material fallback**: without syllabus variables, the title block shows the material's
   title, subtitle, full author name, publication date, and deadline.
-- **Formal syllabus mode** — `documentType`, `courseCode`, `academicTerm`, `meetingSchedule`, and
+- **Formal syllabus mode**: `documentType`, `courseCode`, `academicTerm`, `meetingSchedule`, and
   `venue` activate compact OBE title and institutional typography.
-- **Wide tables and rubrics** — six-or-more-column tables in ordinary materials automatically use
+- **Wide tables and rubrics**: six-or-more-column tables in ordinary materials automatically use
   the ruled landscape renderer. Any section with `rubric` in its heading is rendered in landscape
   in its entirety, including its heading and notes, regardless of table width or document type.
   Other formal-syllabus tables require an explicit `.landscape` fenced Div, preserving portrait
@@ -343,8 +342,8 @@ pdf:
   variables:
     documentType: Course Syllabus
     courseCode: CMSC 131
-    academicTerm: 1st Semester, A.Y. 2025–2026
-    meetingSchedule: "Lecture: MTh 9:00–11:00 AM"
+    academicTerm: 1st Semester, A.Y. 2025-2026
+    meetingSchedule: "Lecture: MTh 9:00-11:00 AM"
     venue: MILC
 ```
 
