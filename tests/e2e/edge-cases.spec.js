@@ -28,12 +28,18 @@ const MIME_TYPES = {
   '.webmanifest': 'application/manifest+json',
 };
 
-function createOfflineUpdateFixture() {
+function createOfflineUpdateFixture(route = ARTICLE_ROUTE) {
   const outputRoot = path.resolve(__dirname, '..', '..', 'output');
-  const articleTemplate = fs.readFileSync(
-    path.join(outputRoot, 'articles', 'cmsc-124-lab0.html'),
+  const relativeRoute = route.replace(/^\/+/, '');
+  const routeFile = route.startsWith('/articles/')
+    ? `${relativeRoute}.html`
+    : path.join(relativeRoute, 'index.html');
+  let routeTemplate = fs.readFileSync(
+    path.join(outputRoot, routeFile),
     'utf8'
-  ).replace(
+  );
+  const servesPdf = route === ARTICLE_ROUTE;
+  if (servesPdf) routeTemplate = routeTemplate.replace(
     /href="pdfs\/[^"]+\.pdf"/,
     'href="pdfs/offline-update.pdf"'
   );
@@ -41,16 +47,16 @@ function createOfflineUpdateFixture() {
 
   const responseFor = (requestUrl) => {
     const { pathname } = new URL(requestUrl, 'http://127.0.0.1');
-    if (pathname === ARTICLE_ROUTE) {
+    if (pathname === route) {
       return {
-        body: articleTemplate.replace(
+        body: routeTemplate.replace(
           /<body([^>]*)>/,
           `<body$1><div id="offline-fixture-version">OFFLINE FIXTURE V${version}</div>`
         ),
         contentType: 'text/html',
       };
     }
-    if (pathname === '/pdfs/offline-update.pdf') {
+    if (servesPdf && pathname === '/pdfs/offline-update.pdf') {
       return {
         body: `%PDF-1.4\nOFFLINE FIXTURE PDF V${version}\n%%EOF\n`,
         contentType: 'application/pdf',
@@ -646,4 +652,54 @@ test.describe('Complete v4 offline cache', () => {
       await fixture.close();
     }
   });
+
+  for (const route of ['/calendar', '/projects', '/bookings', '/faqs', '/materials']) {
+    test(`refreshes an updated ${route} after reconnect`, async ({ page }) => {
+      const fixture = createOfflineUpdateFixture(route);
+      const fixtureOrigin = await fixture.start();
+
+      try {
+        await page.goto(`${fixtureOrigin}${route}`, { waitUntil: 'load' });
+        await waitForControlledServiceWorker(page);
+        await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V1');
+
+        await page.context().setOffline(true);
+        fixture.setVersion(2);
+        await page.context().setOffline(false);
+        await page.evaluate(() => window.dispatchEvent(new Event('online')));
+
+        const refreshResult = await page.evaluate(() => new Promise(resolve => {
+          const channel = new MessageChannel();
+          const timeout = setTimeout(() => resolve({ ok: false, error: 'refresh timeout' }), 30000);
+          channel.port1.onmessage = event => {
+            clearTimeout(timeout);
+            resolve(event.data);
+          };
+          navigator.serviceWorker.controller.postMessage({
+            type: 'refresh-route',
+            url: window.location.href,
+          }, [channel.port2]);
+        }));
+        expect(refreshResult.ok).toBe(true);
+
+        await expect.poll(
+          async () => page.evaluate(async () => {
+            const response = await caches.match(location.href, {
+              cacheName: 'ren-courses-online-first-v4',
+            });
+            return response ? (await response.text()).includes('OFFLINE FIXTURE V2') : false;
+          })
+        ).toBe(true);
+
+        await page.reload({ waitUntil: 'load' });
+        await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
+
+        await page.context().setOffline(true);
+        await page.reload({ waitUntil: 'load' });
+        await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
+      } finally {
+        await fixture.close();
+      }
+    });
+  }
 });
