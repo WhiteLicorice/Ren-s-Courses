@@ -50,6 +50,15 @@ test.describe('Edge Cases', () => {
     await expect(page.locator('body')).not.toBeEmpty();
   });
 
+  test('pages expose one valid web manifest', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load' });
+
+    const manifestHrefs = await page.locator('link[rel="manifest"]').evaluateAll(links =>
+      links.map(link => new URL(link.href).pathname));
+
+    expect(manifestHrefs).toEqual(['/site.webmanifest']);
+  });
+
   // ── All key routes ────────────────────────────────────────────────────────────
 
   test.describe('All major routes load without JavaScript errors', () => {

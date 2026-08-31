@@ -35,6 +35,37 @@ test.describe('Theme Toggle', () => {
     expect(href).toContain('prism-light.css');
   });
 
+  test('semantic surface tokens resolve in both themes', async ({ page }) => {
+    const expected = {
+      light: {
+        surfaceHover: '#eaeef2',
+        accentDim: 'rgba(207, 34, 46, 0.1)',
+      },
+      dark: {
+        surfaceHover: '#21262d',
+        accentDim: 'rgba(239, 68, 68, 0.1)',
+      },
+    };
+
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(themeName => window.switchPrismTheme(themeName), theme);
+      await page.waitForFunction(
+        themeName => document.documentElement.dataset.theme === themeName,
+        theme
+      );
+
+      const values = await page.evaluate(() => {
+        const styles = getComputedStyle(document.documentElement);
+        return {
+          surfaceHover: styles.getPropertyValue('--surface-hover').trim(),
+          accentDim: styles.getPropertyValue('--accent-dim').trim(),
+        };
+      });
+
+      expect(values).toEqual(expected[theme]);
+    }
+  });
+
   // ── Toggle interaction ──────────────────────────────────────────────────────
 
   test('clicking .theme-toggle-btn switches data-theme to "dark"', async ({ page }) => {

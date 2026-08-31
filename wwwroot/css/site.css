@@ -15,6 +15,8 @@
     /* NEON RED (Good for Dark Mode) */
     --border-muted: #30363d;
     --bg-surface: #161b22;
+    --surface-hover: #21262d;
+    --accent-dim: rgba(239, 68, 68, 0.1);
 
     /* --- CODEBOX THEME (DARK) --- */
     --code-bg: #010409;
@@ -50,6 +52,8 @@
     --border-muted: #d0d7de;
     --bg-surface: #f6f8fa;
     /* Subtle Light Gray surface */
+    --surface-hover: #eaeef2;
+    --accent-dim: rgba(207, 34, 46, 0.1);
 
     /* --- CODEBOX THEME (LIGHT) --- */
     --code-bg: #fafafa;
