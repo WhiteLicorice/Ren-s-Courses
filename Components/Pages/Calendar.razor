@@ -132,6 +132,7 @@
                                                     class="show-more-btn text-[10px] text-accent hover:text-accent-hover font-semibold cursor-pointer transition-colors"
                                                     data-cell="@cell.CellId"
                                                     data-overflow="@cell.OverflowJson"
+                                                    data-events="@cell.EventsJson"
                                                     data-date-label="@cell.DateLabel"
                                                     aria-expanded="false"
                                                     aria-haspopup="true"
@@ -141,23 +142,24 @@
                                         }
                                     </div>
 
-                                    @* Visible events (up to 3) *@
-                                    <div id="@cell.CellId" class="flex flex-col gap-1.5">
-                                        @foreach (var evt in cell.VisibleEvents)
+                                    @* Desktop events (three visible, remainder available after filtering) *@
+                                    <div id="@cell.CellId" class="calendar-cell-events flex flex-col gap-1.5">
+                                        @foreach (var item in cell.AllEvents.Select((evt, index) => new { evt, index }))
                                         {
-                                            @if (!string.IsNullOrEmpty(evt.Url))
+                                            var overflowStyle = item.index >= 3 ? "display: none;" : null;
+                                            @if (!string.IsNullOrEmpty(item.evt.Url))
                                             {
-                                                <a href="@evt.Url" target="_blank"
-                                                   class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @evt.CssClass"
-                                                   title="@evt.Tooltip">
-                                                    <span class="font-medium">@evt.Title</span>
+                                                <a href="@item.evt.Url" target="_blank" style="@overflowStyle"
+                                                   class="calendar-event block text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-pointer opacity-90 hover:opacity-100 hover:translate-x-0.5 transition-all shadow-sm @item.evt.CssClass"
+                                                   title="@item.evt.Tooltip">
+                                                    <span class="font-medium">@item.evt.Title</span>
                                                 </a>
                                             }
                                             else
                                             {
-                                                <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @evt.CssClass"
-                                                     title="@evt.Tooltip">
-                                                    <span class="font-medium">@evt.Title</span>
+                                                <div class="calendar-event text-[10px] px-2 py-1 rounded-sm border-l-4 truncate cursor-help opacity-90 hover:opacity-100 transition-all shadow-sm @item.evt.CssClass"
+                                                     style="@overflowStyle" title="@item.evt.Tooltip">
+                                                    <span class="font-medium">@item.evt.Title</span>
                                                 </div>
                                             }
                                         }

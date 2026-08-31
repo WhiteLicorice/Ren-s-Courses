@@ -129,6 +129,39 @@ describe('filterCalendarMulti', () => {
         window.filterCalendarMulti(['holiday', 'deadline']);
         expect(document.getElementById('cal-title').innerHTML).toContain('holiday');
     });
+
+    test('re-packs desktop events and overflow after filtering', () => {
+        document.body.innerHTML = `
+            <div>
+                <button class="show-more-btn"
+                    data-date-label="January 5"
+                    data-overflow='[{"title":"Event 5","cssClass":"tag-holiday"}]'
+                    data-events='[
+                        {"title":"Event 1","cssClass":"tag-holiday"},
+                        {"title":"Event 2","cssClass":"tag-holiday"},
+                        {"title":"Event 3","cssClass":"tag-deadline"},
+                        {"title":"Event 4","cssClass":"tag-holiday"},
+                        {"title":"Event 5","cssClass":"tag-holiday"}
+                    ]'>
+                    +1 more
+                </button>
+                <div class="calendar-cell-events">
+                    <div class="calendar-event tag-holiday">Event 1</div>
+                    <div class="calendar-event tag-holiday">Event 2</div>
+                    <div class="calendar-event tag-deadline">Event 3</div>
+                    <div class="calendar-event tag-holiday">Event 4</div>
+                    <div class="calendar-event tag-holiday">Event 5</div>
+                </div>
+            </div>
+        `;
+
+        window.filterCalendarMulti(['holiday']);
+
+        const events = [...document.querySelectorAll('.calendar-cell-events .calendar-event')];
+        expect(events.map(event => event.style.display)).toEqual(['', '', 'none', '', 'none']);
+        expect(document.querySelector('.show-more-btn').textContent.trim()).toBe('+1 more');
+        expect(JSON.parse(document.querySelector('.show-more-btn').dataset.overflow)[0].title).toBe('Event 5');
+    });
 });
 
 // ─── toggleCalendarTag / clearCalendarFilter ──────────────────────────────────

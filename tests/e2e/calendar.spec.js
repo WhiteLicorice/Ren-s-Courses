@@ -180,6 +180,31 @@ test.describe('Calendar Page (/calendar)', () => {
     await expect(page.locator('.filter-btn.bg-accent-dim')).not.toBeVisible();
   });
 
+  test('filtering hides overflow controls with no matching events', async ({ page }) => {
+    const filter = page.locator('.filter-btn[data-tag="cmsc-124"]');
+    if (await filter.count() === 0) test.skip();
+
+    const cellId = await page.evaluate(() => {
+      const cells = document.querySelectorAll('.month-view:not(.hidden) [id^="cell-"]');
+      for (const cell of cells) {
+        const button = cell.parentElement?.querySelector('.show-more-btn');
+        if (!button) continue;
+
+        const visibleEvents = [...cell.querySelectorAll('.calendar-event')];
+        const overflowEvents = JSON.parse(button.dataset.overflow || '[]');
+        const hasCms124 = visibleEvents.some(event => event.classList.contains('tag-cmsc-124'))
+          || overflowEvents.some(event => event.cssClass.split(/\s+/).includes('tag-cmsc-124'));
+        if (!hasCms124) return cell.id;
+      }
+      return null;
+    });
+    expect(cellId).toBeTruthy();
+
+    await filter.click();
+
+    await expect(page.locator(`button[data-cell="${cellId}"]`)).toBeHidden();
+  });
+
   // ── Event popover ───────────────────────────────────────────────────────────
 
   test('show-more button opens the event popover', async ({ page }) => {

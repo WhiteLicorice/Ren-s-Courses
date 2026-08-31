@@ -5,6 +5,59 @@
  * * Pivoted to JS to avoid 404s on static host.
  * * Toggles visibility of events based on 'tag-{TagName}' class.
  */
+const CALENDAR_VISIBLE_EVENT_LIMIT = 3;
+
+const calendarTagClass = tag => `tag-${tag.replace(/\s+/g, '-')}`;
+
+const calendarEventMatchesTags = (event, tags) =>
+    tags.length === 0 || tags.some(tag => event.classList.contains(calendarTagClass(tag)));
+
+function updateCalendarDesktopOverflow(tags) {
+    document.querySelectorAll('.calendar-cell-events').forEach(container => {
+        const events = [...container.querySelectorAll('.calendar-event')];
+        const matchingEvents = events.filter(event => calendarEventMatchesTags(event, tags));
+
+        events.forEach(event => {
+            const matchingIndex = matchingEvents.indexOf(event);
+            event.style.display = matchingIndex >= 0 && matchingIndex < CALENDAR_VISIBLE_EVENT_LIMIT
+                ? ''
+                : 'none';
+        });
+
+        const moreButton = container.parentElement?.querySelector('.show-more-btn');
+        if (!moreButton) return;
+
+        let eventData;
+        try {
+            eventData = JSON.parse(moreButton.dataset.events || '[]');
+        } catch (error) {
+            console.error('Failed to parse calendar event data', error);
+            eventData = [];
+        }
+
+        const matchingData = eventData.filter(event =>
+            tags.length === 0 || tags.some(tag => (event.cssClass || '').split(/\s+/).includes(calendarTagClass(tag)))
+        );
+        const overflowData = matchingData.slice(CALENDAR_VISIBLE_EVENT_LIMIT);
+
+        moreButton.style.display = overflowData.length > 0 ? '' : 'none';
+        moreButton.textContent = overflowData.length > 0 ? `+${overflowData.length} more` : '';
+        moreButton.dataset.overflow = JSON.stringify(overflowData);
+        moreButton.setAttribute(
+            'aria-label',
+            `Show ${overflowData.length} more events for ${moreButton.dataset.dateLabel || ''}`
+        );
+    });
+}
+
+function applyCalendarEventFilter(tags) {
+    const selectedTags = Array.isArray(tags) ? tags.filter(Boolean) : [];
+    document.querySelectorAll('.calendar-event').forEach(event => {
+        event.style.display = calendarEventMatchesTags(event, selectedTags) ? '' : 'none';
+    });
+    updateCalendarDesktopOverflow(selectedTags);
+}
+
 window.filterCalendar = (tag) => {
     // 1. Update Buttons State
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -18,22 +71,7 @@ window.filterCalendar = (tag) => {
     });
 
     // 2. Filter Events (Show/Hide)
-    const events = document.querySelectorAll('.calendar-event');
-    events.forEach(el => {
-        if (!tag) {
-            el.style.display = ''; // Reset to default (block)
-        } else {
-            // Check if element has the class "tag-{TagName}"
-            // Note: C# replaced spaces with dashes, so we must match that.
-            const targetClass = `tag-${tag.replace(/\s+/g, '-')}`;
-
-            if (el.classList.contains(targetClass)) {
-                el.style.display = '';
-            } else {
-                el.style.display = 'none';
-            }
-        }
-    });
+    applyCalendarEventFilter(tag ? [tag] : []);
 
     // 3. Update Header Text
     const title = document.getElementById('cal-title');
@@ -181,13 +219,14 @@ window.closeEventPopover = () => {
  * Called internally by toggleCalendarTag / clearCalendarFilter.
  */
 window.filterCalendarMulti = function (tags) {
-    var events = document.querySelectorAll('.calendar-event');
     var title = document.getElementById('cal-title');
     var subtitle = document.getElementById('cal-subtitle');
     var resetBtn = document.getElementById('cal-reset-btn');
+    var selectedTags = Array.isArray(tags) ? tags.filter(Boolean) : [];
 
-    if (!tags || tags.length === 0) {
-        events.forEach(function (el) { el.style.display = ''; });
+    applyCalendarEventFilter(selectedTags);
+
+    if (selectedTags.length === 0) {
         if (title) title.innerHTML = '<span class="text-accent">./</span>Calendar';
         if (subtitle) {
             var defaultText = subtitle.getAttribute('data-default');
@@ -195,15 +234,9 @@ window.filterCalendarMulti = function (tags) {
         }
         if (resetBtn) resetBtn.style.display = 'none';
     } else {
-        events.forEach(function (el) {
-            var matches = tags.some(function (tag) {
-                return el.classList.contains('tag-' + tag.replace(/\s+/g, '-'));
-            });
-            el.style.display = matches ? '' : 'none';
-        });
-        if (title) title.innerHTML = '<span class="text-accent">#</span>' + tags.join(', ');
+        if (title) title.innerHTML = '<span class="text-accent">#</span>' + selectedTags.join(', ');
         if (subtitle) {
-            subtitle.innerHTML = 'Filtering by <span class="text-text-main font-semibold">' + tags.join(', ') + '</span>.';
+            subtitle.innerHTML = 'Filtering by <span class="text-text-main font-semibold">' + selectedTags.join(', ') + '</span>.';
         }
         if (resetBtn) resetBtn.style.display = 'flex';
     }

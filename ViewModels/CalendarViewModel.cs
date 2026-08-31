@@ -23,8 +23,12 @@ public class CalendarViewModel
         List<CalendarEvent> OverflowEvents,
         string CellId,
         string OverflowJson,
-        string DateLabel
-    );
+        string DateLabel,
+        string EventsJson
+    )
+    {
+        public List<CalendarEvent> AllEvents => VisibleEvents.Concat(OverflowEvents).ToList();
+    }
 
     public record DayListEntry(
         DateTime Date,
@@ -121,7 +125,8 @@ public class CalendarViewModel
                 overflow,
                 $"cell-{month.Year}-{month.Month}-{day}",
                 overflow.Count > 0 ? SerializeOverflow(overflow) : "[]",
-                date.ToString("dddd, MMMM d")
+                date.ToString("dddd, MMMM d"),
+                SerializeEvents(events)
             ));
         }
 
@@ -158,7 +163,10 @@ public class CalendarViewModel
     };
 
     private static string SerializeOverflow(List<CalendarEvent> overflow)
+        => SerializeEvents(overflow);
+
+    private static string SerializeEvents(List<CalendarEvent> events)
         => JsonSerializer.Serialize(
-            overflow.Select(e => new { e.Title, Url = e.Url ?? "", e.CssClass, e.Tooltip }),
+            events.Select(e => new { e.Title, Url = e.Url ?? "", e.CssClass, e.Tooltip }),
             _jsonOptions);
 }
