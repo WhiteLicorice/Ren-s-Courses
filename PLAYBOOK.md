@@ -93,6 +93,12 @@ Confirmed 2026-07-15 (marker-based placement update):
 - **PDF label color fidelity (2026-07-15):** mermaid-cli's `-e pdf` export prints the page through Chrome, whose print color-adjust darkens light HTML label text (classDef `color:#ffffff` rendered as `#ABABAB` gray in the PDF while SVG/PNG exports stayed white, confirmed by dumping PDF `rg` fill operators). `"flowchart": { "htmlLabels": false }` in `.mmdc.json` is IGNORED by this render path. The top-level `"htmlLabels": false` key is what actually switches node labels to SVG `<text>`, which prints with exact fills. This also matches the web render, where strict `securityLevel` forces SVG labels. Verification path: render a classDef-colored flowchart with the repo CLI (`node node_modules/@mermaid-js/mermaid-cli/src/cli.js -i x.mmd -o x.pdf -e pdf -c .mmdc.json --pdfFit`, `PUPPETEER_CACHE_DIR=artifacts/puppeteer`) and grep decompressed streams for `.6706 .6706 .6706 rg` (absent) vs `1 1 1 rg` (present).
 - **Tilde fences (2026-07-15):** CommonMark allows info strings on tilde fences (`~~~python`), including backticks. Only backtick-fence info strings may not contain backticks. `IsValidFenceOpener` initially rejected labeled tilde fences, making them invisible to marker scanning. Fixed (any info string valid for `~`), covered by `FindReferencedKeys_IgnoresMarkerInsideLabeledTildeFence` (verified red without the fix). `GeneratorSchemaVersion` 6->7 for this behavior change.
 
+## Scrollbars
+
+Confirmed 2026-08-31:
+
+- Native scrollbar colors follow `color-scheme` on `:root` and `[data-theme="light"]`. The `@supports not selector(::-webkit-scrollbar)` guard keeps Firefox's `scrollbar-color` path separate from Chromium's WebKit pseudo-elements. The drag state uses the accent token in both paths. Verified in Chromium and Firefox at phone, tablet, and desktop widths.
+
 ## In-Page Navigation (article TOC, FAQ quick links)
 
 Confirmed 2026-08-21:
@@ -103,6 +109,37 @@ Confirmed 2026-08-21:
 - **`document.querySelector('#' + id)` is wrong for heading anchors.** Markdig `AutoIdentifiers` emits ids containing dots (`build.sh-run` on `cmsc-124-lab0`), which parse as `#build` + `.sh-run` and silently match nothing. An id starting with a digit throws `SyntaxError` outright, which would abort init before listeners are wired. Use `document.getElementById(decodeURIComponent(hash.slice(1)))`.
 - **`TOC_NAV_OFFSET` (80px) in `wwwroot/js/toc.js` and `scroll-margin-top: 5rem` on `.prose h1,h2,h3` in `Styles/app.css` are a pair** (the fixed navbar (`NavMenu.razor`, `h-16` = 64.67px measured) otherwise hides the anchored heading at y=0). Keep them in sync. CSS cannot read the JS constant. Verified: heading top lands at exactly 80px after both a TOC click and a `#hash` page load.
 - **Init functions must be idempotent about window-level listeners.** `toc.js` stores its handlers on `window.__tocWindowListeners` and `faq.js` on `window.__faqHashListener`, removing the previous pair before re-registering. `faq.js` also marks bound links with `dataset.faqBound`. This was not theoretical: the jest suite re-executes each script per test against one jsdom window, and a duplicate-listener probe measured 10 `scrollIntoView` calls for one `hashchange`.
+
+Confirmed 2026-08-31:
+
+- A position-based scroll spy cannot reach the last heading when the document ends before that heading reaches the navbar line. The at-bottom short-circuit in `wwwroot/js/toc.js` activates the final entry. The browser test keeps this behavior covered.
+
+## Calendar
+
+Confirmed 2026-08-31:
+
+- The desktop calendar initially shows three events per day. Filtering must re-pack all events before calculating the overflow count. Filtering only the initially visible bars leaves unrelated events in `+N more`. `Calendar.razor` keeps the full day event list in the static output, and `wwwroot/js/calendar.js` applies the three-event limit after each filter.
+
+## Service Worker
+
+Confirmed 2026-08-31:
+
+- The service worker lives at `wwwroot/service-worker.js`, which places it at the deployed application root. This gives it the application-root scope and makes its relative `ASSETS_TO_CACHE` paths resolve correctly. `wwwroot/js/site.js` registers it after `load` with a URL derived from `document.baseURI`, so Netlify's root base and GitHub Pages' repository base use the same code.
+- The rollback requires a deployed kill-switch worker. Keep the registration call active while it rolls out. The worker clears every cache and unregisters itself:
+
+```js
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys()
+            .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+            .then(() => self.registration.unregister())
+            .then(() => self.clients.claim())
+    );
+});
+```
+
+- The offline shell remains incomplete. `WebsiteKeys.VersionedAsset` adds `?v=` query strings, while the worker caches bare CSS and JavaScript paths. The current fetch handler does not intercept those subresources, so an offline navigation falls back to an unstyled `index.html`. `{ ignoreSearch: true }` in a redesigned fetch handler is the fix direction. Offline article URLs also fall back to the home page because this is a static multi-page site.
 
 ## Blazor Runtime (absence of)
 

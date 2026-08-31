@@ -16,3 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.initInteractiveDiagrams) window.initInteractiveDiagrams();
     if (window.initSubmissionMenus) window.initSubmissionMenus();
 });
+
+window.addEventListener("load", () => {
+    if ('serviceWorker' in navigator) {
+        const swUrl = new URL('service-worker.js', document.baseURI);
+        navigator.serviceWorker.register(swUrl).catch(err => {
+            console.warn('[SW] registration failed:', err);
+        });
+    }
+});

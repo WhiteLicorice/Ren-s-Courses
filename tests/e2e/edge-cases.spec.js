@@ -59,6 +59,36 @@ test.describe('Edge Cases', () => {
     expect(manifestHrefs).toEqual(['/site.webmanifest']);
   });
 
+  test('service worker is published at the application root', async ({ request }) => {
+    const rootWorker = await request.get('/service-worker.js');
+    expect(rootWorker.ok()).toBe(true);
+
+    const legacyWorker = await request.get('/js/service-worker.js');
+    expect(legacyWorker.status()).toBe(404);
+  });
+
+  test('registers the service worker from the document base URI', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.__registeredServiceWorkerUrls = [];
+      if (!('serviceWorker' in navigator)) return;
+
+      const originalRegister = navigator.serviceWorker.register.bind(navigator.serviceWorker);
+      navigator.serviceWorker.register = (scriptURL, options) => {
+        window.__registeredServiceWorkerUrls.push({
+          url: new URL(scriptURL, document.baseURI).href,
+          options,
+        });
+        return originalRegister(scriptURL, options);
+      };
+    });
+
+    await page.goto('/', { waitUntil: 'load' });
+    await page.waitForFunction(() => window.__registeredServiceWorkerUrls?.length === 1);
+
+    const registration = await page.evaluate(() => window.__registeredServiceWorkerUrls[0]);
+    expect(new URL(registration.url).pathname).toBe('/service-worker.js');
+  });
+
   // ── All key routes ────────────────────────────────────────────────────────────
 
   test.describe('All major routes load without JavaScript errors', () => {
