@@ -17,11 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.initSubmissionMenus) window.initSubmissionMenus();
 });
 
-window.addEventListener("load", () => {
-    if ('serviceWorker' in navigator) {
-        const swUrl = new URL('service-worker.js', document.baseURI);
-        navigator.serviceWorker.register(swUrl).catch(err => {
-            console.warn('[SW] registration failed:', err);
-        });
-    }
-});
+if ('serviceWorker' in navigator) {
+    const swUrl = new URL('service-worker.js', document.baseURI);
+    navigator.serviceWorker.register(swUrl).catch(err => {
+        console.warn('[SW] registration failed:', err);
+    });
+
+    window.addEventListener('online', () => {
+        const controller = navigator.serviceWorker.controller;
+        if (!controller) return;
+
+        controller.postMessage({ type: 'retry-external-assets' });
+        controller.postMessage({ type: 'refresh-route', url: window.location.href });
+    });
+}

@@ -1,14 +1,185 @@
 'use strict';
 
 const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const http = require('http');
+const path = require('path');
 
-const OFFLINE_CACHE_PREFIX = 'ren-courses-online-first-v3';
+const OFFLINE_CACHE_PREFIX = 'ren-courses-online-first-v4';
+const COMPLETE_OFFLINE_CACHE = 'ren-courses-online-first-v4';
 const ALLOWED_OFFLINE_ORIGINS = [
   'https://cdnjs.cloudflare.com',
   'https://fonts.googleapis.com',
   'https://fonts.gstatic.com',
   'https://keepandroidopen.org',
 ];
+
+const ARTICLE_ROUTE = '/articles/cmsc-124-lab0';
+
+const MIME_TYPES = {
+  '.css': 'text/css',
+  '.html': 'text/html',
+  '.ico': 'image/x-icon',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
+  '.pdf': 'application/pdf',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webmanifest': 'application/manifest+json',
+};
+
+function createOfflineUpdateFixture() {
+  const outputRoot = path.resolve(__dirname, '..', '..', 'output');
+  const articleTemplate = fs.readFileSync(
+    path.join(outputRoot, 'articles', 'cmsc-124-lab0.html'),
+    'utf8'
+  ).replace(
+    /href="pdfs\/[^"]+\.pdf"/,
+    'href="pdfs/offline-update.pdf"'
+  );
+  let version = 1;
+
+  const responseFor = (requestUrl) => {
+    const { pathname } = new URL(requestUrl, 'http://127.0.0.1');
+    if (pathname === ARTICLE_ROUTE) {
+      return {
+        body: articleTemplate.replace(
+          /<body([^>]*)>/,
+          `<body$1><div id="offline-fixture-version">OFFLINE FIXTURE V${version}</div>`
+        ),
+        contentType: 'text/html',
+      };
+    }
+    if (pathname === '/pdfs/offline-update.pdf') {
+      return {
+        body: `%PDF-1.4\nOFFLINE FIXTURE PDF V${version}\n%%EOF\n`,
+        contentType: 'application/pdf',
+      };
+    }
+
+    const relativePath = pathname.replace(/^\/+/, '') || 'index.html';
+    let filePath = path.join(outputRoot, relativePath);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+      filePath = path.join(filePath, 'index.html');
+    } else if (!path.extname(filePath) && fs.existsSync(`${filePath}.html`)) {
+      filePath = `${filePath}.html`;
+    }
+
+    if (!filePath.startsWith(`${outputRoot}${path.sep}`) || !fs.existsSync(filePath)) {
+      return null;
+    }
+
+    return {
+      body: fs.readFileSync(filePath),
+      contentType: MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+    };
+  };
+
+  const server = http.createServer((request, response) => {
+    const result = responseFor(request.url);
+    if (!result) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+    response.writeHead(200, { 'Content-Type': result.contentType });
+    response.end(result.body);
+  });
+
+  return {
+    async start() {
+      await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+      const address = server.address();
+      return `http://127.0.0.1:${address.port}`;
+    },
+    setVersion(nextVersion) {
+      version = nextVersion;
+    },
+    async close() {
+      server.closeAllConnections?.();
+      await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+    },
+  };
+}
+
+async function readCompleteOfflineInventory(page, cacheName, articleRoute = ARTICLE_ROUTE) {
+  return page.evaluate(async ({ cacheName, articleRoute, allowedOrigins }) => {
+    const manifest = await (await fetch('/offline-manifest.json')).json();
+    const localUrls = new Set([
+      new URL('/offline-manifest.json', location.href).href,
+    ]);
+    const generatedPdfUrls = new Set();
+    let articleDocument = null;
+
+    for (const route of manifest.routes) {
+      const routeUrl = new URL(route === './' ? '/' : `/${route}`, location.href);
+      localUrls.add(routeUrl.href);
+      const response = await fetch(routeUrl);
+      const html = await response.text();
+      const document = new DOMParser().parseFromString(html, 'text/html');
+      if (routeUrl.pathname === articleRoute) articleDocument = document;
+      const baseHref = document.querySelector('base')?.getAttribute('href');
+      const resourceBase = baseHref ? new URL(baseHref, routeUrl) : routeUrl;
+      document.querySelectorAll('[src], link[href], a[data-download-source="generated"]').forEach(element => {
+        const rawUrl = element.getAttribute('src') || element.getAttribute('href');
+        if (!rawUrl) return;
+        const url = new URL(rawUrl, resourceBase);
+        if (url.origin !== location.origin) return;
+        if (element.matches('a') && !url.pathname.endsWith('.pdf')) return;
+        localUrls.add(url.href);
+        if (element.matches('a')) generatedPdfUrls.add(url.href);
+      });
+    }
+
+    const cache = await caches.open(cacheName);
+    const missingLocal = [];
+    for (const url of localUrls) {
+      const request = new Request(url);
+      if (!(await cache.match(request, { ignoreSearch: true }))) missingLocal.push(new URL(url).pathname);
+    }
+
+    const externalKeys = (await cache.keys())
+      .map(request => request.url)
+      .filter(url => allowedOrigins.includes(new URL(url).origin));
+    const externalDocument = articleDocument || new DOMParser().parseFromString('', 'text/html');
+    const googleStylesheet = [...externalDocument.querySelectorAll('link[href]')]
+      .map(link => new URL(link.href).href)
+      .find(url => url.startsWith('https://fonts.googleapis.com/'));
+    const nestedFontUrls = [];
+    if (googleStylesheet) {
+      const cssResponse = await cache.match(googleStylesheet);
+      if (cssResponse) {
+        const css = await cssResponse.text();
+        for (const match of css.matchAll(/url\((?:"([^"]+)"|'([^']+)'|([^)]*))\)/gi)) {
+          const rawUrl = match[1] || match[2] || match[3].trim();
+          const url = new URL(rawUrl, googleStylesheet);
+          if (url.origin === 'https://fonts.gstatic.com') nestedFontUrls.push(url.href);
+        }
+      }
+    }
+
+    const missingExternal = [...new Set([
+      ...[...externalDocument.querySelectorAll('script[src], link[href]')]
+        .map(element => element.src || element.href)
+        .filter(url => allowedOrigins.includes(new URL(url).origin)),
+      ...nestedFontUrls,
+    ])].filter(url => !externalKeys.includes(url));
+
+    const unexpectedCrossOrigin = (await cache.keys())
+      .map(request => new URL(request.url))
+      .filter(url => url.origin !== location.origin && !allowedOrigins.includes(url.origin))
+      .map(url => url.href);
+
+    return {
+      manifestRoutes: manifest.routes,
+      missingLocal,
+      missingExternal,
+      unexpectedCrossOrigin,
+      generatedPdfUrls: [...generatedPdfUrls],
+      articleRoute,
+    };
+    }, { cacheName, articleRoute, allowedOrigins: ALLOWED_OFFLINE_ORIGINS });
+}
 
 async function waitForControlledServiceWorker(page) {
   await page.waitForFunction(async () => {
@@ -317,5 +488,162 @@ test.describe('Edge Cases', () => {
 
     await page.waitForURL(/\/$/);
     expect(page.url()).toMatch(/\/$/);
+  });
+});
+
+test.describe('Complete v4 offline cache', () => {
+  test.setTimeout(120000);
+
+  test('completes CDN caching when the first page loads during installation', async ({ page }) => {
+    const pageExternalRequests = [];
+    page.on('request', request => {
+      const origin = new URL(request.url()).origin;
+      if (ALLOWED_OFFLINE_ORIGINS.includes(origin)) pageExternalRequests.push(request.url());
+    });
+
+    await page.goto(ARTICLE_ROUTE, { waitUntil: 'domcontentloaded' });
+    await waitForControlledServiceWorker(page);
+
+    const inventory = await readCompleteOfflineInventory(page, COMPLETE_OFFLINE_CACHE);
+    expect(pageExternalRequests.length).toBeGreaterThan(0);
+    expect(inventory.missingExternal).toEqual([]);
+    expect(inventory.missingLocal).toEqual([]);
+  });
+
+  test('pre-caches every generated route, material PDF, media, and CDN dependency', async ({ page }) => {
+    await page.goto(ARTICLE_ROUTE, { waitUntil: 'load' });
+    await waitForControlledServiceWorker(page);
+
+    const inventory = await readCompleteOfflineInventory(page, COMPLETE_OFFLINE_CACHE);
+
+    expect(inventory.manifestRoutes.length).toBeGreaterThan(0);
+    expect(inventory.missingLocal).toEqual([]);
+    expect(inventory.missingExternal).toEqual([]);
+    expect(inventory.unexpectedCrossOrigin).toEqual([]);
+    expect(inventory.generatedPdfUrls.length).toBeGreaterThan(0);
+
+    const material = await page.evaluate(async ({ cacheName }) => {
+      const pdfUrl = document.querySelector('a[data-download-source="generated"]')?.href;
+      if (!pdfUrl) return { pdfUrl: null, pdfBytes: null };
+
+      const cache = await caches.open(cacheName);
+      const response = await cache.match(pdfUrl);
+      return {
+        pdfUrl,
+        pdfBytes: response ? [...new Uint8Array(await response.arrayBuffer())].slice(0, 8) : null,
+      };
+    }, { cacheName: COMPLETE_OFFLINE_CACHE });
+
+    expect(material.pdfUrl).toMatch(/\/pdfs\/[^/]+\.pdf$/);
+    expect(material.pdfBytes?.slice(0, 5)).toEqual([37, 80, 68, 70, 45]);
+
+    await page.context().setOffline(true);
+    const offlinePdf = await page.evaluate(async url => {
+      const response = await fetch(url);
+      return {
+        status: response.status,
+        bytes: [...new Uint8Array(await response.arrayBuffer())].slice(0, 5),
+      };
+    }, material.pdfUrl);
+    expect(offlinePdf).toEqual({
+      status: 200,
+      bytes: [37, 80, 68, 70, 45],
+    });
+  });
+
+  test('serves clean and trailing-slash route aliases offline', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForControlledServiceWorker(page);
+
+    const aliases = await page.evaluate(async cacheName => {
+      const cache = await caches.open(cacheName);
+      return [
+        await cache.match(new URL('/materials', location.href)),
+        await cache.match(new URL('/materials/', location.href)),
+      ].map(Boolean);
+    }, COMPLETE_OFFLINE_CACHE);
+    expect(aliases).toEqual([true, true]);
+
+    await page.context().setOffline(true);
+
+    await page.goto('/materials', { waitUntil: 'load' });
+    expect(new URL(page.url()).pathname).toBe('/materials');
+    await expect(page.locator('body')).toContainText('Materials');
+
+    await page.goto('/materials/', { waitUntil: 'load' });
+    expect(new URL(page.url()).pathname).toBe('/materials/');
+    await expect(page.locator('body')).toContainText('Materials');
+  });
+
+  test('retries the current route and replaces article HTML and PDF after reconnect', async ({ page }) => {
+    const fixture = createOfflineUpdateFixture();
+    const fixtureOrigin = await fixture.start();
+
+    try {
+      await page.goto(`${fixtureOrigin}${ARTICLE_ROUTE}`, { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+
+      const absolutePdfUrl = await page.locator('a[data-download-source="generated"]').evaluate(anchor => anchor.href);
+      if (!absolutePdfUrl) throw new Error('The fixture article has no generated PDF link.');
+
+      await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V1');
+      const initialPdf = await page.evaluate(async url => {
+        const response = await fetch(url);
+        return {
+          status: response.status,
+          url: response.url,
+          type: response.type,
+          text: await response.text(),
+        };
+      }, absolutePdfUrl);
+      expect(initialPdf.status).toBe(200);
+      expect(initialPdf.text).toContain('OFFLINE FIXTURE PDF V1');
+
+      await page.context().setOffline(true);
+      fixture.setVersion(2);
+      await page.context().setOffline(false);
+      await page.evaluate(() => window.dispatchEvent(new Event('online')));
+
+      const refreshResult = await page.evaluate(() => new Promise(resolve => {
+        const channel = new MessageChannel();
+        const timeout = setTimeout(() => resolve({ ok: false, error: 'refresh timeout' }), 30000);
+        channel.port1.onmessage = event => {
+          clearTimeout(timeout);
+          resolve(event.data);
+        };
+        navigator.serviceWorker.controller.postMessage({
+          type: 'refresh-route',
+          url: window.location.href,
+        }, [channel.port2]);
+      }));
+      expect(refreshResult.ok).toBe(true);
+
+      await expect.poll(
+        async () => page.evaluate(async ({ cacheName, pdf }) => {
+          const cache = await caches.open(cacheName);
+          const article = await cache.match(location.href);
+          const pdfResponse = await cache.match(pdf);
+          return {
+            article: article ? (await article.text()).includes('OFFLINE FIXTURE V2') : false,
+            pdf: pdfResponse ? (await pdfResponse.text()).includes('OFFLINE FIXTURE PDF V2') : false,
+          };
+        }, { cacheName: COMPLETE_OFFLINE_CACHE, pdf: absolutePdfUrl })
+      ).toEqual({
+        article: true,
+        pdf: true,
+      });
+
+      await page.reload({ waitUntil: 'load' });
+      await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
+
+      await page.context().setOffline(true);
+      const offlinePdf = await page.evaluate(async url => {
+        const response = await fetch(url);
+        return await response.text();
+      }, absolutePdfUrl);
+      expect(offlinePdf).toContain('OFFLINE FIXTURE PDF V2');
+    } finally {
+      await fixture.close();
+    }
   });
 });
