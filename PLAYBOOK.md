@@ -139,7 +139,12 @@ self.addEventListener('activate', (event) => {
 });
 ```
 
-- The offline shell remains incomplete. `WebsiteKeys.VersionedAsset` adds `?v=` query strings, while the worker caches bare CSS and JavaScript paths. The current fetch handler does not intercept those subresources, so an offline navigation falls back to an unstyled `index.html`. `{ ignoreSearch: true }` in a redesigned fetch handler is the fix direction. Offline article URLs also fall back to the home page because this is a static multi-page site.
+- `ren-courses-online-first-v3` caches the generated site. `Program.cs` writes `wwwroot/offline-manifest.json` from the final `BlazorStaticOptions.PagesToGenerate` list. The manifest uses clean routes such as `./`, `articles/cmsc-124-lab0`, and `calendar`. The route list therefore follows the current article and tag visibility filters.
+- Register the manifest action after `app.UseBlazorStaticGenerator`. BlazorStatic adds its content parsing actions during that call. Registering the manifest action earlier would omit generated content routes. Add the generated file to `ContentToCopyToOutput` because static asset discovery runs before the action writes the file.
+- The v3 worker pre-caches the manifest, every clean generated route, local stylesheets, production scripts, icons, and the web manifest. It also caches same-origin resources referenced by generated pages, including article media. It removes query strings when it stores local resources, so versioned `?v=` requests work offline.
+- Navigation uses a network-first policy. A successful online navigation replaces the cached response for that exact route. This refreshes article, Calendar, Showcase, Booking, FAQ, and Materials pages when connectivity returns. An offline request uses the exact cached route before it falls back to the cached home page.
+- The worker caches the current Google Fonts stylesheet, nested readable Google font files, Prism scripts, and the Android banner. It handles only the allowlisted third-party origins. Third-party failures log warnings and do not block local worker installation.
+- A route added after a cached worker version requires one online visit or a worker update. Unknown routes still use the cached home fallback when no exact cached response exists.
 
 ## Blazor Runtime (absence of)
 

@@ -6,6 +6,7 @@ utilities/
 
 # Ignore generated Tailwind CSS
 wwwroot/css/app.css
+wwwroot/offline-manifest.json
 
 # Ignore generated PDF artifacts
 wwwroot/pdfs/

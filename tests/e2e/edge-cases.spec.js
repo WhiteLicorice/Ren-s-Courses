@@ -2,6 +2,46 @@
 
 const { test, expect } = require('@playwright/test');
 
+const OFFLINE_CACHE_PREFIX = 'ren-courses-online-first-v3';
+const ALLOWED_OFFLINE_ORIGINS = [
+  'https://cdnjs.cloudflare.com',
+  'https://fonts.googleapis.com',
+  'https://fonts.gstatic.com',
+  'https://keepandroidopen.org',
+];
+
+async function waitForControlledServiceWorker(page) {
+  await page.waitForFunction(async () => {
+    if (!('serviceWorker' in navigator)) return false;
+
+    const registration = await navigator.serviceWorker.ready;
+    return registration.active?.state === 'activated' && navigator.serviceWorker.controller;
+  });
+}
+
+async function readOfflineArticleState(page) {
+  return page.evaluate(() => {
+    const prismThemeLink = document.querySelector('#prism-theme-link');
+    let prismThemeRules = 0;
+
+    try {
+      prismThemeRules = prismThemeLink?.sheet?.cssRules?.length ?? 0;
+    } catch {
+      prismThemeRules = 0;
+    }
+
+    return {
+      pathname: window.location.pathname,
+      backgroundColor: getComputedStyle(document.body).backgroundColor,
+      hasArticle: Boolean(document.querySelector('article')),
+      codeBlockCount: document.querySelectorAll('article pre code').length,
+      hasPrism: typeof window.Prism === 'object',
+      hasPowershellGrammar: Boolean(window.Prism?.languages?.powershell),
+      prismThemeRules,
+    };
+  });
+}
+
 test.describe('Edge Cases', () => {
   // ── /null route ─────────────────────────────────────────────────────────────
 
@@ -88,6 +128,139 @@ test.describe('Edge Cases', () => {
     const registration = await page.evaluate(() => window.__registeredServiceWorkerUrls[0]);
     expect(new URL(registration.url).pathname).toBe('/service-worker.js');
   });
+
+  test('offline manifest lists clean generated routes', async ({ request }) => {
+    const response = await request.get('/offline-manifest.json');
+    expect(response.ok()).toBe(true);
+
+    const manifest = await response.json();
+    expect(manifest.routes).toEqual(expect.arrayContaining([
+      './',
+      'articles/cmsc-124-lab0',
+      'calendar',
+      'projects',
+      'bookings',
+      'faqs',
+      'materials',
+    ]));
+    expect(manifest.routes.every(route => !route.endsWith('.html'))).toBe(true);
+  });
+
+  test('pre-caches every generated clean route', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForControlledServiceWorker(page);
+
+    const cachedRoutes = await page.evaluate(async ({ cacheName, routes }) => {
+      const cache = await caches.open(cacheName);
+      const missingRoutes = [];
+
+      for (const route of routes) {
+        const url = new URL(route === './' ? '/' : `/${route}`, window.location.href);
+        if (!(await cache.match(new Request(url.href)))) {
+          missingRoutes.push(url.pathname);
+        }
+      }
+
+      return missingRoutes;
+    }, { cacheName: OFFLINE_CACHE_PREFIX, routes: await page.evaluate(async () =>
+      (await (await fetch('/offline-manifest.json')).json()).routes) });
+
+    expect(cachedRoutes).toEqual([]);
+  });
+
+  for (const { route, marker } of [
+    { route: '/articles/cmsc-124-lab0', marker: 'Onboarding' },
+    { route: '/calendar', marker: 'Calendar' },
+    { route: '/projects', marker: 'Showcase' },
+    { route: '/bookings', marker: 'Bookings' },
+    { route: '/faqs', marker: 'FAQs' },
+    { route: '/materials', marker: 'Materials' },
+  ]) {
+    test(`online navigation replaces a stale cached response for ${route}`, async ({ page }) => {
+      await page.goto(route, { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+
+      const staleMarker = `STALE CACHE MARKER ${route}`;
+      await page.evaluate(async ({ cacheName, marker }) => {
+        const cache = await caches.open(cacheName);
+        await cache.put(
+          new Request(window.location.href),
+          new Response(`<html><body>${marker}</body></html>`, {
+            headers: { 'Content-Type': 'text/html' },
+          })
+        );
+      }, { cacheName: OFFLINE_CACHE_PREFIX, marker: staleMarker });
+
+      await page.reload({ waitUntil: 'load' });
+
+      const cachedPage = await page.evaluate(async cacheName => {
+        const response = await caches.match(window.location.href, { cacheName });
+        return response ? response.text() : null;
+      }, OFFLINE_CACHE_PREFIX);
+
+      expect(cachedPage).toContain(marker);
+      expect(cachedPage).not.toContain(staleMarker);
+    });
+  }
+
+  for (const theme of ['dark', 'light']) {
+    test(`reloads a cached article offline in ${theme} theme`, async ({ page }) => {
+      const offlineFailures = [];
+      const pageErrors = [];
+      let offline = false;
+
+      page.on('pageerror', error => pageErrors.push(error.message));
+      page.on('requestfailed', request => {
+        if (offline) {
+          offlineFailures.push({
+            url: request.url(),
+            failure: request.failure()?.errorText,
+          });
+        }
+      });
+
+      await page.addInitScript(selectedTheme => {
+        localStorage.setItem('user-theme', selectedTheme);
+      }, theme);
+
+      await page.goto('/articles/cmsc-124-lab0', { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+      await page.reload({ waitUntil: 'load' });
+
+      const cacheState = await page.evaluate(async cachePrefix => {
+        const cacheName = (await caches.keys()).find(name => name === cachePrefix);
+        if (!cacheName) return null;
+
+        const keys = await (await caches.open(cacheName)).keys();
+        return keys.map(request => new URL(request.url).pathname);
+      }, OFFLINE_CACHE_PREFIX);
+
+      expect(cacheState).not.toBeNull();
+      expect(cacheState).toContain('/articles/cmsc-124-lab0');
+
+      offline = true;
+      await page.context().setOffline(true);
+      await page.reload({ waitUntil: 'load' });
+
+      const state = await readOfflineArticleState(page);
+      expect(state.pathname).toBe('/articles/cmsc-124-lab0');
+      expect(state.hasArticle).toBe(true);
+      expect(state.codeBlockCount).toBeGreaterThan(0);
+      expect(state.hasPrism).toBe(true);
+      expect(state.hasPowershellGrammar).toBe(true);
+      expect(state.prismThemeRules).toBeGreaterThan(0);
+      expect(state.backgroundColor).toBe(
+        theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(13, 17, 23)'
+      );
+      expect(pageErrors).toEqual([]);
+
+      const relevantFailures = offlineFailures.filter(({ url }) => {
+        const origin = new URL(url).origin;
+        return origin === new URL(page.url()).origin || ALLOWED_OFFLINE_ORIGINS.includes(origin);
+      }).filter(({ failure }) => failure !== 'NS_BINDING_ABORTED');
+      expect(relevantFailures).toEqual([]);
+    });
+  }
 
   // ── All key routes ────────────────────────────────────────────────────────────
 

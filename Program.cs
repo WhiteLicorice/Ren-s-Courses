@@ -9,15 +9,21 @@ using System.Security.Cryptography;
 using BlazorStaticMinimalBlog.Components;
 using BlazorStaticMinimalBlog.Models;
 using BlazorStaticMinimalBlog.Services;
+using System.Text.Json;
 // YES, THESE ARE NECESSARY.
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
 
+var webRootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+BlazorStaticOptions? staticOptions = null;
+
 builder.Services.AddBlazorStaticService(opt =>
 {
-    //opt. //check to change the defaults
+    staticOptions = opt;
+    opt.ContentToCopyToOutput.Add(
+        new ContentToCopy("wwwroot/offline-manifest.json", "offline-manifest.json"));
 })
 .AddBlazorStaticContentService<CourseFrontMatter>(opt =>
 {
@@ -135,6 +141,17 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>();
 
 app.UseBlazorStaticGenerator(shutdownApp: !app.Environment.IsDevelopment());
+staticOptions!.AddBeforeFilesGenerationAction(() =>
+{
+    var routes = staticOptions.PagesToGenerate
+        .Select(page => WebsiteKeys.NormalizeOfflineRoute(page.Url))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(route => route, StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    var manifest = JsonSerializer.Serialize(new { routes });
+    File.WriteAllText(Path.Combine(webRootPath, "offline-manifest.json"), manifest);
+});
 
 app.Run();
 
@@ -155,6 +172,21 @@ public static class WebsiteKeys
         using var stream = File.OpenRead(assetPath);
         var hash = Convert.ToHexString(SHA256.HashData(stream))[..12].ToLowerInvariant();
         return $"{path}?v={hash}";
+    }
+
+    internal static string NormalizeOfflineRoute(string url)
+    {
+        var route = url.Replace('\\', '/').Trim('/');
+
+        if (route.Length == 0 || route.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+            return "./";
+
+        if (route.EndsWith("/index.html", StringComparison.OrdinalIgnoreCase))
+            route = route[..^"/index.html".Length];
+        else if (route.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+            route = route[..^".html".Length];
+
+        return route.Length == 0 ? "./" : route;
     }
 
     private static string? FindAsset(string path)
