@@ -1,6 +1,6 @@
 # PLAYBOOK.md
 
-Persistent project memory for confirmed, reusable learnings that are not obvious from reading a single source file. Read this file alongside `FABLE.md` before substantive work.
+Persistent project memory for confirmed, reusable learnings that are not obvious from reading a single source file.
 
 ## Update Protocol
 
