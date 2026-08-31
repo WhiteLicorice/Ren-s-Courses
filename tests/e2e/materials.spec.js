@@ -199,6 +199,24 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
     await expect(active).toHaveAttribute('aria-current', 'true');
   });
 
+  test('clicking the last TOC link once keeps its highlight at the document bottom', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => typeof window.generateTOC === 'function');
+    await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
+    const link = page.locator('#toc-content a[data-target]').last();
+    const targetId = await link.getAttribute('data-target');
+
+    await link.click();
+    // Allow the smooth scroll and the following scroll-spy frame to settle.
+    await page.waitForTimeout(1200);
+
+    const active = page.locator('#toc-content a.text-accent');
+    await expect(active).toHaveCount(1);
+    await expect(active).toHaveAttribute('data-target', targetId);
+  });
+
   test('the anchored heading clears the fixed navbar', async ({ page }) => {
     await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
     const link = page.locator('#toc-content a[data-target]').nth(2);

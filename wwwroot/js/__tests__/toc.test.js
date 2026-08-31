@@ -208,7 +208,26 @@ describe('generateTOC — active-section highlight', () => {
 // ─── scroll spy ───────────────────────────────────────────────────────────────
 
 describe('generateTOC — scroll spy', () => {
-    beforeEach(() => { arrange(); });
+    let originalScrollMetrics;
+
+    beforeEach(() => {
+        arrange();
+        originalScrollMetrics = {
+            scrollHeight: Object.getOwnPropertyDescriptor(document.documentElement, 'scrollHeight'),
+            innerHeight: Object.getOwnPropertyDescriptor(window, 'innerHeight'),
+            scrollY: Object.getOwnPropertyDescriptor(window, 'scrollY')
+        };
+    });
+
+    afterEach(() => {
+        const restore = (target, property, descriptor) => {
+            if (descriptor) Object.defineProperty(target, property, descriptor);
+            else delete target[property];
+        };
+        restore(document.documentElement, 'scrollHeight', originalScrollMetrics.scrollHeight);
+        restore(window, 'innerHeight', originalScrollMetrics.innerHeight);
+        restore(window, 'scrollY', originalScrollMetrics.scrollY);
+    });
 
     test('highlights the last heading scrolled past the navbar offset', async () => {
         stubTops({
@@ -260,6 +279,54 @@ describe('generateTOC — scroll spy', () => {
         window.dispatchEvent(new Event('scroll'));
         await flushRaf();
         expect(activeIn('#mobile-toc-content')).toEqual(['section-one']);
+    });
+
+    test('activates the last heading when the document is at the bottom', async () => {
+        stubTops({
+            'main-title': -500,
+            'section-one': -100,
+            'section-two': NAV_OFFSET - 1,
+            'build.sh-run': NAV_OFFSET + 100
+        });
+        Object.defineProperty(document.documentElement, 'scrollHeight', {
+            configurable: true,
+            value: 2000
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            configurable: true,
+            value: 800
+        });
+        Object.defineProperty(window, 'scrollY', {
+            configurable: true,
+            value: 1200
+        });
+        window.dispatchEvent(new Event('scroll'));
+        await flushRaf();
+        expect(activeIn('#toc-content')).toEqual(['build.sh-run']);
+    });
+
+    test('keeps the first heading active when the page cannot scroll', async () => {
+        stubTops({
+            'main-title': NAV_OFFSET + 10,
+            'section-one': NAV_OFFSET + 100,
+            'section-two': NAV_OFFSET + 200,
+            'build.sh-run': NAV_OFFSET + 300
+        });
+        Object.defineProperty(document.documentElement, 'scrollHeight', {
+            configurable: true,
+            value: 800
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            configurable: true,
+            value: 800
+        });
+        Object.defineProperty(window, 'scrollY', {
+            configurable: true,
+            value: 0
+        });
+        window.dispatchEvent(new Event('scroll'));
+        await flushRaf();
+        expect(activeIn('#toc-content')).toEqual(['main-title']);
     });
 });
 

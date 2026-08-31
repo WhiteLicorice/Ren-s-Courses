@@ -167,6 +167,14 @@ window.generateTOC = () => {
     // A position check beats IntersectionObserver here — an observer band leaves
     // dead zones, so headings crossing it between samples were skipped entirely.
     const activeHeaderId = () => {
+        // The last headings on a page can never reach the navbar line. The document
+        // runs out of scroll height first, so the position check below stalls on
+        // the second-to-last entry. At the bottom, the last heading is active by definition.
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll > 0 && window.scrollY >= maxScroll - 2) {
+            return headers[headers.length - 1].id;
+        }
+
         let id = headers[0].id;
         headers.forEach(header => {
             if (header.getBoundingClientRect().top - TOC_NAV_OFFSET <= 1) id = header.id;
