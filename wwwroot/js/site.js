@@ -9,6 +9,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     if (window.addCodeFeatures) window.addCodeFeatures();
     if (window.generateTOC) window.generateTOC();
+    if (window.initScrollbarDrag) window.initScrollbarDrag();
     if (window.initScrollButton) window.initScrollButton();
     if (window.initCalendarNav) window.initCalendarNav();
     if (window.initFaqToc) window.initFaqToc();

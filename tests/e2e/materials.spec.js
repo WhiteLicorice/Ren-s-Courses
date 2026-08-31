@@ -304,4 +304,55 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
     expect(await copyBtns.count()).toBeGreaterThan(0);
     await expect(copyBtns.first()).toBeVisible();
   });
+
+  test('unlabelled code blocks keep readable colors in light mode', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('user-theme', 'light'));
+    await page.reload();
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
+    await page.waitForSelector('.code-wrapper', { timeout: 5000 });
+
+    const code = page.locator('.code-wrapper pre').filter({ hasText: 'repo-root' });
+    await expect(code).toBeVisible();
+
+    const colors = await code.evaluate(element => {
+      const codeElement = element.querySelector('code');
+      return {
+        pre: getComputedStyle(element).color,
+        code: getComputedStyle(codeElement).color,
+      };
+    });
+
+    expect(colors).toEqual({
+      pre: 'rgb(31, 35, 40)',
+      code: 'rgb(31, 35, 40)',
+    });
+  });
+
+  test('dragging a code scrollbar applies the accent state', async ({ page }) => {
+    await page.evaluate(() => localStorage.setItem('user-theme', 'light'));
+    await page.reload();
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
+    await page.waitForSelector('.code-wrapper', { timeout: 5000 });
+
+    const code = page.locator('.code-wrapper pre').filter({ hasText: 'repo-root' });
+    await code.scrollIntoViewIfNeeded();
+    await expect.poll(() => code.evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
+
+    const box = await code.boundingBox();
+    if (!box) throw new Error('The code block has no layout box.');
+
+    try {
+      await page.mouse.move(box.x + 40, box.y + box.height - 3);
+      await page.mouse.down();
+      await expect(code).toHaveClass(/\bscrollbar-dragging\b/);
+      if (test.info().project.name === 'firefox') {
+        await expect.poll(() => code.evaluate(element => getComputedStyle(element).scrollbarColor))
+          .toBe('rgb(207, 34, 46) rgba(0, 0, 0, 0)');
+      }
+    } finally {
+      await page.mouse.up();
+    }
+
+    await expect(code).not.toHaveClass(/\bscrollbar-dragging\b/);
+  });
 });

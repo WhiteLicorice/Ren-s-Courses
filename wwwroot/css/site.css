@@ -2,6 +2,8 @@
 /* 0. THEME VARIABLES             */
 /* ============================== */
 :root {
+    color-scheme: dark;
+
     /* --- MAIN THEME (DARK / DEFAULT) --- */
     --bg-base: #0d1117;
     /* GitHub Dark Dimmed */
@@ -24,9 +26,18 @@
     --btn-hover-bg: #21262d;
     --btn-hover-text: #f0f6fc;
     --copy-success: #238636;
+
+    /* --- SCROLLBARS (DARK) --- */
+    --scrollbar-size: 10px;
+    --scrollbar-size-slim: 6px;
+    --scrollbar-thumb: #4a525b;
+    --scrollbar-thumb-hover: #6e7681;
+    --scrollbar-rail: var(--border-muted);
 }
 
 [data-theme="light"] {
+    color-scheme: light;
+
     /* --- MAIN THEME (LIGHT - REVISED) --- */
     --bg-base: #ffffff;
     /* Pure White */
@@ -53,6 +64,11 @@
     /* Blue hover for copy button (distinctive) */
     --btn-hover-text: #ffffff;
     --copy-success: #1a7f37;
+
+    /* --- SCROLLBARS (LIGHT) --- */
+    --scrollbar-thumb: #b9c1c9;
+    --scrollbar-thumb-hover: #7d868f;
+    --scrollbar-rail: var(--border-muted);
 }
 
 /* ============================== */
@@ -80,6 +96,10 @@
     border: none;
     overflow-x: auto;
     padding: 1rem 1rem 1rem 3rem;
+}
+
+.prose .code-wrapper pre:not([class*="language-"]) {
+    color: var(--text-main);
 }
 
 /* CONDITIONAL PADDING (With Label) */
@@ -391,5 +411,90 @@
 @media (hover: hover) {
     .submission-menu:not([data-hover-suppressed]):hover > .submission-menu-panel {
         display: block;
+    }
+}
+
+/* ============================== */
+/* 10. SCROLLBARS                 */
+/* ============================== */
+*::-webkit-scrollbar,
+*::-webkit-scrollbar:vertical,
+*::-webkit-scrollbar:horizontal {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-track:vertical {
+    box-shadow: inset 1px 0 0 var(--scrollbar-rail);
+}
+
+*::-webkit-scrollbar-track:horizontal {
+    box-shadow: inset 0 1px 0 var(--scrollbar-rail);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid transparent;
+    border-radius: 2px;
+    background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-thumb:active {
+    background-color: var(--accent);
+}
+
+*.scrollbar-dragging::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+}
+
+*::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.scrollbar-slim {
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
+}
+
+.scrollbar-slim::-webkit-scrollbar {
+    width: var(--scrollbar-size-slim);
+    height: var(--scrollbar-size-slim);
+}
+
+.scrollbar-slim::-webkit-scrollbar-thumb {
+    border-width: 1px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        /* Firefox supports only auto, thin, or none, so slim panels use thin too. */
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+
+    /* Firefox exposes no thumb pseudo-element. JavaScript marks the scroll
+       container under the native scrollbar while its thumb is dragged. */
+    *.scrollbar-dragging {
+        scrollbar-color: var(--accent) transparent;
+    }
+}
+
+@media (forced-colors: active) {
+    *::-webkit-scrollbar-thumb {
+        background: ButtonBorder;
     }
 }

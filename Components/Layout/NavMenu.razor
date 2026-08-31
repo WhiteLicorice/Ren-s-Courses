@@ -50,7 +50,7 @@
                     @* Dropdown Menu *@
                     <div id="desktop-dropdown-menu"
                         class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                        <div class="py-1 max-h-48 overflow-y-auto">
+                        <div class="py-1 max-h-48 overflow-y-auto scrollbar-slim">
                             @foreach (var item in menuItems.Skip(3))
                             {
                                 <NavLink ActiveClass="text-accent bg-accent-dim"
@@ -113,7 +113,7 @@
     </div>
 
     <div
-        class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform">
+        class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform scrollbar-slim">
 
         <div
             class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10">
