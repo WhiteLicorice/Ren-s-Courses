@@ -75,6 +75,52 @@
     --scrollbar-rail: var(--border-muted);
 }
 
+#offline-status-toast {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: min(24rem, calc(100vw - 2rem));
+    padding: 0.75rem 1rem;
+    color: var(--text-main);
+    background: var(--bg-surface);
+    border: 1px solid var(--copy-success);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.25);
+}
+
+#offline-status-toast[data-offline-status="warning"] {
+    border-color: var(--accent);
+}
+
+#offline-status-toast button {
+    flex: none;
+    padding: 0.25rem 0.5rem;
+    color: var(--text-main);
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+#offline-status-toast button:hover,
+#offline-status-toast button:focus-visible {
+    color: var(--btn-hover-text);
+    background: var(--btn-hover-bg);
+}
+
+@media (max-width: 640px) {
+    #offline-status-toast {
+        right: 0.75rem;
+        bottom: 0.75rem;
+        left: 0.75rem;
+        max-width: none;
+    }
+}
+
 /* ============================== */
 /* 1. CUSTOM IDE / PRISM STYLES   */
 /* ============================== */

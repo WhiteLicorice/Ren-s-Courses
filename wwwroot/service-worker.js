@@ -1,4 +1,6 @@
-const CACHE_NAME = 'ren-courses-online-first-v4';
+const CACHE_NAME = 'ren-courses-online-first-v5';
+const INSTALL_CACHE_NAME = `${CACHE_NAME}-installing`;
+const STATUS_PATH = '__offline-status.json';
 const MAX_ATTEMPTS = 3;
 const RETRY_DELAYS = [0, 250, 750];
 const CACHE_CONCURRENCY = 4;
@@ -114,6 +116,10 @@ function isLocalUrl(url) {
 
 async function fetchFresh(request) {
     return fetch(request, { cache: 'no-store' });
+}
+
+async function fetchExternal(request) {
+    return fetch(request);
 }
 
 function wait(milliseconds) {
@@ -232,6 +238,14 @@ async function cacheResponseAt(cache, response, requests) {
     }
 }
 
+async function nonRedirectedResponse(response) {
+    return new Response(await response.clone().arrayBuffer(), {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers
+    });
+}
+
 async function cacheRouteResponseAt(cache, response, request) {
     const routeUrl = withoutHash(new URL(request.url || request));
     const aliases = [routeUrl];
@@ -242,7 +256,7 @@ async function cacheRouteResponseAt(cache, response, request) {
         aliases.push(slashUrl);
     }
 
-    await cacheResponseAt(cache, response, aliases);
+    await cacheResponseAt(cache, await nonRedirectedResponse(response), aliases);
 }
 
 function getFailureMessage(error) {
@@ -306,7 +320,7 @@ async function cacheExternalAsset(cache, asset) {
             mode: asset.mode || 'cors'
         });
         const response = await retry(async () => {
-            const freshResponse = await fetchFresh(request);
+            const freshResponse = await fetchExternal(request);
             if (!isCacheableResponse(freshResponse)) {
                 throw new Error(`Unexpected response for ${sourceUrl.href}: ${freshResponse.status}`);
             }
@@ -317,11 +331,13 @@ async function cacheExternalAsset(cache, asset) {
 
         const contentType = response.headers.get('content-type') || '';
         const failures = [];
+        const nestedUrls = [];
         if (response.type !== 'opaque' && contentType.includes('text/css')) {
             const css = await response.clone().text();
             const nestedAssets = resourceUrlsFromCss(css, response.url || sourceUrl.href)
                 .filter(isAllowedExternalUrl)
                 .map(url => externalAsset(url, 'cors'));
+            nestedUrls.push(...nestedAssets.map(nested => withoutHash(new URL(nested.url)).href));
             const results = await mapLimited(nestedAssets, CACHE_CONCURRENCY,
                 nested => cacheExternalAsset(cache, nested));
             results.forEach((result, index) => {
@@ -336,7 +352,7 @@ async function cacheExternalAsset(cache, asset) {
             });
         }
 
-        return { response, failures };
+        return { response, failures, nestedUrls };
     })();
 
     externalRequestsInFlight.set(key, operation);
@@ -431,6 +447,8 @@ async function precacheExternalAssets(cache) {
     const results = await mapLimited(EXTERNAL_ASSETS_TO_CACHE, CACHE_CONCURRENCY,
         asset => cacheExternalAsset(cache, asset));
     const failures = [];
+    const requiredUrls = new Set(EXTERNAL_ASSETS_TO_CACHE.map(asset =>
+        withoutHash(new URL(asset.url)).href));
 
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
@@ -440,13 +458,138 @@ async function precacheExternalAssets(cache) {
             });
         } else if (result.value.failures) {
             failures.push(...result.value.failures);
+            result.value.nestedUrls?.forEach(url => requiredUrls.add(url));
+        } else if (result.value.nestedUrls) {
+            result.value.nestedUrls.forEach(url => requiredUrls.add(url));
         }
     });
 
     failures.forEach(failure => {
         console.warn('[SW] Third-party asset was not cached:', failure.url, failure.error);
     });
-    return failures;
+    return { failures, requiredUrls: [...requiredUrls] };
+}
+
+async function retryMissingExternalAssets(cache) {
+    const status = await getOfflineStatus(cache);
+    const configuredAssets = new Map(EXTERNAL_ASSETS_TO_CACHE.map(asset => [
+        withoutHash(new URL(asset.url)).href,
+        asset
+    ]));
+    const missingAssets = [...new Set(status.externalFailures.map(failure => failure.url))]
+        .map(url => configuredAssets.get(url) || externalAsset(url, 'cors'));
+
+    if (!missingAssets.length) {
+        return { failures: [], requiredUrls: status.externalRequired || [] };
+    }
+
+    const results = await mapLimited(missingAssets, CACHE_CONCURRENCY,
+        asset => cacheExternalAsset(cache, asset));
+    const failures = [];
+    const requiredUrls = new Set(status.externalRequired || []);
+    missingAssets.forEach(asset => requiredUrls.add(withoutHash(new URL(asset.url)).href));
+
+    results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+            failures.push({
+                url: missingAssets[index].url,
+                error: getFailureMessage(result.reason)
+            });
+        } else {
+            result.value.nestedUrls?.forEach(url => requiredUrls.add(url));
+            if (result.value.failures) failures.push(...result.value.failures);
+        }
+    });
+
+    failures.forEach(failure => {
+        console.warn('[SW] Third-party asset was not cached:', failure.url, failure.error);
+    });
+    return { failures, requiredUrls: [...requiredUrls] };
+}
+
+function statusRequest() {
+    return new Request(new URL(STATUS_PATH, self.registration.scope).href);
+}
+
+async function writeOfflineStatus(cache, externalResult) {
+    const previousResponse = await cache.match(statusRequest());
+    const previous = previousResponse ? await previousResponse.json() : null;
+    const localRequired = previous?.localRequired || (await cache.keys())
+        .map(request => request.url)
+        .filter(url => new URL(url).origin === self.location.origin);
+    await cache.put(statusRequest(), new Response(JSON.stringify({
+        version: CACHE_NAME,
+        localReady: true,
+        localRequired,
+        externalRequired: externalResult.requiredUrls,
+        externalFailures: externalResult.failures,
+        updatedAt: new Date().toISOString()
+    }), {
+        headers: { 'Content-Type': 'application/json' }
+    }));
+}
+
+async function getOfflineStatus(cache) {
+    const response = await cache.match(statusRequest());
+    if (!response) {
+        return {
+            version: CACHE_NAME,
+            localReady: false,
+            externalReady: false,
+            externalFailures: []
+        };
+    }
+
+    const stored = await response.json();
+    const cachedUrls = new Set((await cache.keys()).map(request => request.url));
+    const missingLocal = (stored.localRequired || [])
+        .filter(url => !cachedUrls.has(url));
+    const missingExternal = (stored.externalRequired || [])
+        .filter(url => !cachedUrls.has(url));
+    const externalFailures = [...(stored.externalFailures || [])];
+    missingExternal.forEach(url => {
+        if (!externalFailures.some(failure => failure.url === url)) {
+            externalFailures.push({ url, error: 'Missing from offline cache' });
+        }
+    });
+
+    return {
+        ...stored,
+        localReady: stored.localReady !== false && missingLocal.length === 0,
+        missingLocal,
+        externalFailures,
+        externalReady: externalFailures.length === 0
+    };
+}
+
+async function notifyOfflineStatus(cache) {
+    const status = await getOfflineStatus(cache);
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    clients.forEach(client => client.postMessage({ type: 'offline-status', ...status }));
+}
+
+async function promoteInstallCache() {
+    const staging = await caches.open(INSTALL_CACHE_NAME);
+    await caches.delete(CACHE_NAME);
+    const target = await caches.open(CACHE_NAME);
+    const requests = await staging.keys();
+    const results = await mapLimited(requests, CACHE_CONCURRENCY, async request => {
+        const response = await staging.match(request);
+        if (!response) throw new Error(`Staged response disappeared: ${request.url}`);
+        await target.put(request, response.clone());
+    });
+    const failure = results.find(result => result.status === 'rejected');
+    if (failure) {
+        await caches.delete(CACHE_NAME);
+        throw failure.reason;
+    }
+
+    if ((await target.keys()).length !== requests.length) {
+        await caches.delete(CACHE_NAME);
+        throw new Error('Offline cache promotion did not preserve every entry');
+    }
+
+    await caches.delete(INSTALL_CACHE_NAME);
 }
 
 async function cacheFreshHtml(cache, request, response) {
@@ -463,8 +606,22 @@ async function cacheFreshHtml(cache, request, response) {
 }
 
 function findCachedNavigation(cache, request) {
-    return cache.match(request)
-        .then(response => response || cache.match(request, { ignoreSearch: true }));
+    const requestedUrl = withoutHash(new URL(request.url));
+    const aliases = [requestedUrl];
+    if (requestedUrl.pathname.endsWith('/')) {
+        const cleanUrl = new URL(requestedUrl.href);
+        cleanUrl.pathname = cleanUrl.pathname.slice(0, -1) || '/';
+        aliases.push(cleanUrl);
+    } else {
+        const slashUrl = new URL(requestedUrl.href);
+        slashUrl.pathname += '/';
+        aliases.push(slashUrl);
+    }
+
+    return aliases.reduce(
+        (promise, alias) => promise.then(response => response || cache.match(alias, { ignoreSearch: true })),
+        Promise.resolve(null)
+    );
 }
 
 function offlineErrorResponse(url) {
@@ -478,8 +635,16 @@ function offlineErrorResponse(url) {
 async function handleNavigation(request) {
     const cache = await caches.open(CACHE_NAME);
 
+    if (self.navigator.onLine === false) {
+        const cachedRoute = await findCachedNavigation(cache, request);
+        if (cachedRoute) return cachedRoute;
+    }
+
     try {
-        const response = await fetchFresh(request);
+        const fetchedResponse = await fetchFresh(request);
+        const response = fetchedResponse.redirected && isLocalUrl(new URL(fetchedResponse.url))
+            ? await nonRedirectedResponse(fetchedResponse)
+            : fetchedResponse;
         const contentType = response.headers.get('content-type') || '';
 
         if (response.ok && contentType.includes('text/html')) {
@@ -493,10 +658,10 @@ async function handleNavigation(request) {
 
         return response;
     } catch (error) {
-        console.warn('[SW] Navigation fetch failed:', request.url, error);
         const cachedRoute = await findCachedNavigation(cache, request);
         if (cachedRoute) return cachedRoute;
 
+        console.warn('[SW] Navigation fetch failed:', request.url, error);
         const cachedHome = await cache.match(new URL('index.html', self.registration.scope), {
             ignoreSearch: true
         });
@@ -506,19 +671,26 @@ async function handleNavigation(request) {
 
 async function handleLocalAsset(request) {
     const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    const fallback = await cache.match(request, { ignoreSearch: true });
+    const hasVersionQuery = new URL(request.url).search !== '';
+    if (fallback && (!hasVersionQuery || self.navigator.onLine === false)) return fallback;
 
     try {
         return await cacheLocalAsset(cache, new URL(request.url));
     } catch (error) {
         console.warn('[SW] Local asset fetch failed:', request.url, error);
-        return await cache.match(request, { ignoreSearch: true }) ||
-            offlineErrorResponse(request.url);
+        return fallback || offlineErrorResponse(request.url);
     }
 }
 
 async function handleExternalAsset(request) {
     const cache = await caches.open(CACHE_NAME);
     const asset = { url: request.url, mode: request.mode === 'no-cors' ? 'no-cors' : 'cors' };
+    const cached = await cache.match(request);
+    if (cached) return cached;
 
     try {
         const result = await cacheExternalAsset(cache, asset);
@@ -557,12 +729,20 @@ function replyToMessage(event, payload) {
 }
 
 self.addEventListener('install', event => {
-    self.skipWaiting();
     event.waitUntil((async () => {
-        const cache = await caches.open(CACHE_NAME);
-        await cacheLocalAssets(cache);
-        await cacheGeneratedRoutes(cache);
-        await precacheExternalAssets(cache);
+        await caches.delete(INSTALL_CACHE_NAME);
+        const cache = await caches.open(INSTALL_CACHE_NAME);
+        try {
+            await cacheLocalAssets(cache);
+            await cacheGeneratedRoutes(cache);
+            const externalResult = await precacheExternalAssets(cache);
+            await writeOfflineStatus(cache, externalResult);
+            await promoteInstallCache();
+            await self.skipWaiting();
+        } catch (error) {
+            await caches.delete(INSTALL_CACHE_NAME);
+            throw error;
+        }
     })());
 });
 
@@ -582,11 +762,27 @@ self.addEventListener('message', event => {
     if (message.type === 'retry-external-assets') {
         event.waitUntil((async () => {
             const cache = await caches.open(CACHE_NAME);
-            const failures = await precacheExternalAssets(cache);
-            replyToMessage(event, { ok: failures.length === 0, failures });
+            const externalResult = await retryMissingExternalAssets(cache);
+            await writeOfflineStatus(cache, externalResult);
+            const status = await getOfflineStatus(cache);
+            await notifyOfflineStatus(cache);
+            replyToMessage(event, { ok: status.externalReady, ...status });
         })().catch(error => {
             console.warn('[SW] Third-party retry failed:', error);
             replyToMessage(event, { ok: false, failures: [{ error: getFailureMessage(error) }] });
+        }));
+        return;
+    }
+
+    if (message.type === 'get-offline-status') {
+        event.waitUntil((async () => {
+            const cache = await caches.open(CACHE_NAME);
+            const status = await getOfflineStatus(cache);
+            await notifyOfflineStatus(cache);
+            replyToMessage(event, status);
+        })().catch(error => {
+            replyToMessage(event, { version: CACHE_NAME, localReady: false, externalReady: false,
+                error: getFailureMessage(error) });
         }));
         return;
     }

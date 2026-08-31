@@ -1,12 +1,13 @@
 'use strict';
 
-const { test, expect } = require('@playwright/test');
+const { test, expect, chromium, firefox } = require('@playwright/test');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
-const OFFLINE_CACHE_PREFIX = 'ren-courses-online-first-v4';
-const COMPLETE_OFFLINE_CACHE = 'ren-courses-online-first-v4';
+const OFFLINE_CACHE_PREFIX = 'ren-courses-online-first-v5';
+const COMPLETE_OFFLINE_CACHE = 'ren-courses-online-first-v5';
+const NEXT_OFFLINE_CACHE = 'ren-courses-online-first-v5';
 const ALLOWED_OFFLINE_ORIGINS = [
   'https://cdnjs.cloudflare.com',
   'https://fonts.googleapis.com',
@@ -28,7 +29,7 @@ const MIME_TYPES = {
   '.webmanifest': 'application/manifest+json',
 };
 
-function createOfflineUpdateFixture(route = ARTICLE_ROUTE) {
+function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
   const outputRoot = path.resolve(__dirname, '..', '..', 'output');
   const relativeRoute = route.replace(/^\/+/, '');
   const routeFile = route.startsWith('/articles/')
@@ -44,10 +45,19 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE) {
     'href="pdfs/offline-update.pdf"'
   );
   let version = 1;
+  const redirectCleanRoute = options.redirectCleanRoute === true;
 
   const responseFor = (requestUrl) => {
     const { pathname } = new URL(requestUrl, 'http://127.0.0.1');
-    if (pathname === route) {
+    if (redirectCleanRoute && pathname === route) {
+      return {
+        status: 301,
+        headers: { Location: `${route}/` },
+        body: '',
+        contentType: 'text/html',
+      };
+    }
+    if (pathname === route || (redirectCleanRoute && pathname === `${route}/`)) {
       return {
         body: routeTemplate.replace(
           /<body([^>]*)>/,
@@ -88,7 +98,10 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE) {
       response.end();
       return;
     }
-    response.writeHead(200, { 'Content-Type': result.contentType });
+    response.writeHead(result.status || 200, {
+      'Content-Type': result.contentType,
+      ...(result.headers || {}),
+    });
     response.end(result.body);
   });
 
@@ -497,7 +510,7 @@ test.describe('Edge Cases', () => {
   });
 });
 
-test.describe('Complete v4 offline cache', () => {
+test.describe('Complete v5 offline cache', () => {
   test.setTimeout(120000);
 
   test('completes CDN caching when the first page loads during installation', async ({ page }) => {
@@ -577,7 +590,7 @@ test.describe('Complete v4 offline cache', () => {
     await expect(page.locator('body')).toContainText('Materials');
 
     await page.goto('/materials/', { waitUntil: 'load' });
-    expect(new URL(page.url()).pathname).toBe('/materials/');
+    expect(new URL(page.url()).pathname).toBe('/materials');
     await expect(page.locator('body')).toContainText('Materials');
   });
 
@@ -685,7 +698,7 @@ test.describe('Complete v4 offline cache', () => {
         await expect.poll(
           async () => page.evaluate(async () => {
             const response = await caches.match(location.href, {
-              cacheName: 'ren-courses-online-first-v4',
+              cacheName: 'ren-courses-online-first-v5',
             });
             return response ? (await response.text()).includes('OFFLINE FIXTURE V2') : false;
           })
@@ -702,4 +715,113 @@ test.describe('Complete v4 offline cache', () => {
       }
     });
   }
+});
+
+test.describe('Installed PWA offline startup', () => {
+  test.setTimeout(180000);
+
+  test('reports readiness, serves cached assets without retries, and cold-starts offline', async ({ browserName }) => {
+    const fixture = createOfflineUpdateFixture();
+    const fixtureOrigin = await fixture.start();
+    const profileDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'renscourses-pwa-test-'));
+    const browserType = browserName === 'firefox' ? firefox : chromium;
+    let context;
+
+    try {
+      context = await browserType.launchPersistentContext(profileDir, { headless: true });
+      let page = context.pages()[0] || await context.newPage();
+      await page.goto(`${fixtureOrigin}/`, { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+      await expect(page.locator('[data-offline-status="ready"]')).toHaveText('Offline mode is ready.');
+
+      await context.setOffline(true);
+      const cachedAsset = await page.evaluate(async () => {
+        const started = performance.now();
+        const response = await fetch('/site.webmanifest');
+        return {
+          status: response.status,
+          elapsedMs: performance.now() - started,
+        };
+      });
+      expect(cachedAsset.status).toBe(200);
+      expect(cachedAsset.elapsedMs).toBeLessThan(500);
+
+      await context.close();
+      context = await browserType.launchPersistentContext(profileDir, {
+        headless: true,
+        offline: true,
+      });
+      page = context.pages()[0] || await context.newPage();
+
+      for (const route of ['/', '/materials', '/calendar', ARTICLE_ROUTE]) {
+        const response = await page.goto(`${fixtureOrigin}${route}`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 10000,
+        });
+        expect(response?.status()).toBe(200);
+        expect(new URL(page.url()).pathname).toBe(route);
+      }
+
+      await expect(page.locator('article')).toBeVisible();
+      await expect(page.locator('article pre code')).not.toHaveCount(0);
+    } finally {
+      await context?.close();
+      await fixture.close();
+      fs.rmSync(profileDir, { recursive: true, force: true });
+    }
+  });
+
+  test('preserves the clean URL when a route redirects to a slash alias', async ({ page }) => {
+    const fixture = createOfflineUpdateFixture('/materials', { redirectCleanRoute: true });
+    const fixtureOrigin = await fixture.start();
+
+    try {
+      await page.goto(`${fixtureOrigin}/materials`, { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+      await expect(page.locator('[data-offline-status="ready"]')).toHaveText('Offline mode is ready.');
+
+      await page.context().setOffline(true);
+      await page.goto(`${fixtureOrigin}/materials`, { waitUntil: 'domcontentloaded' });
+      expect(new URL(page.url()).pathname).toBe('/materials');
+      await expect(page.locator('body')).toContainText('Materials');
+    } finally {
+      await fixture.close();
+    }
+  });
+
+  test('shows a retry warning for a missing CDN entry and clears it after reconnect', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForControlledServiceWorker(page);
+    await expect(page.locator('[data-offline-status="ready"]')).toHaveText('Offline mode is ready.');
+
+    const prismUrl = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js';
+    await page.context().setOffline(true);
+    const retryResult = await page.evaluate(async ({ cacheName, prismUrl }) => {
+      const cache = await caches.open(cacheName);
+      const deleted = await cache.delete(new Request(prismUrl));
+      const remaining = (await cache.keys()).map(request => request.url)
+        .filter(url => url.includes('/prism/1.29.0/prism.min.js'));
+      return await new Promise(resolve => {
+        const channel = new MessageChannel();
+        const timeout = setTimeout(() => resolve({ ok: false, error: 'retry timeout' }), 30000);
+        channel.port1.onmessage = event => {
+          clearTimeout(timeout);
+          resolve({ ...event.data, deleted, remaining });
+        };
+        navigator.serviceWorker.controller.postMessage({ type: 'get-offline-status' }, [channel.port2]);
+      });
+    }, { cacheName: NEXT_OFFLINE_CACHE, prismUrl });
+    expect(retryResult.externalReady).toBe(false);
+
+    await expect(page.locator('[data-offline-status="warning"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-offline-status="warning"]')).toContainText('Offline setup is incomplete.');
+
+    await page.context().setOffline(false);
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await expect(page.locator('[data-offline-status="warning"]')).toBeHidden({ timeout: 30000 });
+    await expect.poll(
+      async () => page.evaluate(async ({ cacheName, prismUrl }) =>
+        Boolean(await (await caches.open(cacheName)).match(prismUrl)), { cacheName: NEXT_OFFLINE_CACHE, prismUrl })
+    ).toBe(true);
+  });
 });
