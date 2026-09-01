@@ -34,6 +34,7 @@ const OFFLINE_INSTALL_TIMEOUT = 180000;
 let offlineStatusRegistration = null;
 let offlineOperation = Promise.resolve();
 let offlineOperationToken = 0;
+let offlineOnlineOperation = null;
 const offlineWorkerObservers = new WeakMap();
 const offlineRegistrationWatchers = new WeakSet();
 
@@ -73,7 +74,9 @@ function currentOfflineStatusKey(status) {
     return [status.state, status.buildId, status.errorCode, status.detail].join('|');
 }
 
-function updateOfflineStatus(status) {
+function updateOfflineStatus(status, token = null) {
+    if (token !== null && !isCurrentOfflineOperation(token)) return false;
+
     const state = ['ready', 'updating', 'error'].includes(status?.state)
         ? status.state
         : 'error';
@@ -111,6 +114,7 @@ function updateOfflineStatus(status) {
 
     const liveRegion = document.querySelector('[data-offline-live-region]');
     if (changed && liveRegion) liveRegion.textContent = `Offline Mode: ${copy.blurb}`;
+    return true;
 }
 
 window.updateOfflineStatus = updateOfflineStatus;
@@ -153,12 +157,11 @@ function postToOfflineWorker(message, timeout = OFFLINE_STATUS_TIMEOUT, targetWo
     });
 }
 
-function observeOfflineWorker(registration, worker, timeout = OFFLINE_INSTALL_TIMEOUT, token = null) {
+function observeOfflineWorker(worker) {
     const existing = offlineWorkerObservers.get(worker);
     if (existing) return existing.promise;
 
     let settled = false;
-    let timer;
     let resolvePromise;
     const promise = new Promise(resolve => {
         resolvePromise = resolve;
@@ -169,11 +172,6 @@ function observeOfflineWorker(registration, worker, timeout = OFFLINE_INSTALL_TI
     const finish = state => {
         if (state !== 'activated' && state !== 'redundant') return;
         worker.removeEventListener('statechange', onStateChange);
-        if (timer) clearTimeout(timer);
-        if (state === 'activated') {
-            void requestOfflineStatus(registration, registration.active || worker, token)
-                .catch(error => console.warn('[SW] Late offline activation status failed:', error));
-        }
         if (!settled) {
             settled = true;
             resolvePromise(state);
@@ -182,12 +180,6 @@ function observeOfflineWorker(registration, worker, timeout = OFFLINE_INSTALL_TI
     const onStateChange = () => finish(worker.state);
 
     worker.addEventListener('statechange', onStateChange);
-    timer = setTimeout(() => {
-        if (!settled) {
-            settled = true;
-            resolvePromise('timeout');
-        }
-    }, timeout);
     finish(worker.state);
     return promise;
 }
@@ -195,28 +187,64 @@ function observeOfflineWorker(registration, worker, timeout = OFFLINE_INSTALL_TI
 async function requestOfflineStatus(registration = null, targetWorker = null, token = null) {
     const currentRegistration = registration || offlineStatusRegistration || await navigator.serviceWorker.ready;
     offlineStatusRegistration = currentRegistration;
-    if (!targetWorker && currentRegistration.installing) return null;
-
+    const worker = targetWorker || currentRegistration.installing || null;
+    const messageType = currentRegistration.installing && worker === currentRegistration.installing
+        ? 'get-offline-installation-status'
+        : 'get-offline-status';
     const status = await postToOfflineWorker(
-        { type: 'get-offline-status' }, OFFLINE_STATUS_TIMEOUT, targetWorker);
+        { type: messageType }, OFFLINE_STATUS_TIMEOUT, worker);
     if (!status) throw new Error('Offline status request timed out');
-    if (token === null || isCurrentOfflineOperation(token)) updateOfflineStatus(status);
+    updateOfflineStatus(status, token);
     return status;
+}
+
+async function recordOfflineError(registration, errorCode, detail, token, targetWorker = null) {
+    const worker = targetWorker || registration?.installing || registration?.active
+        || navigator.serviceWorker.controller;
+    if (!worker) return null;
+    const status = await postToOfflineWorker({
+        type: 'record-offline-error',
+        errorCode,
+        detail
+    }, OFFLINE_STATUS_TIMEOUT, worker);
+    if (status) updateOfflineStatus(status, token);
+    return status;
+}
+
+async function showOfflineError(registration, token, errorCode, detail, targetWorker = null) {
+    let persisted = null;
+    try {
+        persisted = await recordOfflineError(registration, errorCode, detail, token, targetWorker);
+    } catch (error) {
+        console.warn('[SW] Offline error persistence failed:', error);
+    }
+    if (persisted || !isCurrentOfflineOperation(token)) return;
+    updateOfflineStatus({
+        state: 'error',
+        buildId: offlineStatus.buildId,
+        errorCode,
+        detail
+    }, token);
+}
+
+function installationError(code, message) {
+    const error = new Error(message);
+    error.offlineErrorCode = code;
+    return error;
 }
 
 function watchOfflineInstallation(registration) {
     const worker = registration.installing;
     if (!worker) return;
-    updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId });
-    void observeOfflineWorker(registration, worker).then(state => {
-        if (state === 'redundant' && offlineStatus.state === 'updating') {
-            updateOfflineStatus({
-                state: 'error',
-                buildId: offlineStatus.buildId,
-                errorCode: 'installation-failed',
-                detail: 'Installation failed'
-            });
+    const token = offlineOperationToken;
+    updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId }, token);
+    void observeOfflineWorker(worker).then(async state => {
+        if (state === 'activated') {
+            await requestOfflineStatus(registration, registration.active || worker, token)
+                .catch(error => console.warn('[SW] Late offline activation status failed:', error));
+            return;
         }
+        await showOfflineError(registration, token, 'installation-failed', 'Installation failed', worker);
     });
 }
 
@@ -226,11 +254,17 @@ function watchOfflineRegistration(registration) {
     registration.addEventListener('updatefound', () => watchOfflineInstallation(registration));
 }
 
-async function waitForOfflineInstallation(registration, token) {
+async function waitForOfflineInstallation(registration, token, retryStarted = false) {
     const worker = registration.installing;
     if (!worker) return null;
-    updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId });
-    const state = await observeOfflineWorker(registration, worker, OFFLINE_INSTALL_TIMEOUT, token);
+    updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId }, token);
+    const installationStatus = await requestOfflineStatus(registration, worker, token);
+    if (!retryStarted && installationStatus?.state === 'error') return installationStatus;
+
+    const terminal = observeOfflineWorker(worker);
+    const timeout = new Promise(resolve => setTimeout(
+        () => resolve('timeout'), OFFLINE_INSTALL_TIMEOUT));
+    const state = await Promise.race([terminal, timeout]);
     if (state === 'activated') {
         return requestOfflineStatus(registration, registration.active || worker, token);
     }
@@ -238,9 +272,17 @@ async function waitForOfflineInstallation(registration, token) {
         const activeStatus = await requestOfflineStatus(registration, registration.active, token)
             .catch(() => null);
         if (activeStatus?.state === 'error') return activeStatus;
-        throw new Error('Offline installation failed');
+        const error = installationError('installation-failed', 'Offline installation failed');
+        error.offlineWorker = worker;
+        throw error;
     }
-    throw new Error('Offline installation timed out');
+    terminal.then(terminalState => {
+        if (terminalState !== 'activated') return;
+        return requestOfflineStatus(registration, registration.active || worker, token);
+    }).catch(error => console.warn('[SW] Late offline activation status failed:', error));
+    const error = installationError('installation-timeout', 'Offline installation timed out');
+    error.offlineWorker = worker;
+    throw error;
 }
 
 async function registerOfflineWorker() {
@@ -260,88 +302,84 @@ async function registerOfflineWorker() {
     }
 
     return queueOfflineOperation(async token => {
-        updateOfflineStatus({ state: 'updating', buildId: null });
+        updateOfflineStatus({ state: 'updating', buildId: null }, token);
+        let registration = null;
         try {
-            const registration = await serviceWorker.register(
+            registration = await serviceWorker.register(
                 new URL('service-worker.js', document.baseURI));
             offlineStatusRegistration = registration;
             watchOfflineRegistration(registration);
-            const status = registration.installing
-                ? await waitForOfflineInstallation(registration, token)
-                : await requestOfflineStatus(registration, registration.active, token);
-            if (status) updateOfflineStatus(status);
+            if (registration.installing) await waitForOfflineInstallation(registration, token);
+            else await requestOfflineStatus(registration, registration.active, token);
         } catch (error) {
             console.warn('[SW] Registration failed:', error);
-            if (isCurrentOfflineOperation(token)) {
-                updateOfflineStatus({
-                    state: 'error',
-                    buildId: null,
-                    errorCode: 'registration-failed',
-                    detail: 'Registration failed'
-                });
-            }
+            await showOfflineError(
+                registration,
+                token,
+                error.offlineErrorCode || 'registration-failed',
+                error.offlineErrorCode ? error.message : 'Registration failed',
+                error.offlineWorker || registration?.installing);
         }
     });
 }
 
 function checkOfflineForUpdate() {
     return queueOfflineOperation(async token => {
-        updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId });
+        updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId }, token);
+        let registration = null;
         try {
-            const registration = offlineStatusRegistration || await navigator.serviceWorker.ready;
+            registration = offlineStatusRegistration || await navigator.serviceWorker.ready;
             offlineStatusRegistration = registration;
             watchOfflineRegistration(registration);
             await registration.update();
-            const status = registration.installing
-                ? await waitForOfflineInstallation(registration, token)
-                : await requestOfflineStatus(registration, registration.active, token);
-            if (status) updateOfflineStatus(status);
+            if (registration.installing) {
+                await waitForOfflineInstallation(registration, token, true);
+            } else {
+                await requestOfflineStatus(registration, registration.active, token);
+            }
         } catch (error) {
             console.warn('[SW] Offline update check failed:', error);
-            if (isCurrentOfflineOperation(token)) {
-                updateOfflineStatus({
-                    state: 'error',
-                    buildId: offlineStatus.buildId,
-                    errorCode: 'update-failed',
-                    detail: 'Update check failed'
-                });
-            }
+            await showOfflineError(
+                registration,
+                token,
+                error.offlineErrorCode || 'update-failed',
+                error.offlineErrorCode ? error.message : 'Update check failed',
+                error.offlineWorker || registration?.installing);
         }
     });
 }
 
 function repairOfflineCache() {
     return queueOfflineOperation(async token => {
-        updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId });
+        updateOfflineStatus({ state: 'updating', buildId: offlineStatus.buildId }, token);
+        let registration = null;
         try {
-            const registration = offlineStatusRegistration || await navigator.serviceWorker.ready;
+            registration = offlineStatusRegistration || await navigator.serviceWorker.ready;
             offlineStatusRegistration = registration;
             watchOfflineRegistration(registration);
             await registration.update();
 
             let status;
             if (registration.installing) {
-                status = await waitForOfflineInstallation(registration, token);
+                status = await waitForOfflineInstallation(registration, token, true);
             } else {
                 status = await requestOfflineStatus(registration, registration.active, token);
-                if (status?.state === 'error' && status.errorCode === 'missing-resource') {
+                if (status?.state === 'error') {
                     status = await postToOfflineWorker(
                         { type: 'repair-offline-cache' }, OFFLINE_REPAIR_TIMEOUT, registration.active);
                     if (!status) throw new Error('Offline repair timed out');
+                    updateOfflineStatus(status, token);
                 }
                 if (status?.state === 'error') throw new Error(status.detail || 'Offline retry failed');
             }
-            if (status) updateOfflineStatus(status);
         } catch (error) {
             console.warn('[SW] Offline cache repair failed:', error);
-            if (isCurrentOfflineOperation(token)) {
-                updateOfflineStatus({
-                    state: 'error',
-                    buildId: offlineStatus.buildId,
-                    errorCode: 'repair-failed',
-                    detail: 'Retry failed'
-                });
-            }
+            await showOfflineError(
+                registration,
+                token,
+                error.offlineErrorCode || 'repair-failed',
+                error.offlineErrorCode ? error.message : 'Retry failed',
+                error.offlineWorker || registration?.installing);
         }
     });
 }
@@ -376,10 +414,16 @@ function loadAndroidBanner() {
 
 if (navigator.serviceWorker) {
     navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data?.type === 'offline-status') updateOfflineStatus(event.data);
+        if (event.data?.type !== 'offline-status') return;
+        const installing = offlineStatusRegistration?.installing;
+        if (installing && event.source && event.source !== installing
+            && event.data.state === 'ready') return;
+        updateOfflineStatus(event.data, offlineOperationToken);
     });
 
     window.addEventListener('online', () => {
-        if (offlineStatusRegistration) void checkOfflineForUpdate();
+        if (!offlineStatusRegistration || offlineOnlineOperation) return;
+        offlineOnlineOperation = checkOfflineForUpdate()
+            .finally(() => { offlineOnlineOperation = null; });
     });
 }

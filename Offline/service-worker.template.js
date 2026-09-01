@@ -137,6 +137,8 @@ async function normalizedHtmlResponse(response) {
 }
 
 async function fetchRequiredResource(resource) {
+    if (resource.manifest) return { resource, response: resource.response.clone() };
+
     const response = await retry(async () => {
         const result = await fetch(requestFor(resource.url));
         if (!result.ok) throw new Error(`Required resource returned ${result.status}: ${resource.url.href}`);
@@ -155,6 +157,7 @@ async function fetchRequiredResource(resource) {
 
 async function cacheRoute(cache, url, response) {
     for (const alias of routeAliases(url)) {
+        if (await cache.match(requestFor(alias, 'default'))) continue;
         await cache.put(requestFor(alias, 'default'), response.clone());
     }
 }
@@ -172,16 +175,45 @@ function requiredResources(manifest) {
     return [...resources.values()];
 }
 
+function requiredSnapshotResources(manifest) {
+    return [
+        {
+            url: scopeUrl(MANIFEST_PATH),
+            route: false,
+            manifest: true
+        },
+        ...requiredResources(manifest)
+    ];
+}
+
 async function storeResource(cache, result) {
+    if (result.resource.manifest) {
+        if (await cache.match(requestFor(result.resource.url, 'default'))) return;
+        await cache.put(requestFor(result.resource.url, 'default'), result.response.clone());
+        return;
+    }
     if (result.resource.route) {
         await cacheRoute(cache, result.resource.url, result.response);
-    } else {
-        await cache.put(requestFor(result.resource.url, 'default'), result.response.clone());
+        return;
     }
+    if (await cache.match(requestFor(result.resource.url, 'default'))) return;
+    await cache.put(requestFor(result.resource.url, 'default'), result.response.clone());
+}
+
+async function missingSnapshotResources(cache, manifest) {
+    const resources = requiredSnapshotResources(manifest);
+    const missing = [];
+    for (const resource of resources) {
+        const aliases = resource.route ? routeAliases(resource.url) : [resource.url];
+        const present = await Promise.all(aliases.map(alias =>
+            cache.match(requestFor(alias, 'default'))));
+        if (!present.every(Boolean)) missing.push(resource);
+    }
+    return missing;
 }
 
 async function validateSnapshot(cache, manifest) {
-    const resources = requiredResources(manifest);
+    const resources = requiredSnapshotResources(manifest);
     const missing = [];
     for (const resource of resources) {
         const aliases = resource.route ? routeAliases(resource.url) : [resource.url];
@@ -194,12 +226,13 @@ async function validateSnapshot(cache, manifest) {
 }
 
 async function installSnapshot() {
-    const previousMeta = await readMeta();
+    let previousMeta = null;
     let manifest = null;
     let cacheName = null;
     let cacheIsActive = false;
 
     try {
+        previousMeta = await readMeta();
         const fetched = await fetchManifest();
         manifest = fetched.manifest;
         const cacheNameForBuild = snapshotCacheName(manifest.buildId);
@@ -208,8 +241,15 @@ async function installSnapshot() {
         if (!cacheIsActive) await caches.delete(cacheNameForBuild);
         const cache = await caches.open(cacheNameForBuild);
 
-        await cache.put(requestFor(fetched.url, 'default'), fetched.response.clone());
-        const resources = requiredResources(manifest);
+        const missingResources = await missingSnapshotResources(cache, manifest);
+        if (cacheIsActive && missingResources.length === 0) {
+            await self.skipWaiting();
+            return;
+        }
+
+        const resources = missingResources.map(resource => resource.manifest
+            ? { ...resource, response: fetched.response }
+            : resource);
         const results = await mapLimited(resources, CACHE_CONCURRENCY,
             resource => fetchRequiredResource(resource));
         const failure = results.find(result => result.status === 'rejected');
@@ -219,22 +259,23 @@ async function installSnapshot() {
             result => storeResource(cache, result));
         const storeFailure = storeResults.find(result => result.status === 'rejected');
         if (storeFailure) throw storeFailure.reason;
-        const missing = await validateSnapshot(cache, manifest);
-        if (missing.length) {
-            throw new Error(`Offline snapshot is incomplete: ${missing.join(', ')}`);
+        const remaining = await validateSnapshot(cache, manifest);
+        if (remaining.length) {
+            throw new Error(`Offline snapshot is incomplete: ${remaining.join(', ')}`);
         }
 
         await self.skipWaiting();
     } catch (error) {
-        if (cacheName && !cacheIsActive) await caches.delete(cacheName);
-        await writeMeta({
-            activeBuildId: previousMeta?.activeBuildId || null,
-            state: 'error',
+        if (cacheName && !cacheIsActive) {
+            await caches.delete(cacheName).catch(deleteError =>
+                console.warn('[SW] Failed to remove incomplete snapshot:', deleteError));
+        }
+        await recordError({
+            previousMeta,
             errorCode: 'installation-failed',
             detail: failureDetail(error),
             failedBuildId: manifest?.buildId || OFFLINE_BUILD_ID
         });
-        await notifyStatus();
         throw error;
     }
 }
@@ -254,6 +295,21 @@ async function writeMeta(meta) {
     await cache.put(metaRequest(), new Response(JSON.stringify(meta), {
         headers: { 'Content-Type': 'application/json' }
     }));
+}
+
+async function recordError({ previousMeta, errorCode, detail, failedBuildId }) {
+    try {
+        await writeMeta({
+            activeBuildId: previousMeta?.activeBuildId || null,
+            state: 'error',
+            errorCode,
+            detail,
+            failedBuildId: failedBuildId || previousMeta?.failedBuildId || OFFLINE_BUILD_ID
+        });
+        await notifyStatus();
+    } catch (metadataError) {
+        console.warn('[SW] Failed to persist offline error:', metadataError);
+    }
 }
 
 async function readSnapshotManifest(cache) {
@@ -328,21 +384,27 @@ async function getOfflineStatus() {
 async function repairOfflineCache() {
     const { cache, buildId } = await activeSnapshot();
     if (!cache || !buildId) throw new Error('The active snapshot is missing');
-    const manifest = await readSnapshotManifest(cache);
-    if (manifest.buildId !== buildId || buildId !== OFFLINE_BUILD_ID) {
+    if (buildId !== OFFLINE_BUILD_ID) {
         throw new Error('The active snapshot does not belong to this worker');
     }
 
-    const resources = requiredResources(manifest);
-    const missing = [];
-    for (const resource of resources) {
-        const aliases = resource.route ? routeAliases(resource.url) : [resource.url];
-        const hasAllAliases = (await Promise.all(aliases.map(alias =>
-            cache.match(requestFor(alias, 'default'))))).every(Boolean);
-        if (!hasAllAliases) missing.push(resource);
+    let manifest;
+    let manifestResponse;
+    try {
+        manifest = await readSnapshotManifest(cache);
+    } catch (error) {
+        const fetched = await fetchManifest();
+        if (fetched.manifest.buildId !== buildId) throw error;
+        manifest = fetched.manifest;
+        manifestResponse = fetched.response;
     }
 
-    const results = await mapLimited(missing, CACHE_CONCURRENCY,
+    const missing = await missingSnapshotResources(cache, manifest);
+    const resources = missing.map(resource => resource.manifest
+        ? { ...resource, response: manifestResponse }
+        : resource);
+
+    const results = await mapLimited(resources, CACHE_CONCURRENCY,
         resource => fetchRequiredResource(resource));
     const failure = results.find(result => result.status === 'rejected');
     if (failure) throw failure.reason;
@@ -359,6 +421,32 @@ async function repairOfflineCache() {
         errorCode: null,
         detail: null,
         failedBuildId: null
+    });
+    return getOfflineStatus();
+}
+
+async function installationStatus() {
+    const meta = await readMeta();
+    if (meta?.state === 'error') return getOfflineStatus();
+    return {
+        type: 'offline-status',
+        state: 'updating',
+        buildId: meta?.activeBuildId || null,
+        errorCode: null,
+        detail: null
+    };
+}
+
+async function recordClientError(message) {
+    const previousMeta = await readMeta();
+    await writeMeta({
+        activeBuildId: previousMeta?.activeBuildId || null,
+        state: 'error',
+        errorCode: message.errorCode || 'offline-error',
+        detail: message.detail || 'Offline operation failed',
+        failedBuildId: message.failedBuildId
+            || previousMeta?.failedBuildId
+            || OFFLINE_BUILD_ID
     });
     return getOfflineStatus();
 }
@@ -448,7 +536,15 @@ async function handleLocalAsset(request) {
 }
 
 function replyToMessage(event, payload) {
-    if (event.ports && event.ports[0]) event.ports[0].postMessage(payload);
+    const port = event.ports?.[0];
+    if (!port) return;
+    try {
+        port.postMessage(payload);
+    } catch (error) {
+        console.warn('[SW] Failed to reply to offline message:', error);
+    } finally {
+        port.close?.();
+    }
 }
 
 self.addEventListener('install', event => {
@@ -460,8 +556,9 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
-        const previousMeta = await readMeta();
+        let previousMeta = null;
         try {
+            previousMeta = await readMeta();
             const cache = await caches.open(snapshotCacheName());
             const manifest = await readSnapshotManifest(cache);
             const missing = await validateSnapshot(cache, manifest);
@@ -476,14 +573,12 @@ self.addEventListener('activate', event => {
             await cleanupOldCaches();
             await self.clients.claim();
         } catch (error) {
-            await writeMeta({
-                activeBuildId: previousMeta?.activeBuildId || null,
-                state: 'error',
+            await recordError({
+                previousMeta,
                 errorCode: 'activation-failed',
                 detail: failureDetail(error),
                 failedBuildId: OFFLINE_BUILD_ID
             });
-            await notifyStatus();
             throw error;
         }
     })());
@@ -496,8 +591,22 @@ self.addEventListener('message', event => {
         event.waitUntil(getOfflineStatus()
             .then(status => {
                 replyToMessage(event, status);
-                return notifyStatus();
             })
+            .catch(error => {
+                replyToMessage(event, {
+                    type: 'offline-status',
+                    state: 'error',
+                    buildId: null,
+                    errorCode: 'status-failed',
+                    detail: failureDetail(error)
+                });
+            }));
+        return;
+    }
+
+    if (message.type === 'get-offline-installation-status') {
+        event.waitUntil(installationStatus()
+            .then(status => replyToMessage(event, status))
             .catch(error => replyToMessage(event, {
                 type: 'offline-status',
                 state: 'error',
@@ -508,25 +617,41 @@ self.addEventListener('message', event => {
         return;
     }
 
+    if (message.type === 'record-offline-error') {
+        event.waitUntil(recordClientError(message)
+            .then(status => replyToMessage(event, status))
+            .catch(error => replyToMessage(event, {
+                type: 'offline-status',
+                state: 'error',
+                buildId: null,
+                errorCode: message.errorCode || 'offline-error',
+                detail: failureDetail(error)
+            })));
+        return;
+    }
+
     if (message.type === 'repair-offline-cache') {
         event.waitUntil(repairOfflineCache()
             .then(status => {
                 replyToMessage(event, status);
-                return notifyStatus();
             })
             .catch(async error => {
                 const detail = failureDetail(error);
-                const previousMeta = await readMeta();
-                await writeMeta({
-                    activeBuildId: previousMeta?.activeBuildId || null,
-                    state: 'error',
+                const previousMeta = await readMeta().catch(() => null);
+                await recordError({
+                    previousMeta,
                     errorCode: 'repair-failed',
                     detail,
                     failedBuildId: previousMeta?.failedBuildId || null
                 });
-                const status = await getOfflineStatus();
+                const status = await getOfflineStatus().catch(statusError => ({
+                    type: 'offline-status',
+                    state: 'error',
+                    buildId: previousMeta?.activeBuildId || null,
+                    errorCode: 'repair-failed',
+                    detail: failureDetail(statusError)
+                }));
                 replyToMessage(event, status);
-                await notifyStatus();
             }));
     }
 });
