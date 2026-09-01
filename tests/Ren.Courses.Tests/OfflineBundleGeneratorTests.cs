@@ -18,9 +18,14 @@ public class OfflineBundleGeneratorTests
         fixture.Write("images/a.png", "a");
         fixture.Write("images/b.png", "b");
         fixture.Write("pdfs/example.pdf", "pdf");
-        fixture.Write("site.webmanifest", "{}");
+        fixture.Write("site.webmanifest", "{\"icons\":[{\"src\":\"android-chrome-192x192.png\"},{\"src\":\"android-chrome-512x512.png\"}]}");
+        fixture.Write("android-chrome-192x192.png", "192");
+        fixture.Write("android-chrome-512x512.png", "512");
         fixture.Write("vendor/mermaid/mermaid.min.js", "mermaid");
         fixture.WriteTemplate();
+        fixture.Write("offline-manifest.json.gz", "stale manifest");
+        fixture.Write("service-worker.js.gz", "stale worker");
+        fixture.Write("js/__tests__/stale.test.js", "stale test");
 
         var result = OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath);
         var manifest = JsonSerializer.Deserialize<OfflineManifest>(
@@ -30,11 +35,16 @@ public class OfflineBundleGeneratorTests
         Assert.Contains("css/app.css?v=css", manifest.Assets);
         Assert.Contains("fonts/inter.woff2", manifest.Assets);
         Assert.Contains("pdfs/example.pdf", manifest.Assets);
+        Assert.Contains("android-chrome-192x192.png", manifest.Assets);
+        Assert.Contains("android-chrome-512x512.png", manifest.Assets);
         Assert.Equal(manifest.Assets.OrderBy(asset => asset, StringComparer.Ordinal), manifest.Assets);
         Assert.Equal(manifest.Assets.Distinct(StringComparer.Ordinal), manifest.Assets);
         Assert.Matches("^[a-f0-9]{64}$", manifest.BuildId);
         Assert.Equal(manifest.BuildId, result.BuildId);
         Assert.Contains(manifest.BuildId, File.ReadAllText(Path.Combine(fixture.OutputRoot, "service-worker.js")));
+        Assert.False(File.Exists(Path.Combine(fixture.OutputRoot, "offline-manifest.json.gz")));
+        Assert.False(File.Exists(Path.Combine(fixture.OutputRoot, "service-worker.js.gz")));
+        Assert.False(Directory.Exists(Path.Combine(fixture.OutputRoot, "js", "__tests__")));
     }
 
     [Fact]
@@ -99,6 +109,38 @@ public class OfflineBundleGeneratorTests
             OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath));
 
         Assert.Contains("missing.css", exception.Message);
+    }
+
+    [Fact]
+    public void Generate_discovers_manifest_screenshots_and_shortcut_icons()
+    {
+        using var fixture = new OfflineFixture();
+        fixture.Write("index.html", "<link rel=\"manifest\" href=\"site.webmanifest\">");
+        fixture.Write("site.webmanifest", "{\"icons\":[{\"src\":\"icon.png\"}],\"screenshots\":[{\"src\":\"screenshots/shot.png\"}],\"shortcuts\":[{\"icons\":[{\"src\":\"icons/shortcut.png\"}]}]}");
+        fixture.Write("icon.png", "icon");
+        fixture.Write("screenshots/shot.png", "shot");
+        fixture.Write("icons/shortcut.png", "shortcut");
+        fixture.WriteTemplate();
+
+        var manifest = OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath);
+
+        Assert.Contains("icon.png", manifest.Assets);
+        Assert.Contains("screenshots/shot.png", manifest.Assets);
+        Assert.Contains("icons/shortcut.png", manifest.Assets);
+    }
+
+    [Fact]
+    public void Generate_rejects_manifest_parent_directory_escape()
+    {
+        using var fixture = new OfflineFixture();
+        fixture.Write("index.html", "<link rel=\"manifest\" href=\"site.webmanifest\">");
+        fixture.Write("site.webmanifest", "{\"icons\":[{\"src\":\"../outside.png\"}]}");
+        fixture.WriteTemplate();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath));
+
+        Assert.Contains("escapes", exception.Message);
     }
 
     private sealed class OfflineFixture : IDisposable

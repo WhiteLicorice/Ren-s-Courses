@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
 var contentRootPath = builder.Environment.ContentRootPath;
+var productionOutputPath = Path.Combine(contentRootPath, "output");
 var isDevelopment = builder.Environment.IsDevelopment();
 
 if (args.Contains("--finalize-offline", StringComparer.Ordinal))
@@ -27,6 +28,14 @@ if (args.Contains("--finalize-offline", StringComparer.Ordinal))
 
 builder.Services.AddBlazorStaticService(opt =>
 {
+    opt.OutputFolderPath = productionOutputPath;
+    opt.SuppressFileGeneration = isDevelopment;
+    // BlazorStatic combines relative ignore paths with the output path twice.
+    opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "offline-manifest.json"));
+    opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "offline-manifest.json.gz"));
+    opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "service-worker.js"));
+    opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "service-worker.js.gz"));
+    opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "js", "__tests__"));
 })
 .AddBlazorStaticContentService<CourseFrontMatter>(opt =>
 {
@@ -143,6 +152,9 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>();
 
+if (!isDevelopment)
+    ProductionOutput.Reset(contentRootPath);
+
 app.UseBlazorStaticGenerator(shutdownApp: !app.Environment.IsDevelopment());
 
 app.Run();
@@ -152,6 +164,34 @@ if (!isDevelopment)
     OfflineBundleGenerator.Generate(
         Path.Combine(contentRootPath, "output"),
         Path.Combine(contentRootPath, "Offline", "service-worker.template.js"));
+}
+
+internal static class ProductionOutput
+{
+    internal static void Reset(string contentRootPath)
+    {
+        var outputPath = Resolve(contentRootPath);
+        if (Directory.Exists(outputPath)) Directory.Delete(outputPath, recursive: true);
+        Directory.CreateDirectory(outputPath);
+    }
+
+    internal static string Resolve(string contentRootPath)
+    {
+        var fullContentRoot = Path.GetFullPath(contentRootPath);
+        var outputPath = Path.GetFullPath(Path.Combine(fullContentRoot, "output"));
+        var pathRoot = Path.GetPathRoot(outputPath);
+        var parentPath = Directory.GetParent(outputPath)?.FullName;
+
+        if (string.Equals(fullContentRoot, Path.GetPathRoot(fullContentRoot), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(Path.GetFileName(fullContentRoot), "output", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(parentPath)
+            || string.Equals(outputPath, pathRoot, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(parentPath, fullContentRoot, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(Path.GetFileName(outputPath), "output", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Refusing unsafe production output path: {outputPath}");
+
+        return outputPath;
+    }
 }
 
 public static class WebsiteKeys

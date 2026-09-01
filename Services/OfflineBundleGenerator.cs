@@ -38,6 +38,9 @@ public static class OfflineBundleGenerator
     private static readonly Regex LinkHrefAttribute = new(
         "<link\\b[^>]*\\bhref\\s*=\\s*[\"']([^\"']+)[\"']",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex ManifestLink = new(
+        "<link\\b(?=[^>]*\\brel\\s*=\\s*[\"']manifest[\"'])(?=[^>]*\\bhref\\s*=\\s*[\"']([^\"']+)[\"'])[^>]*>",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex PdfHrefAttribute = new(
         "<a\\b[^>]*\\bhref\\s*=\\s*[\"']([^\"']+\\.pdf(?:[?#][^\"']*)?)[\"']",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -70,6 +73,7 @@ public static class OfflineBundleGenerator
             var (baseUrl, scopePath) = ResolveBaseUrl(html, documentUrl);
 
             AddHtmlReferences(html, baseUrl, scopePath, outputRoot, assets);
+            AddWebManifestReferences(html, baseUrl, scopePath, outputRoot, assets);
         }
 
         AddAsset(MermaidAsset, outputRoot, assets);
@@ -92,6 +96,9 @@ public static class OfflineBundleGenerator
         AtomicWrite(Path.Combine(outputRoot, "offline-manifest.json"),
             JsonSerializer.Serialize(manifest, JsonOptions));
         AtomicWrite(Path.Combine(outputRoot, "service-worker.js"), worker);
+        DeleteDirectoryIfExists(Path.Combine(outputRoot, "js", "__tests__"));
+        DeleteIfExists(Path.Combine(outputRoot, "offline-manifest.json.gz"));
+        DeleteIfExists(Path.Combine(outputRoot, "service-worker.js.gz"));
 
         return manifest;
     }
@@ -167,6 +174,90 @@ public static class OfflineBundleGenerator
             AddReference(match.Groups[1].Value, baseUrl, scopePath, outputRoot, assets);
     }
 
+    private static void AddWebManifestReferences(
+        string html,
+        Uri baseUrl,
+        string scopePath,
+        string outputRoot,
+        SortedDictionary<string, string> assets)
+    {
+        foreach (Match match in ManifestLink.Matches(html))
+        {
+            var manifestUrl = ResolveLocalReference(match.Groups[1].Value, baseUrl, scopePath);
+            if (manifestUrl is null) continue;
+
+            AddAsset(manifestUrl, outputRoot, assets);
+            var manifestPath = GetAssetPath(manifestUrl, outputRoot);
+            using var document = JsonDocument.Parse(File.ReadAllText(manifestPath));
+            AddManifestArrayReferences(document.RootElement, "icons", manifestPath, outputRoot, assets);
+            AddManifestArrayReferences(document.RootElement, "screenshots", manifestPath, outputRoot, assets);
+
+            if (document.RootElement.TryGetProperty("shortcuts", out var shortcuts)
+                && shortcuts.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var shortcut in shortcuts.EnumerateArray())
+                {
+                    if (shortcut.ValueKind != JsonValueKind.Object) continue;
+                    AddManifestArrayReferences(shortcut, "icons", manifestPath, outputRoot, assets);
+                }
+            }
+        }
+    }
+
+    private static void AddManifestArrayReferences(
+        JsonElement manifest,
+        string propertyName,
+        string manifestPath,
+        string outputRoot,
+        SortedDictionary<string, string> assets)
+    {
+        if (!manifest.TryGetProperty(propertyName, out var entries)
+            || entries.ValueKind != JsonValueKind.Array)
+            return;
+
+        var manifestDirectory = Path.GetDirectoryName(manifestPath)!;
+        foreach (var entry in entries.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object
+                || !entry.TryGetProperty("src", out var source)
+                || source.ValueKind != JsonValueKind.String)
+                continue;
+
+            var rawSource = source.GetString()!;
+            var relativePath = ResolveManifestPath(rawSource, manifestDirectory, outputRoot);
+            if (relativePath is null) continue;
+            var relativeUrl = ToUrlPath(Path.GetRelativePath(outputRoot, relativePath));
+            AddAsset(relativeUrl, outputRoot, assets);
+        }
+    }
+
+    private static string? ResolveManifestPath(string rawSource, string manifestDirectory, string outputRoot)
+    {
+        if (string.IsNullOrWhiteSpace(rawSource))
+            throw new InvalidOperationException($"Invalid local manifest reference: {rawSource}");
+        if (rawSource.StartsWith("//", StringComparison.Ordinal)) return null;
+        if (Uri.TryCreate(rawSource, UriKind.Absolute, out var absolute))
+        {
+            if (absolute.Scheme is "http" or "https") return null;
+            throw new InvalidOperationException($"Invalid local manifest reference: {rawSource}");
+        }
+
+        var normalizedSource = rawSource.Split('?', 2)[0].Split('#', 2)[0];
+        if (Path.IsPathRooted(normalizedSource))
+            throw new InvalidOperationException($"Rooted manifest reference is not allowed: {rawSource}");
+
+        var path = Path.GetFullPath(Path.Combine(
+            manifestDirectory,
+            normalizedSource.Replace('/', Path.DirectorySeparatorChar)));
+        var relativePath = Path.GetRelativePath(outputRoot, path);
+        if (relativePath.Equals("..", StringComparison.Ordinal)
+            || relativePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+            || Path.IsPathRooted(relativePath))
+            throw new InvalidOperationException($"Manifest reference escapes the offline output: {rawSource}");
+
+        return path;
+    }
+
     private static void ProcessCssReferences(
         string outputRoot,
         SortedDictionary<string, string> assets)
@@ -215,14 +306,20 @@ public static class OfflineBundleGenerator
         if (!resolved.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase)
             || !resolved.Host.Equals("offline.local", StringComparison.OrdinalIgnoreCase)) return;
 
-        if (!resolved.AbsolutePath.StartsWith(scopePath, StringComparison.OrdinalIgnoreCase)) return;
+        var relativeUrl = ResolveLocalReference(rawReference, baseUrl, scopePath);
+        if (relativeUrl is not null) AddAsset(relativeUrl, outputRoot, assets);
+    }
+
+    private static string? ResolveLocalReference(string rawReference, Uri baseUrl, string scopePath)
+    {
+        if (!Uri.TryCreate(baseUrl, rawReference, out var resolved)) return null;
+        if (!resolved.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase)
+            || !resolved.Host.Equals("offline.local", StringComparison.OrdinalIgnoreCase)) return null;
+        if (!resolved.AbsolutePath.StartsWith(scopePath, StringComparison.Ordinal)) return null;
 
         var relativePath = ToUrlPath(Uri.UnescapeDataString(
             resolved.AbsolutePath[scopePath.Length..])).TrimStart('/');
-        if (relativePath.Length == 0) return;
-
-        var url = relativePath + resolved.Query;
-        AddAsset(url, outputRoot, assets);
+        return relativePath.Length == 0 ? null : relativePath + resolved.Query;
     }
 
     private static void AddAsset(
@@ -230,19 +327,27 @@ public static class OfflineBundleGenerator
         string outputRoot,
         SortedDictionary<string, string> assets)
     {
-        var path = relativeUrl.Split('?', 2)[0].Split('#', 2)[0].TrimStart('/');
+        var path = relativeUrl.Split('?', 2)[0].Split('#', 2)[0];
         if (path.Length == 0 || IsExcludedPath(path)) return;
+        if (Path.IsPathRooted(path))
+            throw new InvalidOperationException($"Rooted local reference is not allowed: {relativeUrl}");
 
         var fullPath = Path.GetFullPath(Path.Combine(outputRoot, path.Replace('/', Path.DirectorySeparatorChar)));
-        var rootWithSeparator = outputRoot.EndsWith(Path.DirectorySeparatorChar)
-            ? outputRoot
-            : outputRoot + Path.DirectorySeparatorChar;
-        if (!fullPath.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase))
+        var relativePath = Path.GetRelativePath(outputRoot, fullPath);
+        if (Path.IsPathRooted(relativePath)
+            || relativePath.Equals("..", StringComparison.Ordinal)
+            || relativePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
             throw new InvalidOperationException($"Local reference escapes the offline output: {relativeUrl}");
         if (!File.Exists(fullPath))
             throw new InvalidOperationException($"Missing local offline reference: {relativeUrl}");
 
         assets.TryAdd(relativeUrl.Replace('\\', '/'), fullPath);
+    }
+
+    private static string GetAssetPath(string relativeUrl, string outputRoot)
+    {
+        var path = relativeUrl.Split('?', 2)[0].Split('#', 2)[0];
+        return Path.GetFullPath(Path.Combine(outputRoot, path.Replace('/', Path.DirectorySeparatorChar)));
     }
 
     private static string CreateBuildId(
@@ -294,5 +399,15 @@ public static class OfflineBundleGenerator
         {
             if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
         }
+    }
+
+    private static void DeleteIfExists(string path)
+    {
+        if (File.Exists(path)) File.Delete(path);
+    }
+
+    private static void DeleteDirectoryIfExists(string path)
+    {
+        if (Directory.Exists(path)) Directory.Delete(path, recursive: true);
     }
 }

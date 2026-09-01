@@ -14,6 +14,8 @@ const { defineConfig, devices } = require('@playwright/test');
  *
  * CI run (Chromium + Firefox):
  *   npx playwright test --project=chromium --project=firefox
+ * Windows Edge run:
+ *   npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1
  */
 module.exports = defineConfig({
   testDir: './tests/e2e',
@@ -66,5 +68,12 @@ module.exports = defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
+    ...(process.platform === 'win32' ? [{
+      name: 'msedge',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'msedge',
+      },
+    }] : []),
   ],
 });

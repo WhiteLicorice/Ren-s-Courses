@@ -13,6 +13,7 @@ const STATUS_PATH = '__offline-status.json';
 const MAX_ATTEMPTS = 3;
 const RETRY_DELAYS = [0, 250, 750];
 const CACHE_CONCURRENCY = 4;
+const NAVIGATION_FALLBACK_TIMEOUT = 3000;
 
 function snapshotCacheName(buildId = OFFLINE_BUILD_ID) {
     return `${SNAPSHOT_PREFIX}${buildId}`;
@@ -193,15 +194,21 @@ async function validateSnapshot(cache, manifest) {
 }
 
 async function installSnapshot() {
-    const { manifest, response: manifestResponse, url: manifestUrl } = await fetchManifest();
-    const cacheName = snapshotCacheName(manifest.buildId);
     const previousMeta = await readMeta();
-    const cacheIsActive = previousMeta?.activeBuildId === manifest.buildId;
-    if (!cacheIsActive) await caches.delete(cacheName);
-    const cache = await caches.open(cacheName);
+    let manifest = null;
+    let cacheName = null;
+    let cacheIsActive = false;
 
     try {
-        await cache.put(requestFor(manifestUrl, 'default'), manifestResponse.clone());
+        const fetched = await fetchManifest();
+        manifest = fetched.manifest;
+        const cacheNameForBuild = snapshotCacheName(manifest.buildId);
+        cacheName = cacheNameForBuild;
+        cacheIsActive = previousMeta?.activeBuildId === manifest.buildId;
+        if (!cacheIsActive) await caches.delete(cacheNameForBuild);
+        const cache = await caches.open(cacheNameForBuild);
+
+        await cache.put(requestFor(fetched.url, 'default'), fetched.response.clone());
         const resources = requiredResources(manifest);
         const results = await mapLimited(resources, CACHE_CONCURRENCY,
             resource => fetchRequiredResource(resource));
@@ -219,7 +226,15 @@ async function installSnapshot() {
 
         await self.skipWaiting();
     } catch (error) {
-        if (!cacheIsActive) await caches.delete(cacheName);
+        if (cacheName && !cacheIsActive) await caches.delete(cacheName);
+        await writeMeta({
+            activeBuildId: previousMeta?.activeBuildId || null,
+            state: 'error',
+            errorCode: 'installation-failed',
+            detail: failureDetail(error),
+            failedBuildId: manifest?.buildId || OFFLINE_BUILD_ID
+        });
+        await notifyStatus();
         throw error;
     }
 }
@@ -255,13 +270,31 @@ async function readSnapshotManifest(cache) {
 
 async function activeSnapshot() {
     const meta = await readMeta();
-    const buildId = meta?.activeBuildId || OFFLINE_BUILD_ID;
-    const cache = await caches.open(snapshotCacheName(buildId));
+    const buildId = meta?.activeBuildId || null;
+    const cache = buildId ? await caches.open(snapshotCacheName(buildId)) : null;
     return { cache, meta, buildId };
 }
 
 async function getOfflineStatus() {
     const { cache, meta, buildId } = await activeSnapshot();
+    if (meta?.state === 'error') {
+        return {
+            type: 'offline-status',
+            state: 'error',
+            buildId,
+            errorCode: meta.errorCode || 'offline-error',
+            detail: meta.detail || 'Offline cache installation failed'
+        };
+    }
+    if (!cache || !buildId) {
+        return {
+            type: 'offline-status',
+            state: 'error',
+            buildId: null,
+            errorCode: 'cache-invalid',
+            detail: 'Offline manifest is missing from the active snapshot'
+        };
+    }
     try {
         const manifest = await readSnapshotManifest(cache);
         const missing = await validateSnapshot(cache, manifest);
@@ -272,15 +305,6 @@ async function getOfflineStatus() {
                 buildId,
                 errorCode: 'missing-resource',
                 detail: `Missing ${missing.length} required resource${missing.length === 1 ? '' : 's'}`
-            };
-        }
-        if (meta?.state === 'error') {
-            return {
-                type: 'offline-status',
-                state: 'error',
-                buildId,
-                errorCode: meta.errorCode || 'offline-error',
-                detail: meta.detail || 'Offline cache repair failed'
             };
         }
         return {
@@ -303,6 +327,7 @@ async function getOfflineStatus() {
 
 async function repairOfflineCache() {
     const { cache, buildId } = await activeSnapshot();
+    if (!cache || !buildId) throw new Error('The active snapshot is missing');
     const manifest = await readSnapshotManifest(cache);
     if (manifest.buildId !== buildId || buildId !== OFFLINE_BUILD_ID) {
         throw new Error('The active snapshot does not belong to this worker');
@@ -328,7 +353,13 @@ async function repairOfflineCache() {
 
     const remaining = await validateSnapshot(cache, manifest);
     if (remaining.length) throw new Error(`Offline repair is incomplete: ${remaining.join(', ')}`);
-    await writeMeta({ activeBuildId: buildId, state: 'ready', errorCode: null, detail: null });
+    await writeMeta({
+        activeBuildId: buildId,
+        state: 'ready',
+        errorCode: null,
+        detail: null,
+        failedBuildId: null
+    });
     return getOfflineStatus();
 }
 
@@ -367,18 +398,36 @@ async function findCachedNavigation(cache, request) {
 }
 
 async function handleNavigation(request) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), NAVIGATION_FALLBACK_TIMEOUT);
+    const networkRequest = fetch(request, { signal: controller.signal })
+        .finally(() => clearTimeout(timeout));
+    let cached = null;
     try {
-        return await fetch(request);
-    } catch (error) {
-        let cached = null;
-        try {
-            const { cache } = await activeSnapshot();
-            cached = await findCachedNavigation(cache, request);
-        } catch {
-            cached = null;
+        const snapshot = await activeSnapshot();
+        if (snapshot.cache) {
+            cached = await findCachedNavigation(snapshot.cache, request);
         }
-        if (cached) return cached;
+    } catch {
+        cached = null;
+    }
 
+    if (cached) {
+        try {
+            const response = await Promise.race([
+                networkRequest,
+                wait(NAVIGATION_FALLBACK_TIMEOUT).then(() => cached)
+            ]);
+            if (!response.ok) return cached;
+            return response;
+        } catch {
+            return cached;
+        }
+    }
+
+    try {
+        return await networkRequest;
+    } catch (error) {
         console.warn('[SW] Navigation fetch failed:', request.url, error);
         return offlineErrorResponse(request.url);
     }
@@ -387,8 +436,10 @@ async function handleNavigation(request) {
 async function handleLocalAsset(request) {
     try {
         const { cache } = await activeSnapshot();
-        const cached = await cache.match(request);
-        if (cached) return cached;
+        if (cache) {
+            const cached = await cache.match(request);
+            if (cached) return cached;
+        }
         return await fetch(request);
     } catch (error) {
         console.warn('[SW] Local asset fetch failed:', request.url, error);
@@ -409,13 +460,32 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
-        const cache = await caches.open(snapshotCacheName());
-        const manifest = await readSnapshotManifest(cache);
-        const missing = await validateSnapshot(cache, manifest);
-        if (missing.length) throw new Error(`Cannot activate incomplete snapshot: ${missing.join(', ')}`);
-        await writeMeta({ activeBuildId: OFFLINE_BUILD_ID, state: 'ready', errorCode: null, detail: null });
-        await cleanupOldCaches();
-        await self.clients.claim();
+        const previousMeta = await readMeta();
+        try {
+            const cache = await caches.open(snapshotCacheName());
+            const manifest = await readSnapshotManifest(cache);
+            const missing = await validateSnapshot(cache, manifest);
+            if (missing.length) throw new Error(`Cannot activate incomplete snapshot: ${missing.join(', ')}`);
+            await writeMeta({
+                activeBuildId: OFFLINE_BUILD_ID,
+                state: 'ready',
+                errorCode: null,
+                detail: null,
+                failedBuildId: null
+            });
+            await cleanupOldCaches();
+            await self.clients.claim();
+        } catch (error) {
+            await writeMeta({
+                activeBuildId: previousMeta?.activeBuildId || null,
+                state: 'error',
+                errorCode: 'activation-failed',
+                detail: failureDetail(error),
+                failedBuildId: OFFLINE_BUILD_ID
+            });
+            await notifyStatus();
+            throw error;
+        }
     })());
 });
 
@@ -446,11 +516,13 @@ self.addEventListener('message', event => {
             })
             .catch(async error => {
                 const detail = failureDetail(error);
+                const previousMeta = await readMeta();
                 await writeMeta({
-                    activeBuildId: OFFLINE_BUILD_ID,
+                    activeBuildId: previousMeta?.activeBuildId || null,
                     state: 'error',
                     errorCode: 'repair-failed',
-                    detail
+                    detail,
+                    failedBuildId: previousMeta?.failedBuildId || null
                 });
                 const status = await getOfflineStatus();
                 replyToMessage(event, status);

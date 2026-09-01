@@ -102,12 +102,20 @@ generated routes and exact local assets. Its SHA-256 build ID is embedded in the
 
 The worker installs an immutable `ren-courses-offline-<buildId>` snapshot. It validates every
 route, stylesheet, script, local font, media file, generated PDF, and web manifest before it
-activates. A failed update keeps the current snapshot. Offline navigation uses the clean route
-and trailing-slash aliases. Unknown routes return HTTP 503.
+activates. A failed update keeps the current snapshot and its error state across reloads. Offline
+navigation uses the clean route and trailing-slash aliases with a three-second cached fallback.
+Unknown routes return HTTP 503.
 
-The navbar shows `Ready`, `Updating`, or `Error` beside Ren's Courses. Select `Ready` to check
-for an update. Select `Error` to retry installation or repair missing entries. The page does not
-show an offline toast or replace the current document during an update.
+The navbar shows a compact status icon beside Ren's Courses. The ready icon needs no action. The
+updating icon ignores clicks. The error icon starts a retry or repairs missing entries. The icon
+uses an accessible tooltip and a separate live region. Development pages hide the control. A
+production browser without service worker support shows a non-actionable message that recommends
+a current browser.
+
+The generator includes local icons, screenshots, and shortcut icons listed by the linked web
+manifest. It includes those files in the build ID. Production generation resets `output/` before
+it writes the site. Development generation suppresses static file output. The finalizer removes
+stale compressed offline files and copied JavaScript tests.
 
 Run the finalizer after any command that changes `output/`:
 
@@ -115,9 +123,12 @@ Run the finalizer after any command that changes `output/`:
 dotnet run --no-build --project BlazorStaticMinimalBlog.csproj --configuration Release -- --finalize-offline
 ```
 
-Run `npm run test:e2e` against a fresh production output before release. Then verify the deployed
-PWA in Edge by installing it, loading every generated route online, closing and reopening it
-offline, opening a generated PDF, and testing a failed deployment followed by a repaired update.
+Run `npm run test:e2e` against a fresh production output before release. Set `SHOWCASE_MODE=true`
+for the full content fixture. On Windows, run the Edge check with
+`npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1`. Then verify the
+deployed PWA in Edge by installing it, loading every generated route online, closing and
+reopening it offline, opening a generated PDF, and testing a failed deployment followed by a
+repaired update.
 
 ---
 
@@ -233,8 +244,8 @@ E2E is **not** run in GitHub CI. The Playwright suite takes too long for GitHub 
 **Prerequisites:** Node.js 20+, .NET 9 SDK.
 
 ```bash
-# 1. Build the static site (output/ directory appears, then the process exits)
-ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
+# 1. Build the static site with all non-draft content
+SHOWCASE_MODE=true ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
 
 # 2. Install Playwright browsers (first time only)
 npx playwright install --with-deps chromium
@@ -247,6 +258,9 @@ npx playwright test tests/e2e/home.spec.js
 
 # Single browser
 npx playwright test --project=chromium
+
+# Windows Edge offline checks
+npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1
 ```
 
 ```bash

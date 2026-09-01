@@ -428,64 +428,70 @@ test.describe('Edge Cases', () => {
     expect(cachedRoutes).toEqual([]);
   });
 
-  for (const theme of ['dark', 'light']) {
-    test(`reloads a cached article offline in ${theme} theme`, async ({ page }) => {
-      const offlineFailures = [];
-      const pageErrors = [];
-      let offline = false;
+  test.describe('offline article cache', () => {
+    test.describe.configure({ mode: 'serial' });
 
-      page.on('pageerror', error => pageErrors.push(error.message));
-      page.on('requestfailed', request => {
-        if (offline) {
-          offlineFailures.push({
-            url: request.url(),
-            failure: request.failure()?.errorText,
-          });
-        }
+    for (const theme of ['dark', 'light']) {
+      test(`reloads a cached article offline in ${theme} theme`, async ({ page }) => {
+        const offlineFailures = [];
+        const pageErrors = [];
+        let offline = false;
+
+        page.on('pageerror', error => pageErrors.push(error.message));
+        page.on('requestfailed', request => {
+          if (offline) {
+            offlineFailures.push({
+              url: request.url(),
+              failure: request.failure()?.errorText,
+            });
+          }
+        });
+
+        await page.addInitScript(selectedTheme => {
+          localStorage.setItem('user-theme', selectedTheme);
+        }, theme);
+
+        await page.goto('/articles/cmsc-124-lab0', { waitUntil: 'load' });
+        await waitForControlledServiceWorker(page);
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expect(page.locator('article')).toBeVisible();
+
+        const cacheName = await readActiveOfflineCacheName(page);
+        const cacheState = await page.evaluate(async cacheName => {
+          if (!cacheName) return null;
+
+          const keys = await (await caches.open(cacheName)).keys();
+          return keys.map(request => new URL(request.url).pathname);
+        }, cacheName);
+
+        expect(cacheState).not.toBeNull();
+        expect(cacheState).toContain('/articles/cmsc-124-lab0');
+
+        offline = true;
+        await page.context().setOffline(true);
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expect(page.locator('article')).toBeVisible();
+
+        const state = await readOfflineArticleState(page);
+        expect(state.pathname).toBe('/articles/cmsc-124-lab0');
+        expect(state.hasArticle).toBe(true);
+        expect(state.codeBlockCount).toBeGreaterThan(0);
+        expect(state.hasPrism).toBe(true);
+        expect(state.hasPowershellGrammar).toBe(true);
+        expect(state.prismThemeRules).toBeGreaterThan(0);
+        expect(state.backgroundColor).toBe(
+          theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(13, 17, 23)'
+        );
+        expect(pageErrors).toEqual([]);
+
+        const relevantFailures = offlineFailures.filter(({ url }) => {
+          const origin = new URL(url).origin;
+          return origin === new URL(page.url()).origin;
+        }).filter(({ failure }) => failure !== 'NS_BINDING_ABORTED');
+        expect(relevantFailures).toEqual([]);
       });
-
-      await page.addInitScript(selectedTheme => {
-        localStorage.setItem('user-theme', selectedTheme);
-      }, theme);
-
-      await page.goto('/articles/cmsc-124-lab0', { waitUntil: 'load' });
-      await waitForControlledServiceWorker(page);
-      await page.reload({ waitUntil: 'load' });
-
-      const cacheName = await readActiveOfflineCacheName(page);
-      const cacheState = await page.evaluate(async cacheName => {
-        if (!cacheName) return null;
-
-        const keys = await (await caches.open(cacheName)).keys();
-        return keys.map(request => new URL(request.url).pathname);
-      }, cacheName);
-
-      expect(cacheState).not.toBeNull();
-      expect(cacheState).toContain('/articles/cmsc-124-lab0');
-
-      offline = true;
-      await page.context().setOffline(true);
-      await page.reload({ waitUntil: 'load' });
-
-      const state = await readOfflineArticleState(page);
-      expect(state.pathname).toBe('/articles/cmsc-124-lab0');
-      expect(state.hasArticle).toBe(true);
-      expect(state.codeBlockCount).toBeGreaterThan(0);
-      expect(state.hasPrism).toBe(true);
-      expect(state.hasPowershellGrammar).toBe(true);
-      expect(state.prismThemeRules).toBeGreaterThan(0);
-      expect(state.backgroundColor).toBe(
-        theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(13, 17, 23)'
-      );
-      expect(pageErrors).toEqual([]);
-
-      const relevantFailures = offlineFailures.filter(({ url }) => {
-        const origin = new URL(url).origin;
-        return origin === new URL(page.url()).origin;
-      }).filter(({ failure }) => failure !== 'NS_BINDING_ABORTED');
-      expect(relevantFailures).toEqual([]);
-    });
-  }
+    }
+  });
 
   // ── All key routes ────────────────────────────────────────────────────────────
 
@@ -546,6 +552,7 @@ test.describe('Edge Cases', () => {
 });
 
 test.describe('Deterministic offline cache', () => {
+  test.describe.configure({ mode: 'serial' });
   test.setTimeout(120000);
 
   test('pre-caches every generated route and exact local asset', async ({ page }) => {
@@ -671,6 +678,9 @@ test.describe('Deterministic offline cache', () => {
       await page.evaluate(() => window.dispatchEvent(new Event('online')));
       await expect(page.locator('#offline-status-badge')).toHaveAttribute(
         'data-offline-state', 'error', { timeout: 60000 });
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+        'data-offline-state', 'error', { timeout: 10000 });
 
       expect(await page.evaluate(async cacheName => caches.has(cacheName), cacheA)).toBe(true);
       await page.context().setOffline(true);
@@ -709,17 +719,24 @@ test.describe('Deterministic offline cache', () => {
 });
 
 test.describe('Installed PWA offline startup', () => {
+  test.describe.configure({ mode: 'serial' });
   test.setTimeout(180000);
 
-  test('reports readiness, serves cached assets without retries, and cold-starts offline', async ({ browserName }) => {
+  test('reports readiness, serves cached assets without retries, and cold-starts offline (installed-app proxy)', async ({ browserName }, testInfo) => {
     const fixture = createOfflineUpdateFixture();
     const fixtureOrigin = await fixture.start();
     const profileDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'renscourses-pwa-test-'));
     const browserType = browserName === 'firefox' ? firefox : chromium;
+    const persistentOptions = {
+      headless: true,
+      ...(testInfo.project.name === 'msedge'
+        ? { channel: 'msedge', args: [`--app=${fixtureOrigin}/`] }
+        : {}),
+    };
     let context;
 
     try {
-      context = await browserType.launchPersistentContext(profileDir, { headless: true });
+      context = await browserType.launchPersistentContext(profileDir, persistentOptions);
       let page = context.pages()[0] || await context.newPage();
       await page.goto(`${fixtureOrigin}/`, { waitUntil: 'load' });
       await waitForControlledServiceWorker(page);
@@ -740,7 +757,7 @@ test.describe('Installed PWA offline startup', () => {
 
       await context.close();
       context = await browserType.launchPersistentContext(profileDir, {
-        headless: true,
+        ...persistentOptions,
         offline: true,
       });
       page = context.pages()[0] || await context.newPage();

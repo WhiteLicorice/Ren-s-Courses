@@ -9,18 +9,26 @@
 
         @* Logo *@
         <div class="flex min-w-0 items-center gap-3 lg:w-0 lg:flex-1">
+            <button id="offline-status-badge" type="button" data-offline-state="updating"
+                class="offline-status-control" aria-describedby="offline-status-tooltip"
+                aria-live="off"
+                aria-label="Offline Mode saves this site and its course files for use without internet, so keep this page open while it updates them."
+                aria-disabled="true">
+                <span data-offline-icon aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8" stroke-dasharray="20 10" />
+                    </svg>
+                </span>
+                <span id="offline-status-tooltip" class="offline-status-tooltip" role="tooltip">
+                    Offline Mode saves this site and its course files for use without internet, so keep this page open while it updates them.
+                </span>
+            </button>
             <a href="" class="-m-1.5 p-1.5">
                 <div class="text-xl font-bold text-text-main hover:text-accent transition-colors">
                     @WebsiteKeys.Title
                 </div>
             </a>
-            <button id="offline-status-badge" type="button" data-offline-state="updating"
-                class="inline-flex shrink-0 items-center gap-1.5 rounded border border-offline-updating/40 bg-offline-updating/10 px-2 py-1 font-mono text-xs font-medium text-offline-updating transition-colors hover:bg-offline-updating/20"
-                aria-live="polite" aria-label="Updating offline content." aria-disabled="true"
-                title="Updating offline content.">
-                <span data-offline-icon aria-hidden="true">↻</span>
-                <span data-offline-label>Updating</span>
-            </button>
         </div>
 
         @* DESKTOP NAV: Items + Dropdown + Theme Toggle *@
@@ -109,6 +117,8 @@
         </div>
     </div>
 </header>
+
+<div data-offline-live-region class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 @* Spacer Div *@
 <div class="h-16 w-full"></div>
