@@ -2,8 +2,102 @@
 
 const { test, expect } = require('@playwright/test');
 
+const CALENDAR_FIXTURE_GROUPS = [
+  {
+    tags: ['fixture-match'],
+    title: 'Fixture Match',
+    dates: ['2026-09-15', '2026-09-15', '2026-09-15', '2026-09-15'],
+    tooltip: 'Fixture match event',
+    eventType: 'Custom',
+    url: null,
+    cssClass: 'bg-accent/10 text-accent border-accent',
+  },
+  {
+    tags: ['fixture-other'],
+    title: 'Fixture Other',
+    dates: ['2026-09-16', '2026-09-16', '2026-09-16', '2026-09-16'],
+    tooltip: 'Fixture other event',
+    eventType: 'Custom',
+    url: null,
+    cssClass: 'bg-accent/10 text-accent border-accent',
+  },
+];
+
+function installCalendarFixture(groups) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const filterHost = document.querySelector('.filter-btn')?.parentElement
+      || document.querySelector('#calendar-container')?.parentElement;
+    const month = document.querySelector('.month-view:not(.hidden)')
+      || document.querySelector('.month-view');
+    if (!filterHost || !month) return;
+
+    const matchTag = groups[0].tags[0];
+    const filter = document.createElement('button');
+    filter.type = 'button';
+    filter.dataset.calendarFixture = 'filter';
+    filter.dataset.tag = matchTag;
+    filter.className = 'filter-btn';
+    filter.setAttribute('aria-pressed', 'false');
+    filter.textContent = `#${matchTag}`;
+    filter.addEventListener('click', () => window.toggleCalendarTag(matchTag));
+    filterHost.appendChild(filter);
+
+    groups.forEach((group, groupIndex) => {
+      const key = groupIndex === 0 ? 'matching' : 'nonmatching';
+      const cell = document.createElement('div');
+      cell.className = 'calendar-fixture-cell';
+      cell.dataset.calendarFixture = `${key}-cell`;
+
+      const browserEvents = group.dates.map(() => ({
+        title: group.title,
+        tooltip: group.tooltip || group.eventType,
+        url: group.url || null,
+        cssClass: `${group.cssClass} ${group.tags
+          .map(tag => `tag-${tag.replace(/\s+/g, '-')}`)
+          .join(' ')}`,
+      }));
+
+      const eventContainer = document.createElement('div');
+      eventContainer.id = `fixture-${key}-events`;
+      eventContainer.className = 'calendar-cell-events';
+      browserEvents.forEach((event, eventIndex) => {
+        const eventBar = document.createElement('div');
+        eventBar.className = `calendar-event ${event.cssClass}`;
+        eventBar.title = event.tooltip;
+        eventBar.style.display = eventIndex < 3 ? '' : 'none';
+        const title = document.createElement('span');
+        title.className = 'font-medium';
+        title.textContent = event.title;
+        eventBar.appendChild(title);
+        eventContainer.appendChild(eventBar);
+      });
+
+      const overflow = document.createElement('button');
+      overflow.type = 'button';
+      overflow.className = 'show-more-btn';
+      overflow.dataset.calendarFixture = `${key}-overflow`;
+      overflow.dataset.cell = cell.dataset.calendarFixture;
+      overflow.dataset.events = JSON.stringify(browserEvents);
+      overflow.dataset.overflow = JSON.stringify(browserEvents.slice(3));
+      overflow.dataset.dateLabel = group.dates[0];
+      overflow.setAttribute('aria-expanded', 'false');
+      overflow.setAttribute('aria-haspopup', 'true');
+      overflow.setAttribute('aria-label', `Show 1 more events for ${group.dates[0]}`);
+      overflow.textContent = '+1 more';
+      overflow.addEventListener('click', () => window.openEventPopoverFromData(overflow));
+
+      cell.appendChild(overflow);
+      cell.appendChild(eventContainer);
+      month.appendChild(cell);
+    });
+  }, { once: true });
+}
+
 test.describe('Calendar Page (/calendar)', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript({
+      content: `(${installCalendarFixture.toString()})(${JSON.stringify(CALENDAR_FIXTURE_GROUPS)});`,
+    });
     await page.goto('/calendar');
     await page.waitForLoadState('load');
     // initCalendarNav is called by site.js on DOMContentLoaded;
@@ -181,28 +275,18 @@ test.describe('Calendar Page (/calendar)', () => {
   });
 
   test('filtering hides overflow controls with no matching events', async ({ page }) => {
-    const filter = page.locator('.filter-btn[data-tag="cmsc-124"]');
-    if (await filter.count() === 0) test.skip();
+    const filter = page.locator('[data-calendar-fixture="filter"]');
+    const matchingOverflow = page.locator('[data-calendar-fixture="matching-overflow"]');
+    const nonmatchingOverflow = page.locator('[data-calendar-fixture="nonmatching-overflow"]');
 
-    const cellId = await page.evaluate(() => {
-      const cells = document.querySelectorAll('.month-view:not(.hidden) [id^="cell-"]');
-      for (const cell of cells) {
-        const button = cell.parentElement?.querySelector('.show-more-btn');
-        if (!button) continue;
-
-        const visibleEvents = [...cell.querySelectorAll('.calendar-event')];
-        const overflowEvents = JSON.parse(button.dataset.overflow || '[]');
-        const hasCms124 = visibleEvents.some(event => event.classList.contains('tag-cmsc-124'))
-          || overflowEvents.some(event => event.cssClass.split(/\s+/).includes('tag-cmsc-124'));
-        if (!hasCms124) return cell.id;
-      }
-      return null;
-    });
-    expect(cellId).toBeTruthy();
+    await expect(matchingOverflow).toBeVisible();
+    await expect(nonmatchingOverflow).toBeVisible();
 
     await filter.click();
 
-    await expect(page.locator(`button[data-cell="${cellId}"]`)).toBeHidden();
+    await expect(matchingOverflow).toBeVisible();
+    await expect(nonmatchingOverflow).toBeHidden();
+    await expect(nonmatchingOverflow).toHaveAttribute('data-overflow', '[]');
   });
 
   // ── Event popover ───────────────────────────────────────────────────────────
