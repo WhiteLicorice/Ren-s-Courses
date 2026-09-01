@@ -28,6 +28,9 @@
     --btn-hover-bg: #21262d;
     --btn-hover-text: #f0f6fc;
     --copy-success: #238636;
+    --offline-ready: #3fb950;
+    --offline-updating: #d29922;
+    --offline-error: #f85149;
 
     /* --- SCROLLBARS (DARK) --- */
     --scrollbar-size: 10px;
@@ -68,6 +71,9 @@
     /* Blue hover for copy button (distinctive) */
     --btn-hover-text: #ffffff;
     --copy-success: #1a7f37;
+    --offline-ready: #1a7f37;
+    --offline-updating: #9a6700;
+    --offline-error: #cf222e;
 
     /* --- SCROLLBARS (LIGHT) --- */
     --scrollbar-thumb: #b9c1c9;
@@ -75,50 +81,26 @@
     --scrollbar-rail: var(--border-muted);
 }
 
-#offline-status-toast {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: min(24rem, calc(100vw - 2rem));
-    padding: 0.75rem 1rem;
-    color: var(--text-main);
-    background: var(--bg-surface);
-    border: 1px solid var(--copy-success);
-    border-radius: 0.5rem;
-    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.25);
+#offline-status-badge[data-offline-state="ready"] {
+    border-color: color-mix(in srgb, var(--offline-ready) 40%, transparent);
+    background-color: color-mix(in srgb, var(--offline-ready) 10%, transparent);
+    color: var(--offline-ready);
 }
 
-#offline-status-toast[data-offline-status="warning"] {
-    border-color: var(--accent);
+#offline-status-badge[data-offline-state="updating"] {
+    border-color: color-mix(in srgb, var(--offline-updating) 40%, transparent);
+    background-color: color-mix(in srgb, var(--offline-updating) 10%, transparent);
+    color: var(--offline-updating);
 }
 
-#offline-status-toast button {
-    flex: none;
-    padding: 0.25rem 0.5rem;
-    color: var(--text-main);
-    background: var(--btn-bg);
-    border: 1px solid var(--btn-border);
-    border-radius: 0.25rem;
-    cursor: pointer;
+#offline-status-badge[data-offline-state="error"] {
+    border-color: color-mix(in srgb, var(--offline-error) 40%, transparent);
+    background-color: color-mix(in srgb, var(--offline-error) 10%, transparent);
+    color: var(--offline-error);
 }
 
-#offline-status-toast button:hover,
-#offline-status-toast button:focus-visible {
-    color: var(--btn-hover-text);
-    background: var(--btn-hover-bg);
-}
-
-@media (max-width: 640px) {
-    #offline-status-toast {
-        right: 0.75rem;
-        bottom: 0.75rem;
-        left: 0.75rem;
-        max-width: none;
-    }
+#offline-status-badge[aria-disabled="true"] {
+    cursor: wait;
 }
 
 /* ============================== */

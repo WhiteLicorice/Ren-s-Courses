@@ -157,6 +157,10 @@ jobs:
         run: |
           echo "Build Time: $STATIC_GEN_TIME" > ${{ env.WEBAPP_PATH }}output/build-metadata.txt
 
+      - name: Finalize Netlify Offline Bundle
+        run: |
+          dotnet run --no-build --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release -- --finalize-offline
+
       - name: Push to 'netlify-pages' branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -209,6 +213,10 @@ jobs:
       - name: Stamp GitHub Build
         run: |
           echo "Build Time: $STATIC_GEN_TIME" > ${{ env.WEBAPP_PATH }}output/build-metadata.txt
+
+      - name: Finalize GitHub Offline Bundle
+        run: |
+          dotnet run --no-build --project ${{ env.WEBAPP_PATH }}${{env.WEBAPP_CSPROJ}} --configuration Release -- --finalize-offline
 
       - name: Push to 'gh-pages' branch
         uses: JamesIves/github-pages-deploy-action@v4

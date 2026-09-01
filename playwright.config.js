@@ -24,7 +24,7 @@ module.exports = defineConfig({
   // Prevent accidentally committed .only calls from silently passing CI.
   forbidOnly: !!process.env.CI,
 
-  // Retry twice in CI to survive transient network/CDN jitter (Prism/font loads).
+  // Retry twice in CI to survive transient browser or local asset jitter.
   retries: process.env.CI ? 2 : 0,
 
   // Single worker in CI keeps resource usage predictable; local uses all cores.

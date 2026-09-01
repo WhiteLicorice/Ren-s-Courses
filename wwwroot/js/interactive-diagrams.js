@@ -1,6 +1,6 @@
 // wwwroot/js/interactive-diagrams.js
 
-const MERMAID_MODULE_URL = 'https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.esm.min.mjs';
+const MERMAID_SCRIPT_URL = 'vendor/mermaid/mermaid.min.js';
 const DIAGRAM_PLAY_INTERVAL_MS = 2000;
 
 let mermaidPromise;
@@ -17,7 +17,21 @@ async function getMermaid(providedMermaid) {
     if (providedMermaid) return providedMermaid;
 
     if (!mermaidPromise) {
-        mermaidPromise = import(MERMAID_MODULE_URL).then(module => module.default);
+        mermaidPromise = new Promise((resolve, reject) => {
+            if (window.mermaid) {
+                resolve(window.mermaid);
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = new URL(MERMAID_SCRIPT_URL, document.baseURI).href;
+            script.async = true;
+            script.onload = () => window.mermaid
+                ? resolve(window.mermaid)
+                : reject(new Error('The local Mermaid bundle did not expose a renderer'));
+            script.onerror = () => reject(new Error('The local Mermaid bundle could not be loaded'));
+            document.head.appendChild(script);
+        });
     }
 
     return mermaidPromise;

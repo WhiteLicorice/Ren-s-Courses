@@ -21,6 +21,7 @@
     <None Update="Content/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Remove="wwwroot/js/__tests__/**" />
   </ItemGroup>
 
   <!-- to make hot reload work on .md files -->
@@ -44,5 +45,65 @@
       <MakeDir Directories="./wwwroot/css" />
       <Exec Command="npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/app.css --minify" />
   </Target>
-  
+
+  <!-- Copy pinned browser dependencies into the static bundle. -->
+  <ItemGroup>
+    <OfflinePrismAsset Include="node_modules/prismjs/prism.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-python.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-nasm.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-bash.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-powershell.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-kotlin.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-c.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-gdscript.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-csharp.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-markdown.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-fortran.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-lisp.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-cobol.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-smalltalk.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-cpp.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-java.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-rust.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-toml.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-yaml.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-dart.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-go.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-julia.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-json.min.js" />
+    <OfflinePrismAsset Include="node_modules/prismjs/components/prism-cmake.min.js" />
+    <OfflineMermaidAsset Include="node_modules/mermaid/dist/mermaid.min.js" />
+
+    <OfflineFont Include="node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2">
+      <TargetName>inter-400.woff2</TargetName>
+    </OfflineFont>
+    <OfflineFont Include="node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2">
+      <TargetName>inter-500.woff2</TargetName>
+    </OfflineFont>
+    <OfflineFont Include="node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2">
+      <TargetName>inter-600.woff2</TargetName>
+    </OfflineFont>
+    <OfflineFont Include="node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2">
+      <TargetName>inter-700.woff2</TargetName>
+    </OfflineFont>
+    <OfflineFont Include="node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2">
+      <TargetName>jetbrains-mono-400.woff2</TargetName>
+    </OfflineFont>
+    <OfflineFont Include="node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2">
+      <TargetName>jetbrains-mono-500.woff2</TargetName>
+    </OfflineFont>
+  </ItemGroup>
+
+  <Target Name="CopyOfflineRuntimeAssets"
+          BeforeTargets="Build"
+          DependsOnTargets="EnsureNodeDependencies;TailwindBuild">
+    <MakeDir Directories="wwwroot/vendor/prism;wwwroot/vendor/mermaid;wwwroot/fonts" />
+    <Copy SourceFiles="@(OfflinePrismAsset)"
+          DestinationFiles="@(OfflinePrismAsset->'wwwroot/vendor/prism/%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(OfflineMermaidAsset)"
+          DestinationFiles="wwwroot/vendor/mermaid/mermaid.min.js" />
+    <Copy SourceFiles="@(OfflineFont)"
+          DestinationFiles="@(OfflineFont->'wwwroot/fonts/%(TargetName)')" />
+  </Target>
+
 </Project>

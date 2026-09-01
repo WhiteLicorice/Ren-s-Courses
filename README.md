@@ -38,7 +38,7 @@ the pinned `Dependencies/RensMarkdownTemplates` submodule.
 
 ### How It Works
 
-The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, runs Python tests for the RSS feed generator, generates per-course Atom feeds, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified before being pushed to their respective deploy branches.
+The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, runs Python tests for the RSS feed generator, generates per-course Atom feeds, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified, stamped, and finalized with the offline manifest generator before being pushed to their respective deploy branches.
 
 `CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START` to `TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
 
@@ -90,9 +90,34 @@ appear multiple times by repeating the marker. Markers sit on their own line; th
 `<!-- diagram: key -->`. Placement determines where the widget appears in both the web page
 and the generated PDF.
 
-Mermaid is loaded from its pinned CDN module only when a page contains a diagram. If the
+Mermaid is loaded from the pinned local bundle only when a page contains a diagram. If the
 library cannot load or a step contains invalid syntax, the authored Mermaid source remains
 visible so the explanation does not become a blank panel.
+
+### Offline PWA
+
+Production builds generate `output/offline-manifest.json` and `output/service-worker.js` after
+static pages, feeds, minification, and build metadata are complete. The manifest lists clean
+generated routes and exact local assets. Its SHA-256 build ID is embedded in the worker.
+
+The worker installs an immutable `ren-courses-offline-<buildId>` snapshot. It validates every
+route, stylesheet, script, local font, media file, generated PDF, and web manifest before it
+activates. A failed update keeps the current snapshot. Offline navigation uses the clean route
+and trailing-slash aliases. Unknown routes return HTTP 503.
+
+The navbar shows `Ready`, `Updating`, or `Error` beside Ren's Courses. Select `Ready` to check
+for an update. Select `Error` to retry installation or repair missing entries. The page does not
+show an offline toast or replace the current document during an update.
+
+Run the finalizer after any command that changes `output/`:
+
+```bash
+dotnet run --no-build --project BlazorStaticMinimalBlog.csproj --configuration Release -- --finalize-offline
+```
+
+Run `npm run test:e2e` against a fresh production output before release. Then verify the deployed
+PWA in Edge by installing it, loading every generated route online, closing and reopening it
+offline, opening a generated PDF, and testing a failed deployment followed by a repaired update.
 
 ---
 

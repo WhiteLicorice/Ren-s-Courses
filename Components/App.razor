@@ -1,5 +1,7 @@
-﻿<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+@inject IWebHostEnvironment HostEnvironment
+
+<!DOCTYPE html>
+<html lang="en" data-environment="@HostEnvironment.EnvironmentName" class="scroll-smooth">
 
 <head>
     <meta charset="utf-8" />
@@ -15,16 +17,10 @@
     @* --- STYLES --- *@
     <link href="@(WebsiteKeys.VersionedAsset("css/app.css"))" rel="stylesheet" />
     <link href="@(WebsiteKeys.VersionedAsset("css/site.css"))" rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
 
     @* --- PRISM THEMES --- *@
-    @* Version local themes so a new build cannot reuse stale CSS. *@
     <link rel="preload" href="@(WebsiteKeys.VersionedAsset("css/prism-dark.css"))" as="style">
     <link rel="preload" href="@(WebsiteKeys.VersionedAsset("css/prism-light.css"))" as="style">
-
-    @* Default Link *@
     <link id="prism-theme-link" rel="stylesheet"
         href="@(WebsiteKeys.VersionedAsset("css/prism-dark.css"))"
         data-dark-href="@(WebsiteKeys.VersionedAsset("css/prism-dark.css"))"
@@ -33,29 +29,18 @@
     @* --- BOOT SCRIPT --- *@
     <script>
         (function () {
-            // Check System Preference
             var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            // Check Saved Preference
             var savedTheme = localStorage.getItem('user-theme');
+            var mode = savedTheme === 'light' ? 'light'
+                : savedTheme === 'dark' ? 'dark'
+                : systemDark ? 'dark' : 'light';
 
-            // Resolve effective mode
-            var mode = 'dark';
-
-            if (savedTheme === 'light') mode = 'light';
-            else if (savedTheme === 'dark') mode = 'dark';
-            else mode = systemDark ? 'dark' : 'light'; // Default to System
-
-            // Apply Variables
             document.documentElement.setAttribute('data-theme', mode);
-
-            // Apply Codebox Theme
             if (mode === 'light') {
                 var prismTheme = document.getElementById('prism-theme-link');
                 prismTheme.href = prismTheme.dataset.lightHref;
             }
 
-            // Set initial theme-color for browser chrome
             var meta = document.querySelector('meta[name="theme-color"]');
             if (!meta) {
                 meta = document.createElement('meta');
@@ -66,79 +51,12 @@
         })();
     </script>
 
-    @* Core Prism *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
-
-    @* Languages *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-python.min.js"
-        integrity="sha512-3qtI9+9JXi658yli19POddU1RouYtkTEhTHo6X5ilOvMiDfNvo6GIS6k2Ukrsx8MyaKSXeVrnIWeyH8G5EOyIQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-nasm.min.js"
-        integrity="sha512-zdmZCKfEirT3AOxxgIwXpIyik7DSpYOnzXujg8duM6ICokx243tPnCTgqiQN+TAhLSMO2UF11C/+gO1DrI+A8A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-bash.min.js"
-        integrity="sha512-35RBtvuCKWANuRid6RXP2gYm4D5RMieVL/xbp6KiMXlIqgNrI7XRUh9HurE8lKHW4aRpC0TZU3ZfqG8qmQ35zA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-powershell.min.js"
-        integrity="sha512-dnJS1fxEUNZirzvtoG39P8JWa8DajX420LajzUbn+taV6hd9BfnHHgpPAWNADYjNRPT1Gt4v4/XGMULqi0uqVQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-kotlin.min.js"
-        integrity="sha384-zz49ukKZF8e3sr9aiW45Ju61sb9hptYyPOufuu9eutOrjwnOK3D1CGRU+eb12fGy"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-c.min.js"
-        integrity="sha512-EWIJI7uQnA8ClViH2dvhYsNA7PHGSwSg03FAfulqpsFiTPHfhdQIvhkg/l3YpuXOXRF2Dk0NYKIl5zemrl1fmA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-gdscript.min.js"
-        integrity="sha384-/VR77D3X6KK5aOg7HD5UwKXCvpBRSd69miStqj8kq3OeK3nJ3nzHQ9GZxMjcES5T"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-csharp.min.js"
-        integrity="sha512-lNcWxx1oz89gefDhnB9knOCI/GcjlFNZq7ik92IA9AdKVamhge7Z9Ne3MSAim/wPdTrthGF0iQMs19z1WS9gFw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-markdown.min.js"
-        integrity="sha512-4lQBgtc3AKPFSyFxc8Uaq6rz3VHwrSOdQxXtkJN9cS81ErTSoNSBxLDzWNYwwYryuvQpseKWiOmZdArMroqnLw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-fortran.min.js"
-        integrity="sha512-euQvOHm8+JS0EX/6qLuxHVwIHkgwUwv9oQovbABPJOOmFWchY14C21/7FO0FimAgkDm6KY/qPP7XVB8HoVHamg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lisp.min.js"
-        integrity="sha512-W461RnQzrhSCQQMfEGFKOHbK2DuJTVxrXs2PzctPaxV3A+qPB/TcnMgucSsBNkyccNK8VoENBsAnbf/SuBE71g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cobol.min.js"
-        integrity="sha512-n9Ub+YWOuYB4obVYHu2ZfoJdkqoXzBAggLWtQ0NY3VtPF84YHzFBKWx3lFMTcLh3hc86+rBS7IYhsy3EWIQ+Lw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-smalltalk.min.js"
-        integrity="sha512-YKBZSmW7lgnu9Cq3YxDiFL3mcHk1OElT0wds6Gr/R2gPRC4jD+6Plpf8ccDB9aOTbVLM0goR4ZXr1eqEFuQX2g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"
-        integrity="sha512-namzGTZvHaug0jeipHRN2pMepMiJj+EbrloktVFlMYGnA0EwZhbdLeENjBYLCgoghVbZGinIz/FFYHmB0o3wLw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"
-        integrity="sha512-xKcnbsdT0KMoA4yrozkqZM1XJVTrPsjdQwvigxlAlxEDu8YDvC/jl+LfVqn0fY3Vs6m2y4a89JCHEIA/Z9zpmQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"
-        integrity="sha512-R/HpMlNfZZV6DxMhNz1dYJbBaPBVSOCqX8imo3uGUurhPDHRcXrBxkEVOjawwUwTMfOqT6t1eLYYQXIjFWCX/A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-toml.min.js"
-        integrity="sha512-R9JG7uVdcjWlZvEWyP3KfxtexvT1uIlKUF/dYVmZRbvJyMobK6zGCpIM2gLVqYjLSYeL/zBjOVpP7vXxVtzfCw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"
-        integrity="sha512-6O/PZimM3TD1NN3yrazePA4AbZrPcwt1QCGJrVY7WoHDJROZFc9TlBvIKMe+QfqgcslW4lQeBzNJEJvIMC8WhA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-dart.min.js"
-        integrity="sha512-r/W8eHXvGAyqo0Pa1hwUx9znj2RKBDKgTZ7iL5R4FIJpLpF1HPXKHiGorzKE5gwj906GlNqAskHKSNpyVziozw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"
-        integrity="sha512-w200Nz1i9KgDNi+IpPMgpZBVRIvfVK/V5vskyHjkz7XJkVnRJcb1uNmpiHhDv0/Ln+GG2VqScKKz/1izBfg64Q=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-julia.min.js"
-        integrity="sha512-MM0szf5BNTLe3x0J8KvBEbcqC8NSzNMSGBrfeF04QLRLMffcROH+VDMD7YaCjde/3L539sHKw7aUWQQ9VzPEqA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"
-        integrity="sha512-QXFMVAusM85vUYDaNgcYeU3rzSlc+bTV4JvkfJhjxSHlQEo+ig53BtnGkvFTiNJh8D+wv6uWAQ2vJaVmxe8d3w=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cmake.min.js"
-        integrity="sha512-tyUjNf6q++J/RG4e2myIoIZnKEs21F4fa16xbeMiom63dw84KhzW1gVEga+xuh/CwLNJuQCbDpChFw23BTNIOg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @* Pinned local Prism runtime and language set. *@
+    <script src="@(WebsiteKeys.VersionedAsset("vendor/prism/prism.js"))" data-manual></script>
+    @foreach (var language in new[] { "python", "nasm", "bash", "powershell", "kotlin", "c", "gdscript", "csharp", "markdown", "fortran", "lisp", "cobol", "smalltalk", "cpp", "java", "rust", "toml", "yaml", "dart", "go", "julia", "json", "cmake" })
+    {
+        <script src="@(WebsiteKeys.VersionedAsset($"vendor/prism/prism-{language}.min.js"))"></script>
+    }
     <HeadOutlet />
 </head>
 
@@ -154,14 +72,13 @@
     <script src="@(WebsiteKeys.VersionedAsset("js/scroll-button.js"))"></script>
     <script src="@(WebsiteKeys.VersionedAsset("js/submission-menu.js"))"></script>
     <script src="@(WebsiteKeys.VersionedAsset("js/toc.js"))"></script>
-
     <script src="@(WebsiteKeys.VersionedAsset("js/course-filter.js"))"></script>
     <script src="@(WebsiteKeys.VersionedAsset("js/faq.js"))"></script>
 
     @* IMPORTANT: This must come last, as it is the orchestrator. *@
     <script src="@(WebsiteKeys.VersionedAsset("js/site.js"))"></script>
 
-    @* Keep Android open banner! *@
+    @* Optional online enhancement. It is not part of offline readiness. *@
     <script src="https://keepandroidopen.org/banner.js?id=header&hidebutton=off"></script>
 </body>
 

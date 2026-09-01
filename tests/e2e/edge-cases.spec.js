@@ -5,15 +5,7 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
-const OFFLINE_CACHE_PREFIX = 'ren-courses-online-first-v5';
-const COMPLETE_OFFLINE_CACHE = 'ren-courses-online-first-v5';
-const NEXT_OFFLINE_CACHE = 'ren-courses-online-first-v5';
-const ALLOWED_OFFLINE_ORIGINS = [
-  'https://cdnjs.cloudflare.com',
-  'https://fonts.googleapis.com',
-  'https://fonts.gstatic.com',
-  'https://keepandroidopen.org',
-];
+const OFFLINE_META_CACHE = 'ren-courses-offline-meta';
 
 const ARTICLE_ROUTE = '/articles/cmsc-124-lab0';
 
@@ -35,14 +27,9 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
   const routeFile = route.startsWith('/articles/')
     ? `${relativeRoute}.html`
     : path.join(relativeRoute, 'index.html');
-  let routeTemplate = fs.readFileSync(
+  const routeTemplate = fs.readFileSync(
     path.join(outputRoot, routeFile),
     'utf8'
-  );
-  const servesPdf = route === ARTICLE_ROUTE;
-  if (servesPdf) routeTemplate = routeTemplate.replace(
-    /href="pdfs\/[^"]+\.pdf"/,
-    'href="pdfs/offline-update.pdf"'
   );
   let version = 1;
   const redirectCleanRoute = options.redirectCleanRoute === true;
@@ -66,13 +53,6 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
         contentType: 'text/html',
       };
     }
-    if (servesPdf && pathname === '/pdfs/offline-update.pdf') {
-      return {
-        body: `%PDF-1.4\nOFFLINE FIXTURE PDF V${version}\n%%EOF\n`,
-        contentType: 'application/pdf',
-      };
-    }
-
     const relativePath = pathname.replace(/^\/+/, '') || 'index.html';
     let filePath = path.join(outputRoot, relativePath);
     if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
@@ -121,83 +101,171 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
   };
 }
 
-async function readCompleteOfflineInventory(page, cacheName, articleRoute = ARTICLE_ROUTE) {
-  return page.evaluate(async ({ cacheName, articleRoute, allowedOrigins }) => {
+async function readActiveOfflineCacheName(page) {
+  return page.evaluate(async metaCacheName => {
+    const cache = await caches.open(metaCacheName);
+    const scope = new URL('/', location.href);
+    const statusUrl = new URL('__offline-status.json', scope);
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const response = await cache.match(statusUrl);
+      if (response) {
+        const meta = await response.json();
+        if (meta.activeBuildId) return `ren-courses-offline-${meta.activeBuildId}`;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return null;
+  }, OFFLINE_META_CACHE);
+}
+
+function createTwoDeploymentFixture() {
+  const outputRoot = path.resolve(__dirname, '..', '..', 'output');
+  const baseManifest = JSON.parse(fs.readFileSync(
+    path.join(outputRoot, 'offline-manifest.json'), 'utf8'));
+  const baseWorker = fs.readFileSync(path.join(outputRoot, 'service-worker.js'), 'utf8');
+  const articleFile = path.join(outputRoot, 'articles/cmsc-124-lab0.html');
+  const articleTemplate = fs.readFileSync(articleFile, 'utf8');
+  const deploymentIds = {
+    A: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    B: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+  };
+  const deployments = Object.fromEntries(Object.entries(deploymentIds).map(([name, buildId]) => {
+    const manifest = { ...baseManifest, buildId };
+    const worker = baseWorker.replace(
+      /const OFFLINE_BUILD_ID = '[a-f0-9]{64}';/,
+      `const OFFLINE_BUILD_ID = '${buildId}';`);
+    return [name, { manifest, worker }];
+  }));
+  let activeDeployment = 'A';
+  let failRequiredAsset = false;
+  let requestCounts = new Map();
+  const requiredAsset = baseManifest.assets.find(asset => asset.includes('mermaid.min.js'));
+
+  const countRequest = requestUrl => {
+    const url = new URL(requestUrl, 'http://127.0.0.1');
+    const key = `${url.pathname}${url.search}`;
+    requestCounts.set(key, (requestCounts.get(key) || 0) + 1);
+  };
+
+  const responseFor = requestUrl => {
+    const url = new URL(requestUrl, 'http://127.0.0.1');
+    countRequest(requestUrl);
+    const deployment = deployments[activeDeployment];
+
+    if (url.pathname === '/service-worker.js') {
+      return { body: deployment.worker, contentType: 'application/javascript' };
+    }
+    if (url.pathname === '/offline-manifest.json') {
+      return { body: JSON.stringify(deployment.manifest), contentType: 'application/json' };
+    }
+    if (failRequiredAsset && activeDeployment === 'B'
+      && `vendor/mermaid/mermaid.min.js${url.search}` === `${requiredAsset}`) {
+      return { status: 503, body: 'fixture failure', contentType: 'text/plain' };
+    }
+
+    if (url.pathname === '/articles/cmsc-124-lab0') {
+      return {
+        body: articleTemplate.replace(
+          /<body([^>]*)>/,
+          `<body$1><div id="offline-fixture-deployment">DEPLOYMENT ${activeDeployment}</div>`),
+        contentType: 'text/html',
+      };
+    }
+
+    const relativePath = url.pathname.replace(/^\/+/, '') || 'index.html';
+    let filePath = path.join(outputRoot, relativePath);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+      filePath = path.join(filePath, 'index.html');
+    } else if (!path.extname(filePath) && fs.existsSync(`${filePath}.html`)) {
+      filePath = `${filePath}.html`;
+    }
+
+    if (!filePath.startsWith(`${outputRoot}${path.sep}`) || !fs.existsSync(filePath)) {
+      return null;
+    }
+    return {
+      body: fs.readFileSync(filePath),
+      contentType: MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+    };
+  };
+
+  const server = http.createServer((request, response) => {
+    const result = responseFor(request.url);
+    if (!result) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+    response.writeHead(result.status || 200, { 'Content-Type': result.contentType });
+    response.end(result.body);
+  });
+
+  return {
+    manifest: baseManifest,
+    requiredAsset,
+    async start() {
+      await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+      return `http://127.0.0.1:${server.address().port}`;
+    },
+    setDeployment(nextDeployment) {
+      activeDeployment = nextDeployment;
+      requestCounts = new Map();
+    },
+    setFailRequiredAsset(nextValue) {
+      failRequiredAsset = nextValue;
+      requestCounts = new Map();
+    },
+    requestCounts() {
+      return Object.fromEntries(requestCounts);
+    },
+    async close() {
+      server.closeAllConnections?.();
+      await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+    },
+  };
+}
+
+async function readCompleteOfflineInventory(page, cacheName) {
+  return page.evaluate(async ({ cacheName }) => {
     const manifest = await (await fetch('/offline-manifest.json')).json();
+    const scope = new URL('/', location.href);
     const localUrls = new Set([
-      new URL('/offline-manifest.json', location.href).href,
+      new URL('/offline-manifest.json', scope).href,
     ]);
-    const generatedPdfUrls = new Set();
-    let articleDocument = null;
 
     for (const route of manifest.routes) {
-      const routeUrl = new URL(route === './' ? '/' : `/${route}`, location.href);
+      const routeUrl = new URL(route === './' ? '/' : `/${route}`, scope);
       localUrls.add(routeUrl.href);
-      const response = await fetch(routeUrl);
-      const html = await response.text();
-      const document = new DOMParser().parseFromString(html, 'text/html');
-      if (routeUrl.pathname === articleRoute) articleDocument = document;
-      const baseHref = document.querySelector('base')?.getAttribute('href');
-      const resourceBase = baseHref ? new URL(baseHref, routeUrl) : routeUrl;
-      document.querySelectorAll('[src], link[href], a[data-download-source="generated"]').forEach(element => {
-        const rawUrl = element.getAttribute('src') || element.getAttribute('href');
-        if (!rawUrl) return;
-        const url = new URL(rawUrl, resourceBase);
-        if (url.origin !== location.origin) return;
-        if (element.matches('a') && !url.pathname.endsWith('.pdf')) return;
-        localUrls.add(url.href);
-        if (element.matches('a')) generatedPdfUrls.add(url.href);
-      });
+      if (!routeUrl.pathname.endsWith('/')) {
+        const slashUrl = new URL(routeUrl.href);
+        slashUrl.pathname += '/';
+        localUrls.add(slashUrl.href);
+      }
+    }
+    for (const asset of manifest.assets) {
+      localUrls.add(new URL(asset, scope).href);
     }
 
     const cache = await caches.open(cacheName);
     const missingLocal = [];
     for (const url of localUrls) {
-      const request = new Request(url);
-      if (!(await cache.match(request, { ignoreSearch: true }))) missingLocal.push(new URL(url).pathname);
+      if (!(await cache.match(new Request(url)))) missingLocal.push(url);
     }
-
-    const externalKeys = (await cache.keys())
-      .map(request => request.url)
-      .filter(url => allowedOrigins.includes(new URL(url).origin));
-    const externalDocument = articleDocument || new DOMParser().parseFromString('', 'text/html');
-    const googleStylesheet = [...externalDocument.querySelectorAll('link[href]')]
-      .map(link => new URL(link.href).href)
-      .find(url => url.startsWith('https://fonts.googleapis.com/'));
-    const nestedFontUrls = [];
-    if (googleStylesheet) {
-      const cssResponse = await cache.match(googleStylesheet);
-      if (cssResponse) {
-        const css = await cssResponse.text();
-        for (const match of css.matchAll(/url\((?:"([^"]+)"|'([^']+)'|([^)]*))\)/gi)) {
-          const rawUrl = match[1] || match[2] || match[3].trim();
-          const url = new URL(rawUrl, googleStylesheet);
-          if (url.origin === 'https://fonts.gstatic.com') nestedFontUrls.push(url.href);
-        }
-      }
-    }
-
-    const missingExternal = [...new Set([
-      ...[...externalDocument.querySelectorAll('script[src], link[href]')]
-        .map(element => element.src || element.href)
-        .filter(url => allowedOrigins.includes(new URL(url).origin)),
-      ...nestedFontUrls,
-    ])].filter(url => !externalKeys.includes(url));
 
     const unexpectedCrossOrigin = (await cache.keys())
       .map(request => new URL(request.url))
-      .filter(url => url.origin !== location.origin && !allowedOrigins.includes(url.origin))
+      .filter(url => url.origin !== location.origin)
       .map(url => url.href);
 
     return {
       manifestRoutes: manifest.routes,
+      manifestAssets: manifest.assets,
       missingLocal,
-      missingExternal,
       unexpectedCrossOrigin,
-      generatedPdfUrls: [...generatedPdfUrls],
-      articleRoute,
+      generatedPdfUrls: manifest.assets.filter(asset =>
+        new URL(asset, scope).pathname.endsWith('.pdf')),
     };
-    }, { cacheName, articleRoute, allowedOrigins: ALLOWED_OFFLINE_ORIGINS });
+  }, { cacheName });
 }
 
 async function waitForControlledServiceWorker(page) {
@@ -340,6 +408,8 @@ test.describe('Edge Cases', () => {
     await page.goto('/', { waitUntil: 'load' });
     await waitForControlledServiceWorker(page);
 
+    const cacheName = await readActiveOfflineCacheName(page);
+    expect(cacheName).toMatch(/^ren-courses-offline-[a-f0-9]{64}$/);
     const cachedRoutes = await page.evaluate(async ({ cacheName, routes }) => {
       const cache = await caches.open(cacheName);
       const missingRoutes = [];
@@ -352,46 +422,11 @@ test.describe('Edge Cases', () => {
       }
 
       return missingRoutes;
-    }, { cacheName: OFFLINE_CACHE_PREFIX, routes: await page.evaluate(async () =>
+    }, { cacheName, routes: await page.evaluate(async () =>
       (await (await fetch('/offline-manifest.json')).json()).routes) });
 
     expect(cachedRoutes).toEqual([]);
   });
-
-  for (const { route, marker } of [
-    { route: '/articles/cmsc-124-lab0', marker: 'Onboarding' },
-    { route: '/calendar', marker: 'Calendar' },
-    { route: '/projects', marker: 'Showcase' },
-    { route: '/bookings', marker: 'Bookings' },
-    { route: '/faqs', marker: 'FAQs' },
-    { route: '/materials', marker: 'Materials' },
-  ]) {
-    test(`online navigation replaces a stale cached response for ${route}`, async ({ page }) => {
-      await page.goto(route, { waitUntil: 'load' });
-      await waitForControlledServiceWorker(page);
-
-      const staleMarker = `STALE CACHE MARKER ${route}`;
-      await page.evaluate(async ({ cacheName, marker }) => {
-        const cache = await caches.open(cacheName);
-        await cache.put(
-          new Request(window.location.href),
-          new Response(`<html><body>${marker}</body></html>`, {
-            headers: { 'Content-Type': 'text/html' },
-          })
-        );
-      }, { cacheName: OFFLINE_CACHE_PREFIX, marker: staleMarker });
-
-      await page.reload({ waitUntil: 'load' });
-
-      const cachedPage = await page.evaluate(async cacheName => {
-        const response = await caches.match(window.location.href, { cacheName });
-        return response ? response.text() : null;
-      }, OFFLINE_CACHE_PREFIX);
-
-      expect(cachedPage).toContain(marker);
-      expect(cachedPage).not.toContain(staleMarker);
-    });
-  }
 
   for (const theme of ['dark', 'light']) {
     test(`reloads a cached article offline in ${theme} theme`, async ({ page }) => {
@@ -417,13 +452,13 @@ test.describe('Edge Cases', () => {
       await waitForControlledServiceWorker(page);
       await page.reload({ waitUntil: 'load' });
 
-      const cacheState = await page.evaluate(async cachePrefix => {
-        const cacheName = (await caches.keys()).find(name => name === cachePrefix);
+      const cacheName = await readActiveOfflineCacheName(page);
+      const cacheState = await page.evaluate(async cacheName => {
         if (!cacheName) return null;
 
         const keys = await (await caches.open(cacheName)).keys();
         return keys.map(request => new URL(request.url).pathname);
-      }, OFFLINE_CACHE_PREFIX);
+      }, cacheName);
 
       expect(cacheState).not.toBeNull();
       expect(cacheState).toContain('/articles/cmsc-124-lab0');
@@ -446,7 +481,7 @@ test.describe('Edge Cases', () => {
 
       const relevantFailures = offlineFailures.filter(({ url }) => {
         const origin = new URL(url).origin;
-        return origin === new URL(page.url()).origin || ALLOWED_OFFLINE_ORIGINS.includes(origin);
+        return origin === new URL(page.url()).origin;
       }).filter(({ failure }) => failure !== 'NS_BINDING_ABORTED');
       expect(relevantFailures).toEqual([]);
     });
@@ -510,51 +545,33 @@ test.describe('Edge Cases', () => {
   });
 });
 
-test.describe('Complete v5 offline cache', () => {
+test.describe('Deterministic offline cache', () => {
   test.setTimeout(120000);
 
-  test('completes CDN caching when the first page loads during installation', async ({ page }) => {
-    const pageExternalRequests = [];
-    page.on('request', request => {
-      const origin = new URL(request.url()).origin;
-      if (ALLOWED_OFFLINE_ORIGINS.includes(origin)) pageExternalRequests.push(request.url());
-    });
-
-    await page.goto(ARTICLE_ROUTE, { waitUntil: 'domcontentloaded' });
-    await waitForControlledServiceWorker(page);
-
-    const inventory = await readCompleteOfflineInventory(page, COMPLETE_OFFLINE_CACHE);
-    expect(pageExternalRequests.length).toBeGreaterThan(0);
-    expect(inventory.missingExternal).toEqual([]);
-    expect(inventory.missingLocal).toEqual([]);
-  });
-
-  test('pre-caches every generated route, material PDF, media, and CDN dependency', async ({ page }) => {
+  test('pre-caches every generated route and exact local asset', async ({ page }) => {
     await page.goto(ARTICLE_ROUTE, { waitUntil: 'load' });
     await waitForControlledServiceWorker(page);
 
-    const inventory = await readCompleteOfflineInventory(page, COMPLETE_OFFLINE_CACHE);
+    const cacheName = await readActiveOfflineCacheName(page);
+    const inventory = await readCompleteOfflineInventory(page, cacheName);
 
     expect(inventory.manifestRoutes.length).toBeGreaterThan(0);
+    expect(inventory.manifestAssets.length).toBeGreaterThan(0);
     expect(inventory.missingLocal).toEqual([]);
-    expect(inventory.missingExternal).toEqual([]);
     expect(inventory.unexpectedCrossOrigin).toEqual([]);
     expect(inventory.generatedPdfUrls.length).toBeGreaterThan(0);
 
-    const material = await page.evaluate(async ({ cacheName }) => {
-      const pdfUrl = document.querySelector('a[data-download-source="generated"]')?.href;
-      if (!pdfUrl) return { pdfUrl: null, pdfBytes: null };
-
-      const cache = await caches.open(cacheName);
-      const response = await cache.match(pdfUrl);
+    const material = await page.evaluate(async ({ cacheName, pdfAsset }) => {
+      const pdfUrl = new URL(pdfAsset, new URL('/', location.href)).href;
+      const response = await (await caches.open(cacheName)).match(pdfUrl);
       return {
         pdfUrl,
-        pdfBytes: response ? [...new Uint8Array(await response.arrayBuffer())].slice(0, 8) : null,
+        pdfBytes: response ? [...new Uint8Array(await response.arrayBuffer())].slice(0, 5) : null,
       };
-    }, { cacheName: COMPLETE_OFFLINE_CACHE });
+    }, { cacheName, pdfAsset: inventory.generatedPdfUrls[0] });
 
     expect(material.pdfUrl).toMatch(/\/pdfs\/[^/]+\.pdf$/);
-    expect(material.pdfBytes?.slice(0, 5)).toEqual([37, 80, 68, 70, 45]);
+    expect(material.pdfBytes).toEqual([37, 80, 68, 70, 45]);
 
     await page.context().setOffline(true);
     const offlinePdf = await page.evaluate(async url => {
@@ -574,147 +591,121 @@ test.describe('Complete v5 offline cache', () => {
     await page.goto('/', { waitUntil: 'load' });
     await waitForControlledServiceWorker(page);
 
+    const cacheName = await readActiveOfflineCacheName(page);
     const aliases = await page.evaluate(async cacheName => {
       const cache = await caches.open(cacheName);
       return [
         await cache.match(new URL('/materials', location.href)),
         await cache.match(new URL('/materials/', location.href)),
       ].map(Boolean);
-    }, COMPLETE_OFFLINE_CACHE);
+    }, cacheName);
     expect(aliases).toEqual([true, true]);
 
     await page.context().setOffline(true);
 
-    await page.goto('/materials', { waitUntil: 'load' });
+    await page.goto('/materials', { waitUntil: 'domcontentloaded' });
     expect(new URL(page.url()).pathname).toBe('/materials');
     await expect(page.locator('body')).toContainText('Materials');
 
-    await page.goto('/materials/', { waitUntil: 'load' });
+    await page.goto('/materials/', { waitUntil: 'domcontentloaded' });
     expect(new URL(page.url()).pathname).toBe('/materials');
     await expect(page.locator('body')).toContainText('Materials');
   });
 
-  test('retries the current route and replaces article HTML and PDF after reconnect', async ({ page }) => {
+  test('returns 503 for an unknown route while offline', async ({ page, browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox keeps loopback navigation online during offline emulation.');
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForControlledServiceWorker(page);
+    await page.context().setOffline(true);
+
+    const response = await page.goto('/articles/not-in-the-manifest', {
+      waitUntil: 'domcontentloaded',
+    });
+    expect(response?.status()).toBe(503);
+  });
+
+  test('does not mutate an immutable snapshot during online navigation', async ({ page }) => {
     const fixture = createOfflineUpdateFixture();
     const fixtureOrigin = await fixture.start();
 
     try {
       await page.goto(`${fixtureOrigin}${ARTICLE_ROUTE}`, { waitUntil: 'load' });
       await waitForControlledServiceWorker(page);
-
-      const absolutePdfUrl = await page.locator('a[data-download-source="generated"]').evaluate(anchor => anchor.href);
-      if (!absolutePdfUrl) throw new Error('The fixture article has no generated PDF link.');
-
       await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V1');
-      const initialPdf = await page.evaluate(async url => {
-        const response = await fetch(url);
-        return {
-          status: response.status,
-          url: response.url,
-          type: response.type,
-          text: await response.text(),
-        };
-      }, absolutePdfUrl);
-      expect(initialPdf.status).toBe(200);
-      expect(initialPdf.text).toContain('OFFLINE FIXTURE PDF V1');
 
-      await page.context().setOffline(true);
+      const cacheName = await readActiveOfflineCacheName(page);
       fixture.setVersion(2);
-      await page.context().setOffline(false);
-      await page.evaluate(() => window.dispatchEvent(new Event('online')));
-
-      const refreshResult = await page.evaluate(() => new Promise(resolve => {
-        const channel = new MessageChannel();
-        const timeout = setTimeout(() => resolve({ ok: false, error: 'refresh timeout' }), 30000);
-        channel.port1.onmessage = event => {
-          clearTimeout(timeout);
-          resolve(event.data);
-        };
-        navigator.serviceWorker.controller.postMessage({
-          type: 'refresh-route',
-          url: window.location.href,
-        }, [channel.port2]);
-      }));
-      expect(refreshResult.ok).toBe(true);
-
-      await expect.poll(
-        async () => page.evaluate(async ({ cacheName, pdf }) => {
-          const cache = await caches.open(cacheName);
-          const article = await cache.match(location.href);
-          const pdfResponse = await cache.match(pdf);
-          return {
-            article: article ? (await article.text()).includes('OFFLINE FIXTURE V2') : false,
-            pdf: pdfResponse ? (await pdfResponse.text()).includes('OFFLINE FIXTURE PDF V2') : false,
-          };
-        }, { cacheName: COMPLETE_OFFLINE_CACHE, pdf: absolutePdfUrl })
-      ).toEqual({
-        article: true,
-        pdf: true,
-      });
-
       await page.reload({ waitUntil: 'load' });
       await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
 
-      await page.context().setOffline(true);
-      const offlinePdf = await page.evaluate(async url => {
-        const response = await fetch(url);
-        return await response.text();
-      }, absolutePdfUrl);
-      expect(offlinePdf).toContain('OFFLINE FIXTURE PDF V2');
+      const cachedArticle = await page.evaluate(async cacheName => {
+        const response = await (await caches.open(cacheName)).match(
+          new URL('/articles/cmsc-124-lab0', location.href));
+        return response ? response.text() : null;
+      }, cacheName);
+      expect(cachedArticle).toContain('OFFLINE FIXTURE V1');
+      expect(cachedArticle).not.toContain('OFFLINE FIXTURE V2');
     } finally {
       await fixture.close();
     }
   });
 
-  for (const route of ['/calendar', '/projects', '/bookings', '/faqs', '/materials']) {
-    test(`refreshes an updated ${route} after reconnect`, async ({ page }) => {
-      const fixture = createOfflineUpdateFixture(route);
-      const fixtureOrigin = await fixture.start();
+  test('keeps the old snapshot when deployment B fails, then installs B once repaired', async ({ page }) => {
+    const fixture = createTwoDeploymentFixture();
+    const fixtureOrigin = await fixture.start();
 
-      try {
-        await page.goto(`${fixtureOrigin}${route}`, { waitUntil: 'load' });
-        await waitForControlledServiceWorker(page);
-        await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V1');
+    try {
+      await page.goto(`${fixtureOrigin}/`, { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+      await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+        'data-offline-state', 'ready');
 
-        await page.context().setOffline(true);
-        fixture.setVersion(2);
-        await page.context().setOffline(false);
-        await page.evaluate(() => window.dispatchEvent(new Event('online')));
+      const cacheA = await readActiveOfflineCacheName(page);
+      await page.evaluate(async () => {
+        const cache = await caches.open('unrelated-cache');
+        await cache.put(new URL('/unrelated', location.href), new Response('keep'));
+      });
 
-        const refreshResult = await page.evaluate(() => new Promise(resolve => {
-          const channel = new MessageChannel();
-          const timeout = setTimeout(() => resolve({ ok: false, error: 'refresh timeout' }), 30000);
-          channel.port1.onmessage = event => {
-            clearTimeout(timeout);
-            resolve(event.data);
-          };
-          navigator.serviceWorker.controller.postMessage({
-            type: 'refresh-route',
-            url: window.location.href,
-          }, [channel.port2]);
-        }));
-        expect(refreshResult.ok).toBe(true);
+      fixture.setDeployment('B');
+      fixture.setFailRequiredAsset(true);
+      await page.evaluate(() => window.dispatchEvent(new Event('online')));
+      await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+        'data-offline-state', 'error', { timeout: 60000 });
 
-        await expect.poll(
-          async () => page.evaluate(async () => {
-            const response = await caches.match(location.href, {
-              cacheName: 'ren-courses-online-first-v5',
-            });
-            return response ? (await response.text()).includes('OFFLINE FIXTURE V2') : false;
-          })
-        ).toBe(true);
+      expect(await page.evaluate(async cacheName => caches.has(cacheName), cacheA)).toBe(true);
+      await page.context().setOffline(true);
+      const oldArticle = await page.evaluate(async () => (await fetch(
+        '/articles/cmsc-124-lab0')).text());
+      expect(oldArticle).toContain('DEPLOYMENT A');
 
-        await page.reload({ waitUntil: 'load' });
-        await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
+      await page.context().setOffline(false);
+      fixture.setFailRequiredAsset(false);
+      await page.locator('#offline-status-badge').click();
+      await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+        'data-offline-state', 'ready', { timeout: 60000 });
 
-        await page.context().setOffline(true);
-        await page.reload({ waitUntil: 'load' });
-        await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
-      } finally {
-        await fixture.close();
+      const cacheB = await readActiveOfflineCacheName(page);
+      expect(cacheB).toBe('ren-courses-offline-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+      expect(await page.evaluate(async cacheName => caches.has(cacheName), cacheA)).toBe(false);
+      expect(await page.evaluate(async () => caches.has('unrelated-cache'))).toBe(true);
+
+      const expectedRequestKeys = [
+        '/offline-manifest.json',
+        ...fixture.manifest.routes.map(route => route === './' ? '/' : `/${route}`),
+        ...fixture.manifest.assets.map(asset => `/${asset}`),
+      ];
+      const requestCounts = fixture.requestCounts();
+      for (const key of expectedRequestKeys) {
+        expect(requestCounts[key]).toBe(1);
       }
-    });
-  }
+
+      await page.context().setOffline(true);
+      await page.goto(`${fixtureOrigin}${ARTICLE_ROUTE}`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('#offline-fixture-deployment')).toHaveText('DEPLOYMENT B');
+    } finally {
+      await fixture.close();
+    }
+  });
 });
 
 test.describe('Installed PWA offline startup', () => {
@@ -732,7 +723,8 @@ test.describe('Installed PWA offline startup', () => {
       let page = context.pages()[0] || await context.newPage();
       await page.goto(`${fixtureOrigin}/`, { waitUntil: 'load' });
       await waitForControlledServiceWorker(page);
-      await expect(page.locator('[data-offline-status="ready"]')).toHaveText('Offline mode is ready.');
+      await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+        'data-offline-state', 'ready');
 
       await context.setOffline(true);
       const cachedAsset = await page.evaluate(async () => {
@@ -778,7 +770,8 @@ test.describe('Installed PWA offline startup', () => {
     try {
       await page.goto(`${fixtureOrigin}/materials`, { waitUntil: 'load' });
       await waitForControlledServiceWorker(page);
-      await expect(page.locator('[data-offline-status="ready"]')).toHaveText('Offline mode is ready.');
+      await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+        'data-offline-state', 'ready');
 
       await page.context().setOffline(true);
       await page.goto(`${fixtureOrigin}/materials`, { waitUntil: 'domcontentloaded' });
@@ -789,39 +782,29 @@ test.describe('Installed PWA offline startup', () => {
     }
   });
 
-  test('shows a retry warning for a missing CDN entry and clears it after reconnect', async ({ page }) => {
+  test('repairs a missing local asset from the status badge', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     await waitForControlledServiceWorker(page);
-    await expect(page.locator('[data-offline-status="ready"]')).toHaveText('Offline mode is ready.');
+    await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+      'data-offline-state', 'ready');
 
-    const prismUrl = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js';
-    await page.context().setOffline(true);
-    const retryResult = await page.evaluate(async ({ cacheName, prismUrl }) => {
-      const cache = await caches.open(cacheName);
-      const deleted = await cache.delete(new Request(prismUrl));
-      const remaining = (await cache.keys()).map(request => request.url)
-        .filter(url => url.includes('/prism/1.29.0/prism.min.js'));
-      return await new Promise(resolve => {
-        const channel = new MessageChannel();
-        const timeout = setTimeout(() => resolve({ ok: false, error: 'retry timeout' }), 30000);
-        channel.port1.onmessage = event => {
-          clearTimeout(timeout);
-          resolve({ ...event.data, deleted, remaining });
-        };
-        navigator.serviceWorker.controller.postMessage({ type: 'get-offline-status' }, [channel.port2]);
-      });
-    }, { cacheName: NEXT_OFFLINE_CACHE, prismUrl });
-    expect(retryResult.externalReady).toBe(false);
+    const cacheName = await readActiveOfflineCacheName(page);
+    const asset = await page.evaluate(async cacheName => {
+      const manifest = await (await fetch('/offline-manifest.json')).json();
+      const selected = manifest.assets.find(value => value.endsWith('.js'));
+      await (await caches.open(cacheName)).delete(new URL(selected, location.href));
+      return selected;
+    }, cacheName);
 
-    await expect(page.locator('[data-offline-status="warning"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('[data-offline-status="warning"]')).toContainText('Offline setup is incomplete.');
+    await page.locator('#offline-status-badge').click();
+    await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+      'data-offline-state', 'error', { timeout: 30000 });
 
-    await page.context().setOffline(false);
-    await page.evaluate(() => window.dispatchEvent(new Event('online')));
-    await expect(page.locator('[data-offline-status="warning"]')).toBeHidden({ timeout: 30000 });
-    await expect.poll(
-      async () => page.evaluate(async ({ cacheName, prismUrl }) =>
-        Boolean(await (await caches.open(cacheName)).match(prismUrl)), { cacheName: NEXT_OFFLINE_CACHE, prismUrl })
-    ).toBe(true);
+    await page.locator('#offline-status-badge').click();
+    await expect(page.locator('#offline-status-badge')).toHaveAttribute(
+      'data-offline-state', 'ready', { timeout: 60000 });
+    expect(await page.evaluate(async ({ cacheName, asset }) =>
+      Boolean(await (await caches.open(cacheName)).match(new URL(asset, location.href))),
+    { cacheName, asset })).toBe(true);
   });
 });

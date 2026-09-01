@@ -8,12 +8,19 @@
     <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0">
 
         @* Logo *@
-        <div class="flex lg:w-0 lg:flex-1">
+        <div class="flex min-w-0 items-center gap-3 lg:w-0 lg:flex-1">
             <a href="" class="-m-1.5 p-1.5">
                 <div class="text-xl font-bold text-text-main hover:text-accent transition-colors">
                     @WebsiteKeys.Title
                 </div>
             </a>
+            <button id="offline-status-badge" type="button" data-offline-state="updating"
+                class="inline-flex shrink-0 items-center gap-1.5 rounded border border-offline-updating/40 bg-offline-updating/10 px-2 py-1 font-mono text-xs font-medium text-offline-updating transition-colors hover:bg-offline-updating/20"
+                aria-live="polite" aria-label="Updating offline content." aria-disabled="true"
+                title="Updating offline content.">
+                <span data-offline-icon aria-hidden="true">↻</span>
+                <span data-offline-label>Updating</span>
+            </button>
         </div>
 
         @* DESKTOP NAV: Items + Dropdown + Theme Toggle *@

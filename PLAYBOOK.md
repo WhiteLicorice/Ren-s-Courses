@@ -66,7 +66,7 @@ Confirmed 2026-07-14:
 - Run local production generation with `dotnet run --no-launch-profile` after setting `ASPNETCORE_ENVIRONMENT=Production`. The repository launch profiles force Development and otherwise start a persistent server. This was confirmed by comparing the timed-out default-profile run with a successful production run.
 - The production run also requires `TERM_START` and `TERM_END` (e.g. `2026-01-15` / `2026-05-31`). Without them `BuildTimeProvider`'s static constructor throws `TypeInitializationException` (`DateTime.Parse(null)`) and the build exits 82. `SHOWCASE_MODE=true` is optional but matches CI. Confirmed 2026-07-15 by a failing then passing run.
 - The home page must pass `BlazorStaticContentService<CourseFrontMatter>.Posts` into `PostsList`, which then applies `CourseContentProvider.GetVisiblePosts(sourcePosts)`. During static generation, a provider can capture the service before its post collection is populated. Using its parameterless overload produced tag chips but an empty card grid. `BlogPageTests.Home_UsesParsedPostsEvenWhenProviderCapturedAnEmptyService` reproduces this lifecycle split.
-- Local CSS and JavaScript URLs use a 12-character SHA-256 content hash. An assembly timestamp is insufficient because static-asset-only edits need not rebuild the assembly. Service-worker shell changes still require a cache-name bump. Verify generated HTML hashes against the referenced files and run `home.spec.js` in a real browser.
+- Local CSS and JavaScript URLs use a 12-character SHA-256 content hash. An assembly timestamp is insufficient because static-asset-only edits need not rebuild the assembly. The offline build ID hashes the finalized worker template and every manifest input, so worker changes do not need a manual cache-name bump. Verify generated HTML hashes against the referenced files and run `home.spec.js` in a real browser.
 - **Active-course gating (2026-08-06) supersedes the earlier showcase-only guidance.** `ACTIVE_COURSES` (comma-separated env var, set in the CI workflow and all `launchSettings.json` profiles, e.g. `cmsc-124,cmsc-131`) defines the courses offered this term. Non-showcase visibility: tagged content is course-scoped and visible iff any tag matches an active course. Untagged content falls back to the term-window date check. Showcase mode bypasses everything (term window, active courses) and just hides drafts. Applied in `CourseContentProvider`, `FAQContentProvider`, `BookingContentProvider` (new), and `CalendarEventProvider.GetVisibleCustomEvents`. `CalendarEventFrontmatter` carries `Tags` for course-scoped events. Term dates remain in `TERM_START`/`TERM_END`. Term-end empty state and future-release checks still apply. Verified 2026-08-06: 142 .NET tests, 111 JS tests, 7 Python feed tests, and a production run showing cmsc-125 booking/FAQs/calendar event hidden while cmsc-124/cmsc-131 articles and all projects remain.
 - **Round 2 (2026-08-06):** The gating is applied consistently across every surface. (1) `WebsiteKeys.RemoveHiddenArticlePages` (wired as `AfterContentParsedAndAddedAction` on the materials service) drops individual `articles/{slug}` pages for posts that fail visibility. Direct URLs no longer serve hidden materials. (2) The home page's `CourseFilter` chips derive from visible posts, so inactive courses don't appear. (3) `generate_feed.py` mirrors article visibility: tagged posts require an active course, untagged posts keep the term window. Term-end empty feed and showcase skip unchanged. Feed item count equals generated article page count. (4) Tests use dedicated fixture tags (`fixture-course-a`/`-b` active, `fixture-course-c` inactive) in `TestEnvironmentFixture`'s `ACTIVE_COURSES`, never real course tags. Verified: 145 .NET tests, 111 JS tests, 10 Python feed tests, production build with zero `articles/cmsc-125-*` pages and active-only home chips, and a feed run whose 15 items match the 15 generated article pages.
 - **Strict term window (2026-08-06) supersedes carryover:** frontmatter outside the `TERM_START` to `TERM_END` window is not published at all, even for active courses. Articles/FAQs must be in-window AND (if tagged) course-active. Showcase still bypasses everything. Applied in `CourseContentProvider`/`FAQContentProvider` (`IsVisibleOutsideShowcase`) and mirrored in `generate_feed.py` (window check for all posts, then active check for tagged). Result: with the Aug to Dec 2026 term, all 2025-08-dated materials are unpublished (0 article pages, empty feed, empty materials page) until content is re-dated/re-released. Bookings, custom events, and projects are unaffected. Verified: 167 .NET / 111 JS / 11 Python tests, production build with 0 article pages and 0 feed items, and the full e2e suite (104 passed, 35 conditional skips, 0 failed).
@@ -122,31 +122,47 @@ Confirmed 2026-08-31:
 
 ## Service Worker
 
-Confirmed 2026-08-31:
+Confirmed 2026-09-01:
 
-- The service worker lives at `wwwroot/service-worker.js`, which places it at the deployed application root. This gives it the application-root scope and makes its relative `ASSETS_TO_CACHE` paths resolve correctly. `wwwroot/js/site.js` registers it after `load` with a URL derived from `document.baseURI`, so Netlify's root base and GitHub Pages' repository base use the same code.
-- The rollback requires a deployed kill-switch worker. Keep the registration call active while it rolls out. The worker clears every cache and unregisters itself:
+- `Services/OfflineBundleGenerator.cs` scans the final `output/` directory after static generation. It writes `output/offline-manifest.json` and replaces `__OFFLINE_BUILD_ID__` in `Offline/service-worker.template.js`. The build ID is a lowercase SHA-256 hash of the schema, clean routes, referenced asset URLs, asset bytes, and worker template bytes.
+- The manifest contract is `{ schemaVersion: 1, buildId, routes, assets }`. Routes use clean URLs such as `./`, `articles/cmsc-124-lab0`, and `calendar`. Assets use relative URLs within the service worker scope. Both arrays are sorted and deduplicated.
+- Run finalization after every output mutation. The order is static generation, feed injection, HTML minification, deployment metadata stamping, then `dotnet run --no-build --project BlazorStaticMinimalBlog.csproj --configuration Release -- --finalize-offline`. The workflow runs this finalizer for both Netlify and GitHub Pages.
+- The generated worker uses immutable `ren-courses-offline-<buildId>` snapshots and `ren-courses-offline-meta` status metadata. It fetches the manifest with `no-store`, verifies the embedded build ID, fetches required resources with four concurrent workers, retries transient failures up to three times, stores clean and trailing-slash route aliases, and calls `skipWaiting` only after validation succeeds.
+- A failed install deletes only a new incomplete snapshot. It keeps the active snapshot when a same-build repair fails. Activation validates the snapshot, writes the ready metadata, claims clients, and removes only known Ren snapshot names and legacy `ren-courses-online-first-v2` through `v5` names. It does not delete unrelated application caches.
+- Navigation uses network-first behavior. Offline fallback checks the exact clean route and its trailing-slash alias. An unknown offline route returns HTTP 503. The worker does not update a cached route after a successful online navigation.
+- Local scripts, styles, fonts, media, generated PDFs, Prism files, the web manifest, and Mermaid are exact cache entries. Local asset requests check the active snapshot before the network. The Android banner remains an optional online request and does not block local snapshot installation.
+- `Components/App.razor` self-hosts pinned Prism 1.29.0, Mermaid 11.16.0, Inter, and JetBrains Mono files. `interactive-diagrams.js` loads the local Mermaid file only when a diagram needs it. `wwwroot/vendor/THIRD-PARTY-NOTICES.txt` records the licenses.
+- `NavMenu.razor` shows the status badge beside Ren's Courses. `wwwroot/js/site.js` exposes the three visible states `Ready`, `Updating`, and `Error` through `data-offline-state`, an accessible label, and an aria-live region. The badge checks for updates when ready and retries a failed install or repairs missing entries when it shows Error. It does not show a toast or reload the current document.
+- Development pages skip service worker registration. Production output must include `service-worker.js` at the deployed application root. The GitHub Pages base path must remain in `Components/App.razor` while the generator emits scope-relative manifest entries.
+- To roll back, deploy a byte-changed worker that clears only known Ren caches, unregisters itself, and claims clients. Keep the registration call active until the kill switch reaches installed clients:
 
 ```js
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then(keys => Promise.all(keys.map(k => caches.delete(k))))
-            .then(() => self.registration.unregister())
-            .then(() => self.clients.claim())
-    );
+const REN_CACHE_PREFIXES = [
+    'ren-courses-offline-',
+    'ren-courses-offline-meta',
+    'ren-courses-online-first-v2',
+    'ren-courses-online-first-v3',
+    'ren-courses-online-first-v4',
+    'ren-courses-online-first-v5',
+];
+
+self.addEventListener('install', event => {
+    event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil((async () => {
+        const names = await caches.keys();
+        await Promise.all(names
+            .filter(name => REN_CACHE_PREFIXES.some(prefix => name.startsWith(prefix)))
+            .map(name => caches.delete(name)));
+        await self.registration.unregister();
+        await self.clients.claim();
+    })());
 });
 ```
 
-- `ren-courses-online-first-v5` caches the complete generated site before the worker activates. `Program.cs` writes `wwwroot/offline-manifest.json` from the final `BlazorStaticOptions.PagesToGenerate` list. The manifest uses clean routes such as `./`, `articles/cmsc-124-lab0`, and `calendar`. The route list therefore follows the current article and tag visibility filters. `.gitignore` excludes the generated source manifest.
-- Register the manifest action after `app.UseBlazorStaticGenerator`. BlazorStatic adds its content parsing actions during that call. Registering the manifest action earlier would omit generated content routes. Add the generated file to `ContentToCopyToOutput` because static asset discovery runs before the action writes the file.
-- The v5 worker pre-caches the manifest, every clean generated route, local stylesheets, production scripts, icons, the web manifest, generated PDFs, and discovered local media. It discovers same-origin `src`, `srcset`, stylesheet, and generated PDF references from each HTML page. It stores clean route keys and trailing-slash aliases. `/materials` remains the visible route, while `/materials/` remains an internal cache alias. It normalizes redirected page responses so Firefox does not expose the alias.
-- The worker uses a staging cache during installation. Required local routes and dependencies must succeed before promotion. The final cache contains a status record that verifies local and external entries. A fresh HTML response replaces the cached page only after its PDF and media dependencies succeed. Failed promotion leaves the previous worker available.
-- Cached local and allowlisted external assets return before any network request. Versioned local assets fetch a new query version when online and use the cached query-insensitive entry offline. Navigation remains network-first online. Offline navigation checks the exact clean route, its query-insensitive key, and its slash alias before it falls back to cached `index.html`. If no response exists, the worker returns an explicit 503 response.
-- The worker caches the exact Google Fonts stylesheet, every readable nested `fonts.gstatic.com` file, Prism core and configured language scripts, Prism theme stylesheets, and the Android banner. It handles only `cdnjs.cloudflare.com`, `fonts.googleapis.com`, `fonts.gstatic.com`, and `keepandroidopen.org`. Initial allowlisted external fetches use the browser HTTP cache to reduce duplicate page and worker requests. Third-party installation failures do not block local activation. The worker retries only missing third-party entries after connectivity returns.
-- `site.js` registers the worker as soon as the script loads. It shows a one-time success toast when the complete cache is ready. It shows a persistent retry warning when the cache is incomplete. The `online` event asks the active worker to retry missing external assets and refresh only the current route. The active document does not reload automatically. The refreshed route appears on the next reload or navigation.
-- A deployed v4 worker requires one online connection to receive v5. A route added after a cached worker version requires one online visit or a worker update. Unknown routes still use the cached home fallback when no exact cached response exists. External fallback `downloadLink` URLs remain outside the cache unless their origin receives an explicit allowlist policy.
+- Verify the generated contract with `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj --configuration Release`. Verify the browser flow with `npm run test:e2e` against a fresh production output. The installed Edge profile remains the final user check: install the deployed PWA, load every generated route once online, close and reopen it offline, open a generated PDF, and test a failed deployment followed by a repaired deployment.
 
 ## Blazor Runtime (absence of)
 
