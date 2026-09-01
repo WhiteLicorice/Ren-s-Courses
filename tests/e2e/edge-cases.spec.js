@@ -32,6 +32,7 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
     'utf8'
   );
   let version = 1;
+  let networkAvailable = true;
   const redirectCleanRoute = options.redirectCleanRoute === true;
 
   const responseFor = (requestUrl) => {
@@ -72,6 +73,10 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
   };
 
   const server = http.createServer((request, response) => {
+    if (!networkAvailable) {
+      request.socket.destroy();
+      return;
+    }
     const result = responseFor(request.url);
     if (!result) {
       response.writeHead(404);
@@ -93,6 +98,9 @@ function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
     },
     setVersion(nextVersion) {
       version = nextVersion;
+    },
+    setNetworkAvailable(available) {
+      networkAvailable = available;
     },
     async close() {
       server.closeAllConnections?.();
@@ -619,16 +627,27 @@ test.describe('Deterministic offline cache', () => {
     await expect(page.locator('body')).toContainText('Materials');
   });
 
-  test('returns 503 for an unknown route while offline', async ({ page, browserName }) => {
-    test.skip(browserName === 'firefox', 'Firefox keeps loopback navigation online during offline emulation.');
-    await page.goto('/', { waitUntil: 'load' });
-    await waitForControlledServiceWorker(page);
-    await page.context().setOffline(true);
+  test('returns 503 for an unknown route while offline', async ({ page }) => {
+    const fixture = createOfflineUpdateFixture();
+    const fixtureOrigin = await fixture.start();
 
-    const response = await page.goto('/articles/not-in-the-manifest', {
-      waitUntil: 'domcontentloaded',
-    });
-    expect(response?.status()).toBe(503);
+    try {
+      await page.goto(`${fixtureOrigin}/`, { waitUntil: 'load' });
+      await waitForControlledServiceWorker(page);
+      fixture.setNetworkAvailable(false);
+
+      const requestedUrl = `${fixtureOrigin}/articles/not-in-the-manifest`;
+      const response = await page.goto(requestedUrl, {
+        waitUntil: 'domcontentloaded',
+      });
+      expect(response?.status()).toBe(503);
+
+      const body = await response?.text();
+      expect(body).toMatch(/^Offline resource unavailable:/);
+      expect(body).toContain(requestedUrl);
+    } finally {
+      await fixture.close();
+    }
   });
 
   test('does not mutate an immutable snapshot during online navigation', async ({ page }) => {
