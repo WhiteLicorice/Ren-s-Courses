@@ -94,6 +94,34 @@ Mermaid is loaded from the pinned local bundle only when a page contains a diagr
 library cannot load or a step contains invalid syntax, the authored Mermaid source remains
 visible so the explanation does not become a blank panel.
 
+A diagram never shrinks below a readable size. Labels stay at 14 CSS pixels or larger, and the
+renderer picks one of three layouts for each widget:
+
+1. **Fit** -- the authored drawing is scaled to the article column.
+2. **Narrow** -- an author-approved vertical variant replaces the horizontal one.
+3. **Pan** -- the drawing keeps a readable width and the diagram viewport scrolls sideways.
+
+Add `narrowDirection` to opt one diagram into the narrow layout. It accepts `TB` or `BT`, and
+every step of that diagram must be a Mermaid `flowchart` or `graph`. Other diagram types, such
+as sequence diagrams, have no direction token and always pan instead:
+
+```yaml
+diagrams:
+  - title: Token stream
+    key: token-stream
+    narrowDirection: TB
+    steps:
+      - title: Scan the identifier
+        mermaid: |
+          flowchart LR
+              T0["IDENT"] --> T1["ASSIGN"]
+```
+
+The direction changes the web rendering only. Generated PDFs always use the authored `mermaid`
+source. A scrolling diagram gains a "Scroll sideways to view the full diagram." instruction,
+edge cues, and keyboard focus. The widget reserves one height for every step, so Previous, Next
+and Play never move the page.
+
 ### Offline PWA
 
 Production builds generate `output/offline-manifest.json` and `output/service-worker.js` after
@@ -403,7 +431,7 @@ the pin-update procedure.
 | `faqs.spec.js` | `/faqs` -- sections, chip filter, accordion, hash deep-link, hashchange |
 | `calendar.spec.js` | `/calendar` -- month nav, tag filter, popover open/close |
 | `projects.spec.js` | `/projects`, `/projects/{tag}` -- tag cloud, card expand/collapse |
-| `interactive-diagrams.spec.js` | `/articles/{slug}` -- Mermaid diagram lazy loading, Previous/Next/Play controls, viewport repair for malformed SVGs |
+| `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route (no production article) -- readable labels at 360/768/1280px, fit/narrow/pan selection, overflow cues, keyboard panning, stable widget height, theme and resize safety |
 | `navigation.spec.js` | Desktop nav (3 items + dropdown, scroll hide/show); mobile nav (overlay, backdrop, close) |
 | `theme.spec.js` | Light/dark toggle, localStorage, Prism CSS swap, icon state, persistence |
 | `edge-cases.spec.js` | `/null`, non-existent articles, all major routes checked for JS errors |
@@ -432,7 +460,7 @@ npx jest --coverage
 | `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`; `initCalendarNav` + `changeMonth`; `openEventPopoverFromData`, `closeEventPopover` |
 | `course-filter.js` | `initCourseFilter` (localStorage restore); `toggleCourseFilter` (visibility, chips, persistence); `clearCourseFilter` |
 | `code-features.js` | Wrapping, double-wrap guard, language label mapping, copy button injection + clipboard write + timeout revert |
-| `interactive-diagrams.js` | Lazy Mermaid rendering; previous/next/play controls; single-step and render-error fallbacks |
+| `interactive-diagrams.js` | Lazy Mermaid rendering; fit/narrow/pan layout selection and the 14px label floor; flowchart direction rewriting; stage and step height reservation; overflow cues; resize and theme handling; single-step and render-error fallbacks |
 | `scroll-button.js` | Button click scrolls to top; no-op when button absent |
 | `submission-menu.js` | Submission dropdown click state, outside-click dismissal, Escape handling, and idempotent setup |
 | `theme.js` | `switchPrismTheme` sets link href, `data-theme`, localStorage, theme-color meta; system preference fallback |

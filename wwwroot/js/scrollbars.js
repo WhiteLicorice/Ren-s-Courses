@@ -8,7 +8,7 @@
  * matching scroll container until the pointer is released.
  */
 window.initScrollbarDrag = () => {
-    const scrollableSelector = '.scrollbar-slim, .prose pre, .prose table, .diagram-canvas';
+    const scrollableSelector = '.scrollbar-slim, .prose pre, .prose table, .diagram-viewport';
     const scrollbarEdge = 16;
     let activeScroller = null;
 

@@ -487,23 +487,53 @@
     opacity: 0.45;
 }
 
-.diagram-canvas {
-    display: grid;
-    aspect-ratio: var(--diagram-stage-ratio, 1);
-    margin-inline: auto;
-    max-height: 18rem;
+/*
+   The viewport fills the article width and scrolls sideways. The stage inside
+   it carries the size interactive-diagrams.js measured, which is never smaller
+   than the size that keeps labels at 14px. A wide diagram therefore pans; it
+   does not shrink below the readability floor.
+*/
+.diagram-viewport {
+    align-items: center;
+    display: flex;
     min-height: 6rem;
-    place-items: center;
-    width: min(100%, 26rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    width: 100%;
 }
 
-.diagram-canvas svg {
+.diagram-stage {
+    flex: 0 0 auto;
+    /* Auto margins centre a narrow stage and collapse when the stage overflows. */
+    margin-inline: auto;
+}
+
+.diagram-stage svg {
     display: block;
     height: 100% !important;
-    margin-inline: auto;
-    max-height: 100%;
-    max-width: 26rem !important;
+    max-width: none !important;
     width: 100% !important;
+}
+
+.diagram-viewport:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Inset shadows mark the edges that still hide diagram content. */
+.diagram-viewport[data-overflow-left] {
+    box-shadow: inset 14px 0 10px -12px var(--text-dim);
+}
+
+.diagram-viewport[data-overflow-right] {
+    box-shadow: inset -14px 0 10px -12px var(--text-dim);
+}
+
+.diagram-viewport[data-overflow-left][data-overflow-right] {
+    box-shadow:
+        inset 14px 0 10px -12px var(--text-dim),
+        inset -14px 0 10px -12px var(--text-dim);
 }
 
 /* ============================== */

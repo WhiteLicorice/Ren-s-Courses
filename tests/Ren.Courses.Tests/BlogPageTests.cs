@@ -188,40 +188,11 @@ public class BlogPageTests
     public void Article_WithDiagram_RendersStepWidgetAndSourceFallback()
     {
         using var ctx = new BunitContext();
-        var post = new Post<CourseFrontMatter>
-        {
-            Url = "sorting",
-            HtmlContent = "<p>Before</p>\n<!-- diagram: k -->\n<p>After</p>",
-            FrontMatter = new CourseFrontMatter
-            {
-                Title = "Sorting",
-                Published = new DateTime(2026, 3, 1),
-                Diagrams =
-                [
-                    new()
-                    {
-                        Key = "k",
-                        Title = "Bubble sort",
-                        Description = "A single pass.",
-                        Steps =
-                        [
-                            new()
-                            {
-                                Title = "Compare",
-                                Description = "Compare the first pair.",
-                                Mermaid = "flowchart LR\n    A[5] --> B[2]"
-                            },
-                            new()
-                            {
-                                Title = "Swap",
-                                Description = "Swap the pair.",
-                                Mermaid = "flowchart LR\n    B[2] --> A[5]"
-                            }
-                        ]
-                    }
-                ]
-            }
-        };
+        var diagram = DiagramFixtures.MixedAspectSteps("k");
+        var post = DiagramFixtures.BuildPost(
+            "sorting",
+            "<p>Before</p>\n<!-- diagram: k -->\n<p>After</p>",
+            diagram);
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
         ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
@@ -232,9 +203,9 @@ public class BlogPageTests
             .Add(p => p.FileName, "sorting"));
 
         var widget = cut.Find("section[data-interactive-diagram]");
-        Assert.Equal("Bubble sort", widget.QuerySelector("h2")!.TextContent.Trim());
-        Assert.Contains("A single pass.", widget.TextContent);
-        Assert.Equal(2, widget.QuerySelectorAll("[data-diagram-step]").Length);
+        Assert.Equal(diagram.Title, widget.QuerySelector("h2")!.TextContent.Trim());
+        Assert.Contains(diagram.Description, widget.TextContent);
+        Assert.Equal(diagram.Steps.Count, widget.QuerySelectorAll("[data-diagram-step]").Length);
         Assert.Contains("flowchart LR", widget.QuerySelector("[data-diagram-source]")!.TextContent);
         Assert.Equal(3, widget.QuerySelectorAll("button").Length);
 
@@ -245,6 +216,119 @@ public class BlogPageTests
         var afterIdx = markup.IndexOf("After", StringComparison.Ordinal);
         Assert.True(beforeIdx < widgetIdx, "Widget should appear after 'Before' text");
         Assert.True(widgetIdx < afterIdx, "Widget should appear before 'After' text");
+    }
+
+    [Fact]
+    public void Article_DiagramWithNarrowDirection_EmitsDirectionMetadata()
+    {
+        using var ctx = new BunitContext();
+        var diagram = DiagramFixtures.WideTokenStream("tokens");
+        var post = DiagramFixtures.BuildPost(
+            "tokens",
+            DiagramFixtures.MarkersFor(diagram),
+            diagram);
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "tokens"));
+
+        var widget = cut.Find("section[data-interactive-diagram]");
+        Assert.Equal("TB", widget.GetAttribute("data-diagram-narrow-direction"));
+    }
+
+    [Fact]
+    public void Article_DiagramWithoutNarrowDirection_OmitsDirectionMetadata()
+    {
+        using var ctx = new BunitContext();
+        var diagram = DiagramFixtures.WideFlowchartWithoutReflow("phases");
+        var post = DiagramFixtures.BuildPost(
+            "phases",
+            DiagramFixtures.MarkersFor(diagram),
+            diagram);
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "phases"));
+
+        var widget = cut.Find("section[data-interactive-diagram]");
+        Assert.False(widget.HasAttribute("data-diagram-narrow-direction"));
+    }
+
+    [Theory]
+    [InlineData("LR")]
+    [InlineData("tb")]
+    [InlineData("diagonal")]
+    public void Article_DiagramWithUnsupportedNarrowDirection_OmitsDirectionMetadata(string direction)
+    {
+        using var ctx = new BunitContext();
+        var diagram = DiagramFixtures.WideTokenStream("tokens");
+        diagram.NarrowDirection = direction;
+        var post = DiagramFixtures.BuildPost(
+            "tokens",
+            DiagramFixtures.MarkersFor(diagram),
+            diagram);
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "tokens"));
+
+        var widget = cut.Find("section[data-interactive-diagram]");
+        Assert.False(widget.HasAttribute("data-diagram-narrow-direction"));
+    }
+
+    [Fact]
+    public void Article_DiagramSteps_EmitUniqueViewportAndInstructionIds()
+    {
+        using var ctx = new BunitContext();
+        var first = DiagramFixtures.WideTokenStream("tokens");
+        var second = DiagramFixtures.AlreadyVerticalFlowchart("commit");
+        var post = DiagramFixtures.BuildPost(
+            "two-widgets",
+            DiagramFixtures.MarkersFor(first, second),
+            first,
+            second);
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "two-widgets"));
+
+        var viewports = cut.FindAll("[data-diagram-viewport]");
+        var hints = cut.FindAll("[data-diagram-scroll-hint]");
+        Assert.Equal(first.Steps.Count + second.Steps.Count, viewports.Count);
+        Assert.Equal(viewports.Count, hints.Count);
+
+        var viewportIds = viewports.Select(viewport => viewport.Id).ToList();
+        var hintIds = hints.Select(hint => hint.Id).ToList();
+        Assert.All(viewportIds, id => Assert.False(string.IsNullOrWhiteSpace(id)));
+        Assert.All(hintIds, id => Assert.False(string.IsNullOrWhiteSpace(id)));
+        Assert.Equal(viewportIds.Count, viewportIds.Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(hintIds.Count, hintIds.Distinct(StringComparer.Ordinal).Count());
+
+        // Every viewport points at its own instruction, and every instruction starts hidden.
+        for (var index = 0; index < viewports.Count; index++)
+        {
+            Assert.Equal(hintIds[index], viewports[index].GetAttribute("aria-describedby"));
+            Assert.True(hints[index].HasAttribute("hidden"));
+        }
+
+        // The stage that receives the SVG lives inside the scrollable viewport.
+        Assert.All(viewports, viewport => Assert.NotNull(viewport.QuerySelector("[data-diagram-canvas]")));
     }
 
     [Fact]
@@ -277,28 +361,10 @@ public class BlogPageTests
     public void Article_DiagramDeclaredNoMarker_DoesNotRenderWidget()
     {
         using var ctx = new BunitContext();
-        var post = new Post<CourseFrontMatter>
-        {
-            Url = "strict-mode",
-            HtmlContent = "<p>Body with no marker</p>",
-            FrontMatter = new CourseFrontMatter
-            {
-                Title = "Strict Mode",
-                Published = new DateTime(2026, 3, 1),
-                Diagrams =
-                [
-                    new()
-                    {
-                        Key = "unreferenced",
-                        Title = "Should not appear",
-                        Steps =
-                        [
-                            new() { Title = "Step", Mermaid = "flowchart LR\n A-->B" }
-                        ]
-                    }
-                ]
-            }
-        };
+        var post = DiagramFixtures.BuildPost(
+            "strict-mode",
+            "<p>Body with no marker</p>",
+            DiagramFixtures.SingleStepDiagram("unreferenced"));
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
         ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
@@ -341,28 +407,10 @@ public class BlogPageTests
     public void Article_SameKeyTwice_RendersTwoWidgetsWithDistinctIds()
     {
         using var ctx = new BunitContext();
-        var post = new Post<CourseFrontMatter>
-        {
-            Url = "twice",
-            HtmlContent = "<!-- diagram: k -->\nmid\n<!-- diagram: k -->",
-            FrontMatter = new CourseFrontMatter
-            {
-                Title = "Duplicate",
-                Published = new DateTime(2026, 3, 1),
-                Diagrams =
-                [
-                    new()
-                    {
-                        Key = "k",
-                        Title = "Repeat",
-                        Steps =
-                        [
-                            new() { Title = "S1", Mermaid = "flowchart LR\n A-->B" }
-                        ]
-                    }
-                ]
-            }
-        };
+        var post = DiagramFixtures.BuildPost(
+            "twice",
+            "<!-- diagram: k -->\nmid\n<!-- diagram: k -->",
+            DiagramFixtures.SingleStepDiagram("k"));
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
         ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
@@ -382,37 +430,11 @@ public class BlogPageTests
     public void Article_TwoDistinctDiagrams_RendersSequentialDistinctIds()
     {
         using var ctx = new BunitContext();
-        var post = new Post<CourseFrontMatter>
-        {
-            Url = "two-diagrams",
-            HtmlContent = "<!-- diagram: a -->\n<!-- diagram: b -->",
-            FrontMatter = new CourseFrontMatter
-            {
-                Title = "Two Diagrams",
-                Published = new DateTime(2026, 3, 1),
-                Diagrams =
-                [
-                    new()
-                    {
-                        Key = "a",
-                        Title = "First",
-                        Steps =
-                        [
-                            new() { Title = "S1", Mermaid = "flowchart LR\n A-->B" }
-                        ]
-                    },
-                    new()
-                    {
-                        Key = "b",
-                        Title = "Second",
-                        Steps =
-                        [
-                            new() { Title = "S1", Mermaid = "flowchart LR\n C-->D" }
-                        ]
-                    }
-                ]
-            }
-        };
+        var post = DiagramFixtures.BuildPost(
+            "two-diagrams",
+            "<!-- diagram: a -->\n<!-- diagram: b -->",
+            DiagramFixtures.SingleStepDiagram("a"),
+            DiagramFixtures.AlreadyVerticalFlowchart("b"));
 
         ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
         ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));

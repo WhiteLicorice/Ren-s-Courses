@@ -147,4 +147,115 @@ public class DiagramContentHygieneTests
 
         Assert.Empty(violations);
     }
+
+    [Fact]
+    public void AllDiagrams_DeclareUsableNarrowDirections()
+    {
+        var violations = new List<string>();
+        var files = Directory.GetFiles(
+            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+
+        var deser = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .IgnoreUnmatchedProperties()
+            .Build();
+
+        foreach (var file in files)
+        {
+            var raw = File.ReadAllText(file);
+            var (fm, _) = PdfGeneratorService.ParseFrontMatter<CourseFrontMatter>(raw, deser);
+            if (fm is null) continue;
+
+            foreach (var d in fm.Diagrams)
+            {
+                foreach (var violation in DiagramNarrowDirection.Validate(d))
+                    violations.Add($"{Path.GetFileName(file)}: diagram '{d.Title}': {violation}");
+            }
+        }
+
+        Assert.Empty(violations);
+    }
+
+    // The cases below feed the same validation in-memory, so an invalid
+    // direction is proved to fail without adding broken Markdown to Content.
+
+    [Theory]
+    [InlineData("LR")]
+    [InlineData("RL")]
+    [InlineData("TD")]
+    [InlineData("tb")]
+    [InlineData("diagonal")]
+    public void UnsupportedNarrowDirection_IsAViolation(string direction)
+    {
+        var diagram = DiagramFixtures.WideTokenStream();
+        diagram.NarrowDirection = direction;
+
+        var violations = DiagramNarrowDirection.Validate(RoundTrip(diagram)).ToList();
+
+        var violation = Assert.Single(violations);
+        Assert.Contains($"narrowDirection '{direction}' is not supported", violation, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void NarrowDirectionOnNonFlowchartSteps_IsAViolationPerStep()
+    {
+        var diagram = DiagramFixtures.WideSequenceDiagram();
+
+        var violations = DiagramNarrowDirection.Validate(RoundTrip(diagram)).ToList();
+
+        Assert.Equal(diagram.Steps.Count, violations.Count);
+        Assert.All(violations, violation =>
+            Assert.Contains("no flowchart or graph declaration", violation, StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("TB")]
+    [InlineData("BT")]
+    public void SupportedNarrowDirectionOnFlowcharts_PassesValidation(string direction)
+    {
+        var diagram = DiagramFixtures.WideTokenStream();
+        diagram.NarrowDirection = direction;
+
+        Assert.Empty(DiagramNarrowDirection.Validate(RoundTrip(diagram)));
+    }
+
+    [Fact]
+    public void DiagramWithoutNarrowDirection_PassesValidation()
+    {
+        Assert.Empty(DiagramNarrowDirection.Validate(
+            RoundTrip(DiagramFixtures.WideFlowchartWithoutReflow())));
+    }
+
+    [Fact]
+    public void EphemeralPost_RoundTripsNarrowDirection()
+    {
+        var diagram = DiagramFixtures.WideTokenStream();
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Round trip",
+            Published = new DateTime(2026, 3, 1),
+            Diagrams = [diagram]
+        });
+
+        Assert.Contains("narrowDirection: TB", post.RawMarkdown, StringComparison.Ordinal);
+        var parsed = Assert.Single(post.FrontMatter.Diagrams);
+        Assert.Equal("TB", parsed.NarrowDirection);
+        // The canonical source survives untouched; PDF generation reads this.
+        Assert.Equal(diagram.Steps[0].Mermaid, parsed.Steps[0].Mermaid);
+        Assert.StartsWith("flowchart LR", parsed.Steps[0].Mermaid, StringComparison.Ordinal);
+    }
+
+    /// <summary>Validate what YAML deserialization actually produces, not the in-code object.</summary>
+    private static RensMarkdownTemplates.Models.LearningDiagram RoundTrip(
+        RensMarkdownTemplates.Models.LearningDiagram diagram)
+    {
+        var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
+        {
+            Title = "Hygiene fixture",
+            Published = new DateTime(2026, 3, 1),
+            Diagrams = [diagram]
+        });
+
+        return post.FrontMatter.Diagrams.Single();
+    }
 }

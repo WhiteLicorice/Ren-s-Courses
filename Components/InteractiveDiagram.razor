@@ -3,7 +3,8 @@
 @if (Diagram.Steps.Count > 0)
 {
     <section class="interactive-diagram not-prose my-10 overflow-hidden rounded-lg border border-border-muted bg-surface"
-        data-interactive-diagram aria-labelledby="@DiagramTitleId">
+        data-interactive-diagram data-diagram-narrow-direction="@NarrowDirection"
+        aria-labelledby="@DiagramTitleId">
         <header class="border-b border-border-muted px-5 py-4 sm:px-6">
             <h2 id="@DiagramTitleId" class="font-mono text-xl font-bold text-text-main">@Diagram.Title</h2>
             @if (!string.IsNullOrWhiteSpace(Diagram.Description))
@@ -35,6 +36,8 @@
             {
                 var step = Diagram.Steps[stepIndex];
                 var stepTitleId = $"learning-diagram-{DiagramIndex}-step-{stepIndex}-title";
+                var viewportId = $"learning-diagram-{DiagramIndex}-step-{stepIndex}-viewport";
+                var instructionId = $"learning-diagram-{DiagramIndex}-step-{stepIndex}-instruction";
                 <section data-diagram-step hidden="@(stepIndex > 0)" aria-labelledby="@stepTitleId">
                     <p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">
                         Step @(stepIndex + 1)
@@ -44,7 +47,13 @@
                     {
                         <p class="mt-2 text-sm leading-6 text-text-dim">@step.Description</p>
                     }
-                    <div class="diagram-canvas mt-5 overflow-x-auto" data-diagram-canvas></div>
+                    @* The viewport scrolls sideways; the stage carries the measured drawing size. *@
+                    <div class="diagram-viewport mt-5" id="@viewportId" data-diagram-viewport
+                        aria-describedby="@instructionId">
+                        <div class="diagram-stage" data-diagram-canvas></div>
+                    </div>
+                    <p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="@instructionId"
+                        data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p>
                     <pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim"
                         data-diagram-source>@step.Mermaid</pre>
                     <p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p>
@@ -62,4 +71,9 @@
     public int DiagramIndex { get; set; }
 
     private string DiagramTitleId => $"learning-diagram-{DiagramIndex}-title";
+
+    // Null suppresses the attribute entirely, so an unset or unsupported
+    // direction never reaches the browser as a reflow request.
+    private string? NarrowDirection =>
+        DiagramNarrowDirection.IsSupported(Diagram.NarrowDirection) ? Diagram.NarrowDirection : null;
 }
