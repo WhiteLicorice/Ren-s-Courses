@@ -16,8 +16,20 @@ const MIN_LABEL_PX = 14;
 const LABEL_PX = 12;
 const FALLBACK_LABEL_PX = 16;
 
+/** Playback pacing, mirrored from the renderer for the same reason. */
+const PLAY_INITIAL_HOLD_MS = 10000;
+const PLAY_VIEWPORT_TRAVERSAL_MS = 8000;
+const PLAY_END_HOLD_MS = 5000;
+const PLAY_REDUCED_MOTION_HOLD_MS = 10000;
+const PLAY_REDUCED_MOTION_PAGE_FRACTION = 0.9;
+
+/** Interval Jest's fake `requestAnimationFrame` uses. Confirmed, not assumed. */
+const FRAME_MS = 16;
+
 let availableWidth = ARTICLE_WIDTH;
 let resizeObservers = [];
+let reducedMotion = false;
+let motionListeners = [];
 
 function loadScript() {
     // eslint-disable-next-line no-new-func
@@ -97,12 +109,72 @@ function renderedDefinitions(mermaid) {
     return mermaid.render.mock.calls.map(call => call[1]);
 }
 
+function control(action, scope = document) {
+    return scope.querySelector(`[data-diagram-action="${action}"]`);
+}
+
+function statusText(scope = document) {
+    return scope.querySelector('[data-diagram-status]').textContent;
+}
+
+/** Hidden width of one step, in CSS pixels. */
+function overflowOf(step) {
+    return px(step.stage.style.width) - ARTICLE_WIDTH;
+}
+
+/** Milliseconds the pan needs to cross `overflow` at one viewport per 8 seconds. */
+function panDurationMs(overflow) {
+    return overflow / (ARTICLE_WIDTH / PLAY_VIEWPORT_TRAVERSAL_MS);
+}
+
+/**
+ * Fake clock reading at which the last movement frame of a pan runs. The first
+ * frame only seeds the timestamp, so one frame carries no movement.
+ */
+function panEndMs(overflow) {
+    return PLAY_INITIAL_HOLD_MS + FRAME_MS
+        + Math.ceil(panDurationMs(overflow) / FRAME_MS) * FRAME_MS;
+}
+
+/** Whole automatic duration of one overflowing step. */
+function overflowingStepMs(overflow) {
+    return panEndMs(overflow) + PLAY_END_HOLD_MS;
+}
+
+/**
+ * jsdom ships no `matchMedia`, so the renderer's motion query is supplied here.
+ * `setReducedMotion` also notifies listeners, which covers a reader changing the
+ * preference while a diagram is playing.
+ */
+function installMatchMedia() {
+    window.matchMedia = jest.fn(query => ({
+        media: query,
+        get matches() {
+            return /prefers-reduced-motion:\s*reduce/.test(query) && reducedMotion;
+        },
+        addEventListener(type, listener) {
+            if (type === 'change') motionListeners.push(listener);
+        },
+        removeEventListener(type, listener) {
+            motionListeners = motionListeners.filter(entry => entry !== listener);
+        }
+    }));
+}
+
+function setReducedMotion(value) {
+    reducedMotion = value;
+    motionListeners.slice().forEach(listener => listener({ matches: value }));
+}
+
 beforeEach(() => {
     jest.useRealTimers();
     document.body.innerHTML = '';
     document.documentElement.setAttribute('data-theme', 'dark');
     availableWidth = ARTICLE_WIDTH;
     resizeObservers = [];
+    reducedMotion = false;
+    motionListeners = [];
+    installMatchMedia();
 
     global.ResizeObserver = class {
         constructor(callback) {
@@ -141,6 +213,7 @@ afterEach(() => {
     jest.restoreAllMocks();
     delete HTMLElement.prototype.offsetHeight;
     delete global.ResizeObserver;
+    delete window.matchMedia;
     document.querySelectorAll('[data-diagram-measure-host]').forEach(host => host.remove());
 });
 
@@ -440,42 +513,6 @@ test('a step change keeps the proportional horizontal scroll position', async ()
     expect(steps[1].viewport.scrollLeft).toBeCloseTo(nextOverflow / 2, 0);
 });
 
-test('play advances through the remaining steps and then stops', async () => {
-    jest.useFakeTimers();
-    mount('alreadyVerticalFlowchart');
-    const mermaid = createMermaid();
-    await window.initInteractiveDiagrams(mermaid);
-
-    const play = document.querySelector('[data-diagram-action="play"]');
-    play.click();
-    expect(play.getAttribute('aria-pressed')).toBe('true');
-
-    jest.advanceTimersByTime(2000);
-    await Promise.resolve();
-
-    expect(document.querySelector('[data-diagram-status]').textContent).toBe('Step 2 of 2');
-    expect(play.getAttribute('aria-pressed')).toBe('false');
-    expect(play.textContent).toBe('Play');
-});
-
-test('a manual scroll of an overflowing diagram stops playback', async () => {
-    jest.useFakeTimers();
-    mount('wideFlowchartWithoutReflow');
-    const mermaid = createMermaid();
-    await window.initInteractiveDiagrams(mermaid);
-
-    const play = document.querySelector('[data-diagram-action="play"]');
-    play.click();
-    expect(play.getAttribute('aria-pressed')).toBe('true');
-
-    const step = stepsOf(widgets()[0])[0];
-    step.viewport.scrollLeft = 120;
-    step.viewport.dispatchEvent(new Event('scroll'));
-
-    expect(play.getAttribute('aria-pressed')).toBe('false');
-    expect(play.textContent).toBe('Play');
-});
-
 test('disables playback when a diagram has only one step', async () => {
     mount('singleStepDiagram');
     const mermaid = createMermaid();
@@ -486,6 +523,458 @@ test('disables playback when a diagram has only one step', async () => {
     expect(play.disabled).toBe(true);
     play.click();
     expect(play.getAttribute('aria-pressed')).toBe('false');
+});
+
+// --- Playback scheduling ---------------------------------------------------
+//
+// Every step holds its opening view, and a step whose drawing overflows then
+// pans at one viewport width per 8 seconds and holds the right edge. A step
+// that fits is the opening hold and nothing else.
+
+test('a step that fits lasts exactly one opening hold, the last step included', async () => {
+    jest.useFakeTimers();
+    mount('alreadyVerticalFlowchart');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const play = control('play');
+    play.click();
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+    expect(play.textContent).toBe('Pause');
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+    // The last step is shown for its own two seconds before playback releases.
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS);
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    expect(play.textContent).toBe('Play');
+});
+
+test('an overflowing step holds its opening view before any panning starts', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    expect(overflowOf(step)).toBeGreaterThan(0);
+
+    control('play').click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
+    expect(step.viewport.scrollLeft).toBe(0);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(1 + FRAME_MS * 2);
+    expect(step.viewport.scrollLeft).toBeGreaterThan(0);
+    // The step must not change while its own pan is still running.
+    expect(statusText()).toBe('Step 1 of 2');
+});
+
+test('the pan moves one viewport width every eight seconds', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    control('play').click();
+
+    // Clear the opening hold plus the one frame that seeds the timestamp.
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS);
+    const start = step.viewport.scrollLeft;
+
+    jest.advanceTimersByTime(1600);
+    const first = step.viewport.scrollLeft;
+    jest.advanceTimersByTime(1600);
+    const second = step.viewport.scrollLeft;
+
+    const expected = 1600 * (ARTICLE_WIDTH / PLAY_VIEWPORT_TRAVERSAL_MS);
+    expect(first - start).toBeCloseTo(expected, 0);
+    expect(second - first).toBeCloseTo(expected, 0);
+});
+
+test('an overflowing step holds the right edge for one second before the next step', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    const overflow = overflowOf(step);
+    control('play').click();
+
+    jest.advanceTimersByTime(panEndMs(overflow));
+    expect(step.viewport.scrollLeft).toBeCloseTo(overflow, 0);
+    expect(statusText()).toBe('Step 1 of 2');
+    expect(step.viewport.dataset.overflowRight).toBeUndefined();
+
+    jest.advanceTimersByTime(PLAY_END_HOLD_MS - 1);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+});
+
+test('an automatic step change starts the new step at its left edge', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const steps = stepsOf(widgets()[0]);
+    const overflow = overflowOf(steps[0]);
+    control('play').click();
+
+    // Step 1 ends at its right edge, so preserving the ratio would open step 2
+    // at its right edge too.
+    jest.advanceTimersByTime(overflowingStepMs(overflow) + 1);
+    expect(steps[0].viewport.scrollLeft).toBeCloseTo(overflow, 0);
+    expect(statusText()).toBe('Step 2 of 2');
+    expect(steps[1].viewport.scrollLeft).toBe(0);
+    expect(steps[1].viewport.dataset.overflowLeft).toBeUndefined();
+    expect(steps[1].viewport.dataset.overflowRight).toBe('true');
+});
+
+test('the last step completes its pan and end hold before playback stops', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const steps = stepsOf(widgets()[0]);
+    const overflow = overflowOf(steps[1]);
+    const stepMs = overflowingStepMs(overflow);
+    const play = control('play');
+    play.click();
+
+    jest.advanceTimersByTime(stepMs + 1);
+    expect(statusText()).toBe('Step 2 of 2');
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    // Half way through the last step's own pan, playback is still running.
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + panDurationMs(overflow) / 2);
+    expect(steps[1].viewport.scrollLeft).toBeGreaterThan(0);
+    expect(steps[1].viewport.scrollLeft).toBeLessThan(overflow);
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    jest.advanceTimersByTime(stepMs);
+    expect(steps[1].viewport.scrollLeft).toBeCloseTo(overflow, 0);
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    expect(play.textContent).toBe('Play');
+    expect(statusText()).toBe('Step 2 of 2');
+});
+
+test('pause freezes the pan and resume continues from the same scroll position', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 1600);
+
+    const paused = step.viewport.scrollLeft;
+    expect(paused).toBeGreaterThan(0);
+
+    play.click();
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    expect(play.textContent).toBe('Play');
+
+    jest.advanceTimersByTime(30000);
+    expect(step.viewport.scrollLeft).toBe(paused);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    play.click();
+    expect(play.textContent).toBe('Pause');
+    // Resume never returns the step to its left edge.
+    expect(step.viewport.scrollLeft).toBe(paused);
+
+    jest.advanceTimersByTime(FRAME_MS + 1600);
+    const expected = 1600 * (ARTICLE_WIDTH / PLAY_VIEWPORT_TRAVERSAL_MS);
+    expect(step.viewport.scrollLeft).toBeCloseTo(paused + expected, 0);
+});
+
+test('pause during the opening hold resumes with only the remaining hold left', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 500);
+    play.click();
+
+    jest.advanceTimersByTime(30000);
+    expect(step.viewport.scrollLeft).toBe(0);
+
+    play.click();
+    jest.advanceTimersByTime(499);
+    expect(step.viewport.scrollLeft).toBe(0);
+
+    jest.advanceTimersByTime(2 + FRAME_MS * 2);
+    expect(step.viewport.scrollLeft).toBeGreaterThan(0);
+});
+
+test('a manual scroll cancels playback and leaves no stale callback', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    const play = control('play');
+    play.click();
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    jest.advanceTimersByTime(500);
+    step.viewport.scrollLeft = 120;
+    step.viewport.dispatchEvent(new Event('scroll'));
+
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    expect(play.textContent).toBe('Play');
+
+    jest.advanceTimersByTime(30000);
+    expect(statusText()).toBe('Step 1 of 2');
+    expect(step.viewport.scrollLeft).toBe(120);
+
+    // Manual input clears the resumable session, so Play starts afresh.
+    play.click();
+    expect(step.viewport.scrollLeft).toBe(0);
+});
+
+test('next cancels playback, keeps the proportional scroll and clears resume', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const steps = stepsOf(widgets()[0]);
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 1600);
+    const moved = steps[0].viewport.scrollLeft;
+    expect(moved).toBeGreaterThan(0);
+
+    control('next').click();
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    // Manual navigation keeps the proportional position. Both steps share one
+    // geometry, so that is the same number of pixels.
+    expect(steps[1].viewport.scrollLeft).toBeCloseTo(moved, 0);
+
+    jest.advanceTimersByTime(30000);
+    expect(statusText()).toBe('Step 2 of 2');
+
+    // Play from the last step restarts the walkthrough at step 1, left edge.
+    play.click();
+    expect(statusText()).toBe('Step 1 of 2');
+    expect(steps[0].viewport.scrollLeft).toBe(0);
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
+    expect(steps[0].viewport.scrollLeft).toBe(0);
+    jest.advanceTimersByTime(1 + FRAME_MS * 2);
+    expect(steps[0].viewport.scrollLeft).toBeGreaterThan(0);
+});
+
+test('previous cancels playback and discards the paused session', async () => {
+    jest.useFakeTimers();
+    mount('wideTokenStream');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    control('next').click();
+    expect(statusText()).toBe('Step 2 of 4');
+
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 500);
+    play.click();
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+
+    control('previous').click();
+    expect(statusText()).toBe('Step 1 of 4');
+
+    // Previous throws the paused session away, so Play holds the whole two
+    // seconds again rather than resuming with the 500ms that were left.
+    play.click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
+    expect(statusText()).toBe('Step 1 of 4');
+
+    jest.advanceTimersByTime(1);
+    expect(statusText()).toBe('Step 2 of 4');
+});
+
+test('two widgets schedule playback independently', async () => {
+    jest.useFakeTimers();
+    mount(['wideFlowchartWithoutReflow', 'alreadyVerticalFlowchart']);
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const [first, second] = widgets();
+    const panning = stepsOf(first)[0];
+    control('play', first).click();
+    control('play', second).click();
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 1600);
+    // The fitting widget already advanced; the panning widget is still on step 1.
+    expect(statusText(first)).toBe('Step 1 of 2');
+    expect(statusText(second)).toBe('Step 2 of 2');
+    expect(panning.viewport.scrollLeft).toBeGreaterThan(0);
+
+    control('play', first).click();
+    const frozen = panning.viewport.scrollLeft;
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS);
+    expect(panning.viewport.scrollLeft).toBe(frozen);
+    expect(control('play', first).getAttribute('aria-pressed')).toBe('false');
+    // Pausing one widget never touches the other, which ends on its own.
+    expect(control('play', second).getAttribute('aria-pressed')).toBe('false');
+    expect(statusText(second)).toBe('Step 2 of 2');
+});
+
+test('a panning step announces its own step once, however far it scrolls', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const status = document.querySelector('[data-diagram-status]');
+    let announcements = 0;
+    new MutationObserver(() => announcements++)
+        .observe(status, { childList: true, characterData: true, subtree: true });
+
+    control('play').click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 4000);
+    // Hundreds of scroll updates must not re-announce the unchanged step.
+    await Promise.resolve();
+    expect(announcements).toBe(0);
+});
+
+test('reduced motion pages the diagram in overlapping static jumps', async () => {
+    jest.useFakeTimers();
+    reducedMotion = true;
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const steps = stepsOf(widgets()[0]);
+    const overflow = overflowOf(steps[0]);
+    const jump = ARTICLE_WIDTH * PLAY_REDUCED_MOTION_PAGE_FRACTION;
+    expect(overflow).toBeGreaterThan(jump);
+
+    const frame = jest.spyOn(window, 'requestAnimationFrame');
+    control('play').click();
+
+    jest.advanceTimersByTime(PLAY_REDUCED_MOTION_HOLD_MS - 1);
+    expect(steps[0].viewport.scrollLeft).toBe(0);
+
+    jest.advanceTimersByTime(1);
+    // One instant jump of 90% of the viewport keeps a tenth of the view in common.
+    expect(steps[0].viewport.scrollLeft).toBe(jump);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(PLAY_REDUCED_MOTION_HOLD_MS);
+    expect(steps[0].viewport.scrollLeft).toBe(overflow);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    // The rightmost view is held as long as any other before the step changes.
+    jest.advanceTimersByTime(PLAY_REDUCED_MOTION_HOLD_MS - 1);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(1);
+    expect(statusText()).toBe('Step 2 of 2');
+    expect(steps[1].viewport.scrollLeft).toBe(0);
+
+    // Nothing was animated at any point.
+    expect(frame).not.toHaveBeenCalled();
+});
+
+test('reduced motion still stops after the last step reaches its right edge', async () => {
+    jest.useFakeTimers();
+    reducedMotion = true;
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const steps = stepsOf(widgets()[0]);
+    const play = control('play');
+    play.click();
+
+    // Two steps, each holding an opening view and two further pages.
+    jest.advanceTimersByTime(PLAY_REDUCED_MOTION_HOLD_MS * 3);
+    expect(statusText()).toBe('Step 2 of 2');
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    jest.advanceTimersByTime(PLAY_REDUCED_MOTION_HOLD_MS * 3 - 1);
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+    expect(steps[1].viewport.scrollLeft).toBe(overflowOf(steps[1]));
+
+    jest.advanceTimersByTime(2);
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    expect(play.textContent).toBe('Play');
+});
+
+test('a motion preference change mid-playback continues from the current position', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    const overflow = overflowOf(step);
+    const play = control('play');
+    play.click();
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 1600);
+    const reached = step.viewport.scrollLeft;
+    expect(reached).toBeGreaterThan(0);
+
+    setReducedMotion(true);
+    jest.advanceTimersByTime(PLAY_REDUCED_MOTION_HOLD_MS - 1);
+    // The pan stops at once and the current view is held instead.
+    expect(step.viewport.scrollLeft).toBe(reached);
+
+    jest.advanceTimersByTime(2);
+    const jump = ARTICLE_WIDTH * PLAY_REDUCED_MOTION_PAGE_FRACTION;
+    expect(step.viewport.scrollLeft).toBe(Math.min(overflow, reached + jump));
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+});
+
+test('playback without a motion query still pans', async () => {
+    jest.useFakeTimers();
+    delete window.matchMedia;
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const step = stepsOf(widgets()[0])[0];
+    control('play').click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS * 3);
+    expect(step.viewport.scrollLeft).toBeGreaterThan(0);
+});
+
+test('a widget removed mid-playback cancels its scheduled work', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    const mermaid = createMermaid();
+    await window.initInteractiveDiagrams(mermaid);
+
+    const widget = widgets()[0];
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS * 3);
+
+    widget.remove();
+    jest.advanceTimersByTime(60000);
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+    expect(statusText(widget)).toBe('Step 1 of 2');
 });
 
 // --- Resize and theme ------------------------------------------------------

@@ -439,6 +439,12 @@ test.describe('Edge Cases', () => {
   test.describe('offline article cache', () => {
     test.describe.configure({ mode: 'serial' });
 
+    // Each test waits for the service worker to pre-cache every generated route
+    // and asset, over 150 entries in a showcase build. That finishes in about
+    // 11 seconds alone, but exceeds the default 30-second budget in Firefox
+    // when the rest of the suite competes for the machine.
+    test.slow();
+
     for (const theme of ['dark', 'light']) {
       test(`reloads a cached article offline in ${theme} theme`, async ({ page }) => {
         const offlineFailures = [];

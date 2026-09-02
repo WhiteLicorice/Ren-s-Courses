@@ -86,6 +86,72 @@ async function smallestLabel(widget) {
 
 const WIDTHS = [360, 768, 1280];
 
+/** Playback pacing, mirrored from wwwroot/js/interactive-diagrams.js. */
+const PLAY_INITIAL_HOLD_MS = 10000;
+const PLAY_VIEWPORT_TRAVERSAL_MS = 8000;
+const PLAY_END_HOLD_MS = 5000;
+const PLAY_REDUCED_MOTION_PAGE_FRACTION = 0.9;
+
+/**
+ * Press Play and watch one whole step from inside the page. Sampling every
+ * animation frame is the only way to tell a pan from a jump, and recording the
+ * timings in the page avoids adding round-trip latency to every measurement.
+ *
+ * Returns the moment movement started, the moment the right edge was reached,
+ * the moment the step changed, and every sampled position.
+ */
+function watchOneStep(widget, limitMs) {
+    const status = () => widget.querySelector('[data-diagram-status]').textContent.trim();
+    const visible = () =>
+        widget.querySelector('[data-diagram-step]:not([hidden]) [data-diagram-viewport]');
+
+    const first = visible();
+    const overflow = first.scrollWidth - first.clientWidth;
+    const viewportWidth = first.clientWidth;
+    const startStatus = status();
+    const events = {};
+    const positions = [];
+    const start = performance.now();
+
+    widget.querySelector('[data-diagram-action="play"]').click();
+
+    return new Promise(resolve => {
+        const tick = () => {
+            const node = visible();
+            const at = performance.now() - start;
+            const left = node.scrollLeft;
+            positions.push(left);
+
+            if (events.moved === undefined && left > 1) events.moved = at;
+            if (events.edge === undefined && left >= overflow - 1) events.edge = at;
+
+            if (status() !== startStatus) {
+                events.changed = at;
+                // The new step is already on screen, so this is its own position.
+                events.leftOnChange = left;
+                resolve({ overflow, viewportWidth, events, positions, status: status() });
+                return;
+            }
+            if (at >= limitMs) {
+                resolve({ overflow, viewportWidth, events, positions, status: status() });
+                return;
+            }
+            requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    });
+}
+
+/** Distinct sampled positions, rounded, in the order they first appeared. */
+function distinctPositions(positions) {
+    const seen = [];
+    for (const value of positions) {
+        const rounded = Math.round(value);
+        if (seen[seen.length - 1] !== rounded) seen.push(rounded);
+    }
+    return seen;
+}
+
 test.describe('readable diagrams at every width', () => {
     for (const width of WIDTHS) {
         test(`the opt-in token stream stays readable at ${width}px`, async ({ page }) => {
@@ -226,6 +292,170 @@ test('every step keeps the same widget height and the controls behave', async ({
     await play.click();
     await expect(play).toHaveAttribute('aria-pressed', 'false');
     expect(await widget.evaluate(element => element.getBoundingClientRect().height)).toBeCloseTo(first, 0);
+});
+
+// --- Overflow-aware playback ------------------------------------------------
+//
+// `modestOverflowWalkthrough` is the pacing fixture: measured at 1280px it hides
+// 207px behind a 574px viewport, so one pan lasts about 2.9 seconds. With a
+// 10-second opening hold and a 5-second edge hold, one whole step runs for
+// roughly 18 seconds, which sets every budget below.
+
+test('an overflowing step holds, pans continuously, holds the edge, then resets left', async ({ page }) => {
+    test.setTimeout(90000);
+    await mount(page, 'modestOverflowWalkthrough', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+
+    const run = await widget.evaluate(watchOneStep, 40000);
+    expect(run.overflow).toBeGreaterThan(20);
+
+    // The opening view is held before anything moves.
+    expect(run.events.moved).toBeGreaterThan(PLAY_INITIAL_HOLD_MS * 0.9);
+
+    // Movement is a pan, not a jump: many separate positions, always forward.
+    const distinct = distinctPositions(run.positions);
+    const panned = distinct.filter(value => value > 0 && value < run.overflow);
+    expect(panned.length).toBeGreaterThan(10);
+    for (let index = 1; index < distinct.length; index++) {
+        if (distinct[index] === 0) continue;
+        expect(distinct[index]).toBeGreaterThanOrEqual(distinct[index - 1]);
+    }
+
+    // One viewport width per 8 seconds, within real-browser frame jitter.
+    const expectedMs = run.overflow / (run.viewportWidth / PLAY_VIEWPORT_TRAVERSAL_MS);
+    expect(run.events.edge - run.events.moved).toBeGreaterThan(expectedMs * 0.6);
+    expect(run.events.edge - run.events.moved).toBeLessThan(expectedMs * 1.6);
+
+    // The step never changes before the right edge, and the edge is held.
+    expect(run.events.edge).toBeLessThan(run.events.changed);
+    expect(run.events.changed - run.events.edge).toBeGreaterThan(PLAY_END_HOLD_MS * 0.8);
+
+    // The step that follows opens at its own left edge.
+    expect(run.status).toBe('Step 2 of 3');
+    expect(run.events.leftOnChange).toBeLessThanOrEqual(1);
+});
+
+test('pause stops the movement and resume carries it forward', async ({ page }) => {
+    test.setTimeout(90000);
+    await mount(page, 'wideFlowchartWithoutReflow', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+    const play = widget.locator('[data-diagram-action="play"]');
+    const viewport = widget.locator('[data-diagram-step]:not([hidden]) [data-diagram-viewport]');
+    const read = () => viewport.evaluate(node => node.scrollLeft);
+
+    await play.click();
+    await expect(play).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(read, { timeout: 30000 }).toBeGreaterThan(5);
+
+    await play.click();
+    await expect(play).toHaveAttribute('aria-pressed', 'false');
+    await expect(play).toHaveText('Play');
+
+    const frozen = await read();
+    await page.waitForTimeout(1200);
+    // Nothing may move while playback is paused.
+    expect(Math.abs(await read() - frozen)).toBeLessThanOrEqual(1);
+    await expect(widget.locator('[data-diagram-status]')).toHaveText('Step 1 of 2');
+
+    await play.click();
+    await expect(play).toHaveText('Pause');
+    // Resume continues from the paused position rather than starting again.
+    expect(await read()).toBeGreaterThanOrEqual(frozen - 1);
+    await expect.poll(read, { timeout: 30000 }).toBeGreaterThan(frozen + 20);
+});
+
+test('a fresh play returns a manually positioned step to its left edge', async ({ page }) => {
+    await mount(page, 'wideFlowchartWithoutReflow', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+    const viewport = widget.locator('[data-diagram-step]:not([hidden]) [data-diagram-viewport]');
+
+    const placed = await viewport.evaluate(node => {
+        node.scrollLeft = (node.scrollWidth - node.clientWidth) / 2;
+        return node.scrollLeft;
+    });
+    expect(placed).toBeGreaterThan(10);
+
+    await widget.locator('[data-diagram-action="play"]').click();
+    await expect.poll(() => viewport.evaluate(node => node.scrollLeft)).toBeLessThanOrEqual(1);
+});
+
+test('a manual scroll during playback stops it and leaves the step alone', async ({ page }) => {
+    test.setTimeout(90000);
+    await mount(page, 'wideFlowchartWithoutReflow', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+    const play = widget.locator('[data-diagram-action="play"]');
+    const viewport = widget.locator('[data-diagram-step]:not([hidden]) [data-diagram-viewport]');
+
+    await play.click();
+    await expect.poll(() => viewport.evaluate(node => node.scrollLeft), { timeout: 30000 })
+        .toBeGreaterThan(5);
+
+    await viewport.evaluate(node => { node.scrollLeft = node.scrollLeft + 120; });
+    await expect(play).toHaveAttribute('aria-pressed', 'false');
+
+    const stopped = await viewport.evaluate(node => node.scrollLeft);
+    await page.waitForTimeout(1500);
+    expect(Math.abs(await viewport.evaluate(node => node.scrollLeft) - stopped)).toBeLessThanOrEqual(1);
+    await expect(widget.locator('[data-diagram-status]')).toHaveText('Step 1 of 2');
+});
+
+test('reduced motion pages the diagram instead of animating it', async ({ page }) => {
+    // Each page is held for 10 seconds. One jump is enough to measure the step
+    // size and prove the overlap, so this window stays short: the sampler runs
+    // every animation frame and competes with the rest of the suite.
+    test.setTimeout(60000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mount(page, 'wideFlowchartWithoutReflow', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+
+    const run = await widget.evaluate(watchOneStep, 14000);
+    const jump = run.viewportWidth * PLAY_REDUCED_MOTION_PAGE_FRACTION;
+    // The fixture must hide more than one page, or paging proves nothing.
+    expect(run.overflow).toBeGreaterThan(jump);
+
+    // Every sampled position is a settled page. No frame lands between two.
+    const distinct = distinctPositions(run.positions);
+    expect(distinct.length).toBeGreaterThan(1);
+    expect(distinct[0]).toBe(0);
+    for (let index = 1; index < distinct.length; index++) {
+        const step = distinct[index] - distinct[index - 1];
+        const expected = Math.min(jump, run.overflow - distinct[index - 1]);
+        expect(Math.abs(step - expected)).toBeLessThanOrEqual(2);
+    }
+
+    // Consecutive pages overlap, so nothing falls between two views.
+    expect(jump).toBeLessThan(run.viewportWidth);
+});
+
+test('the last step pans in full before playback stops', async ({ page }) => {
+    // The sequence fixture hides about 170px behind a 574px viewport, so its
+    // pan takes about 2.4 seconds and a whole step runs for roughly 17 seconds.
+    // Two steps have to finish here, so the budget is generous.
+    test.setTimeout(150000);
+    await mount(page, 'wideSequenceDiagram', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+    const play = widget.locator('[data-diagram-action="play"]');
+    const status = widget.locator('[data-diagram-status]');
+    const viewport = () => widget.locator('[data-diagram-step]:not([hidden]) [data-diagram-viewport]');
+
+    await play.click();
+    await expect(status).toHaveText('Step 2 of 2', { timeout: 45000 });
+
+    // The last step is not skipped. It pans like any other before Play releases.
+    await expect(play).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(() => viewport().evaluate(node => node.scrollLeft), { timeout: 30000 })
+        .toBeGreaterThan(5);
+
+    await expect(play).toHaveAttribute('aria-pressed', 'false', { timeout: 45000 });
+    await expect(play).toHaveText('Play');
+    await expect(status).toHaveText('Step 2 of 2');
+
+    // Playback released the last step at its right edge, not part way across.
+    const end = await viewport().evaluate(node => ({
+        left: node.scrollLeft,
+        max: node.scrollWidth - node.clientWidth
+    }));
+    expect(end.left).toBeGreaterThan(end.max - 2);
 });
 
 test('a theme change never exposes an empty or half-rendered stage', async ({ page }) => {

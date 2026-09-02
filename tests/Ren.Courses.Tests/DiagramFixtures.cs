@@ -13,7 +13,9 @@ namespace Ren.Courses.Tests;
 /// no production article acts as test infrastructure.
 ///
 /// The fixture names match tests/fixtures/diagram-fixtures.js, which carries
-/// the same matrix for the Jest and Playwright suites.
+/// the same matrix for the Jest and Playwright suites. That file also holds a
+/// few browser-only fixtures, such as the playback pacing one, that no .NET
+/// test needs.
 /// </summary>
 public static class DiagramFixtures
 {

@@ -2,6 +2,29 @@
 
 const { test, expect } = require('@playwright/test');
 
+/**
+ * Wait until the scroll position stops changing on its own. A late layout shift
+ * makes the browser re-anchor the view, which fires a scroll event no test
+ * asked for. Consuming that here keeps scroll assertions about the scrolling
+ * the test actually did.
+ */
+async function waitForScrollToSettle(page, framesRequired = 5) {
+  await page.waitForFunction(frames => new Promise(resolve => {
+    let last = window.scrollY;
+    let stable = 0;
+    const tick = () => {
+      if (window.scrollY === last) stable += 1;
+      else {
+        stable = 0;
+        last = window.scrollY;
+      }
+      if (stable >= frames) resolve(true);
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }), framesRequired);
+}
+
 // ── Desktop navigation (≥ sm breakpoint = 640 px) ────────────────────────────
 
 test.describe('Desktop Navigation', () => {
@@ -92,22 +115,42 @@ test.describe('Desktop Navigation', () => {
   });
 
   test('navbar reappears on scroll-up', async ({ page }) => {
-    // Scroll down to trigger hide.
-    await page.evaluate(() => window.scrollBy(0, 500));
+    // Two things used to make this flake, both observed in Firefox:
+    //
+    // The document scrolls smoothly, so `scrollBy` starts an animation instead
+    // of moving at once. Scrolling up while the downward animation still runs
+    // leaves the page moving down, which correctly re-hides the navbar.
+    //
+    // A late layout shift, roughly 97px on this page, makes Firefox adjust the
+    // scroll position to keep the view steady. That fires a downward scroll the
+    // test never asked for, and the navbar correctly hides again. Waiting for
+    // the position to stop changing consumes that shift before the real scroll.
+    await page.evaluate(() => {
+      document.documentElement.style.scrollBehavior = 'auto';
+      // Scroll anchoring is what turns a layout shift into a scroll event.
+      // This test is about the navbar handler, not about anchoring.
+      document.documentElement.style.overflowAnchor = 'none';
+      document.body.style.overflowAnchor = 'none';
+      window.scrollTo(0, 500);
+    });
+    await waitForScrollToSettle(page);
     await page.waitForFunction(
       () => document.getElementById('main-navbar')?.classList.contains('-translate-y-full')
     );
 
     // Scroll back up — NavMenu.razor handler removes the class on upward scroll.
-    await page.evaluate(() => window.scrollBy(0, -200));
-    await page.waitForFunction(
-      () => !document.getElementById('main-navbar')?.classList.contains('-translate-y-full')
-    );
+    const target = await page.evaluate(() => {
+      const top = Math.max(65, window.scrollY - 200);
+      window.scrollTo(0, top);
+      return top;
+    });
+    // Above the 64px threshold, so this exercises the upward-scroll branch and
+    // not the "back at the top" branch.
+    expect(target).toBeGreaterThan(64);
 
-    const hidden = await page.locator('#main-navbar').evaluate(
-      (el) => el.classList.contains('-translate-y-full')
-    );
-    expect(hidden).toBe(false);
+    // The handler is throttled with requestAnimationFrame, so the class settles
+    // a frame or more after the scroll.
+    await expect(page.locator('#main-navbar')).not.toHaveClass(/-translate-y-full/);
   });
 });
 
