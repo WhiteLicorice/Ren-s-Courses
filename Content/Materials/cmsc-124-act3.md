@@ -9,7 +9,7 @@ authors:
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
 isDraft: false
-noDeadline: true
+deadline: 2026-09-03
 diagrams:
   - title: One token record, built from characters
     key: characters-to-token-record
