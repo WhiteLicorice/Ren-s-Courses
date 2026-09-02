@@ -332,6 +332,69 @@ public class BlogPageTests
     }
 
     [Fact]
+    public void DiagramWidgetContract_MatchesTheJavaScriptFixtureBuilder()
+    {
+        // tests/fixtures/diagram-fixtures.js hand-mirrors this component for the
+        // Jest and Playwright suites. If the two drift, those suites keep passing
+        // while the real page breaks, so every hook the component emits must
+        // appear in the fixture builder.
+        using var ctx = new BunitContext();
+        var diagram = DiagramFixtures.WideTokenStream("k");
+        var post = DiagramFixtures.BuildPost("contract", DiagramFixtures.MarkersFor(diagram), diagram);
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters.Add(p => p.FileName, "contract"));
+        var widget = cut.Find("section[data-interactive-diagram]");
+
+        var emitted = new SortedSet<string>(StringComparer.Ordinal);
+        var pending = new Queue<AngleSharp.Dom.IElement>();
+        pending.Enqueue(widget);
+        while (pending.Count > 0)
+        {
+            var element = pending.Dequeue();
+            foreach (var attribute in element.Attributes)
+            {
+                if (attribute.Name.StartsWith("data-", StringComparison.Ordinal))
+                    emitted.Add(attribute.Name);
+            }
+            foreach (var child in element.Children) pending.Enqueue(child);
+        }
+
+        var fixturePath = Path.Combine(RepoRoot, "tests", "fixtures", "diagram-fixtures.js");
+        Assert.True(File.Exists(fixturePath), $"Fixture builder not found at {fixturePath}");
+        var fixtureSource = File.ReadAllText(fixturePath);
+
+        // Whole-token match. A substring match would accept a renamed attribute,
+        // because "data-diagram-scroll-hint" sits inside "data-diagram-scroll-hintX".
+        static bool Emits(string source, string name) => System.Text.RegularExpressions.Regex.IsMatch(
+            source, $@"(?<![\w-]){System.Text.RegularExpressions.Regex.Escape(name)}(?![\w-])");
+
+        var missing = emitted.Where(name => !Emits(fixtureSource, name)).ToList();
+        Assert.True(missing.Count == 0,
+            $"diagram-fixtures.js does not emit: {string.Join(", ", missing)}");
+        Assert.Contains("data-diagram-narrow-direction", emitted);
+        Assert.Contains("data-diagram-viewport", emitted);
+        Assert.Contains("data-diagram-scroll-hint", emitted);
+    }
+
+    private static string RepoRoot
+    {
+        get
+        {
+            for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+            {
+                if (File.Exists(Path.Combine(dir.FullName, "BlazorStaticMinimalBlog.csproj")))
+                    return dir.FullName;
+            }
+            throw new DirectoryNotFoundException("Cannot locate the repository root");
+        }
+    }
+
+    [Fact]
     public void Article_WithoutDiagrams_DoesNotRenderDiagramWidget()
     {
         using var ctx = new BunitContext();
