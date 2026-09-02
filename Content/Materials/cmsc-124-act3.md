@@ -2,7 +2,7 @@
 title: From Characters to Tokens
 subtitle: CMSC 124 Activity 3
 lead: Scanning on paper.
-published: 2026-09-03
+published: 2026-09-02
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
@@ -11,6 +11,37 @@ authors:
 isDraft: false
 noDeadline: true
 diagrams:
+  - title: One token record, built from characters
+    key: characters-to-token-record
+    description: The same five characters, first as source text, then as one lexeme, then as the record the parser receives.
+    steps:
+      - title: Start with characters
+        description: The source holds five separate characters at columns 10 through 14. None of them means anything on its own.
+        mermaid: |
+          flowchart LR
+              C1["t<br/>col 10"] --> C2["o<br/>col 11"] --> C3["t<br/>col 12"] --> C4["a<br/>col 13"] --> C5["l<br/>col 14"]
+              classDef raw fill:#f3f4f6,stroke:#9ca3af,color:#6b7280
+              class C1,C2,C3,C4,C5 raw
+      - title: Group them into one lexeme
+        description: A letter starts an identifier and letters continue it, so all five characters join one lexeme.
+        mermaid: |
+          flowchart LR
+              C1["t"] --> C2["o"] --> C3["t"] --> C4["a"] --> C5["l"]
+              C5 ==> L["lexeme<br/>total"]
+              classDef raw fill:#f3f4f6,stroke:#9ca3af,color:#6b7280
+              classDef current fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#111827
+              class C1,C2,C3,C4,C5 raw
+              class L current
+      - title: Store the token record
+        description: The record keeps the category, the copied characters, and the place they came from. An identifier also takes a symbol-table entry.
+        mermaid: |
+          flowchart LR
+              L["lexeme<br/>total"] --> R["token record<br/>type: IDENTIFIER<br/>lexeme: total<br/>span: 1:10-14"]
+              R --> S["symbol table<br/>entry S1 for total"]
+              classDef current fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#111827
+              classDef done fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#111827
+              class L current
+              class R,S done
   - title: The scanner cursor moves forward
     key: scanner-cursor-progress
     description: Blue marks the token just recognized. Gray characters are still unread.
@@ -55,21 +86,25 @@ diagrams:
               class W,LP,N,LT,SEVEN,RP,SC,EOF done
 ---
 
-A **compiler** translates source code into another form. It meets characters first, and turns them into a token stream that the parser can trust. Every emitted token must account for the next unread character.
+A **compiler** translates source code into another form. It meets characters first, and turns them into a token stream that the parser can trust. After each token it emits, the scanner leaves its cursor on the next unread character. It skips nothing.
 
-The scanner comes first in this course because it comes first in the compiler, and because Laboratory Activity 1 is the scanner and is released on September 6. Later activities build the **parser**, which checks whether a token stream forms a legal phrase, and the **semantic analyzer**, which checks the facts that structure alone leaves open, such as whether an identifier was declared before its first use. Today you need only know that both of them read what the scanner hands over.
+The scanner comes first in this course because it comes first in the compiler, and because Laboratory Activity 1 is implementing it in code, released on September 6. Later activities build the **parser**, which checks whether a token stream forms a legal phrase, and the **semantic analyzer**, which checks the facts that structure alone leaves open, such as whether an identifier was declared before its first use. Today you need only know that both of them read what the scanner hands over.
 
 The language here is invented for the activity. It's written to be read. Every rule it depends on is on this page.
 
-You have 5 minutes to launch the activity, 50 minutes for the two checkpoints, and 5 minutes for our debrief. Keep each worked example open while you attempt the checkpoint that follows it. Discussion with classmates and the instructor is allowed and encouraged throughout. This activity is worth 10 points. Six reward constructions, and four reward their explanations.
+You have 60 minutes for the two checkpoints. Keep each worked example open while you attempt the checkpoint that follows it. Discussion with classmates and the instructor is allowed and encouraged throughout. This activity is worth 10 points. Six points reward constructions, and four reward explanations.
 
 ## The Scanner's Contract
 
-A **lexeme** is the character sequence copied from the source, such as `limit` or `25`. A **token type** is its category, such as `IDENTIFIER` or `NUMBER`. A token record stores both and a **source position**, the line and column where the lexeme appears. The **cursor** is the position of the next unread character. A **span** is the inclusive range occupied by one lexeme.
+A **lexeme** is the character sequence copied from the source, such as `limit` or `25`. A **token type** is its category, such as `IDENTIFIER` or `NUMBER`. A token record stores both, plus a **source position**, the line and column where the lexeme appears. The **cursor** is the position of the next unread character. A **span** is the inclusive range occupied by one lexeme.
 
-We'll use one-based positions. A span `1:10-14` covers columns 10 through 14 on line 1. `EOF` sits immediately after the last character.
+We'll use one-based positions. A span `1:10-14` covers columns 10 through 14 on line 1. `EOF` sits immediately after the last character. It occupies no characters of its own, so both ends of its span sit on that same column. For a line 12 characters long, the span is `1:13-13`.
 
 *Read `1:10-14` as "line one, columns ten through fourteen." Read `EOF` as "end of file."*
+
+Those five terms describe one journey. The three figures below take the identifier `total` through it, from loose characters to the record the parser reads.
+
+<!-- diagram: characters-to-token-record -->
 
 Use these recognition rules:
 
@@ -92,7 +127,7 @@ The **symbol table** records each identifier once. For this activity, give ident
 
 ### Worked Example for Checkpoint 1
 
-*Suggested time: 24 minutes, including the worked example.*
+*Suggested time: 30 minutes, including the worked example.*
 
 Scan `while (n<7);`. The spaces separate lexemes but produce no tokens.
 
@@ -107,7 +142,7 @@ Scan `while (n<7);`. The spaces separate lexemes but produce no tokens.
 | 7 | `SEMICOLON` | `;` | `1:12-12` | `1:13` |
 | 8 | `EOF` | empty | `1:13-13` | end |
 
-The symbol table contains only `S1 -> n`. Read that notation as "symbol-table entry S1 refers to n." At `<`, lookahead sees `7`, so the scanner emits `LESS` and leaves `7` unread. Longest-prefix recognition chooses the longest prefix that forms one complete token. It's possible that later tokens don't extend that prefix. This is also referred to as the **maximal munch** principle.
+The symbol table contains only `S1 -> n`. Read that notation as "symbol-table entry S1 refers to n." At `<`, lookahead sees `7`, so the scanner emits `LESS` and leaves `7` unread. Longest-prefix recognition chooses the longest prefix that forms one complete token. Later tokens may not extend that prefix. This is the **maximal munch** principle.
 
 Splitting a source that begins with `while2` into `WHILE` followed by the identifier `2` is wrong. That fails because an identifier may continue through digits. The scanner must take all of `while2` first and then classify the complete lexeme. It isn't the keyword `while`.
 
@@ -144,7 +179,7 @@ Then draw the symbol table after the scan.
 
 **1. (Construction: 3 points)** Submit the complete token and symbol-table records.
 
-**2. (Explanation: 2 points)** Explain why `while2` isn't the keyword `while`, and identify the exact decision that requires lookahead. Cite the longest-prefix rule in your explanation.
+**2. (Explanation: 2 points)** Explain why `while2` isn't the keyword `while`, and identify the exact decision that requires lookahead. Cite the longest-prefix rule in your explanation. For each half, cite the rule and the character that triggers it. A sentence each is enough.
 
 ## Where the Scanner Stops
 
@@ -154,7 +189,7 @@ For example, `x = ;` contains only recognizable characters, so scanning succeeds
 
 ### Worked Example for Checkpoint 2
 
-*Suggested time: 26 minutes, including the worked example.*
+*Suggested time: 30 minutes, including the worked example.*
 
 Compare `x = ;` with `x = @;`. The first source becomes `IDENTIFIER EQUAL SEMICOLON EOF`, so the scanner finishes and the parser reports the missing expression. The second source reaches `@` after emitting `IDENTIFIER` and `EQUAL`. No scanner rule accepts that character, so parsing never begins.
 
@@ -163,11 +198,11 @@ Compare `x = ;` with `x = @;`. The first source becomes `IDENTIFIER EQUAL SEMICO
 | `x = ;` | Complete token stream | Parser |
 | `x = @;` | Error at `@` | Scanner |
 
-Sending both lines to the parser because they look like incomplete assignments ignores the scanner's contract. The `@` prevents the scanner from producing the token stream a parser would need, while the incomplete assignment produces an error in the parser itself.
+Both lines look like incomplete assignments, but the scanner's contract still applies. The `@` prevents the scanner from producing the token stream a parser would need, while the incomplete assignment produces an error in the parser itself.
 
 ### Checkpoint 2: Transfer the Contract (5 Points)
 
-Now scan this fresh source. Stop only when a rule tells you to stop.
+Now scan this fresh source. Spaces still move the cursor forward and still emit no token. Stop only when a rule tells you to stop.
 
 ```text
 while (count1 <= 25) @
@@ -175,4 +210,12 @@ while (count1 <= 25) @
 
 **1. (Construction: 3 points)** Write every token record that can be emitted before the first error. Include each lexeme and span. Then record the error character and its position.
 
-**2. (Explanation: 2 points)** Explain why `count1` is one token, why `<=` is one token, and which compiler phase reports the `@`. Suppose the `@` were deleted and the line ended after `)`. State which later phase would reject the missing loop body and why.
+**2. (Explanation: 2 points)** Answer these in order. A sentence each is enough. Cite the rule behind every answer.
+
+a. Why is `count1` one token and not two?
+
+b. Why is `<=` one token and not two?
+
+c. Which compiler phase reports the `@`?
+
+d. Suppose the `@` were deleted and the line ended after `)`. Which later phase would reject the missing loop body, and why?
