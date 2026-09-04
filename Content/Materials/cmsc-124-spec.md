@@ -1,6 +1,6 @@
 ---
 title: "Language Specs"
-subtitle: "CMSC 124 Laboratory"
+subtitle: "CMSC 124 Language Specs"
 lead: "Writing a language down."
 published: 2026-09-04
 tags: [cmsc-124]
