@@ -450,7 +450,7 @@ Your group's GitHub repository, presented during appointments, with a clean incr
 4. `.github/workflows/test.yml` running the harness against `tests/lab0` and `tests/lab1`, green on the commit you defend
 5. A `README.md` holding your language specification, following the specification template's section order, and recording your token output format, your tokenize flag, and your decisions about strings, comments, and numbers
 
-Then, each member submits, individually after the laboratory defense through email: a short `reflection.txt` covering what broke, what you fixed, and what you learned, plus a short `peer.txt` with your honest assessment of how your groupmates, including yourself, worked during the activity. Adhere to the following subject line: `[CMSC 124 Lab] Lab 1: LastName, Initials`, for example: `[CMSC 124 Lab] Lab 1: Sanchez, SM`. Include a link to your group's GitHub repository in the email. If even one member of a group fails to submit their individual `reflection.txt`, no final grade for the activity may be released for all members of the group.
+Then, each member submits, individually after the laboratory defense through email: a short `reflection.txt` covering what broke, what you fixed, and what you learned, plus a short `peer.txt` with your honest assessment of how your groupmates, including yourself, worked during the activity. Adhere to the following subject line: `[CMSC 124 Lab] Lab 1: LastName, Initials`, for example: `[CMSC 124 Lab] Lab 1: Sanchez, SM`. Include a link to your group's GitHub repository in the email. If even one member of a group fails to submit their individual deliverables, no final grade for the activity may be released for all members of the group.
 
 ---
 
