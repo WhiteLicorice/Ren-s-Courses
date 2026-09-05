@@ -8,7 +8,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1jE53YlIXn4dQ2bYNlsvtNM-1Wzi8YBiz/view?usp=drive_link
 ---
 
 This laboratory assignment introduces fixed point integers and floating point numbers in the NASM assembly language, particularly in the context of banking. You will implement a program that simulates compounding interest over a period of time, using fixed point integer calculations. You will also convert from fixed point representation to floating point representation for output.

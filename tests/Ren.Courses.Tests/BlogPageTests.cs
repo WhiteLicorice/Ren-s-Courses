@@ -159,6 +159,79 @@ public class BlogPageTests
     }
 
     [Fact]
+    public void Article_WithDownloadLink_UsesTheExternalLinkEvenWhenAPdfExists()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "test-material",
+            HtmlContent = "<p>Body</p>",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Bundled Material",
+                Published = new DateTime(2026, 3, 1),
+                DownloadLink = "https://drive.example/folder"
+            }
+        };
+
+        var manifest = new PdfGenerationManifest();
+        manifest.SetResult("test-material", new PdfGenerationResult
+        {
+            Status = PdfGenerationStatus.Generated,
+            RelativeUrl = "pdfs/test-material.abc123456789.pdf"
+        });
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx, manifest);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "test-material"));
+
+        var download = cut.Find("a[data-download-action]");
+        Assert.Equal("https://drive.example/folder", download.GetAttribute("href"));
+        Assert.Equal("external", download.GetAttribute("data-download-source"));
+        Assert.False(download.HasAttribute("download"));
+    }
+
+    [Fact]
+    public void Article_WithoutDownloadLink_UsesTheGeneratedPdf()
+    {
+        using var ctx = new BunitContext();
+        var post = new Post<CourseFrontMatter>
+        {
+            Url = "test-material",
+            HtmlContent = "<p>Body</p>",
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Native Material",
+                Published = new DateTime(2026, 3, 1)
+            }
+        };
+
+        var manifest = new PdfGenerationManifest();
+        manifest.SetResult("test-material", new PdfGenerationResult
+        {
+            Status = PdfGenerationStatus.Generated,
+            RelativeUrl = "pdfs/test-material.abc123456789.pdf"
+        });
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx, manifest);
+
+        var cut = ctx.Render<Blog>(parameters => parameters
+            .Add(p => p.FileName, "test-material"));
+
+        var download = cut.Find("a[data-download-action]");
+        Assert.Equal("pdfs/test-material.abc123456789.pdf", download.GetAttribute("href"));
+        Assert.Equal("generated", download.GetAttribute("data-download-source"));
+        Assert.Equal("test-material.pdf", download.GetAttribute("download"));
+    }
+
+    [Fact]
     public void Article_WithoutSubmissions_DoesNotRenderSubmissionMenu()
     {
         using var ctx = new BunitContext();
@@ -543,9 +616,9 @@ public class BlogPageTests
         Assert.Contains("No Interop", cut.Markup);
     }
 
-    private static void ConfigureArticleScripts(BunitContext ctx)
+    private static void ConfigureArticleScripts(BunitContext ctx, PdfGenerationManifest? manifest = null)
     {
-        ctx.Services.AddSingleton(new PdfGenerationManifest());
+        ctx.Services.AddSingleton(manifest ?? new PdfGenerationManifest());
     }
 
     private static BlazorStaticContentService<CourseFrontMatter> CreateServiceWithPosts(

@@ -9,7 +9,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1av4SxgKhernpJ9NmyyRJ0XkGI6W4-bkZ/view?usp=drive_link
 ---
 
 This laboratory assignment combines string processing, character frequency analysis, and data structure manipulation using both C and Assembly. You will implement a program that analyzes text input to find modal (most frequently occurring) characters, displaying comprehensive statistics.

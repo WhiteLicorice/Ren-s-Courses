@@ -9,7 +9,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1YWQp4ffJRZUJ3_PDvxHUrtG5lbQquEO4/view?usp=drive_link
 ---
 
 This laboratory assignment implements Conway's Game of Life using C and Assembly. You will create an idle simulation game that handles multi-dimensional arrays, buffer management, and efficient pattern detection.

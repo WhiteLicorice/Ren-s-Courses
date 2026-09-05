@@ -8,7 +8,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1EIsMlkyVN3iCtcpuxu_23g_aO6qNrovo/view?usp=drive_link
 ---
 
 CMSC 131 is often the first foray of a CS student into the dark domain of command line usage, workflow orchestration, and low-level programming. To alleviate frustration, the instructor has taken the liberty of diving into the abyss and charting a course.

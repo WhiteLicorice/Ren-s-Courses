@@ -8,7 +8,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1JQZNyg12Kgo3qpoR-PL6sIwnlnn48yhF/view?usp=drive_link
 ---
 
 This laboratory assignment introduces basic arithmetic operations, register manipulation, and input/output handling in the NASM assembly language. You will implement a temperature conversion program that converts between Celsius, Fahrenheit, and Kelvin temperature scales.

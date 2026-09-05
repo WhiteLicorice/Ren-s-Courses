@@ -8,7 +8,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1zaR3ahUm0lm5zQSqMVs7gQ2817YwFgG-/view?usp=drive_link
 isDraft: false
 noDeadline: true
 ---

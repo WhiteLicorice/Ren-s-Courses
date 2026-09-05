@@ -9,7 +9,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1Ab8LLVnmTj2HZ6UvijZgN30m-cjmWKHh/view?usp=drive_link
 ---
 
 This manual contains a guide on how to structure a proposal for the **optional** special topics component of CMSC 131. If you choose to undertake a special topic, you are entitled to the **full substitution of your grade** in a regular component of your choice from the following: *Quizzes, Assignments, and Reportings*, *Midterm Exam*, or *Final Exam*. However, if you feel confident in your class standing, you may choose to forego a special topic and (safely) ignore this manual.

@@ -8,7 +8,6 @@ authors:
     - name: Rene Andre B. Jocsing
       gitHubUserName: WhiteLicorice
       nickname: Ren
-downloadLink: https://drive.google.com/file/d/1oxtvrLZOE0sqfM97Va3IIErQmEIJSFfx/view?usp=drive_link
 isDraft: false
 deadline: 2026-04-01
 progressReportDates: [2026-03-06, 2026-03-10, 2026-03-17, 2026-03-24]

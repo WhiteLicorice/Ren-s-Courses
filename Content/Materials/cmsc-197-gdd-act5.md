@@ -8,7 +8,6 @@ authors:
     - name: Rene Andre B. Jocsing
       gitHubUserName: WhiteLicorice
       nickname: Ren
-downloadLink: https://drive.google.com/file/d/1WcLB3fO8fMemhrFyyOYJ3HfO2J3Vxtgb/view?usp=drive_link
 isDraft: false
 noDeadline: true
 ---

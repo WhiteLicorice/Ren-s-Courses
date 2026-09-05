@@ -316,8 +316,16 @@ per-material cache and skip the toolchain entirely when every fingerprint still 
 The complete Markdown file is part of its fingerprint, so changing either frontmatter or body
 content invalidates only that material. Shared templates, Mermaid configuration, pinned dependency
 metadata, and referenced local media are fingerprinted as well. If one PDF fails, the site build
-continues and that material uses its `downloadLink`; if no fallback exists, only its Download
-action is omitted.
+continues and only that material's Download action is omitted.
+
+#### Opting one material out with `downloadLink`
+
+A material without `downloadLink` takes the default path above. Add `downloadLink` to exempt one
+material from generation. The generator then skips it, reports it as `External` in the build
+summary, and prunes any PDF that material held before. The article page links the URL exactly as
+written and opens it in a new tab. Use this when the download has to carry more than the PDF, such
+as a Drive folder that bundles starter files. Remove the key to return that material to native
+generation. A blank value counts as absent.
 
 For a CI-equivalent local build in PowerShell:
 

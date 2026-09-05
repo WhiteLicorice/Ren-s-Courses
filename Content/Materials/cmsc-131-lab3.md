@@ -8,7 +8,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/18yR2Q0OjQrSR6_3_XlbU0K8q_Smk9v2P/view?usp=drive_link
 ---
 
 This laboratory assignment explores endianness concepts through network packet simulation. You will implement a program that demonstrates proper conversion techniques for cross-architecture network communication.

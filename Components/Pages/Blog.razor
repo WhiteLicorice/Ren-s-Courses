@@ -117,12 +117,14 @@
                     </div>
 
                     @{
-                        var pdfResult = PdfManifest.GetResult(post.Url);
+                        // A declared downloadLink overrides the native PDF, so the generator
+                        // never produces one for this material. Ask the manifest only without it.
+                        var hasExternal = !string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink);
+                        var pdfResult = hasExternal ? null : PdfManifest.GetResult(post.Url);
                         var hasGenerated = pdfResult?.Status is PdfGenerationStatus.Generated or PdfGenerationStatus.Cached
                             && pdfResult?.RelativeUrl is not null;
-                        var hasFallback = !string.IsNullOrWhiteSpace(post.FrontMatter.DownloadLink);
                     }
-                    @if (hasGenerated || hasFallback || post.FrontMatter.Submissions.Count > 0)
+                    @if (hasExternal || hasGenerated || post.FrontMatter.Submissions.Count > 0)
                     {
                         <div class="relative flex w-full flex-wrap items-start justify-center gap-4" data-material-actions>
                             @if (hasGenerated)
@@ -143,11 +145,11 @@
                                     <span class="border-b border-accent/30 pb-0.5 group-hover:border-text-main">Download</span>
                                 </a>
                             }
-                            else if (hasFallback)
+                            else if (hasExternal)
                             {
                                 <a href="@post.FrontMatter.DownloadLink" target="_blank" rel="noopener noreferrer"
                                     data-download-action
-                                    data-download-source="fallback"
+                                    data-download-source="external"
                                     class="group mt-1 flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-main">
                                     <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor"
                                         class="h-4 w-4 transition-transform group-hover:translate-y-0.5">

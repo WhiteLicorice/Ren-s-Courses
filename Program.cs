@@ -134,7 +134,7 @@ try
 catch (Exception ex)
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogWarning(ex, "PDF generation failed. Site will use fallback download links.");
+    logger.LogWarning(ex, "PDF generation failed. Materials without a downloadLink lose their Download action.");
 }
 
 // Configure the HTTP request pipeline.

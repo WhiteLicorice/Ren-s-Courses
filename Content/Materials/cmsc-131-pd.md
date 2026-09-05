@@ -9,7 +9,6 @@ authors:
     - name: "Rene Andre Bedonia Jocsing"
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
-downloadLink: https://drive.google.com/file/d/1p_8FLydolouzqGgiAvjq4Zi52O8kEBSr/view?usp=drive_link
 ---
 
 This article provides the prescribed template for the special topics documentation. Please check the [PDF version of this article](https://drive.google.com/file/d/1p_8FLydolouzqGgiAvjq4Zi52O8kEBSr/view?usp=drive_link) for a more accurate template. For authors who know LaTeX, please see the [source code of the template](https://www.overleaf.com/read/xhvxzzqdrkmb#65af1a).
