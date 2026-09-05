@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Ren's Courses (cmsc-124)</title>
+    <link>https://renscourses.netlify.app/</link>
+    <description>Latest course materials and announcements.</description>
+    <language>en-us</language>
+    
+        <item>
+            <title>Scanner</title>
+            <subtitle>CMSC 124 Lab 1</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-124-lab1</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-124-lab1</guid>
+            <pubDate>Thu, 03 Sep 2026 16:00:00 +0000</pubDate>
+            <description>Text in, tokens out.</description>
+        </item>
+        <item>
+            <title>Language Specs</title>
+            <subtitle>CMSC 124 PLS</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-124-spec</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-124-spec</guid>
+            <pubDate>Thu, 03 Sep 2026 16:00:00 +0000</pubDate>
+            <description>Writing a language down.</description>
+        </item>
+        <item>
+            <title>From Characters to Tokens</title>
+            <subtitle>CMSC 124 Activity 3</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-124-act3</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-124-act3</guid>
+            <pubDate>Tue, 01 Sep 2026 16:00:00 +0000</pubDate>
+            <description>Scanning on paper.</description>
+        </item>
+        <item>
+            <title>Onboarding</title>
+            <subtitle>CMSC 124 Lab 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-124-lab0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-124-lab0</guid>
+            <pubDate>Sat, 15 Aug 2026 16:00:00 +0000</pubDate>
+            <description>A lesson in linguistics!</description>
+        </item>
+        <item>
+            <title>Sixty Years in Twenty Sections</title>
+            <subtitle>CMSC 124 Activity 0</subtitle>
+            <link>https://renscourses.netlify.app/articles/cmsc-124-act0</link>
+            <guid>https://renscourses.netlify.app/articles/cmsc-124-act0</guid>
+            <pubDate>Sat, 15 Aug 2026 16:00:00 +0000</pubDate>
+            <description>KAS 1 but for komsai nerds.</description>
+        </item>
+</channel>
+</rss>
