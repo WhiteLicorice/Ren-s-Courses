@@ -131,10 +131,12 @@ The sentinel range `#100000`–`#10FFFF` is reserved. Never use it in a `mermaid
 content-hygiene gate fails the build if any material does. Author `classDef` colours outside
 that range survive untouched and stay fixed across themes by design.
 
-To add a theme: add one entry to `Models/SiteThemeRegistry.cs` naming the site theme and the
-Mermaid theme it harvests from, add one `[data-theme="<name>"]` token block in
-`wwwroot/css/site.css` beside `:root` and `[data-theme="light"]`, and optionally a `--dg-*`
-override block if the harvested palette is not wanted verbatim. No JavaScript change is needed.
+To add a theme: add one entry to `Models/SiteThemeRegistry.cs` naming the site theme, the
+Mermaid theme it harvests from, the browser-chrome colour and the drop-shadow flood colour.
+Then add one `[data-theme="<name>"]` token block in `wwwroot/css/site.css` beside `:root` and
+`[data-theme="light"]`. The renderer generates a `--dg-*` block for every registry entry, so no
+JavaScript change is needed. Add your own `--dg-*` block in `site.css` only if the harvested
+palette is not wanted verbatim.
 
 ### Offline PWA
 

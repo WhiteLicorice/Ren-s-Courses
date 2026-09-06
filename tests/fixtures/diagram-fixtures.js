@@ -280,6 +280,32 @@ const DIAGRAM_FIXTURES = {
         ]
     },
 
+    /**
+     * Architecture with the built-in icons. The pinned bundle ships `cloud`,
+     * `database`, `disk`, `internet` and `server` as inline sprites whose paths
+     * carry `style="fill: none; stroke: #fff"`, outside <style> and <defs>. No
+     * icon pack registration is needed. This is the only fixture that exercises
+     * a fixed colour in a plain presentation attribute.
+     */
+    serviceArchitecture: {
+        title: 'Service architecture',
+        description: 'A database, a disk and a server behind one gateway.',
+        narrowDirection: '',
+        steps: [
+            {
+                title: 'Deploy',
+                description: 'Three services in one group.',
+                mermaid: 'architecture-beta\n'
+                    + '    group api(cloud)[API]\n'
+                    + '    service db(database)[Database] in api\n'
+                    + '    service store(disk)[Storage] in api\n'
+                    + '    service srv(server)[Server] in api\n'
+                    + '    db:L -- R:srv\n'
+                    + '    store:T -- B:srv'
+            }
+        ]
+    },
+
     /** Short schedule. Palette coverage must include gantt. */
     shortSchedule: {
         title: 'Short schedule',

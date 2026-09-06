@@ -458,7 +458,7 @@ test('the last step pans in full before playback stops', async ({ page }) => {
     expect(end.left).toBeGreaterThan(end.max - 2);
 });
 
-test('a theme change never exposes an empty or half-rendered stage', async ({ page }) => {
+test('a theme change resolves every palette variable and never blanks the stage', async ({ page }) => {
     await mount(page, 'wideTokenStream', { width: 768 });
     const widget = page.locator('[data-interactive-diagram]');
     const layoutBefore = await widget.getAttribute('data-diagram-layout');
@@ -483,6 +483,35 @@ test('a theme change never exposes an empty or half-rendered stage', async ({ pa
     expect(samples.sourceFrames).toBe(0);
     expect(await widget.getAttribute('data-diagram-layout')).toBe(layoutBefore);
     expect(await smallestLabel(widget)).toBeGreaterThanOrEqual(13.9);
+
+    // The probe above cannot fail on its own any more, because a theme flip does
+    // no work. This is the assertion that can: every var(--dg-*) the committed
+    // SVG references must resolve in every registry theme. A palette block that
+    // is missing, or a variable the rewrite invented, shows up here.
+    const palette = await page.evaluate(() => {
+        const names = new Set();
+        document.querySelectorAll('[data-diagram-canvas] svg').forEach(svg => {
+            for (const match of svg.outerHTML.match(/var\(--dg-[A-Za-z0-9_-]+\)/g) || []) {
+                names.add(match.slice(4, -1));
+            }
+        });
+        const registry = (window.siteThemeRegistry || [{ site: 'light' }, { site: 'dark' }])
+            .map(entry => entry.site);
+        const missing = [];
+        const before = document.documentElement.getAttribute('data-theme');
+        for (const theme of registry) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const computed = getComputedStyle(document.documentElement);
+            for (const name of names) {
+                if (!computed.getPropertyValue(name).trim()) missing.push(`${theme}:${name}`);
+            }
+        }
+        if (before) document.documentElement.setAttribute('data-theme', before);
+        return { missing, referenced: names.size };
+    });
+
+    expect(palette.referenced).toBeGreaterThan(0);
+    expect(palette.missing).toEqual([]);
 });
 
 test('crossing the layout threshold never flashes the raw Mermaid source', async ({ page }) => {
@@ -569,9 +598,10 @@ test('flipping data-theme performs zero Mermaid renders and repaints node fills'
     expect(after).not.toBe(before);
 });
 
-test('palette coverage spans seven diagram types with no unmapped colour literal', async ({ page }) => {
+test('palette coverage spans eight diagram types with no unmapped colour literal', async ({ page }) => {
     const names = ['wideTokenStream', 'wideSequenceDiagram', 'stateWalkthrough',
-        'classRelations', 'entityRelations', 'petShares', 'shortSchedule'];
+        'classRelations', 'entityRelations', 'petShares', 'shortSchedule',
+        'serviceArchitecture'];
 
     let totalUnmapped = [];
     let totalVarRefs = 0;
@@ -606,7 +636,8 @@ test('palette coverage spans seven diagram types with no unmapped colour literal
                     const allowed = new Set(knownInvariant);
                     widget.querySelectorAll('[data-diagram-source]').forEach(source => {
                         source.textContent.split('\n').forEach(line => {
-                            if (/^\s*classDef\s/.test(line)) {
+                            // Mirrors collectAuthorColors in interactive-diagrams.js.
+                            if (/^\s*(classDef|style|linkStyle)\s/.test(line)) {
                                 (line.match(hexRe) || []).forEach(h => {
                                     const lower = h.toLowerCase();
                                     allowed.add(lower);
@@ -716,4 +747,65 @@ test('a below-the-fold widget is ready before it enters the viewport', async ({ 
 
     expect(readyBeforeVisible).toBe(true);
     await expect(second).toHaveAttribute('data-diagram-initialized', 'true', { timeout: 20000 });
+});
+
+test('architecture sprite ink stays legible in both themes', async ({ page }) => {
+    // Mermaid draws its built-in architecture icons as line art with a hardcoded
+    // `stroke: #fff` inside a style attribute, outside <style> and <defs>. Left
+    // alone it is invisible on a light canvas: measured contrast 1.00. This test
+    // is the gate for the rewrite reaching a plain presentation attribute.
+    await mount(page, 'serviceArchitecture', { width: 1280 });
+
+    const report = await page.evaluate(() => {
+        const svg = document.querySelector('[data-diagram-canvas] svg');
+        const sprite = [...svg.querySelectorAll('[style*="stroke"]')]
+            .find(node => (node.getAttribute('style') || '').includes('var(--dg-'));
+
+        const channels = (value) => {
+            const probe = document.createElement('div');
+            probe.style.color = value;
+            document.body.appendChild(probe);
+            const parsed = (getComputedStyle(probe).color.match(/[\d.]+/g) || []).map(Number);
+            probe.remove();
+            return parsed.slice(0, 3);
+        };
+        const luminance = (value) => {
+            const [r, g, b] = channels(value).map(part => {
+                const scaled = part / 255;
+                return scaled <= 0.03928 ? scaled / 12.92 : Math.pow((scaled + 0.055) / 1.055, 2.4);
+            });
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const contrast = (a, b) => {
+            const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+            return (high + 0.05) / (low + 0.05);
+        };
+
+        // Measure against Mermaid's own canvas variable, not document.body: the
+        // body background is transparent here, and a transparent colour parses to
+        // black, which would report a false failure.
+        const readings = {};
+        const before = document.documentElement.getAttribute('data-theme');
+        for (const theme of ['light', 'dark']) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const canvas = getComputedStyle(document.documentElement)
+                .getPropertyValue('--dg-background').trim();
+            const stroke = getComputedStyle(sprite).stroke;
+            readings[theme] = {
+                stroke,
+                canvas,
+                contrast: Number(contrast(stroke, canvas).toFixed(2))
+            };
+        }
+        if (before) document.documentElement.setAttribute('data-theme', before);
+
+        return { rewritten: !!sprite, readings };
+    });
+
+    expect(report.rewritten).toBe(true);
+    // The literal white is gone, so the two themes must paint it differently.
+    expect(report.readings.light.stroke).not.toBe(report.readings.dark.stroke);
+    // 3:1 is the WCAG floor for a graphical object.
+    expect(report.readings.light.contrast).toBeGreaterThanOrEqual(3);
+    expect(report.readings.dark.contrast).toBeGreaterThanOrEqual(3);
 });

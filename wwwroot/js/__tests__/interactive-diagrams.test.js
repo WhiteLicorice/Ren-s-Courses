@@ -79,6 +79,7 @@ function createMermaid(options = {}) {
     }
     themeVariables.primaryColor = '#ECECFF';
     themeVariables.mainBkg = '#ECECFF';
+    themeVariables.lineColor = '#333333';
     themeVariables.dropShadow = 'drop-shadow(0 0 5px rgba(185, 185, 185, 1))';
     return {
         initialize: jest.fn(),
@@ -225,6 +226,10 @@ afterEach(() => {
     delete HTMLElement.prototype.offsetHeight;
     delete global.ResizeObserver;
     delete window.matchMedia;
+    delete window.siteThemeRegistry;
+    delete window.siteThemeRootDefault;
+    delete window.mermaid;
+    document.getElementById('diagram-palette')?.remove();
     document.querySelectorAll('[data-diagram-measure-host]').forEach(host => host.remove());
 });
 
@@ -1194,4 +1199,242 @@ test('the fixture markup matches the ids the component emits', () => {
     expect(viewport.id).toBe('learning-diagram-3-step-0-viewport');
     expect(hint.id).toBe('learning-diagram-3-step-0-instruction');
     expect(viewport.getAttribute('aria-describedby')).toBe(hint.id);
+});
+
+// --- Theme-free palette ------------------------------------------------------
+
+/** One widget carrying a single hand-written step, so a test can pick the source. */
+function mountSource(mermaidSource) {
+    document.body.innerHTML = `<div class="prose">${buildWidgetMarkup({
+        title: 'Palette probe',
+        description: '',
+        narrowDirection: '',
+        steps: [{ title: 'Only', description: '', mermaid: mermaidSource }]
+    }, 0)}</div>`;
+}
+
+/** A renderer whose SVG is written by the test, using the sentinels it was given. */
+function createSvgMermaid(build) {
+    const mermaid = createMermaid();
+    let sentinels = {};
+    mermaid.initialize = jest.fn(config => {
+        if (config && config.themeVariables) sentinels = config.themeVariables;
+    });
+    mermaid.render = jest.fn(async () => ({ svg: build(sentinels) }));
+    return mermaid;
+}
+
+test('the palette stylesheet carries one block per registry theme', async () => {
+    window.siteThemeRegistry = [
+        { site: 'light', mermaid: 'default', shadowFlood: '#000000' },
+        { site: 'dark', mermaid: 'dark', shadowFlood: '#FFFFFF' },
+        { site: 'sepia', mermaid: 'base', shadowFlood: '#3b2f2f' }
+    ];
+    mount('alreadyVerticalFlowchart');
+
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const css = document.getElementById('diagram-palette').textContent;
+    expect(css).toContain(':root {');
+    expect(css).toContain('[data-theme="light"] {');
+    expect(css).toContain('[data-theme="dark"] {');
+    expect(css).toContain('[data-theme="sepia"] {');
+    expect(css).toContain('--dg-shadowFlood: #3b2f2f;');
+    expect(css).toContain('--dg-mainBkg:');
+});
+
+test('a registry entry with an unusable name never reaches a selector', async () => {
+    window.siteThemeRegistry = [
+        { site: 'dark', mermaid: 'dark', shadowFlood: '#FFFFFF' },
+        { site: 'bad name', mermaid: 'default', shadowFlood: '#000000' }
+    ];
+    mount('alreadyVerticalFlowchart');
+
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const css = document.getElementById('diagram-palette').textContent;
+    expect(css).toContain('[data-theme="dark"] {');
+    expect(css).not.toContain('bad name');
+});
+
+test('a renderer without mermaidAPI falls back to the site theme and skips the rewrite', async () => {
+    mount('alreadyVerticalFlowchart');
+    const mermaid = createMermaid();
+    delete mermaid.mermaidAPI;
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    // data-theme is dark for every test, and the registry maps dark to dark.
+    expect(mermaid.initialize).toHaveBeenLastCalledWith({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: 'dark'
+    });
+    expect(document.getElementById('diagram-palette')).toBeNull();
+
+    const steps = stepsOf(widgets()[0]);
+    expect(steps.every(step => step.stage.querySelector('svg'))).toBe(true);
+    expect(steps.every(step => step.source.hidden)).toBe(true);
+    expect(widgets()[0].dataset.diagramInitialized).toBe('true');
+});
+
+test('the rewrite maps every paint context but never label text', async () => {
+    mountSource('flowchart TB\n    A --> B');
+    const mermaid = createSvgMermaid(sentinels =>
+        '<svg viewBox="0 0 320 60" style="max-width: 80px">'
+        + `<style>.node rect{fill:${sentinels.mainBkg};stroke:#000000;color:#ffffff}</style>`
+        + '<defs><filter><feDropShadow flood-color="#000000"/></filter></defs>'
+        // An inline sprite, as Mermaid ships for architecture diagrams. These sit
+        // far outside <style> and <defs>, and a light canvas hides them if the
+        // rewrite cannot reach them.
+        + '<g class="root"><path style="fill: none; stroke: #fff" d="M0 0"/>'
+        + '<circle fill="#fff" r="1"/>'
+        + '<text style="font-size: 14px">rgb(0,0,0) and #000000</text></g></svg>');
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    const html = stepsOf(widgets()[0])[0].stage.innerHTML;
+    expect(html).toContain('fill:var(--dg-mainBkg)');
+    expect(html).toContain('stroke:var(--dg-lineColor)');
+    expect(html).toContain('color:var(--dg-lineColor)');
+    expect(html).toContain('flood-color="var(--dg-shadowFlood)"');
+    // The inline sprite, in a style attribute and as a bare paint attribute.
+    expect(html).toContain('stroke: var(--dg-lineColor)');
+    expect(html).toContain('fill="var(--dg-lineColor)"');
+    // Ink must never map to the canvas: background equals the surface behind it.
+    expect(html).not.toContain('var(--dg-background)');
+    // The label is what a reader sees. No rule may reach it.
+    expect(html).toContain('rgb(0,0,0) and #000000');
+});
+
+test('an author colour declared with a shorthand hex survives its expanded form', async () => {
+    mountSource('flowchart TB\n    A --> B\n    classDef hot fill:#000,stroke:#FFF\n    class A hot');
+    const mermaid = createSvgMermaid(() =>
+        '<svg viewBox="0 0 320 60" style="max-width: 80px">'
+        + '<style>.hot rect{fill:#000000;stroke:#ffffff}</style>'
+        + '<g class="root"><text style="font-size: 14px">Node</text></g></svg>');
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    const html = stepsOf(widgets()[0])[0].stage.innerHTML;
+    expect(html).toContain('fill:#000000');
+    expect(html).toContain('stroke:#ffffff');
+    expect(html).not.toContain('var(--dg-lineColor)');
+});
+
+test('an author colour declared on a style line survives too', async () => {
+    mountSource('flowchart TB\n    A --> B\n    style A fill:#ffffff');
+    const mermaid = createSvgMermaid(() =>
+        '<svg viewBox="0 0 320 60" style="max-width: 80px">'
+        + '<style>#A rect{fill:#ffffff}</style>'
+        + '<g class="root"><text style="font-size: 14px">Node</text></g></svg>');
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    expect(stepsOf(widgets()[0])[0].stage.innerHTML).toContain('fill:#ffffff');
+});
+
+test('a widget that fails on the deferred path shows its authored source', async () => {
+    mount('alreadyVerticalFlowchart');
+    const widget = widgets()[0];
+    // Force enhanceDiagram to throw after the source is already hidden.
+    widget.querySelector('[data-diagram-controls]').remove();
+
+    const previousObserver = global.IntersectionObserver;
+    global.IntersectionObserver = class {
+        constructor(callback) { this.callback = callback; }
+        observe(target) { this.callback([{ target, isIntersecting: true }], this); }
+        unobserve() {}
+        disconnect() {}
+    };
+    window.mermaid = createMermaid();
+
+    try {
+        await window.initInteractiveDiagrams();
+        await new Promise(resolve => setTimeout(resolve, 0));
+    } finally {
+        global.IntersectionObserver = previousObserver;
+    }
+
+    expect(widget.dataset.diagramInitialized).toBe('error');
+    expect(widget.querySelector('[data-diagram-step]:not([hidden]) [data-diagram-source]').hidden).toBe(false);
+    expect(widget.querySelector('[data-diagram-error]').hidden).toBe(false);
+});
+
+/** Place every widget's bottom edge at `bottom`, keeping the viewport width. */
+function placeWidgets(bottom) {
+    jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
+        const width = this.matches?.('[data-diagram-viewport]') ? availableWidth : 0;
+        const edge = this.matches?.('[data-interactive-diagram]') ? bottom : 0;
+        return { width, height: 0, top: edge, left: 0, right: width, bottom: edge, x: 0, y: 0, toJSON() {} };
+    });
+}
+
+/** An observer that never reports an intersection, like a page jumped in one step. */
+function installSilentObserver() {
+    const previous = global.IntersectionObserver;
+    global.IntersectionObserver = class {
+        constructor() {}
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+    };
+    return () => { global.IntersectionObserver = previous; };
+}
+
+test('a widget the reader jumped past still renders', async () => {
+    mount('alreadyVerticalFlowchart');
+    const widget = widgets()[0];
+    placeWidgets(-2000);
+    const restore = installSilentObserver();
+    window.mermaid = createMermaid();
+
+    try {
+        await window.initInteractiveDiagrams();
+        await new Promise(resolve => setTimeout(resolve, 0));
+    } finally {
+        restore();
+    }
+
+    expect(widget.dataset.diagramInitialized).toBe('true');
+    expect(stepsOf(widget).every(step => step.stage.querySelector('svg'))).toBe(true);
+});
+
+test('a widget still below the observed band waits', async () => {
+    mount('alreadyVerticalFlowchart');
+    const widget = widgets()[0];
+    placeWidgets(4000);
+    const restore = installSilentObserver();
+    window.mermaid = createMermaid();
+
+    try {
+        await window.initInteractiveDiagrams();
+        await new Promise(resolve => setTimeout(resolve, 0));
+    } finally {
+        restore();
+    }
+
+    expect(widget.dataset.diagramInitialized).toBe('loading');
+});
+
+test('scrolling past a pending widget renders it', async () => {
+    mount('alreadyVerticalFlowchart');
+    const widget = widgets()[0];
+    placeWidgets(4000);
+    const restore = installSilentObserver();
+    window.mermaid = createMermaid();
+
+    try {
+        await window.initInteractiveDiagrams();
+        expect(widget.dataset.diagramInitialized).toBe('loading');
+
+        // The reader jumps the page. No intersection entry is ever queued.
+        placeWidgets(-2000);
+        window.dispatchEvent(new Event('scroll'));
+        await new Promise(resolve => setTimeout(resolve, 50));
+    } finally {
+        restore();
+    }
+
+    expect(widget.dataset.diagramInitialized).toBe('true');
 });

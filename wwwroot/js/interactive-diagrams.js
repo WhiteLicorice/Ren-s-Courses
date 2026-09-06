@@ -67,13 +67,45 @@ const EXTRA_COLOR_KEYS = ['dropShadow'];
 
 let paletteState = null;
 
+// Mermaid hardcodes a feDropShadow flood colour that is not a themeVariable:
+// black on a light canvas, white on a dark one. Each theme names its own.
+const FALLBACK_REGISTRY = [
+    { site: 'light', mermaid: 'default', shadowFlood: '#000000' },
+    { site: 'dark', mermaid: 'dark', shadowFlood: '#FFFFFF' }
+];
+
+/** Site theme names must be safe inside a [data-theme="..."] selector. */
+const THEME_NAME = /^[A-Za-z][A-Za-z0-9_-]*$/;
+
 function getSiteThemeRegistry() {
     if (Array.isArray(window.siteThemeRegistry) && window.siteThemeRegistry.length > 0) {
-        return window.siteThemeRegistry
-            .filter(entry => entry && typeof entry.site === 'string' && typeof entry.mermaid === 'string')
-            .map(entry => ({ site: entry.site, mermaid: entry.mermaid }));
+        const entries = window.siteThemeRegistry
+            .filter(entry => entry
+                && typeof entry.site === 'string'
+                && typeof entry.mermaid === 'string'
+                && THEME_NAME.test(entry.site))
+            .map(entry => ({
+                site: entry.site,
+                mermaid: entry.mermaid,
+                shadowFlood: typeof entry.shadowFlood === 'string' ? entry.shadowFlood : '#000000'
+            }));
+        if (entries.length > 0) return entries;
     }
-    return [{ site: 'light', mermaid: 'default' }, { site: 'dark', mermaid: 'dark' }];
+    return FALLBACK_REGISTRY.map(entry => ({ ...entry }));
+}
+
+/**
+ * The theme a bare `:root` block falls back to when nothing sets `data-theme`.
+ * This mirrors `wwwroot/css/site.css`, whose unattributed `:root` holds the
+ * dark tokens. `Models/SiteThemeRegistry.RootDefault` is the C# twin.
+ */
+function getRootDefaultSite(registry) {
+    const named = typeof window.siteThemeRootDefault === 'string'
+        ? registry.find(entry => entry.site === window.siteThemeRootDefault)
+        : null;
+    return named
+        ?? registry.find(entry => entry.site === 'dark')
+        ?? registry[registry.length - 1];
 }
 
 function isColorValue(value) {
@@ -166,36 +198,32 @@ function harvestPalettes(mermaid) {
         if (rgb) rgbToKey[`${rgb.r},${rgb.g},${rgb.b}`] = key;
     });
 
-    // Hardcoded defs residue that is not a themeVariable. Light uses black,
-    // dark uses white; both flip through one variable.
-    const shadowLight = palettes.light?.dropShadow ?? 'rgba(185, 185, 185, 1)';
-    void shadowLight;
-
     return { keys, palettes, sentinelMap, sentinelToKey, rgbToKey, registry };
 }
 
 function ensurePaletteStylesheet(harvest) {
     if (typeof document === 'undefined') return;
     const { keys, palettes, registry } = harvest;
-    const bySite = {};
-    for (const entry of registry) {
-        bySite[entry.site] = palettes[entry.site] ?? {};
-    }
-    const dark = bySite.dark ?? bySite[registry[0]?.site] ?? {};
-    const light = bySite.light ?? bySite[registry[0]?.site] ?? {};
+    if (keys.length === 0) return;
 
-    const block = (palette) => keys.map(key => {
-        const value = palette[key];
-        return value ? `  --dg-${key}: ${value};` : null;
-    }).filter(Boolean).join('\n');
+    const block = (entry) => {
+        const palette = palettes[entry.site] ?? {};
+        const lines = keys
+            .map(key => (palette[key] ? `  --dg-${key}: ${palette[key]};` : null))
+            .filter(Boolean);
+        lines.push(`  --dg-shadowFlood: ${entry.shadowFlood};`);
+        return lines.join('\n');
+    };
 
-    // Flood colour for hardcoded defs residue. Dark glows white, light shadows black.
-    const floodLight = '#000000';
-    const floodDark = '#FFFFFF';
-
-    const css = `:root {\n${block(dark)}\n  --dg-shadowFlood: ${floodDark};\n}\n`
-        + `[data-theme="light"] {\n${block(light)}\n  --dg-shadowFlood: ${floodLight};\n}\n`
-        + `[data-theme="dark"] {\n${block(dark)}\n  --dg-shadowFlood: ${floodDark};\n}\n`;
+    // One block per registry entry, so adding a theme in C# needs no JS change.
+    // `:root` repeats the fallback theme for the case where nothing has set
+    // data-theme yet. Every block carries the same specificity, and this sheet
+    // is the first child of <head>, so authored CSS still wins.
+    const root = getRootDefaultSite(registry);
+    const rule = (selector, entry) => `${selector} {\n${block(entry)}\n}`;
+    const css = [rule(':root', root)]
+        .concat(registry.map(entry => rule(`[data-theme="${entry.site}"]`, entry)))
+        .join('\n') + '\n';
 
     let style = document.getElementById('diagram-palette');
     if (!style) {
@@ -208,20 +236,57 @@ function ensurePaletteStylesheet(harvest) {
     if (style.textContent !== css) style.textContent = css;
 }
 
-function collectClassDefColors(sources) {
+/**
+ * Colours an author wrote into the Mermaid source. These must survive the
+ * rewrite untouched: a semantic colour stays fixed across themes by design.
+ *
+ * Mermaid accepts author colours on `classDef`, `style` and `linkStyle` lines,
+ * and re-serialises them into the style block in a normalised form. So collect
+ * the shorthand, the expanded hex and the `rgb()` spelling of each. The
+ * palette-coverage test in `tests/e2e/interactive-diagrams.spec.js` builds the
+ * same set, and the two must stay in step.
+ */
+function collectAuthorColors(sources) {
     const allowed = new Set();
     const hexRe = /#[0-9a-fA-F]{3,8}\b/g;
+    const add = (hex) => {
+        const lower = hex.toLowerCase();
+        allowed.add(lower);
+        const rgb = hexToRgb(lower.length === 9 ? lower.slice(0, 7) : lower);
+        if (!rgb) return;
+        allowed.add(`#${[rgb.r, rgb.g, rgb.b].map(v => v.toString(16).padStart(2, '0')).join('')}`);
+        allowed.add(`rgb(${rgb.r},${rgb.g},${rgb.b})`);
+        allowed.add(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+    };
     for (const source of sources) {
         for (const line of String(source ?? '').split('\n')) {
-            if (/^\s*classDef\s/.test(line)) {
-                for (const m of line.match(hexRe) || []) allowed.add(m.toLowerCase());
-            }
+            if (!/^\s*(classDef|style|linkStyle)\s/.test(line)) continue;
+            for (const match of line.match(hexRe) || []) add(match);
         }
     }
     return allowed;
 }
 
-function rewriteDiagramSvg(svgString, harvest, classDefAllowed) {
+/**
+ * Apply `fn` to every place Mermaid can emit a fixed colour, and nowhere else.
+ *
+ * That is the generated <style> block, the filter and marker <defs>, and any
+ * presentation attribute on any element. The last one matters: Mermaid ships
+ * inline icon sprites for architecture diagrams whose paths carry
+ * `style="fill: none; stroke: #fff"`, far outside <style> and <defs>. Bare text
+ * content is never touched, so a label that reads `rgb(0,0,0)` survives.
+ */
+function withinPaintContexts(svg, fn) {
+    let out = svg.replace(
+        /(<(style|defs)\b[^>]*>)([\s\S]*?)(<\/\2\s*>)/gi,
+        (full, open, tag, body, close) => open + fn(body) + close);
+    out = out.replace(
+        /\b(style|fill|stroke|color|stop-color|flood-color)="([^"]*)"/gi,
+        (full, name, value) => `${name}="${fn(value, name)}"`);
+    return out;
+}
+
+function rewriteDiagramSvg(svgString, harvest, authorAllowed) {
     if (typeof svgString !== 'string' || svgString.length === 0) return svgString;
     const { sentinelToKey, rgbToKey } = harvest;
     let out = svgString;
@@ -232,7 +297,7 @@ function rewriteDiagramSvg(svgString, harvest, classDefAllowed) {
         const lower = match.toLowerCase();
         const num = parseInt(lower.slice(1), 16);
         if (num < SENTINEL_BASE || num > SENTINEL_MAX) return match;
-        if (classDefAllowed?.has(lower)) return match;
+        if (authorAllowed?.has(lower)) return match;
         const key = sentinelToKey[lower];
         return key ? `var(--dg-${key})` : match;
     });
@@ -260,27 +325,17 @@ function rewriteDiagramSvg(svgString, harvest, classDefAllowed) {
         return `var(--dg-${key})`;
     });
 
-    // Hardcoded defs residue: feDropShadow flood-color and marker defaults.
-    out = out.replace(/flood-color\s*=\s*["']#(?:000|000000|fff|ffffff)["']/gi, 'flood-color="var(--dg-shadowFlood)"');
-    out = out.replace(/flood-color\s*:\s*#(?:000|000000|fff|ffffff)\b/gi, 'flood-color: var(--dg-shadowFlood)');
+    // Everything below rewrites a colour Mermaid hardcodes outside
+    // `themeVariables`. Black and white both mean "ink drawn on the diagram
+    // canvas": Mermaid authored them against its own default canvas, so they are
+    // opposites only because they assume opposite backgrounds. `lineColor` is
+    // Mermaid's own canvas ink and is legible in both themes by construction.
+    // Measured 2026-09-06 against the pinned bundle, contrast versus `background`:
+    // lineColor 12.63 light / 8.44 dark; white left alone 1.00 light (invisible);
+    // white mapped to `background` 1.00 in both, which is why ink must never map
+    // to the canvas. The architecture-beta fixture is the gate for this.
+    const ink = harvest.keys.includes('lineColor') ? 'var(--dg-lineColor)' : null;
 
-    // Hardcoded black/white marker attributes are dead (CSS .marker already
-    // uses var(--dg-lineColor) and wins), but patch them anyway so no fixed
-    // literal survives in style/defs. Respect author classDef colours.
-    const isAllowedHex = (hex) => classDefAllowed?.has(hex.toLowerCase());
-    out = out.replace(/(fill|stroke)(\s*[:=]\s*["']?)#(?:000000|000)\b/gi, (full, prop, sep) => {
-        const hex = full.match(/#[0-9a-fA-F]{3,6}\b/)?.[0];
-        if (hex && isAllowedHex(hex)) return full;
-        return `${prop}${sep}var(--dg-lineColor)`;
-    });
-    out = out.replace(/(fill|stroke)(\s*[:=]\s*["']?)#(?:ffffff|fff)\b/gi, (full, prop, sep) => {
-        const hex = full.match(/#[0-9a-fA-F]{3,6}\b/)?.[0];
-        if (hex && isAllowedHex(hex)) return full;
-        return `${prop}${sep}var(--dg-lineColor)`;
-    });
-
-    // Black with alpha (shadows) in comma and space-separated forms.
-    // rgb(0 0 0 / 0.4) is the modern space syntax Mermaid emits for sequence.
     const shadowForAlpha = (alpha) => {
         if (!Number.isFinite(alpha)) return null;
         if (alpha >= 0.999) return 'var(--dg-shadowFlood)';
@@ -288,16 +343,50 @@ function rewriteDiagramSvg(svgString, harvest, classDefAllowed) {
         const pct = (alpha * 100).toFixed(2).replace(/\.?0+$/, '');
         return `color-mix(in srgb, var(--dg-shadowFlood) ${pct}%, transparent)`;
     };
-    out = out.replace(/rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*([0-9]*\.?[0-9]+)\s*\)/g, (full, a) => {
-        return shadowForAlpha(Number(a)) ?? full;
+
+    const isBlackOrWhite = /^#(?:000|000000|fff|ffffff)$/i;
+
+    out = withinPaintContexts(out, (body, attribute) => {
+        let region = body;
+
+        // An attribute whose whole value is the literal, such as fill="#fff".
+        if (attribute && isBlackOrWhite.test(region.trim())) {
+            if (attribute.toLowerCase() === 'flood-color') return 'var(--dg-shadowFlood)';
+            if (authorAllowed?.has(region.trim().toLowerCase())) return region;
+            return ink ?? region;
+        }
+
+        // feDropShadow flood-color. Mermaid picks it from the theme name, and the
+        // name is always `base` here, so it is always the light-canvas black.
+        region = region.replace(/flood-color(\s*[:=]\s*)(["']?)#(?:000000|000|ffffff|fff)\2/gi,
+            (full, sep, quote) => `flood-color${sep}${quote}var(--dg-shadowFlood)${quote}`);
+
+        const mapInk = (full, prop, sep, hex) => {
+            if (!ink) return full;
+            if (authorAllowed?.has(hex.toLowerCase())) return full;
+            return `${prop}${sep}${ink}`;
+        };
+        region = region.replace(
+            /(fill|stroke|color|stop-color)(\s*[:=]\s*["']?)(#(?:000000|000|ffffff|fff))(?![0-9a-fA-F])/gi,
+            mapInk);
+
+        // Black with alpha is a shadow, in the comma form and in the modern
+        // space-separated form Mermaid emits for sequence diagrams.
+        region = region.replace(/rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*([0-9]*\.?[0-9]+)\s*\)/g,
+            (full, a) => (authorAllowed?.has(full) ? full : shadowForAlpha(Number(a)) ?? full));
+        region = region.replace(/rgb\(\s*0\s+0\s+0\s*\/\s*([0-9]*\.?[0-9]+%?)\s*\)/g, (full, a) => {
+            const raw = a.trim();
+            const alpha = raw.endsWith('%') ? Number(raw.slice(0, -1)) / 100 : Number(raw);
+            return shadowForAlpha(alpha) ?? full;
+        });
+
+        // Bare black and white without alpha.
+        const mapBare = (full) => (ink && !authorAllowed?.has(full) ? ink : full);
+        region = region.replace(/rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)/g, mapBare);
+        region = region.replace(/rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)/g, mapBare);
+
+        return region;
     });
-    out = out.replace(/rgb\(\s*0\s+0\s+0\s*\/\s*([0-9]*\.?[0-9]+%?)\s*\)/g, (full, a) => {
-        let alpha = a.trim().endsWith('%') ? Number(a.trim().slice(0, -1)) / 100 : Number(a);
-        return shadowForAlpha(alpha) ?? full;
-    });
-    // Bare black/white rgb without alpha in defs (e.g. rgb(0,0,0)) -> lineColor.
-    out = out.replace(/rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)/g, 'var(--dg-lineColor)');
-    out = out.replace(/rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)/g, 'var(--dg-lineColor)');
 
     return out;
 }
@@ -311,17 +400,16 @@ function createMotionQuery() {
     }
 }
 
+/**
+ * Give the browser a turn between renders, so each step is its own short task
+ * instead of one long block that stalls a scroll.
+ *
+ * `window.__diagramSchedule` is a seam. A harness with no real event loop, such
+ * as jsdom under fake timers, sets it to a microtask so an awaited render chain
+ * still settles. Nothing in the site sets it.
+ */
 function yieldToBrowser() {
-    // Jest drives the scheduler with fake timers and never fires a macrotask
-    // while init is awaited, so yield as a microtask there. Production still
-    // takes the macrotask path below, which is what stops mid-scroll hangs.
-    try {
-        if (typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID) {
-            return Promise.resolve();
-        }
-    } catch {
-        // No process in production; fall through to the task yield.
-    }
+    if (typeof window.__diagramSchedule === 'function') return window.__diagramSchedule();
     try {
         if (typeof scheduler !== 'undefined' && typeof scheduler.yield === 'function') {
             return scheduler.yield();
@@ -341,10 +429,6 @@ function yieldToBrowser() {
         });
     }
     return new Promise(resolve => setTimeout(resolve, 0));
-}
-
-function getDiagramTheme() {
-    return 'base';
 }
 
 async function getMermaid(providedMermaid) {
@@ -375,8 +459,28 @@ function configureMermaid(mermaid) {
     if (configuredMermaid === mermaid && paletteState) return paletteState;
 
     const harvest = harvestPalettes(mermaid);
-    ensurePaletteStylesheet(harvest);
+    configuredMermaid = mermaid;
     paletteState = harvest;
+
+    // The harvest reads mermaid.mermaidAPI.getConfig().themeVariables. A Mermaid
+    // upgrade could rename or move that, and an empty harvest would otherwise
+    // render every diagram in the `base` theme with no colour variables at all.
+    // Fall back to the plain per-theme render the site used before this change.
+    if (harvest.keys.length === 0) {
+        const site = typeof document !== 'undefined'
+            ? document.documentElement.getAttribute('data-theme')
+            : null;
+        const entry = harvest.registry.find(candidate => candidate.site === site)
+            ?? getRootDefaultSite(harvest.registry);
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'strict',
+            theme: entry?.mermaid ?? 'dark'
+        });
+        return harvest;
+    }
+
+    ensurePaletteStylesheet(harvest);
 
     // Render once with sentinels. Do not override fontFamily or fontSize:
     // leaving them at base defaults keeps geometry identical across themes.
@@ -386,7 +490,6 @@ function configureMermaid(mermaid) {
         theme: 'base',
         themeVariables: harvest.sentinelMap
     });
-    configuredMermaid = mermaid;
     return harvest;
 }
 
@@ -680,8 +783,8 @@ async function runRender(state, name) {
             // securityLevel sanitisation, so no var() is ever exposed to DOMPurify.
             let svgText = result.svg;
             try {
-                if (paletteState) {
-                    svgText = rewriteDiagramSvg(svgText, paletteState, collectClassDefColors([source]));
+                if (paletteState && paletteState.keys.length > 0) {
+                    svgText = rewriteDiagramSvg(svgText, paletteState, collectAuthorColors([source]));
                 }
             } catch {
                 // A rewrite failure must never blank a working diagram.
@@ -1212,23 +1315,24 @@ function pruneDisconnectedStates() {
     }
 }
 
-let idleWarmScheduled = false;
-
-function scheduleIdleWarm() {
-    if (idleWarmScheduled) return;
-    idleWarmScheduled = true;
-    const warm = () => {
-        getMermaid().catch(() => {});
-    };
-    try {
-        if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(warm, { timeout: 2000 });
-            return;
+/**
+ * Resolve on the next idle period, so the 3.5 MB Mermaid bundle is fetched and
+ * parsed while the browser has nothing better to do. The timeout caps the wait
+ * on a page that never goes idle. Safari has no requestIdleCallback, so it
+ * takes the timer path.
+ */
+function whenIdle(timeout = 2000) {
+    return new Promise(resolve => {
+        try {
+            if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(() => resolve(), { timeout });
+                return;
+            }
+        } catch {
+            // Fall through to the timer below.
         }
-    } catch {
-        // Fall through to setTimeout below.
-    }
-    setTimeout(warm, 0);
+        setTimeout(resolve, 0);
+    });
 }
 
 window.initInteractiveDiagrams = async (providedMermaid) => {
@@ -1248,19 +1352,22 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
 
     pruneDisconnectedStates();
 
-    const failWidgets = () => {
-        widgets.forEach(widget => {
-            if (widget.dataset.diagramInitialized === 'true') return;
-            widget.dataset.diagramInitialized = 'error';
-            const error = widget.querySelector('[data-diagram-error]');
-            const visibleSource = widget.querySelector('[data-diagram-step]:not([hidden]) [data-diagram-source]');
-            if (visibleSource) visibleSource.hidden = false;
-            if (error) {
-                error.textContent = LOAD_ERROR;
-                error.hidden = false;
-            }
-        });
+    // A widget that cannot render must show its authored source again. The
+    // source was hidden for every widget at init to stop the raw definition
+    // flickering, so leaving a failed widget alone would leave an empty box.
+    const failWidget = (widget) => {
+        if (widget.dataset.diagramInitialized === 'true') return;
+        widget.dataset.diagramInitialized = 'error';
+        const error = widget.querySelector('[data-diagram-error]');
+        const visibleSource = widget.querySelector('[data-diagram-step]:not([hidden]) [data-diagram-source]');
+        if (visibleSource) visibleSource.hidden = false;
+        if (error) {
+            error.textContent = LOAD_ERROR;
+            error.hidden = false;
+        }
     };
+
+    const failWidgets = () => widgets.forEach(failWidget);
 
     // Fast path for tests and any caller that already holds a renderer:
     // enhance immediately, yielding between widgets.
@@ -1278,9 +1385,6 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
         return;
     }
 
-    // Real pages warm the 3.5 MB bundle during idle, not on intersection.
-    scheduleIdleWarm();
-
     if (typeof IntersectionObserver !== 'function') {
         try {
             const mermaid = await getMermaid();
@@ -1295,6 +1399,10 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
         return;
     }
 
+    // Warm the bundle during idle, so the 3.5 MB parse never lands in the
+    // middle of a scroll. Rendering still waits for the observer below.
+    await whenIdle();
+
     let mermaid;
     try {
         mermaid = await getMermaid();
@@ -1306,19 +1414,53 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
 
     // Start rendering well before visibility: one viewport of lead time.
     const pending = new Set(widgets);
-    const observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            const widget = entry.target;
-            if (!pending.has(widget)) continue;
-            pending.delete(widget);
-            observer.unobserve(widget);
-            enhanceDiagram(widget, mermaid)
-                .catch(() => {})
-                .then(() => {});
+    let observer;
+    let frame = null;
+
+    const stop = () => {
+        observer.disconnect();
+        window.removeEventListener('scroll', onScroll);
+        if (frame) cancelAnimationFrame(frame);
+        frame = null;
+    };
+
+    const start = (widget) => {
+        if (!pending.has(widget)) return;
+        pending.delete(widget);
+        observer.unobserve(widget);
+        enhanceDiagram(widget, mermaid).catch(() => failWidget(widget));
+        if (pending.size === 0) stop();
+    };
+
+    // IntersectionObserver only reports a THRESHOLD CROSSING. A reader who jumps
+    // the page in one step, through an anchor link, an End keypress or a fast
+    // fling, takes a widget from below the band to above it without ever
+    // intersecting, so the ratio stays 0 and no entry is ever queued. Confirmed
+    // on articles/cmsc-124-act3: after window.scrollTo(0, scrollHeight) both
+    // widgets sat above the viewport and stayed empty boxes for as long as the
+    // reader did not scroll back. This sweep catches exactly that case.
+    const sweep = () => {
+        for (const widget of [...pending]) {
+            if (widget.getBoundingClientRect().bottom < 0) start(widget);
         }
-        if (pending.size === 0) observer.disconnect();
+    };
+
+    function onScroll() {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+            frame = null;
+            sweep();
+        });
+    }
+
+    observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            if (entry.isIntersecting) start(entry.target);
+        }
     }, { rootMargin: '800px 0px' });
 
     widgets.forEach(widget => observer.observe(widget));
+    // Both listeners come off as soon as the last widget renders.
+    window.addEventListener('scroll', onScroll, { passive: true });
+    sweep();
 };

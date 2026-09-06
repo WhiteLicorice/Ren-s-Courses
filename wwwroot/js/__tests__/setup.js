@@ -20,3 +20,9 @@ global.IntersectionObserver = class IntersectionObserver {
     unobserve() {}
     disconnect() {}
 };
+
+// jsdom under fake timers never runs a macrotask while a render chain is
+// awaited, so the renderer's between-step yield would hang. Give it a
+// microtask. Production takes the real task path, which is what stops a
+// mid-scroll stall. See yieldToBrowser in wwwroot/js/interactive-diagrams.js.
+window.__diagramSchedule = () => Promise.resolve();
