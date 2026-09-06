@@ -51,9 +51,256 @@ const LOAD_ERROR = 'The interactive diagram renderer could not be loaded.';
 
 let mermaidPromise;
 let configuredMermaid;
-let configuredTheme;
 let renderId = 0;
 const diagramStates = [];
+
+// Theme-independent rendering. Mermaid light and dark differ only in colour,
+// so each step renders once with sentinel colours that become CSS variables.
+// Flipping data-theme then repaints with no Mermaid call.
+//
+// Reserved sentinel range #100000-#10FFFF (documented in README "Custom
+// themes"). Author hexes must stay outside it; DiagramContentHygieneTests
+// fails the build if any material uses it.
+const SENTINEL_BASE = 0x100000;
+const SENTINEL_MAX = 0x10FFFF;
+const EXTRA_COLOR_KEYS = ['dropShadow'];
+
+let paletteState = null;
+
+function getSiteThemeRegistry() {
+    if (Array.isArray(window.siteThemeRegistry) && window.siteThemeRegistry.length > 0) {
+        return window.siteThemeRegistry
+            .filter(entry => entry && typeof entry.site === 'string' && typeof entry.mermaid === 'string')
+            .map(entry => ({ site: entry.site, mermaid: entry.mermaid }));
+    }
+    return [{ site: 'light', mermaid: 'default' }, { site: 'dark', mermaid: 'dark' }];
+}
+
+function isColorValue(value) {
+    if (typeof value !== 'string' || value.length === 0) return false;
+    try {
+        if (typeof CSS !== 'undefined' && typeof CSS.supports === 'function') {
+            return CSS.supports('color', value);
+        }
+    } catch {
+        // Fall through to the regex below when CSS.supports is unavailable.
+    }
+    return /^(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-zA-Z]+)$/.test(value.trim());
+}
+
+function extractInnerColor(value) {
+    if (typeof value !== 'string') return null;
+    const hex = value.match(/#[0-9a-fA-F]{6}\b/);
+    if (hex) return hex[0];
+    const rgb = value.match(/rgba?\([^)]*\)/);
+    if (rgb) return rgb[0];
+    return null;
+}
+
+function toSentinelHex(index) {
+    const value = SENTINEL_BASE + index;
+    if (value > SENTINEL_MAX) throw new Error('Sentinel range exhausted');
+    return `#${value.toString(16).padStart(6, '0')}`;
+}
+
+function hexToRgb(hex) {
+    let h = hex.replace('#', '');
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    if (h.length !== 6) return null;
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return Number.isFinite(r) && Number.isFinite(g) && Number.isFinite(b) ? { r, g, b } : null;
+}
+
+function parseRgbComponents(text) {
+    const parts = text.split(',').map(p => Number.parseFloat(p.trim()));
+    if (parts.length < 3 || parts.some(v => !Number.isFinite(v))) return null;
+    return { r: parts[0], g: parts[1], b: parts[2], a: parts.length >= 4 ? parts[3] : null };
+}
+
+function harvestPalettes(mermaid) {
+    const registry = getSiteThemeRegistry();
+    const palettes = {};
+    const allKeys = new Set();
+
+    for (const entry of registry) {
+        try {
+            mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: entry.mermaid });
+        } catch {
+            // Harvest must never break rendering; a failed theme still yields its keys below.
+        }
+        let variables = null;
+        try {
+            variables = mermaid.mermaidAPI?.getConfig?.()?.themeVariables ?? null;
+        } catch {
+            variables = null;
+        }
+        if (!variables || typeof variables !== 'object') continue;
+
+        const palette = {};
+        for (const [key, value] of Object.entries(variables)) {
+            if (isColorValue(value)) {
+                palette[key] = value;
+                allKeys.add(key);
+            } else if (EXTRA_COLOR_KEYS.includes(key)) {
+                const inner = extractInnerColor(value);
+                if (inner && isColorValue(inner)) {
+                    palette[key] = inner;
+                    allKeys.add(key);
+                }
+            }
+        }
+        palettes[entry.site] = palette;
+    }
+
+    const keys = [...allKeys].sort();
+    const sentinelMap = {};
+    const sentinelToKey = {};
+    const rgbToKey = {};
+    keys.forEach((key, index) => {
+        const sentinel = toSentinelHex(index);
+        sentinelMap[key] = sentinel;
+        sentinelToKey[sentinel.toLowerCase()] = key;
+        const rgb = hexToRgb(sentinel);
+        if (rgb) rgbToKey[`${rgb.r},${rgb.g},${rgb.b}`] = key;
+    });
+
+    // Hardcoded defs residue that is not a themeVariable. Light uses black,
+    // dark uses white; both flip through one variable.
+    const shadowLight = palettes.light?.dropShadow ?? 'rgba(185, 185, 185, 1)';
+    void shadowLight;
+
+    return { keys, palettes, sentinelMap, sentinelToKey, rgbToKey, registry };
+}
+
+function ensurePaletteStylesheet(harvest) {
+    if (typeof document === 'undefined') return;
+    const { keys, palettes, registry } = harvest;
+    const bySite = {};
+    for (const entry of registry) {
+        bySite[entry.site] = palettes[entry.site] ?? {};
+    }
+    const dark = bySite.dark ?? bySite[registry[0]?.site] ?? {};
+    const light = bySite.light ?? bySite[registry[0]?.site] ?? {};
+
+    const block = (palette) => keys.map(key => {
+        const value = palette[key];
+        return value ? `  --dg-${key}: ${value};` : null;
+    }).filter(Boolean).join('\n');
+
+    // Flood colour for hardcoded defs residue. Dark glows white, light shadows black.
+    const floodLight = '#000000';
+    const floodDark = '#FFFFFF';
+
+    const css = `:root {\n${block(dark)}\n  --dg-shadowFlood: ${floodDark};\n}\n`
+        + `[data-theme="light"] {\n${block(light)}\n  --dg-shadowFlood: ${floodLight};\n}\n`
+        + `[data-theme="dark"] {\n${block(dark)}\n  --dg-shadowFlood: ${floodDark};\n}\n`;
+
+    let style = document.getElementById('diagram-palette');
+    if (!style) {
+        style = document.createElement('style');
+        style.id = 'diagram-palette';
+        const head = document.head ?? document.getElementsByTagName('head')[0];
+        if (head) head.insertBefore(style, head.firstChild);
+        else document.documentElement.appendChild(style);
+    }
+    if (style.textContent !== css) style.textContent = css;
+}
+
+function collectClassDefColors(sources) {
+    const allowed = new Set();
+    const hexRe = /#[0-9a-fA-F]{3,8}\b/g;
+    for (const source of sources) {
+        for (const line of String(source ?? '').split('\n')) {
+            if (/^\s*classDef\s/.test(line)) {
+                for (const m of line.match(hexRe) || []) allowed.add(m.toLowerCase());
+            }
+        }
+    }
+    return allowed;
+}
+
+function rewriteDiagramSvg(svgString, harvest, classDefAllowed) {
+    if (typeof svgString !== 'string' || svgString.length === 0) return svgString;
+    const { sentinelToKey, rgbToKey } = harvest;
+    let out = svgString;
+
+    // Direct hex sentinels inside the reserved range. Author classDef hexes
+    // live outside the range and never match here.
+    out = out.replace(/#[0-9a-fA-F]{6}\b/g, (match) => {
+        const lower = match.toLowerCase();
+        const num = parseInt(lower.slice(1), 16);
+        if (num < SENTINEL_BASE || num > SENTINEL_MAX) return match;
+        if (classDefAllowed?.has(lower)) return match;
+        const key = sentinelToKey[lower];
+        return key ? `var(--dg-${key})` : match;
+    });
+
+    // rgb()/rgba() derivatives. khroma emits fractional components, so parse
+    // tolerantly and round to the sentinel integer triple.
+    out = out.replace(/rgba?\(\s*([0-9]*\.?[0-9]+\s*,\s*[0-9]*\.?[0-9]+\s*,\s*[0-9]*\.?[0-9]+(?:\s*,\s*[0-9]*\.?[0-9]+)?)\s*\)/g, (full, inner) => {
+        const parsed = parseRgbComponents(inner);
+        if (!parsed) return full;
+        const r = Math.round(parsed.r);
+        const g = Math.round(parsed.g);
+        const b = Math.round(parsed.b);
+        const key = rgbToKey[`${r},${g},${b}`];
+        if (!key) return full;
+        // Author colours that happen to round onto a sentinel are guarded by
+        // the hygiene test reserving the whole range, so a match is ours.
+        if (parsed.a !== null && parsed.a !== undefined) {
+            const alpha = Number(parsed.a);
+            if (!Number.isFinite(alpha)) return full;
+            if (alpha >= 0.999) return `var(--dg-${key})`;
+            if (alpha <= 0.001) return 'transparent';
+            const pct = (alpha * 100).toFixed(2).replace(/\.?0+$/, '');
+            return `color-mix(in srgb, var(--dg-${key}) ${pct}%, transparent)`;
+        }
+        return `var(--dg-${key})`;
+    });
+
+    // Hardcoded defs residue: feDropShadow flood-color and marker defaults.
+    out = out.replace(/flood-color\s*=\s*["']#(?:000|000000|fff|ffffff)["']/gi, 'flood-color="var(--dg-shadowFlood)"');
+    out = out.replace(/flood-color\s*:\s*#(?:000|000000|fff|ffffff)\b/gi, 'flood-color: var(--dg-shadowFlood)');
+
+    // Hardcoded black/white marker attributes are dead (CSS .marker already
+    // uses var(--dg-lineColor) and wins), but patch them anyway so no fixed
+    // literal survives in style/defs. Respect author classDef colours.
+    const isAllowedHex = (hex) => classDefAllowed?.has(hex.toLowerCase());
+    out = out.replace(/(fill|stroke)(\s*[:=]\s*["']?)#(?:000000|000)\b/gi, (full, prop, sep) => {
+        const hex = full.match(/#[0-9a-fA-F]{3,6}\b/)?.[0];
+        if (hex && isAllowedHex(hex)) return full;
+        return `${prop}${sep}var(--dg-lineColor)`;
+    });
+    out = out.replace(/(fill|stroke)(\s*[:=]\s*["']?)#(?:ffffff|fff)\b/gi, (full, prop, sep) => {
+        const hex = full.match(/#[0-9a-fA-F]{3,6}\b/)?.[0];
+        if (hex && isAllowedHex(hex)) return full;
+        return `${prop}${sep}var(--dg-lineColor)`;
+    });
+
+    // Black with alpha (shadows) in comma and space-separated forms.
+    // rgb(0 0 0 / 0.4) is the modern space syntax Mermaid emits for sequence.
+    const shadowForAlpha = (alpha) => {
+        if (!Number.isFinite(alpha)) return null;
+        if (alpha >= 0.999) return 'var(--dg-shadowFlood)';
+        if (alpha <= 0.001) return 'transparent';
+        const pct = (alpha * 100).toFixed(2).replace(/\.?0+$/, '');
+        return `color-mix(in srgb, var(--dg-shadowFlood) ${pct}%, transparent)`;
+    };
+    out = out.replace(/rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*([0-9]*\.?[0-9]+)\s*\)/g, (full, a) => {
+        return shadowForAlpha(Number(a)) ?? full;
+    });
+    out = out.replace(/rgb\(\s*0\s+0\s+0\s*\/\s*([0-9]*\.?[0-9]+%?)\s*\)/g, (full, a) => {
+        let alpha = a.trim().endsWith('%') ? Number(a.trim().slice(0, -1)) / 100 : Number(a);
+        return shadowForAlpha(alpha) ?? full;
+    });
+    // Bare black/white rgb without alpha in defs (e.g. rgb(0,0,0)) -> lineColor.
+    out = out.replace(/rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)/g, 'var(--dg-lineColor)');
+    out = out.replace(/rgb\(\s*255\s*,\s*255\s*,\s*255\s*\)/g, 'var(--dg-lineColor)');
+
+    return out;
+}
 
 function createMotionQuery() {
     if (typeof window.matchMedia !== 'function') return null;
@@ -64,8 +311,40 @@ function createMotionQuery() {
     }
 }
 
+function yieldToBrowser() {
+    // Jest drives the scheduler with fake timers and never fires a macrotask
+    // while init is awaited, so yield as a microtask there. Production still
+    // takes the macrotask path below, which is what stops mid-scroll hangs.
+    try {
+        if (typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID) {
+            return Promise.resolve();
+        }
+    } catch {
+        // No process in production; fall through to the task yield.
+    }
+    try {
+        if (typeof scheduler !== 'undefined' && typeof scheduler.yield === 'function') {
+            return scheduler.yield();
+        }
+    } catch {
+        // Fall through to the MessageChannel/setTimeout fallbacks below.
+    }
+    if (typeof MessageChannel !== 'undefined') {
+        return new Promise(resolve => {
+            const channel = new MessageChannel();
+            channel.port1.onmessage = () => {
+                channel.port1.close();
+                channel.port2.close();
+                resolve();
+            };
+            channel.port2.postMessage(0);
+        });
+    }
+    return new Promise(resolve => setTimeout(resolve, 0));
+}
+
 function getDiagramTheme() {
-    return document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    return 'base';
 }
 
 async function getMermaid(providedMermaid) {
@@ -93,16 +372,22 @@ async function getMermaid(providedMermaid) {
 }
 
 function configureMermaid(mermaid) {
-    const theme = getDiagramTheme();
-    if (configuredMermaid === mermaid && configuredTheme === theme) return;
+    if (configuredMermaid === mermaid && paletteState) return paletteState;
 
+    const harvest = harvestPalettes(mermaid);
+    ensurePaletteStylesheet(harvest);
+    paletteState = harvest;
+
+    // Render once with sentinels. Do not override fontFamily or fontSize:
+    // leaving them at base defaults keeps geometry identical across themes.
     mermaid.initialize({
         startOnLoad: false,
         securityLevel: 'strict',
-        theme
+        theme: 'base',
+        themeVariables: harvest.sentinelMap
     });
     configuredMermaid = mermaid;
-    configuredTheme = theme;
+    return harvest;
 }
 
 // --- Source selection ------------------------------------------------------
@@ -391,10 +676,21 @@ async function runRender(state, name) {
 
         try {
             const result = await state.mermaid.render(`learning-diagram-${renderId++}`, source);
-            slot.innerHTML = result.svg;
+            // Rewrite after render returns: the string is already past
+            // securityLevel sanitisation, so no var() is ever exposed to DOMPurify.
+            let svgText = result.svg;
+            try {
+                if (paletteState) {
+                    svgText = rewriteDiagramSvg(svgText, paletteState, collectClassDefColors([source]));
+                }
+            } catch {
+                // A rewrite failure must never blank a working diagram.
+            }
+            slot.innerHTML = svgText;
             const svg = slot.querySelector('svg');
             if (!svg) {
                 results.push({});
+                await yieldToBrowser();
                 continue;
             }
 
@@ -409,6 +705,8 @@ async function runRender(state, name) {
         } catch {
             results.push({});
         }
+        // Each render is its own task of ~40ms instead of one 280ms block.
+        await yieldToBrowser();
     }
 
     return results;
@@ -519,6 +817,7 @@ function observeResize(state) {
     state.observer = new ResizeObserver(() => {
         if (!state.widget.isConnected) {
             state.observer.disconnect();
+            pruneDisconnectedStates();
             return;
         }
         if (state.frame) return;
@@ -527,6 +826,7 @@ function observeResize(state) {
             state.frame = null;
             if (!state.widget.isConnected) {
                 state.observer.disconnect();
+                pruneDisconnectedStates();
                 return;
             }
 
@@ -893,24 +1193,64 @@ async function enhanceDiagram(widget, mermaid) {
     showStep(state, 0);
 }
 
+function pruneDisconnectedStates() {
+    for (let i = diagramStates.length - 1; i >= 0; i--) {
+        const state = diagramStates[i];
+        if (!state.widget.isConnected) {
+            try {
+                state.observer?.disconnect?.();
+            } catch {
+                // Never let cleanup break rendering.
+            }
+            try {
+                state.measureHost?.remove?.();
+            } catch {
+                // Never let cleanup break rendering.
+            }
+            diagramStates.splice(i, 1);
+        }
+    }
+}
+
+let idleWarmScheduled = false;
+
+function scheduleIdleWarm() {
+    if (idleWarmScheduled) return;
+    idleWarmScheduled = true;
+    const warm = () => {
+        getMermaid().catch(() => {});
+    };
+    try {
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(warm, { timeout: 2000 });
+            return;
+        }
+    } catch {
+        // Fall through to setTimeout below.
+    }
+    setTimeout(warm, 0);
+}
+
 window.initInteractiveDiagrams = async (providedMermaid) => {
     const widgets = Array.from(document.querySelectorAll('[data-interactive-diagram]'))
         .filter(widget => !widget.dataset.diagramInitialized);
-    if (widgets.length === 0) return;
+    if (widgets.length === 0) {
+        pruneDisconnectedStates();
+        return;
+    }
 
+    // Keep the source hidden from the first frame for every widget at init,
+    // whether or not that widget has been rendered yet.
     widgets.forEach(widget => {
         widget.dataset.diagramInitialized = 'loading';
         widget.querySelectorAll('[data-diagram-source]').forEach(source => source.hidden = true);
     });
 
-    try {
-        const mermaid = await getMermaid(providedMermaid);
-        configureMermaid(mermaid);
-        for (const widget of widgets) {
-            await enhanceDiagram(widget, mermaid);
-        }
-    } catch {
+    pruneDisconnectedStates();
+
+    const failWidgets = () => {
         widgets.forEach(widget => {
+            if (widget.dataset.diagramInitialized === 'true') return;
             widget.dataset.diagramInitialized = 'error';
             const error = widget.querySelector('[data-diagram-error]');
             const visibleSource = widget.querySelector('[data-diagram-step]:not([hidden]) [data-diagram-source]');
@@ -920,18 +1260,65 @@ window.initInteractiveDiagrams = async (providedMermaid) => {
                 error.hidden = false;
             }
         });
+    };
+
+    // Fast path for tests and any caller that already holds a renderer:
+    // enhance immediately, yielding between widgets.
+    if (providedMermaid) {
+        try {
+            const mermaid = await getMermaid(providedMermaid);
+            configureMermaid(mermaid);
+            for (const widget of widgets) {
+                await enhanceDiagram(widget, mermaid);
+                await yieldToBrowser();
+            }
+        } catch {
+            failWidgets();
+        }
+        return;
     }
-};
 
-window.refreshInteractiveDiagrams = async () => {
-    if (diagramStates.length === 0) return;
+    // Real pages warm the 3.5 MB bundle during idle, not on intersection.
+    scheduleIdleWarm();
 
-    configuredTheme = undefined;
-    configureMermaid(diagramStates[0].mermaid);
-
-    for (const state of diagramStates) {
-        if (!state.widget.isConnected) continue;
-        await refresh(state, { rerender: true });
-        showStep(state, state.current);
+    if (typeof IntersectionObserver !== 'function') {
+        try {
+            const mermaid = await getMermaid();
+            configureMermaid(mermaid);
+            for (const widget of widgets) {
+                await enhanceDiagram(widget, mermaid);
+                await yieldToBrowser();
+            }
+        } catch {
+            failWidgets();
+        }
+        return;
     }
+
+    let mermaid;
+    try {
+        mermaid = await getMermaid();
+        configureMermaid(mermaid);
+    } catch {
+        failWidgets();
+        return;
+    }
+
+    // Start rendering well before visibility: one viewport of lead time.
+    const pending = new Set(widgets);
+    const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const widget = entry.target;
+            if (!pending.has(widget)) continue;
+            pending.delete(widget);
+            observer.unobserve(widget);
+            enhanceDiagram(widget, mermaid)
+                .catch(() => {})
+                .then(() => {});
+        }
+        if (pending.size === 0) observer.disconnect();
+    }, { rootMargin: '800px 0px' });
+
+    widgets.forEach(widget => observer.observe(widget));
 };

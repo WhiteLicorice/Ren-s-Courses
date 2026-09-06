@@ -236,6 +236,58 @@ const DIAGRAM_FIXTURES = {
             { title: 'Bare nodes', description: '', mermaid: 'flowchart LR\n    A --> B\n    B --> C' },
             { title: 'More bare nodes', description: '', mermaid: 'flowchart LR\n    A --> B\n    B --> C\n    C --> D' }
         ]
+    },
+
+    /** State machine. Palette coverage must include stateDiagram-v2. */
+    stateWalkthrough: {
+        title: 'Order states',
+        description: 'An order moves through its lifecycle.',
+        narrowDirection: '',
+        steps: [
+            { title: 'Place', description: 'An order starts idle.', mermaid: 'stateDiagram-v2\n    [*] --> Still\n    Still --> Moving' },
+            { title: 'Deliver', description: 'Movement ends the walk.', mermaid: 'stateDiagram-v2\n    Still --> Moving\n    Moving --> [*]' }
+        ]
+    },
+
+    /** Class relations. Palette coverage must include classDiagram. */
+    classRelations: {
+        title: 'Animal hierarchy',
+        description: 'A duck is an animal.',
+        narrowDirection: '',
+        steps: [
+            { title: 'Inherit', description: 'Duck extends animal.', mermaid: 'classDiagram\n    Animal <|-- Duck\n    Animal : +int age\n    Duck : +swim()' },
+            { title: 'Relate', description: 'A customer owns orders.', mermaid: 'classDiagram\n    Customer --> Order\n    Order : +int id' }
+        ]
+    },
+
+    /** Entity relations. Palette coverage must include erDiagram. */
+    entityRelations: {
+        title: 'Customer orders',
+        description: 'Customers place orders.',
+        narrowDirection: '',
+        steps: [
+            { title: 'Place', description: 'One customer, many orders.', mermaid: 'erDiagram\n    CUSTOMER ||--o{ ORDER : places\n    ORDER ||--o{ LINE-ITEM : contains' }
+        ]
+    },
+
+    /** Share of pets. Palette coverage must include pie. */
+    petShares: {
+        title: 'Pet shares',
+        description: 'Dogs lead the count.',
+        narrowDirection: '',
+        steps: [
+            { title: 'Count', description: 'Three groups.', mermaid: 'pie title Pets\n    "Dogs" : 386\n    "Cats" : 85\n    "Rats" : 15' }
+        ]
+    },
+
+    /** Short schedule. Palette coverage must include gantt. */
+    shortSchedule: {
+        title: 'Short schedule',
+        description: 'Two tasks in order.',
+        narrowDirection: '',
+        steps: [
+            { title: 'Plan', description: 'Two tasks.', mermaid: 'gantt\n    title Schedule\n    dateFormat YYYY-MM-DD\n    section Work\n    Task1 :a1, 2026-01-01, 3d\n    Task2 :after a1, 2d' }
+        ]
     }
 };
 

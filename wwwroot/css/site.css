@@ -81,6 +81,11 @@
     --scrollbar-rail: var(--border-muted);
 }
 
+/* Diagram palette overrides (--dg-*). The renderer harvests Mermaid's own
+   themes into <style id="diagram-palette"> as the first child of <head>, so
+   any --dg-* set here wins at equal specificity. Leave unset to keep the
+   harvested palette verbatim. Add one [data-theme="<name>"] block per theme. */
+
 #offline-status-badge[data-offline-state="ready"] {
     border-color: color-mix(in srgb, var(--offline-ready) 40%, transparent);
     background-color: color-mix(in srgb, var(--offline-ready) 10%, transparent);

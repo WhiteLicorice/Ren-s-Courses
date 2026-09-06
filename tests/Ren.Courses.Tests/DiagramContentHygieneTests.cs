@@ -258,4 +258,50 @@ public class DiagramContentHygieneTests
 
         return post.FrontMatter.Diagrams.Single();
     }
+
+    [Fact]
+    public void NoDiagramSource_UsesReservedSentinelRange()
+    {
+        // The browser renderer reserves #100000-#10FFFF as sentinel colours that
+        // become var(--dg-*) references. An author hex inside that range would be
+        // rewritten into a CSS variable. See README "Custom themes".
+        var violations = new List<string>();
+        var files = Directory.GetFiles(
+            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+
+        var deser = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .IgnoreUnmatchedProperties()
+            .Build();
+
+        foreach (var file in files)
+        {
+            var raw = File.ReadAllText(file);
+            var (fm, _) = PdfGeneratorService.ParseFrontMatter<CourseFrontMatter>(raw, deser);
+            if (fm is null) continue;
+
+            foreach (var d in fm.Diagrams)
+            {
+                foreach (var step in d.Steps)
+                {
+                    foreach (System.Text.RegularExpressions.Match m in Regex.Matches(step.Mermaid ?? "", @"#[0-9a-fA-F]{6}\b"))
+                    {
+                        var hex = m.Value;
+                        if (hex[1] == '1' && hex[2] == '0' && IsHexInReservedRange(hex))
+                            violations.Add($"{Path.GetFileName(file)}: diagram '{d.Title}' step '{step.Title}' uses reserved sentinel colour {hex}");
+                    }
+                }
+            }
+        }
+
+        Assert.Empty(violations);
+    }
+
+    private static bool IsHexInReservedRange(string hex)
+    {
+        // Reserved: #100000-#10FFFF inclusive.
+        if (!int.TryParse(hex.Substring(1), System.Globalization.NumberStyles.HexNumber, null, out var value))
+            return false;
+        return value >= 0x100000 && value <= 0x10FFFF;
+    }
 }

@@ -122,6 +122,20 @@ source. A scrolling diagram gains a "Scroll sideways to view the full diagram." 
 edge cues, and keyboard focus. The widget reserves one height for every step, so Previous, Next
 and Play never move the page.
 
+Theme switching is free for diagrams. Each step renders once with sentinel colours that become
+`var(--dg-*)` references. Flipping `data-theme` then repaints through CSS with zero Mermaid
+calls. The palette is harvested from Mermaid's own themes into `<style id="diagram-palette">`
+as the first child of `<head>`, so later authored CSS wins at equal specificity.
+
+The sentinel range `#100000`–`#10FFFF` is reserved. Never use it in a `mermaid` source; the
+content-hygiene gate fails the build if any material does. Author `classDef` colours outside
+that range survive untouched and stay fixed across themes by design.
+
+To add a theme: add one entry to `Models/SiteThemeRegistry.cs` naming the site theme and the
+Mermaid theme it harvests from, add one `[data-theme="<name>"]` token block in
+`wwwroot/css/site.css` beside `:root` and `[data-theme="light"]`, and optionally a `--dg-*`
+override block if the harvested palette is not wanted verbatim. No JavaScript change is needed.
+
 ### Offline PWA
 
 Production builds generate `output/offline-manifest.json` and `output/service-worker.js` after

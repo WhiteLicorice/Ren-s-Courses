@@ -33,6 +33,7 @@ afterEach(() => {
     document.documentElement.removeAttribute('data-theme');
     document.head.innerHTML = '';
     delete window.refreshInteractiveDiagrams;
+    delete window.initInteractiveDiagrams;
 });
 
 describe('switchPrismTheme', () => {
@@ -102,16 +103,42 @@ describe('switchPrismTheme', () => {
         expect(document.querySelector('meta[name="theme-color"]').content).toBe('#f8f9fa');
     });
 
-    test('refreshes interactive diagrams after changing the site theme', () => {
+    test('switching themes calls no diagram entry point', () => {
         window.refreshInteractiveDiagrams = jest.fn();
+        window.initInteractiveDiagrams = jest.fn();
 
         window.switchPrismTheme('light');
 
-        expect(window.refreshInteractiveDiagrams).toHaveBeenCalledTimes(1);
+        expect(window.refreshInteractiveDiagrams).not.toHaveBeenCalled();
+        expect(window.initInteractiveDiagrams).not.toHaveBeenCalled();
     });
 
-    test('no-op when prism-theme-link element is absent', () => {
+    test('applies site theme even when prism-theme-link element is absent', () => {
         document.getElementById('prism-theme-link').remove();
         expect(() => window.switchPrismTheme('light')).not.toThrow();
+        expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+        expect(localStorage.getItem('user-theme')).toBe('light');
+        expect(document.querySelector('meta[name="theme-color"]').content).toBe('#f8f9fa');
+    });
+
+    test('system change keeps an explicit stored choice', () => {
+        window.switchPrismTheme('light');
+        expect(localStorage.getItem('user-theme')).toBe('light');
+
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        media._fire(true);
+
+        expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+        expect(localStorage.getItem('user-theme')).toBe('light');
+    });
+
+    test('system change follows the OS when no choice is stored', () => {
+        localStorage.clear();
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        media.matches = false;
+        media._fire(false);
+
+        expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+        expect(localStorage.getItem('user-theme')).toBeNull();
     });
 });

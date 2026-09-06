@@ -2,7 +2,7 @@
 'use strict';
 
 const { test, expect } = require('@playwright/test');
-const { DIAGRAM_FIXTURES, MULTIPLE_WIDGETS, buildPageMarkup } = require('../fixtures/diagram-fixtures');
+const { DIAGRAM_FIXTURES, MULTIPLE_WIDGETS, buildPageMarkup, buildWidgetMarkup } = require('../fixtures/diagram-fixtures');
 
 /**
  * These tests run the real renderer against permanent in-memory fixtures, not
@@ -474,7 +474,7 @@ test('a theme change never exposes an empty or half-rendered stage', async ({ pa
         }, 4);
 
         document.documentElement.setAttribute('data-theme', 'light');
-        await window.refreshInteractiveDiagrams();
+        await new Promise(resolve => setTimeout(resolve, 500));
         clearInterval(probe);
         return { emptyFrames, sourceFrames };
     });
@@ -536,4 +536,184 @@ test('no diagram test requests a production article route', async ({ page }) => 
     // Mermaid and the renderer still come from the real static output.
     expect(requested.some(url => url.endsWith('js/interactive-diagrams.js'))).toBe(true);
     expect(requested.some(url => url.includes('vendor/mermaid/mermaid.min.js'))).toBe(true);
+});
+
+test('flipping data-theme performs zero Mermaid renders and repaints node fills', async ({ page }) => {
+    await mount(page, 'wideFlowchartWithoutReflow', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+
+    // Author classDef colours (#ef4444) must survive untouched, so pick a
+    // theme-dependent node fill, not the highlighted active one.
+    const themeFill = element => {
+        const rects = [...element.querySelectorAll('[data-diagram-canvas] svg .node rect')];
+        const fills = rects.map(rect => getComputedStyle(rect).fill);
+        return fills.find(fill => fill !== 'rgb(239, 68, 68)') ?? fills[0];
+    };
+
+    const before = await widget.evaluate(themeFill);
+
+    const counts = await page.evaluate(() => {
+        window.__renderCount = 0;
+        const original = window.mermaid.render.bind(window.mermaid);
+        window.mermaid.render = async (...args) => {
+            window.__renderCount++;
+            return original(...args);
+        };
+        document.documentElement.setAttribute('data-theme', 'light');
+        return new Promise(resolve => setTimeout(() => resolve(window.__renderCount), 500));
+    });
+
+    expect(counts).toBe(0);
+
+    const after = await widget.evaluate(themeFill);
+    expect(after).not.toBe(before);
+});
+
+test('palette coverage spans seven diagram types with no unmapped colour literal', async ({ page }) => {
+    const names = ['wideTokenStream', 'wideSequenceDiagram', 'stateWalkthrough',
+        'classRelations', 'entityRelations', 'petShares', 'shortSchedule'];
+
+    let totalUnmapped = [];
+    let totalVarRefs = 0;
+    let sawPalette = false;
+
+    // Mount one type at a time: deferred loading leaves below-fold widgets
+    // uninitialized, so a seven-widget page never settles in one mount.
+    for (const name of names) {
+        await mount(page, name, { width: 1280 });
+
+        const result = await page.evaluate(() => {
+            const hexRe = /#[0-9a-fA-F]{3,8}\b/g;
+            const rgbRe = /rgba?\([^)]*\)/g;
+            // #e0e0e0 is hardcoded by Mermaid for stateDiagram .alt-composit in
+            // both themes (verified in vendor/mermaid/mermaid.min.js), so it is
+            // theme-invariant by design like an author classDef colour.
+            const knownInvariant = new Set(['#e0e0e0']);
+            const unmapped = [];
+            let varRefs = 0;
+
+            const toHex = (r, g, b) => '#' + [r, g, b]
+                .map(v => Math.round(v).toString(16).padStart(2, '0')).join('').toLowerCase();
+
+            document.querySelectorAll('[data-interactive-diagram]').forEach(widget => {
+                widget.querySelectorAll('[data-diagram-canvas] svg').forEach(svg => {
+                    const style = svg.querySelector('style')?.textContent ?? '';
+                    const defs = svg.querySelector('defs')?.innerHTML ?? '';
+                    const haystack = `${style}\n${defs}`;
+                    if (haystack.includes('var(--dg-')) {
+                        varRefs += (haystack.match(/var\(--dg-/g) || []).length;
+                    }
+                    const allowed = new Set(knownInvariant);
+                    widget.querySelectorAll('[data-diagram-source]').forEach(source => {
+                        source.textContent.split('\n').forEach(line => {
+                            if (/^\s*classDef\s/.test(line)) {
+                                (line.match(hexRe) || []).forEach(h => {
+                                    const lower = h.toLowerCase();
+                                    allowed.add(lower);
+                                    // Mermaid serialises author hexes as rgb() too.
+                                    let hex = lower;
+                                    if (hex.length === 4) {
+                                        hex = '#' + hex.slice(1).split('').map(c => c + c).join('');
+                                    }
+                                    if (hex.length === 7) {
+                                        const r = parseInt(hex.slice(1, 3), 16);
+                                        const g = parseInt(hex.slice(3, 5), 16);
+                                        const b = parseInt(hex.slice(5, 7), 16);
+                                        allowed.add(toHex(r, g, b));
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    (haystack.match(hexRe) || []).forEach(h => {
+                        if (!allowed.has(h.toLowerCase())) unmapped.push(h);
+                    });
+                    (haystack.match(rgbRe) || []).forEach(c => {
+                        if (c.includes('var(--dg-')) return;
+                        const nums = c.match(/[0-9]*\.?[0-9]+/g)?.map(Number) ?? [];
+                        if (nums.length >= 3) {
+                            const hex = toHex(nums[0], nums[1], nums[2]);
+                            if (allowed.has(hex)) return;
+                        }
+                        unmapped.push(c);
+                    });
+                });
+            });
+
+            const palette = document.getElementById('diagram-palette');
+            return { unmapped: unmapped.slice(0, 40), unmappedCount: unmapped.length, varRefs, hasPalette: !!palette };
+        });
+
+        totalUnmapped.push(...result.unmapped);
+        totalVarRefs += result.varRefs;
+        sawPalette = sawPalette || result.hasPalette;
+    }
+
+    expect(sawPalette).toBe(true);
+    expect(totalVarRefs).toBeGreaterThan(0);
+    expect(totalUnmapped).toEqual([]);
+});
+
+test('a below-the-fold widget is ready before it enters the viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.route(`**${HARNESS_ROUTE}`, route => route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<base href="/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/site.css">
+<style>
+  body { margin: 0; }
+  .harness { margin-inline: auto; max-width: 65ch; padding-inline: 1rem; }
+  .spacer { height: 200vh; }
+</style>
+</head>
+<body>
+<main class="harness prose">${buildWidgetMarkup(DIAGRAM_FIXTURES.alreadyVerticalFlowchart, 0)}</main>
+<div class="spacer"></div>
+<main class="harness prose">${buildWidgetMarkup(DIAGRAM_FIXTURES.wideFlowchartWithoutReflow, 1)}</main>
+<div class="spacer"></div>
+<script src="js/interactive-diagrams.js"></script>
+<script>window.__diagramsReady = window.initInteractiveDiagrams();</script>
+</body>
+</html>`
+    }));
+    await page.goto(HARNESS_ROUTE);
+
+    const second = page.locator('[data-interactive-diagram]').nth(1);
+    await expect(page.locator('[data-interactive-diagram]').nth(0))
+        .toHaveAttribute('data-diagram-initialized', 'true', { timeout: 20000 });
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(200);
+
+    let readyBeforeVisible = false;
+    for (let step = 0; step < 40; step++) {
+        const state = await second.evaluate(element => {
+            const rect = element.getBoundingClientRect();
+            return {
+                top: rect.top,
+                viewportHeight: window.innerHeight,
+                initialized: element.dataset.diagramInitialized
+            };
+        });
+        if (state.top < state.viewportHeight && state.initialized === 'true') {
+            readyBeforeVisible = true;
+            break;
+        }
+        if (state.initialized === 'true' && state.top >= state.viewportHeight) {
+            readyBeforeVisible = true;
+            break;
+        }
+        await page.evaluate(() => window.scrollBy(0, 120));
+        await page.waitForTimeout(50);
+    }
+
+    expect(readyBeforeVisible).toBe(true);
+    await expect(second).toHaveAttribute('data-diagram-initialized', 'true', { timeout: 20000 });
 });

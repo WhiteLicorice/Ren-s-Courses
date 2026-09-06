@@ -72,8 +72,19 @@ function svgFor(definition, options) {
 }
 
 function createMermaid(options = {}) {
+    const themeVariables = {};
+    for (let i = 0; i < 150; i++) {
+        const hex = `#${(0x200000 + i).toString(16).padStart(6, '0')}`;
+        themeVariables[`testColor${i}`] = hex;
+    }
+    themeVariables.primaryColor = '#ECECFF';
+    themeVariables.mainBkg = '#ECECFF';
+    themeVariables.dropShadow = 'drop-shadow(0 0 5px rgba(185, 185, 185, 1))';
     return {
         initialize: jest.fn(),
+        mermaidAPI: {
+            getConfig: jest.fn(() => ({ themeVariables: { ...themeVariables } }))
+        },
         render: jest.fn(async (id, definition) => {
             if (options.failOn && options.failOn(definition)) throw new Error('bad syntax');
             return { svg: svgFor(definition, options) };
@@ -322,8 +333,12 @@ test('renders every step before enabling the controls', async () => {
     expect(mermaid.initialize).toHaveBeenCalledWith(expect.objectContaining({
         startOnLoad: false,
         securityLevel: 'strict',
-        theme: 'dark'
+        theme: 'base'
     }));
+    const initCall = mermaid.initialize.mock.calls.find(call => call[0]?.theme === 'base');
+    expect(initCall).toBeDefined();
+    expect(initCall[0].themeVariables).toBeDefined();
+    expect(Object.keys(initCall[0].themeVariables).length).toBeGreaterThan(100);
     const steps = stepsOf(widgets()[0]);
     expect(steps.every(step => step.stage.querySelector('svg'))).toBe(true);
     expect(steps.every(step => step.source.hidden)).toBe(true);
@@ -1050,25 +1065,28 @@ test('a widget removed from the document disconnects its observer', async () => 
     expect(resizeObservers.every(observer => observer.disconnected)).toBe(true);
 });
 
-test('a theme refresh rerenders every step and keeps the selected layout mode', async () => {
+test('a data-theme flip performs zero Mermaid work and keeps the layout', async () => {
     mount('wideTokenStream');
     const mermaid = createMermaid();
     await window.initInteractiveDiagrams(mermaid);
 
     expect(widgets()[0].dataset.diagramLayout).toBe('narrow');
+    expect(window.refreshInteractiveDiagrams).toBeUndefined();
     const renderCalls = mermaid.render.mock.calls.length;
+    const initCalls = mermaid.initialize.mock.calls.length;
 
     document.documentElement.setAttribute('data-theme', 'light');
-    await window.refreshInteractiveDiagrams();
+    await Promise.resolve();
+    await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(mermaid.initialize).toHaveBeenLastCalledWith(expect.objectContaining({ theme: 'default' }));
-    expect(mermaid.render.mock.calls.length).toBeGreaterThan(renderCalls);
+    expect(mermaid.render.mock.calls.length).toBe(renderCalls);
+    expect(mermaid.initialize.mock.calls.length).toBe(initCalls);
     expect(widgets()[0].dataset.diagramLayout).toBe('narrow');
     expect(document.querySelector('[data-diagram-source]').hidden).toBe(true);
     expect(stepsOf(widgets()[0]).every(step => step.stage.querySelector('svg'))).toBe(true);
 });
 
-test('a failed theme rerender keeps the previously rendered SVG visible', async () => {
+test('a failing renderer after commit never blanks the stage on a theme flip', async () => {
     mount('alreadyVerticalFlowchart');
     const mermaid = createMermaid();
     await window.initInteractiveDiagrams(mermaid);
@@ -1076,11 +1094,14 @@ test('a failed theme rerender keeps the previously rendered SVG visible', async 
     const steps = stepsOf(widgets()[0]);
     const before = steps[0].stage.querySelector('svg');
     expect(before).not.toBeNull();
+    const renderCalls = mermaid.render.mock.calls.length;
 
     mermaid.render.mockRejectedValue(new Error('renderer died'));
     document.documentElement.setAttribute('data-theme', 'light');
-    await window.refreshInteractiveDiagrams();
+    await Promise.resolve();
+    await new Promise(resolve => setTimeout(resolve, 0));
 
+    expect(mermaid.render.mock.calls.length).toBe(renderCalls);
     expect(steps[0].stage.querySelector('svg')).toBe(before);
     expect(steps[0].source.hidden).toBe(true);
     expect(steps[0].error.hidden).toBe(true);

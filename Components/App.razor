@@ -1,4 +1,5 @@
 @inject IWebHostEnvironment HostEnvironment
+@using BlazorStaticMinimalBlog.Models
 
 <!DOCTYPE html>
 <html lang="en" data-environment="@HostEnvironment.EnvironmentName" class="scroll-smooth">
@@ -27,17 +28,25 @@
         data-light-href="@(WebsiteKeys.VersionedAsset("css/prism-light.css"))">
 
     @* --- BOOT SCRIPT --- *@
+    @{
+        var registryEntries = string.Join(",", SiteThemeRegistry.All.Select(t => $"{{site:'{t.Name}',mermaid:'{t.MermaidTheme}'}}"));
+        var registryColors = string.Join(",", SiteThemeRegistry.All.Select(t => $"'{t.Name}':'{t.ThemeColor}'"));
+    }
     <script>
+        window.siteThemeRegistry = [@((MarkupString)registryEntries)];
+        window.siteThemeColors = {@((MarkupString)registryColors)};
         (function () {
+            var registry = window.siteThemeRegistry.map(function (e) { return e.site; });
             var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             var savedTheme = localStorage.getItem('user-theme');
-            var mode = savedTheme === 'light' ? 'light'
-                : savedTheme === 'dark' ? 'dark'
-                : systemDark ? 'dark' : 'light';
+            var mode = registry.indexOf(savedTheme) >= 0 ? savedTheme
+                : systemDark
+                    ? (registry.indexOf('dark') >= 0 ? 'dark' : registry[0])
+                    : (registry.indexOf('light') >= 0 ? 'light' : registry[0]);
 
             document.documentElement.setAttribute('data-theme', mode);
-            if (mode === 'light') {
-                var prismTheme = document.getElementById('prism-theme-link');
+            var prismTheme = document.getElementById('prism-theme-link');
+            if (prismTheme && mode === 'light' && prismTheme.dataset.lightHref) {
                 prismTheme.href = prismTheme.dataset.lightHref;
             }
 
@@ -47,7 +56,7 @@
                 meta.name = 'theme-color';
                 document.head.appendChild(meta);
             }
-            meta.content = mode === 'light' ? '#f8f9fa' : '#111827';
+            meta.content = window.siteThemeColors[mode] || (mode === 'light' ? '#f8f9fa' : '#111827');
         })();
     </script>
 
