@@ -6,45 +6,76 @@
 
 A headless Learning Management System for courses I teach under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.
 
-Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. The site compiles to static HTML and deploys to both GitHub Pages and Netlify on every push and on an hourly cron.
+Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. The site compiles to static HTML. It deploys to both GitHub Pages and Netlify on every push and on an hourly cron.
 
-Clone with `git clone --recurse-submodules`, or run
-`git submodule update --init --recursive` in an existing checkout. PDF builds require
-the pinned `Dependencies/RensMarkdownTemplates` submodule.
+## Quick Start
 
----
+Clone with submodules. PDF builds read the pinned `Dependencies/RensMarkdownTemplates` submodule. The build fails without it.
 
-### Modules
+```bash
+git clone --recurse-submodules https://github.com/WhiteLicorice/Ren-s-Courses.git
+cd Ren-s-Courses
+npm ci
+dotnet run
+```
+
+In a checkout that already exists, run `git submodule update --init --recursive`.
+
+`dotnet run` on its own starts a development server and keeps running. That's what you want while writing content. For a static build, and for every test command, see [TESTING.md](./TESTING.md).
+
+## Repository Layout
+
+```
+Components/     Razor components and pages, including Layout/ and Pages/
+Content/        Markdown source: Materials, FAQs, Projects, Bookings, Events
+Dependencies/   RensMarkdownTemplates submodule: PDF generator, LaTeX templates, shared models
+Models/         Frontmatter types, the site theme registry, holiday models
+Services/       Content providers, build time, the offline bundle generator
+ViewModels/     CalendarViewModel
+Offline/        service-worker.template.js
+Styles/         app.css, the Tailwind entry point
+wwwroot/        Static assets: js/, css/, fonts/, vendor/, pdfs/
+tests/          e2e/ (Playwright), fixtures/, Ren.Courses.Tests/ (xUnit)
+.github/        workflows/build-and-publish.yml and utils/generate_feed.py
+output/         Generated site. Not tracked.
+artifacts/      Toolchain and PDF caches. Not tracked.
+```
+
+## Modules
 
 * [x] Course site: materials, deadlines, and course content served as static pages
 * [x] Submission bins: materials link directly to their relevant Google Forms through optional frontmatter
 * [x] Interactive diagrams: materials can present Mermaid diagrams as controlled, step-by-step walkthroughs
-* [x] Grades viewer: real-time grade lookups via a private Google Apps Script web app
+* [x] Grades viewer: sub-second grade lookups through a private Google Apps Script web app
 * [x] Site mirror: live mirror on Netlify for redundancy
 * [x] Booking system: students book consultations in advance
 * [x] Mailing list: enrolled students get notified by email when new materials drop
 * [x] PWA: installs as a native app on desktop and mobile
 * [x] Calendar: upcoming events, deadlines, and holidays in one view
 * [x] Calendar holidays: Philippine holidays from the [Nager.Date API](https://date.nager.at/), with a calculated fallback if the API is down
-* [x] Calendar custom events: instructors define arbitrary events via markdown frontmatter
-* [x] Theming: light/dark toggle that persists across sessions, synced with Prism.js for code blocks
+* [x] Calendar custom events: instructors define arbitrary events through markdown frontmatter
+* [x] Theming: light and dark toggle that persists across sessions, synced with Prism.js for code blocks
 * [x] FAQs: per-course FAQ pages with accordion layout, hash deep-linking, and a course-tag filter
 * [x] Project showcase: student projects organized by school year and course, with tag filtering
-* [x] RSS feeds: per-course Atom feeds generated at build time by a Python sidecar script
+* [x] RSS feeds: per-course RSS 2.0 feeds generated at build time by a Python sidecar script
 * [ ] Search: a full-text search engine across all frontmatter (low priority, content volume is still manageable by hand)
-* [ ] Custom themes: more themes beyond light/dark and an API to extend them (low priority)
+* [ ] Custom themes: more themes beyond light and dark, plus an API to extend them (low priority)
 
----
+## How It Works
 
-### How It Works
+`.github/workflows/build-and-publish.yml` runs on push to `master` and hourly on a cron. It freezes a UTC timestamp, then runs the JS, .NET, and Python gates in that order. It generates the per-course RSS feeds. Then it builds the static site twice: once with `base href="/"` for Netlify, and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get minified, stamped, and finalized with the offline manifest generator before they reach their deploy branches.
 
-The CI workflow (`.github/workflows/build-and-publish.yml`) runs on push to `master` and hourly via cron. It freezes a UTC timestamp, runs JS tests, runs Python tests for the RSS feed generator, generates per-course Atom feeds, then builds the static site twice: once with `base href="/"` for Netlify and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get HTML-minified, stamped, and finalized with the offline manifest generator before being pushed to their respective deploy branches.
+`CourseContentProvider` publishes a material only when its `Published` date sits inside the `TERM_START` to `TERM_END` window and is no later than the frozen build time. After the term ends, current-term materials disappear unless showcase mode is on. CI pins these as environment variables, so the build is deterministic. [TESTING.md](./TESTING.md) has the full visibility rules and the local recipes.
 
-`CourseContentProvider` only surfaces materials whose `Published` date falls inside the `TERM_START` to `TERM_END` window and is not later than the frozen build time. After the term ends, current-term materials are hidden unless showcase mode is enabled. The CI pins these as env vars so the build is deterministic.
+All client-side behavior is vanilla JS with no framework. Theme, calendar, TOC, code blocks, the FAQ accordion, course filtering, and scroll-to-top are each their own script, loaded with a plain `<script>` tag.
 
-All client-side behavior is vanilla JS, no framework. Theme, calendar, TOC, code block features, FAQ accordion, course filtering, and scroll-to-top are each their own script loaded via `<script>` tags.
+## Authoring Materials
 
-Materials that require deliverables can define one or more submission forms in frontmatter. The list is optional; each entry is rendered as a named action on that material's article page:
+Materials are Markdown files under `Content/Materials`. YAML frontmatter drives everything below.
+
+### Submission Links
+
+A material that requires a deliverable can declare one or more submission forms. The list is optional. Each entry renders as a named action on that material's article page.
 
 ```yaml
 submissions:
@@ -54,10 +85,9 @@ submissions:
     link: https://forms.gle/example
 ```
 
-Materials can also define interactive diagrams in frontmatter. Each step is a complete
-[Mermaid](https://mermaid.js.org/) definition, so steps can use flowcharts, sequence diagrams,
-state diagrams, or any other diagram type supported by Mermaid. Diagrams render where the body
-references them with a marker comment on its own line:
+### Interactive Diagrams
+
+A material can declare interactive diagrams in frontmatter. Each step is a complete [Mermaid](https://mermaid.js.org/) definition, so a walkthrough can use flowcharts, sequence diagrams, state diagrams, or any other type Mermaid supports.
 
 ```yaml
 diagrams:
@@ -77,6 +107,8 @@ diagrams:
               B[2] --> A[5]
 ```
 
+A diagram renders where the body references it with a marker comment on its own line:
+
 ```markdown
 ## What to try
 
@@ -85,25 +117,19 @@ diagrams:
 Use Previous and Next to step through the pass.
 ```
 
-Diagrams not referenced by a marker are never rendered (strict mode). A single diagram can
-appear multiple times by repeating the marker. Markers sit on their own line; the syntax is
-`<!-- diagram: key -->`. Placement determines where the widget appears in both the web page
-and the generated PDF.
+The syntax is `<!-- diagram: key -->` and the marker must sit on its own line. Placement decides where the widget appears in the web page and in the generated PDF. Repeat the marker to show one diagram twice.
 
-Mermaid is loaded from the pinned local bundle only when a page contains a diagram. If the
-library cannot load or a step contains invalid syntax, the authored Mermaid source remains
-visible so the explanation does not become a blank panel.
+Strict mode is the rule here. A diagram that no marker references never renders.
 
-A diagram never shrinks below a readable size. Labels stay at 14 CSS pixels or larger, and the
-renderer picks one of three layouts for each widget:
+Mermaid loads from a pinned local bundle, and only on a page that contains a diagram. If the library fails to load, or a step contains invalid syntax, the authored source stays visible. An explanation should never collapse into a blank panel.
 
-1. **Fit** -- the authored drawing is scaled to the article column.
-2. **Narrow** -- an author-approved vertical variant replaces the horizontal one.
-3. **Pan** -- the drawing keeps a readable width and the diagram viewport scrolls sideways.
+A diagram never shrinks below a readable size. Labels stay at 14 CSS pixels or larger. The renderer picks one of three layouts per widget:
 
-Add `narrowDirection` to opt one diagram into the narrow layout. It accepts `TB` or `BT`, and
-every step of that diagram must be a Mermaid `flowchart` or `graph`. Other diagram types, such
-as sequence diagrams, have no direction token and always pan instead:
+1. **Fit.** The authored drawing scales to the article column.
+2. **Narrow.** An author-approved vertical variant replaces the horizontal one.
+3. **Pan.** The drawing keeps a readable width, and the viewport scrolls sideways.
+
+Add `narrowDirection` to opt one diagram into the narrow layout. It accepts `TB` or `BT`, and every step of that diagram must be a Mermaid `flowchart` or `graph`. A type with no direction token, such as a sequence diagram, always pans instead.
 
 ```yaml
 diagrams:
@@ -117,282 +143,52 @@ diagrams:
               T0["IDENT"] --> T1["ASSIGN"]
 ```
 
-The direction changes the web rendering only. Generated PDFs always use the authored `mermaid`
-source. A scrolling diagram gains a "Scroll sideways to view the full diagram." instruction,
-edge cues, and keyboard focus. The widget reserves one height for every step, so Previous, Next
-and Play never move the page.
+`narrowDirection` changes the web rendering only. A generated PDF always uses the authored `mermaid` source. A scrolling diagram also gains a "Scroll sideways to view the full diagram." instruction, edge cues, and keyboard focus. The widget reserves one height for every step, so Previous, Next, and Play never move the page.
 
-Theme switching is free for diagrams. Each step renders once with sentinel colours that become
-`var(--dg-*)` references. Flipping `data-theme` then repaints through CSS with zero Mermaid
-calls. The palette is harvested from Mermaid's own themes into `<style id="diagram-palette">`
-as the first child of `<head>`, so later authored CSS wins at equal specificity.
+The sentinel colour range `#100000` to `#10FFFF` is reserved. Never use it in a `mermaid` source. The content-hygiene gate fails the build if any material does. Author `classDef` colours outside that range survive untouched and stay fixed across themes by design.
 
-The sentinel range `#100000`–`#10FFFF` is reserved. Never use it in a `mermaid` source; the
-content-hygiene gate fails the build if any material does. Author `classDef` colours outside
-that range survive untouched and stay fixed across themes by design.
+### Adding a Theme
 
-To add a theme: add one entry to `Models/SiteThemeRegistry.cs` naming the site theme, the
-Mermaid theme it harvests from, the browser-chrome colour and the drop-shadow flood colour.
-Then add one `[data-theme="<name>"]` token block in `wwwroot/css/site.css` beside `:root` and
-`[data-theme="light"]`. The renderer generates a `--dg-*` block for every registry entry, so no
-JavaScript change is needed. Add your own `--dg-*` block in `site.css` only if the harvested
-palette is not wanted verbatim.
+Theme switching costs a diagram nothing. Each step renders once with sentinel colours that become `var(--dg-*)` references, so flipping `data-theme` repaints through CSS with zero Mermaid calls.
 
-### Offline PWA
+To add a theme, do two things. Add one entry to `Models/SiteThemeRegistry.cs` naming the site theme, the Mermaid theme it harvests from, the browser-chrome colour, and the drop-shadow flood colour. Then add one `[data-theme="<name>"]` token block in `wwwroot/css/site.css` beside `:root` and `[data-theme="light"]`.
 
-Production builds generate `output/offline-manifest.json` and `output/service-worker.js` after
-static pages, feeds, minification, and build metadata are complete. The manifest lists clean
-generated routes and exact local assets. Its SHA-256 build ID is embedded in the worker.
+The renderer generates a `--dg-*` block for every registry entry, so no JavaScript change is needed. Add your own `--dg-*` block in `site.css` only when the harvested palette is not what you want.
 
-The worker installs an immutable `ren-courses-offline-<buildId>` snapshot. It validates every
-route, stylesheet, script, local font, media file, generated PDF, and web manifest before it
-activates. A failed update keeps the current snapshot and its error state across reloads. Offline
-navigation uses the clean route and trailing-slash aliases with a three-second cached fallback.
-Unknown routes return HTTP 503.
+### Native Material PDFs
 
-The navbar shows a compact status icon beside Ren's Courses. The ready icon needs no action. The
-updating icon ignores clicks. The error icon starts a retry or repairs missing entries. The icon
-uses an accessible tooltip and a separate live region. Development pages hide the control. A
-production browser without service worker support shows a non-actionable message that recommends
-a current browser.
+The production entry point generates a PDF for every non-draft Markdown file under `Content/Materials` before it renders the static pages. The generator comes from the pinned `Dependencies/RensMarkdownTemplates` submodule. The first run downloads Pandoc, Tectonic, and browser dependencies into ignored cache directories. Later runs reuse the per-material cache and skip the toolchain when every fingerprint still matches.
 
-The generator includes local icons, screenshots, and shortcut icons listed by the linked web
-manifest. It includes those files in the build ID. Production generation resets `output/` before
-it writes the site. Development generation suppresses static file output. The finalizer removes
-stale compressed offline files and copied JavaScript tests.
+The complete Markdown file is part of its fingerprint, so a change to either frontmatter or body invalidates only that material. Shared templates, Mermaid configuration, pinned dependency metadata, and referenced local media are fingerprinted too. If one PDF fails, the site build continues and only that material loses its Download action.
 
-Run the finalizer after any command that changes `output/`:
+### Opting Out With `downloadLink`
 
-```bash
-dotnet run --no-build --project BlazorStaticMinimalBlog.csproj --configuration Release -- --finalize-offline
-```
+A material without `downloadLink` takes the default path above. Add the key to exempt one material from generation. The generator then skips it, reports it as `External` in the build summary, and prunes any PDF that material held before. The article page links the URL exactly as written and opens it in a new tab.
 
-Run `npm run test:e2e` against a fresh production output before release. Set `SHOWCASE_MODE=true`
-for the full content fixture. On Windows, run the Edge check with
-`npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1`. Then verify the
-deployed PWA in Edge by installing it, loading every generated route online, closing and
-reopening it offline, opening a generated PDF, and testing a failed deployment followed by a
-repaired update.
+Use this when the download has to carry more than the PDF, such as a Drive folder that bundles starter files. Remove the key to return that material to native generation. A blank value counts as absent.
 
----
+### PDF Templates
 
-### Grades Viewer Architecture
+PDF generation uses Pandoc to convert Markdown to LaTeX, then Tectonic to compile LaTeX to PDF. The generator, templates, filters, pinned tools, and canonical frontmatter contract all live in `Dependencies/RensMarkdownTemplates`. Make changes there first. Update this repository's submodule pin after the shared tests and the Mermaid fixture render pass.
 
-The Grades Viewer is a private Google Apps Script web app deployed separately from this repo. Students access it through the nav menu. The source is closed because it handles student records, but I'm documenting the architecture here since it accounts for most of the backend engineering.
+Do not copy generator classes, templates, filters, or assets into this repository. The shared repository README documents direct CLI use, repository integration, Mermaid marker behavior, and the pin-update procedure.
 
-Google Apps Script imposes a 6-minute execution limit, a 100 KB per-key cache ceiling, and a 250-character cache key max. Under those constraints, the system provides sub-second grade lookups across multiple Google Sheets gradebooks.
+#### The Default Template
 
-**Data model.** A static `CourseDirectory` maps academic years to courses to spreadsheet IDs and sub-sheet names. Adding a new course is one line in that directory. The form's year/course cascading dropdown runs client-side from a serialized JSON map -- no server round-trip.
+One template ships, at `Dependencies/RensMarkdownTemplates/templates/default/template.latex`. It follows the official UPV DPSM OBE visual system and adapts to formal syllabi, laboratory manuals, activities, and notes alike. It gives you:
 
-**Caching.** Two layers. Layer 1 (student result cache, 10-minute TTL) stores parsed grades for a student-sheet pair. Layer 2 (sheet data cache, 60-minute TTL) stores raw sheet contents. Both cache keys are SHA-256 hashes that include the sheet's header row as a schema version -- when an instructor adds, renames, or reorders a column, both layers self-invalidate. A per-section refresh button on the frontend bypasses all caches for a single sub-sheet.
+- **Code blocks** framed with line numbers and a light gray background, through `fancyvrb` and `fvextra`. A Pandoc Lua filter, `code-block.lua`, routes every fenced block through the `Highlighting` environment, including an unlabeled block that Pandoc would otherwise send to bare `verbatim`.
+- **Explicit page breaks.** Put `<!-- newpage -->` on its own line, with blank lines around it, to force the following content onto a new page. The marker affects PDF generation only.
+- **Institutional branding.** UPV and DPSM logos, the division masthead, a maroon title, compact sans-serif typography, a running header, and UPV-colored footer bars.
+- **A general-material fallback.** Without syllabus variables, the title block shows the title, subtitle, full author name, publication date, and deadline.
+- **Formal syllabus mode.** `documentType`, `courseCode`, `academicTerm`, `meetingSchedule`, and `venue` activate the compact OBE title and institutional typography.
+- **Wide tables and rubrics.** In an ordinary material, a table with six or more columns switches to the ruled landscape renderer. Any section whose heading contains `rubric` renders in landscape in full, heading and notes included, whatever the table width. A formal-syllabus table needs an explicit `.landscape` fenced Div, which keeps portrait CO and grading matrices while study schedules stay landscape.
 
-**Header mapping.** Gradebook columns are matched by semantic header names ("Student Number", "Student No.", "SN" all map to the same field). Any column not prefixed with an underscore is treated as a grade column. Instructors can add assessment columns without touching the code.
+The two logo assets live beside `template.latex`. The generator copies template image assets into an isolated work directory before Tectonic runs. Every file in the template directory is part of the PDF fingerprint, so changing either logo invalidates the affected PDFs.
 
-**Rendering.** Wide gradebooks get split into groups of 4 columns, each with its own repeated header row. No horizontal scrolling -- matters on mobile and during in-person consultations.
+#### Defining a Custom Template
 
-**Frontend.** Light/dark theme (synced with localStorage and system preference), inline form validation with live error messages, ARIA roles and live regions for screen readers, `prefers-reduced-motion` support. Zero external dependencies beyond Google's `google.script.run` bridge.
-
----
-
-### Material Mailer Architecture
-
-The Material Mailer is a private Google Apps Script deployed as a time-driven trigger on a Google Sheets workbook. It powers the mailing list module listed above. Enrolled students receive an email whenever new course materials are published.
-
-**How it works.** On each trigger, the script fetches the per-course RSS feed generated by the Python sidecar at build time. It parses the feed's `<item>` GUIDs against a persistent log sheet. Any GUID not already logged is new. The script renders a dark-themed HTML email, adhering to the course site's visual identity, BCC-sends it to every address in the `Emails` sheet, then appends the GUID to the log. `SpreadsheetApp.flush()` forces a write after each send so a mid-run timeout never causes duplicate emails.
-
-**Configuration.** A `Config` sheet holds key-value pairs: `RSS_URL`, `COURSE_NAME`, `SENDER_NAME`, `SENDER_EMAIL` (optional Google Group proxy), and `UNSUBSCRIBE_URL`. Adding a new course is a new workbook with its own config and trigger. No code changes needed.
-
-**Send order and throttling.** RSS feeds list newest-first; the script reverses the array so materials send in chronological order ("Lab 1" before "Lab 2"). A configurable timeout (default 5 s) between sends prevents Gmail spam-filter drops on large batches.
-
-**Proxy sender.** When `SENDER_EMAIL` is set to a Google Group address, emails originate from the group instead of the instructor's personal account. `replyTo` is set to the same address so student replies go to the shared inbox.
-
-**Email template.** GitHub-dark color scheme (`#0d1117` background, `#161b22` card, `#ef4444` accent). Table-based layout for maximum email-client compatibility. Subtitle rendered in monospace with a `//` prefix when present. Footer identifies the course and suppresses replies.
-
----
-
-### Legal Notice
-
-**All material is copyrighted. All rights reserved.**
-
-This project is not free to clone, fork, or distribute. The source code and course materials are on GitHub for reference and educational purposes only. View the detailed [LICENSE](./LICENSE.md) for permitted usage. Some modules (e.g., Grades Viewer) are closed-source by design and excluded from this repository.
-
----
-
-## Contributing
-
-Contributions are welcome under the terms of the license.
-### Workflow
-
-1. Fork the repository.
-2. Create a branch with a prefix that describes the change type:
-   * `feat/` for new features
-   * `fix/` for bug fixes
-   * `refactor/` for code restructuring
-   * `docs/` for documentation updates
-3. Make your changes and test with `dotnet run`.
-4. Submit a pull request.
-
-### Commit messages
-
-This project uses semantic commits:
-
-* `feat:` new feature
-* `fix:` bug fix
-* `ux:` UI or UX improvement
-* `docs:` documentation only
-* `style:` formatting, whitespace, semicolons -- no logic changes
-* `refactor:` code restructuring that does not fix a bug or add a feature
-* `chore:` build process or tooling changes
-* `meta:` license, metadata, dependency changes
-* `devops:` CI/CD pipeline changes
-* `debug/test:` testing and scaffolding
-
----
-
-## Tests
-
-### .NET (xUnit)
-
-Tests live in `tests/Ren.Courses.Tests/`. xUnit framework, Moq + bUnit. No fixture files on disk -- test data is defined inline via the `EphemeralPost<T>` harness.
-
-```bash
-# Kill any locked process first
-pwsh -Command "Get-Process | Where-Object { \$_.ProcessName -like '*Blazor*' } | Stop-Process -Force"
-
-# Run all tests
-dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj
-```
-
-Key patterns:
-- `BuildTimeProvider` test collection sets `STATIC_GEN_TIME`, `TERM_START`, and `TERM_END` env vars before any test runs. All tests that depend on these must opt into the collection.
-- `InternalsVisibleTo` gives tests access to `internal` methods. Testability helpers (`BuildEvents()`, `CalculateFallbackHolidays()`, `GetVisiblePosts(IEnumerable)`) are marked `internal` -- do not change their visibility.
-- `PostGrid` tested via bUnit with `TestContext.Render<PostGrid>()`. No DI needed; all state comes through parameters.
-- Complex logic extracted as `internal static` methods for direct testing without DI.
-- Date logic frozen via `STATIC_GEN_TIME` env var. Current frozen time: 2026-03-15 18:00 PHT.
-- `EphemeralPost<T>`: in-memory markdown fixture harness. Define frontmatter + body inline, no disk I/O:
-  ```csharp
-  var post = new EphemeralPost<CourseFrontMatter>(new CourseFrontMatter
-  {
-      Title = "Test", Published = new DateTime(2026, 3, 1)
-  }, body: "## Content");
-  var fm = post.FrontMatter; // deserialized
-  var md = post.RawMarkdown; // "---\ntitle: Test\n..."
-  ```
-
-### E2E (Playwright)
-
-End-to-end tests run against the pre-built static output served by a lightweight file server. They cover every major user flow.
-
-E2E is **not** run in GitHub CI. The Playwright suite takes too long for GitHub runners. CI runs the jest, .NET, and Python gates instead. The e2e suite is the release gate you run locally before presenting or shipping.
-
-**Prerequisites:** Node.js 20+, .NET 9 SDK.
-
-```bash
-# 1. Build the static site with all non-draft content
-SHOWCASE_MODE=true ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
-
-# 2. Install Playwright browsers (first time only)
-npx playwright install --with-deps chromium
-
-# 3. Run tests (the config starts `serve output` automatically)
-npm run test:e2e
-
-# Single spec
-npx playwright test tests/e2e/home.spec.js
-
-# Single browser
-npx playwright test --project=chromium
-
-# Windows Edge offline checks
-npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1
-```
-
-```bash
-# View HTML report
-npx playwright show-report
-```
-
-**Build time constraint:** `CourseContentProvider` only surfaces materials published inside the `TERM_START` to `TERM_END` window. Tagged materials (course-scoped) additionally need at least one tag to match `ACTIVE_COURSES`. A course being active does not override the term window. Future releases (published after `STATIC_GEN_TIME`) stay hidden, and after the term ends nothing is visible. `SHOWCASE_MODE=true` bypasses all of this and shows every non-draft post. To preview visibility locally before the term ends:
-
-```bash
-STATIC_GEN_TIME="2026-08-06T10:00:00Z" TERM_START="2026-08-01" TERM_END="2026-12-31" ACTIVE_COURSES="cmsc-124,cmsc-131" ASPNETCORE_ENVIRONMENT=Production dotnet run --no-launch-profile
-```
-
-`--no-launch-profile` is required for static generation because the local launch profiles set
-`ASPNETCORE_ENVIRONMENT=Development` and otherwise start a persistent development server.
-
-### Native material PDFs
-
-The production `dotnet run` entry point generates a PDF for every non-draft Markdown file under
-`Content/Materials` before the static pages are rendered. The generator comes from the pinned
-`Dependencies/RensMarkdownTemplates` submodule. The first run downloads Pandoc, Tectonic, and
-browser dependencies into ignored cache directories. Later runs reuse the
-per-material cache and skip the toolchain entirely when every fingerprint still matches.
-
-The complete Markdown file is part of its fingerprint, so changing either frontmatter or body
-content invalidates only that material. Shared templates, Mermaid configuration, pinned dependency
-metadata, and referenced local media are fingerprinted as well. If one PDF fails, the site build
-continues and only that material's Download action is omitted.
-
-#### Opting one material out with `downloadLink`
-
-A material without `downloadLink` takes the default path above. Add `downloadLink` to exempt one
-material from generation. The generator then skips it, reports it as `External` in the build
-summary, and prunes any PDF that material held before. The article page links the URL exactly as
-written and opens it in a new tab. Use this when the download has to carry more than the PDF, such
-as a Drive folder that bundles starter files. Remove the key to return that material to native
-generation. A blank value counts as absent.
-
-For a CI-equivalent local build in PowerShell:
-
-```powershell
-$env:ASPNETCORE_ENVIRONMENT = "Production"
-$env:TERM_START = "2026-08-01"
-$env:TERM_END = "2026-12-31"
-$env:ACTIVE_COURSES = "cmsc-124,cmsc-131"
-$env:SHOWCASE_MODE = "false"
-$env:STATIC_GEN_TIME = "2026-08-06T00:00:00Z"
-dotnet run --no-launch-profile --configuration Release
-```
-
-### PDF template system
-
-PDF generation uses Pandoc to convert Markdown to LaTeX, then Tectonic to compile LaTeX to PDF.
-The generator, templates, filters, pinned tools, and canonical frontmatter contract are maintained
-in `Dependencies/RensMarkdownTemplates`. Make changes there first, then update this repository's
-submodule pin after the shared tests and Mermaid fixture render pass.
-
-#### Default template (`Dependencies/RensMarkdownTemplates/templates/default/template.latex`)
-
-The single default template follows the official UPV DPSM OBE visual system while adapting
-to both formal syllabi and laboratory manuals, activities, and notes. It includes:
-
-- **Code blocks**: framed with line numbers and a light gray background via `fancyvrb`/`fvextra`.
-  A Pandoc Lua filter (`code-block.lua`) ensures all fenced code blocks use the `Highlighting`
-  environment, including unlabeled blocks (```` ``` ```` with no language tag) that Pandoc would
-  otherwise route through bare `verbatim`.
-- **Explicit page breaks**: put `<!-- newpage -->` on its own line, with blank lines around it,
-  to force the following content onto a new PDF page. The marker affects only PDF generation.
-- **Institutional branding**: UPV and DPSM logos, the official division masthead, maroon title,
-  compact sans-serif typography, running page/document header, and UPV-colored footer bars.
-- **General-material fallback**: without syllabus variables, the title block shows the material's
-  title, subtitle, full author name, publication date, and deadline.
-- **Formal syllabus mode**: `documentType`, `courseCode`, `academicTerm`, `meetingSchedule`, and
-  `venue` activate compact OBE title and institutional typography.
-- **Wide tables and rubrics**: six-or-more-column tables in ordinary materials automatically use
-  the ruled landscape renderer. Any section with `rubric` in its heading is rendered in landscape
-  in its entirety, including its heading and notes, regardless of table width or document type.
-  Other formal-syllabus tables require an explicit `.landscape` fenced Div, preserving portrait
-  CO/grading matrices while their study schedules stay landscape.
-
-The two logo assets live beside `template.latex`. The generator copies template image assets into
-the isolated work directory before Tectonic runs. Every file in the template directory is part of
-the PDF fingerprint, so changing either logo invalidates affected PDFs.
-
-#### Defining a custom template
-
-Create a new directory under the shared repository's `templates/`, commit a `template.latex` file
-inside it, and update the consumer pin:
+Create a directory under the shared repository's `templates/`, commit a `template.latex` inside it, then update the consumer pin.
 
 ```
 templates/
@@ -400,16 +196,14 @@ templates/
 │   ├── template.latex       ← shipped default
 │   ├── code-block.lua       ← Pandoc Lua filter (code block styling)
 │   ├── page-break.lua       ← Markdown page-break marker
-│   ├── wide-table.lua       ← automatic/explicit tables and rubric landscapes
+│   ├── wide-table.lua       ← automatic and explicit landscape tables
 │   ├── upv-seal.png
 │   └── dpsm-logo.png
 └── my-custom/
     └── template.latex       ← your custom template
 ```
 
-Template names must match `[a-z0-9][a-z0-9_-]*` (lowercase letters, digits, hyphens, underscores).
-Any file under the template directory is fingerprinted; changing a template invalidates every
-material that uses it.
+A template name must match `[a-z0-9][a-z0-9_-]*`, so lowercase letters, digits, hyphens, and underscores. Any file under the template directory is fingerprinted. Changing a template invalidates every material that uses it.
 
 A minimal template must render `$body$`:
 
@@ -421,11 +215,11 @@ $body$
 \end{document}
 ```
 
-Full Pandoc template syntax is documented at <https://pandoc.org/MANUAL.html#template-syntax>.
+Pandoc documents the full template syntax at <https://pandoc.org/MANUAL.html#template-syntax>.
 
-#### Assigning a template to a material
+#### Assigning a Template to a Material
 
-Set the `pdf.template` key in the material's frontmatter. Omit it to use `default`:
+Set `pdf.template` in the material's frontmatter. Omit it to use `default`.
 
 ```yaml
 pdf:
@@ -438,67 +232,92 @@ pdf:
     venue: MILC
 ```
 
-Variables are exposed to the template as `$pdf.variables.<key>$`. Both string and numeric values
-are supported; nested objects are passed as their string representation. A custom template may
-define a different set of variables.
+The template reads variables as `$pdf.variables.<key>$`. String and numeric values both work. A nested object arrives as its string representation. A custom template may define a different set of variables.
 
-Do not copy generator classes, templates, filters, or assets into this repository. The shared
-repository README documents direct CLI use, repository integration, Mermaid marker behavior, and
-the pin-update procedure.
+## Offline PWA
 
-**Suite coverage:**
+A production build generates `output/offline-manifest.json` and `output/service-worker.js` after static pages, feeds, minification, and build metadata are complete. The manifest lists clean generated routes and exact local assets. Its SHA-256 build ID is embedded in the worker.
 
-| Spec file | What it covers |
-|---|---|
-| `home.spec.js` | `/` -- title, glitch text, lead, chip filter |
-| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}` -- tag cloud, post cards, TOC, code blocks, copy button |
-| `faqs.spec.js` | `/faqs` -- sections, chip filter, accordion, hash deep-link, hashchange |
-| `calendar.spec.js` | `/calendar` -- month nav, tag filter, popover open/close |
-| `projects.spec.js` | `/projects`, `/projects/{tag}` -- tag cloud, card expand/collapse |
-| `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route (no production article) -- readable labels at 360/768/1280px, fit/narrow/pan selection, overflow cues, keyboard panning, stable widget height, theme and resize safety |
-| `navigation.spec.js` | Desktop nav (3 items + dropdown, scroll hide/show); mobile nav (overlay, backdrop, close) |
-| `theme.spec.js` | Light/dark toggle, localStorage, Prism CSS swap, icon state, persistence |
-| `edge-cases.spec.js` | `/null`, non-existent articles, all major routes checked for JS errors |
+The worker installs an immutable `ren-courses-offline-<buildId>` snapshot. It validates every route, stylesheet, script, local font, media file, generated PDF, and web manifest before it activates. A failed update keeps the current snapshot and its error state across reloads. Offline navigation uses the clean route and trailing-slash aliases with a three-second cached fallback. An unknown route returns HTTP 503.
 
-### JS (Jest)
+The navbar carries a compact status icon beside Ren's Courses. The ready icon needs no action. The updating icon ignores clicks. The error icon starts a retry or repairs missing entries. The icon uses an accessible tooltip and a separate live region. Development pages hide the control. A production browser without service worker support gets a non-actionable message recommending a current browser.
 
-Client-side scripts in `wwwroot/js/` are tested with Jest + jest-environment-jsdom. Test files live in `wwwroot/js/__tests__/`.
+The generator includes local icons, screenshots, and shortcut icons listed by the linked web manifest, and it includes those files in the build ID. Production generation resets `output/` before it writes the site. Development generation suppresses static file output. The finalizer removes stale compressed offline files and copied JavaScript tests.
+
+Run the finalizer after any command that changes `output/`:
 
 ```bash
-# Run all JS tests
-npm test
-
-# Watch mode
-npx jest --watch
-
-# With coverage
-npx jest --coverage
+dotnet run --no-build --project BlazorStaticMinimalBlog.csproj --configuration Release -- --finalize-offline
 ```
 
-**Covered scripts:**
+[TESTING.md](./TESTING.md) covers the offline release checks, including the Windows Edge run and the installed-PWA walkthrough.
 
-| Script | What is tested |
-|---|---|
-| `toc.js` | `replaceState` (not `pushState`) on click; no-href links (Blazor nav safety); keyboard activation (Enter/Space); `hashchange` listener; scroll-on-load |
-| `faq.js` | `replaceState` on TOC link click; `_openDetailsForHash` opens accordion + scrolls on load; `hashchange` listener |
-| `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`; `initCalendarNav` + `changeMonth`; `openEventPopoverFromData`, `closeEventPopover` |
-| `course-filter.js` | `initCourseFilter` (localStorage restore); `toggleCourseFilter` (visibility, chips, persistence); `clearCourseFilter` |
-| `code-features.js` | Wrapping, double-wrap guard, language label mapping, copy button injection + clipboard write + timeout revert |
-| `interactive-diagrams.js` | Lazy Mermaid rendering; fit/narrow/pan layout selection and the 14px label floor; flowchart direction rewriting; stage and step height reservation; overflow cues; resize and theme handling; single-step and render-error fallbacks |
-| `scroll-button.js` | Button click scrolls to top; no-op when button absent |
-| `submission-menu.js` | Submission dropdown click state, outside-click dismissal, Escape handling, and idempotent setup |
-| `theme.js` | `switchPrismTheme` sets link href, `data-theme`, localStorage, theme-color meta; system preference fallback |
+## Grades Viewer
 
-**Setup file:** `wwwroot/js/__tests__/setup.js` -- applies the `innerText` polyfill and `IntersectionObserver` stub globally before every test suite.
+The Grades Viewer is a private Google Apps Script web app, deployed separately from this repo. Students reach it through the nav menu. The source is closed because it handles student records, but the architecture is documented here since it accounts for most of the backend engineering.
 
-**Key test patterns:**
-- History API: `history.pushState` sets `window.location.hash` before mocking, because `window.location.hash` is non-configurable in jsdom. `Object.getPrototypeOf(window.history).pushState.call(...)` bypasses active spies when real URL changes are needed.
-- Scripts are loaded by reading the source file and executing via `new Function(source)()` -- runs in global scope so `window.generateTOC` etc. become available.
+Google Apps Script imposes a 6-minute execution limit, a 100 KB per-key cache ceiling, and a 250-character cache key maximum. Under those constraints the system still answers a grade lookup in under a second, across several Google Sheets gradebooks.
 
-### Python (unittest)
+**Data model.** A static `CourseDirectory` maps academic years to courses to spreadsheet IDs and sub-sheet names. Adding a course is one line in that directory. The year and course cascading dropdown runs client-side from a serialized JSON map, with no server round-trip.
 
-The RSS feed generator (`.github/utils/generate_feed.py`) has 7 unit tests covering feed generation, date parsing, term-end boundary handling, empty-feed output, and showcase-mode skipping. Tests run in CI before feed generation.
+**Caching.** Two layers. Layer 1, the student result cache, holds parsed grades for a student and sheet pair for 10 minutes. Layer 2, the sheet data cache, holds raw sheet contents for 60 minutes. Both keys are SHA-256 hashes that include the sheet's header row as a schema version, so adding, renaming, or reordering a column self-invalidates both layers. A per-section refresh button bypasses all caches for a single sub-sheet.
 
-```bash
-python -m unittest discover -s .github/utils -p "test_*.py" -v
-```
+**Header mapping.** Gradebook columns match by semantic header name, so "Student Number", "Student No.", and "SN" all reach the same field. Any column without an underscore prefix counts as a grade column. An instructor can add assessment columns without touching the code.
+
+**Rendering.** A wide gradebook splits into groups of 4 columns, each with its own repeated header row. Nothing scrolls horizontally, which matters on a phone and during an in-person consultation.
+
+**Frontend.** Light and dark theme synced with `localStorage` and the system preference. Inline form validation with live error messages. ARIA roles and live regions for screen readers. `prefers-reduced-motion` support. No external dependency beyond Google's `google.script.run` bridge.
+
+## Material Mailer
+
+The Material Mailer is a private Google Apps Script, deployed as a time-driven trigger on a Google Sheets workbook. It powers the mailing list module. Enrolled students receive an email whenever new course materials are published.
+
+**How it works.** On each trigger the script fetches the per-course RSS feed that the Python sidecar generated at build time. It parses the feed's `<item>` GUIDs against a persistent log sheet. Any GUID not already logged is new. The script renders a dark-themed HTML email in the course site's visual identity, BCC-sends it to every address in the `Emails` sheet, then appends the GUID to the log. `SpreadsheetApp.flush()` forces a write after each send, so a mid-run timeout never causes a duplicate email.
+
+**Configuration.** A `Config` sheet holds key-value pairs: `RSS_URL`, `COURSE_NAME`, `SENDER_NAME`, `SENDER_EMAIL` (an optional Google Group proxy), and `UNSUBSCRIBE_URL`. A new course is a new workbook with its own config and trigger. No code change needed.
+
+**Send order and throttling.** An RSS feed lists newest first, so the script reverses the array and materials send in chronological order. "Lab 1" arrives before "Lab 2". A configurable timeout between sends, 5 seconds by default, prevents Gmail spam-filter drops on a large batch.
+
+**Proxy sender.** When `SENDER_EMAIL` holds a Google Group address, email originates from the group instead of the instructor's personal account. `replyTo` points at the same address, so a student reply reaches the shared inbox.
+
+**Email template.** GitHub-dark colors, so `#0d1117` background, `#161b22` card, and `#ef4444` accent. Table-based layout for maximum email-client compatibility. The subtitle renders in monospace with a `//` prefix when present. The footer identifies the course and suppresses replies.
+
+## Contributing
+
+Contributions are welcome under the terms of the license. You may clone or fork this repository to prepare one.
+
+1. Fork the repository.
+2. Create a branch with a prefix that describes the change type:
+   * `feat/` for new features
+   * `fix/` for bug fixes
+   * `refactor/` for code restructuring
+   * `docs/` for documentation updates
+3. Make your changes, then run the gates in [TESTING.md](./TESTING.md).
+4. Submit a pull request.
+
+For step 3, `dotnet run` starts a development server and does not exit. Use it to look at your change in a browser. Use the commands in [TESTING.md](./TESTING.md) to actually verify it.
+
+### Commit Messages
+
+This project uses semantic commits:
+
+* `feat:` new feature
+* `fix:` bug fix
+* `ux:` UI or UX improvement
+* `docs:` documentation only
+* `style:` formatting and whitespace, no logic change
+* `refactor:` code restructuring that neither fixes a bug nor adds a feature
+* `chore:` build process or tooling changes
+* `meta:` license, metadata, dependency changes
+* `devops:` CI/CD pipeline changes
+* `debug/test:` testing and scaffolding
+
+## Legal Notice
+
+Copyright 2026 Rene Andre Bedonia Jocsing. All rights reserved. This is not open source software.
+
+**Source code.** Clone or fork the repository to prepare a contribution, and modify your own copy for that purpose. You may not redistribute the software, publish or deploy a derivative of it, sublicense it, or sell copies of it, without explicit written consent.
+
+**Course materials.** Read them, and give an unmodified copy to another person for their personal, private study. You may not modify them, present them as your own work, publish or post them anywhere, teach from them in any course or bootcamp or training programme, or sell them, without explicit written consent.
+
+Read [LICENSE.md](./LICENSE.md) for the exact terms. Some modules, such as the Grades Viewer, are closed by design and are absent from this repository.

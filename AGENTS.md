@@ -2,7 +2,7 @@
 
 How to think, decide, build, and communicate. Apply on any non-trivial task, and merge with project-specific instructions as needed.
 
-**Knowledge:** if it exists, **PLAYBOOK.md** contains non-trivial project knowledge that must be kept up-to-date.
+**Knowledge:** if it exists, **PLAYBOOK.md** contains non-trivial project knowledge that must be kept up-to-date. If **TESTING.md** exists, it is the runbook for every test gate. Read it before you run or claim a gate.
 
 **Tradeoff:** these guidelines bias toward caution over speed. For trivial tasks, use judgment.
 

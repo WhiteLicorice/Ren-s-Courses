@@ -1,8 +1,8 @@
 {
-  "name": "blazorblog",
+  "name": "rens-courses",
   "version": "1.0.0",
   "description": "A collection of materials for courses I handle under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum. All material is copyrighted. All rights reserved.",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "jest",
     "test:e2e": "npx playwright test --project=chromium --project=firefox"
@@ -21,16 +21,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WhiteLicorice/Ren-s-Blazor-Blog.git"
+    "url": "git+https://github.com/WhiteLicorice/Ren-s-Courses.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Rene Andre Bedonia Jocsing",
+  "license": "SEE LICENSE IN LICENSE.md",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog/issues"
+    "url": "https://github.com/WhiteLicorice/Ren-s-Courses/issues"
   },
-  "homepage": "https://github.com/WhiteLicorice/Ren-s-Blazor-Blog#readme",
+  "homepage": "https://github.com/WhiteLicorice/Ren-s-Courses#readme",
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "@tailwindcss/typography": "^0.5.19",

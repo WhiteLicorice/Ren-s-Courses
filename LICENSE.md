@@ -1,23 +1,23 @@
 # License
 
-Copyright © 2025 Rene Andre Bedonia Jocsing. All rights reserved.
+Copyright © 2026 Rene Andre Bedonia Jocsing. All rights reserved.
 
 ## 1. Proprietary Nature
 This repository contains the source code and course materials for a Headless Learning Management System used within the BS in Computer Science curriculum at the University of the Philippines Visayas.
 
-**This is NOT Open Source software.** The repository is public for transparency and portfolio purposes only.
+**This is NOT Open Source software.** The repository is public for transparency, for portfolio purposes, and to accept contributions under the terms below.
 
 ## 2. Course Materials
 All content, including but not limited to lecture slides, lab manuals, assignments, exams, and documentation ("Course Materials"), is the intellectual property of the copyright holder.
 
-* **RESTRICTIONS:** You may **not** redistribute, sell, modify, or repurpose these materials for other courses, bootcamps, or commercial training without explicit written consent.
-* **STUDENT LICENSE:** Students currently enrolled in the courses associated with this repository are granted a limited, non-exclusive, non-transferable license to download and view the Course Materials for **personal academic study only**.
+* **You MAY, without asking:** Download and read the Course Materials. Give an unmodified copy to another person for their personal, private study.
+* **You MAY NOT, without explicit written consent from the copyright holder:** Modify the Course Materials. Present them as your own work, or remove or alter the attribution. Publish or post them anywhere, including any public website, mirror, or archive. Use them to teach, in any course, bootcamp, or training programme. Sell them, or include them in anything you sell.
 
 ## 3. Source Code
-The underlying source code (Blazor/C# files, JavaScript, Styles) is provided for **reference purposes only**.
+The underlying source code (Blazor/C# files, JavaScript, Styles) is provided for reference and for contribution to this project.
 
-* **You MAY:** View the code to understand the architecture or for educational observation.
-* **You MAY NOT:** Fork, clone, modify, merge, publish, distribute, sublicense, or sell copies of the software.
+* **You MAY:** View the code to understand the architecture or for educational observation. Clone or fork the repository to prepare a contribution. Modify your own copy for that purpose. Open a pull request against this repository.
+* **You MAY NOT:** Redistribute the software, publish or deploy a derivative of it, sublicense it, or sell copies of it, without explicit written consent.
 
 ## 4. Third-Party Components
 This project relies on open-source components which remain under their respective licenses:
