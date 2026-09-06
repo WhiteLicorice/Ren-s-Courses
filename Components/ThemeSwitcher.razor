@@ -1,10 +1,15 @@
 @using BlazorStaticMinimalBlog.Models
 
+@* Static markup plus vanilla JS. This project ships no Blazor runtime, so a
+   component cannot use @@onclick or reach IJSRuntime. The working toggle in
+   NavMenu.razor sets the same precedent. One button per registry entry. *@
 <div class="flex gap-2" data-theme-switcher>
     @foreach (var theme in SiteThemeRegistry.All)
     {
-        <button type="button" data-theme-switch="@theme.Name"
-                class="px-3 py-1 rounded text-xs font-mono border transition-all border-border-muted text-text-dim hover:text-text-main">
+        <button type="button" data-theme-switch="@theme.Name" aria-pressed="false"
+                class="px-3 py-1 rounded text-xs font-mono border transition-all
+                       border-border-muted text-text-dim hover:text-text-main
+                       aria-pressed:border-accent aria-pressed:text-accent aria-pressed:bg-accent-dim">
             @theme.Name
         </button>
     }
@@ -12,13 +17,35 @@
 
 <script>
     (function () {
-        var switcher = document.querySelector('[data-theme-switcher]');
-        if (!switcher || switcher.dataset.bound === 'true') return;
-        switcher.dataset.bound = 'true';
-        switcher.addEventListener('click', function (e) {
-            var button = e.target.closest('[data-theme-switch]');
-            if (!button) return;
-            if (window.switchPrismTheme) window.switchPrismTheme(button.dataset.themeSwitch);
+        var switchers = document.querySelectorAll('[data-theme-switcher]');
+        if (switchers.length === 0) return;
+
+        function sync() {
+            var current = document.documentElement.getAttribute('data-theme');
+            switchers.forEach(function (switcher) {
+                switcher.querySelectorAll('[data-theme-switch]').forEach(function (button) {
+                    button.setAttribute('aria-pressed', String(button.dataset.themeSwitch === current));
+                });
+            });
+        }
+
+        switchers.forEach(function (switcher) {
+            if (switcher.dataset.bound === 'true') return;
+            switcher.dataset.bound = 'true';
+            switcher.addEventListener('click', function (event) {
+                var button = event.target.closest('[data-theme-switch]');
+                if (!button) return;
+                if (window.switchPrismTheme) window.switchPrismTheme(button.dataset.themeSwitch);
+                sync();
+            });
         });
+
+        // The site theme can also change from the toggle in NavMenu or from the
+        // system listener in theme.js, so follow the attribute itself.
+        new MutationObserver(sync).observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+        sync();
     })();
 </script>

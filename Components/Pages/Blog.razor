@@ -272,7 +272,7 @@
 @* Script Triggers *@
 @* Must happen here for code labels to work, not in code-features.js. *@
 <script>Prism.highlightAll();</script>
-@if (_bodySegments.Any(segment => segment.Html is null))
+@if (_bodySegments.Any(segment => segment.Diagram is not null))
 {
     <script src="@(WebsiteKeys.VersionedAsset("js/interactive-diagrams.js"))"></script>
 }

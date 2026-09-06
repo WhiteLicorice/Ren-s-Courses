@@ -29,13 +29,15 @@ window.switchPrismTheme = (theme) => {
     // 2. Swap CSS when the link exists. A missing highlight link must never
     // gate the site theme, storage, or chrome colour.
     if (link) {
+        // Read the attribute, not the dataset. A theme name with a hyphen has no
+        // camelCase dataset key, and every theme must resolve the same way.
         const fallbackPrism = targetMode === 'light' || targetMode === 'dark'
             ? `css/prism-${targetMode}.css`
             : null;
-        const newHref = link.dataset[`${targetMode}Href`]
+        const newHref = link.getAttribute(`data-${targetMode}-href`)
             || fallbackPrism
-            || link.dataset.darkHref
-            || link.dataset.lightHref
+            || link.getAttribute('data-dark-href')
+            || link.getAttribute('data-light-href')
             || link.getAttribute('href');
         if (newHref) link.href = newHref;
     }
@@ -44,11 +46,14 @@ window.switchPrismTheme = (theme) => {
     // diagrams repaint through CSS variables with no Mermaid call.
     document.documentElement.setAttribute('data-theme', targetMode);
 
-    // 4. Clean Storage (Since we rely on System Settings, we keep storage clean)
+    // 4. Store the RESOLVED mode, never the requested name. An unrecognised name
+    // would otherwise persist, block the system listener below, and still be
+    // ignored by the boot script in App.razor, so the two would disagree on
+    // reload. 'default' means follow the system, so it keeps storage clean.
     if (theme === 'default') {
         localStorage.removeItem('user-theme');
     } else {
-        localStorage.setItem('user-theme', theme);
+        localStorage.setItem('user-theme', targetMode);
     }
 
     // 5. Update theme-color meta tag for browser chrome
@@ -67,6 +72,8 @@ function updateThemeColorMeta(mode) {
         meta.name = 'theme-color';
         document.head.appendChild(meta);
     }
+    // The registry is the only source in production. The literals below cover the
+    // case where the boot script has not run, which is the Jest environment.
     const registryColors = window.siteThemeColors ?? {};
     meta.content = registryColors[mode]
         ?? (mode === 'light' ? '#f8f9fa' : '#111827');
