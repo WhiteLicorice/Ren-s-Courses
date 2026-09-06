@@ -1,5 +1,8 @@
-# Ignore Claude Code working directory
+# Ignore Claude Code working directory for chores and other grunt work
 .claude
+
+# Ignore Playwright outputs
+.playwright*
 
 # Ignore utilities
 utilities/
