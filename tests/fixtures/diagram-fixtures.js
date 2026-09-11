@@ -376,6 +376,7 @@ function buildWidgetMarkup(fixture, index = 0) {
                 <output class="min-w-24 text-center font-mono text-xs text-text-dim" data-diagram-status
                     aria-live="polite">Step 1 of ${fixture.steps.length}</output>
                 <button type="button" data-diagram-action="next">Next</button>
+                <label>Speed <select data-diagram-speed></select></label>
                 <button type="button" data-diagram-action="play" aria-pressed="false">Play</button>
             </div>
             <div class="p-5 sm:p-6">${steps}</div>

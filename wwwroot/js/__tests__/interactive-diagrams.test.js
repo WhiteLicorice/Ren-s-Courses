@@ -23,6 +23,10 @@ const PLAY_END_HOLD_MS = 5000;
 const PLAY_REDUCED_MOTION_HOLD_MS = 10000;
 const PLAY_REDUCED_MOTION_PAGE_FRACTION = 0.9;
 
+/** Speed control, mirrored from the renderer for the same reason. */
+const PLAY_SPEEDS = [0.5, 1, 1.5, 2, 3];
+const PLAY_SPEED_KEY = 'diagram-play-speed';
+
 /** Interval Jest's fake `requestAnimationFrame` uses. Confirmed, not assumed. */
 const FRAME_MS = 16;
 
@@ -125,6 +129,16 @@ function control(action, scope = document) {
     return scope.querySelector(`[data-diagram-action="${action}"]`);
 }
 
+function speedControl(scope = document) {
+    return scope.querySelector('[data-diagram-speed]');
+}
+
+function chooseSpeed(value, scope = document) {
+    const select = speedControl(scope);
+    select.value = String(value);
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 function statusText(scope = document) {
     return scope.querySelector('[data-diagram-status]').textContent;
 }
@@ -218,11 +232,13 @@ beforeEach(() => {
         }
     });
 
+    localStorage.clear();
     loadScript();
 });
 
 afterEach(() => {
     jest.restoreAllMocks();
+    localStorage.clear();
     delete HTMLElement.prototype.offsetHeight;
     delete global.ResizeObserver;
     delete window.matchMedia;
@@ -545,6 +561,186 @@ test('disables playback when a diagram has only one step', async () => {
     expect(play.getAttribute('aria-pressed')).toBe('false');
 });
 
+test('the speed control is disabled with the play button on a single step', async () => {
+    mount('singleStepDiagram');
+    const mermaid = createMermaid();
+
+    await window.initInteractiveDiagrams(mermaid);
+
+    expect(speedControl().disabled).toBe(true);
+});
+
+// --- Speed control ---------------------------------------------------------
+//
+// One multiplier scales every hold and the pan rate together, the way
+// HTMLMediaElement.playbackRate scales a video. 1 is today's pacing exactly.
+// The reader's choice persists in localStorage, and every widget on a page
+// shows and uses the same value.
+
+test('the speed control offers every preset and starts at 1×', async () => {
+    mount('alreadyVerticalFlowchart');
+
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const select = speedControl();
+    expect([...select.options].map(option => option.value)).toEqual(PLAY_SPEEDS.map(String));
+    expect([...select.options].every(option => option.textContent.endsWith('×'))).toBe(true);
+    expect(select.value).toBe('1');
+});
+
+test('a stored speed is applied at init', async () => {
+    jest.useFakeTimers();
+    localStorage.setItem(PLAY_SPEED_KEY, '2');
+    mount('alreadyVerticalFlowchart');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    expect(speedControl().value).toBe('2');
+
+    control('play').click();
+    jest.advanceTimersByTime(4999);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+});
+
+test('an unknown stored speed falls back to 1×', async () => {
+    jest.useFakeTimers();
+    localStorage.setItem(PLAY_SPEED_KEY, '7');
+    mount('alreadyVerticalFlowchart');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    expect(speedControl().value).toBe('1');
+
+    control('play').click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+
+    // A non-numeric value falls back the same way.
+    control('play').click();
+    document.body.innerHTML = '';
+    localStorage.setItem(PLAY_SPEED_KEY, 'fast');
+    mount('alreadyVerticalFlowchart');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    expect(speedControl().value).toBe('1');
+});
+
+test('a faster speed shortens every hold', async () => {
+    jest.useFakeTimers();
+    mount('alreadyVerticalFlowchart');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    chooseSpeed(2);
+    const play = control('play');
+    play.click();
+
+    jest.advanceTimersByTime(4999);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+
+    jest.advanceTimersByTime(4998);
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    jest.advanceTimersByTime(2);
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+});
+
+test('a faster speed moves the pan proportionally faster', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const step = stepsOf(widgets()[0])[0];
+    chooseSpeed(2);
+    control('play').click();
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS / 2 + FRAME_MS);
+    expect(step.viewport.scrollLeft).toBe(0);
+
+    jest.advanceTimersByTime(1600);
+    const expected = 1600 * (ARTICLE_WIDTH / PLAY_VIEWPORT_TRAVERSAL_MS) * 2;
+    expect(step.viewport.scrollLeft).toBeCloseTo(expected, 0);
+});
+
+test('a speed change during a hold reschedules only what is still owed', async () => {
+    jest.useFakeTimers();
+    mount('alreadyVerticalFlowchart');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    control('play').click();
+    jest.advanceTimersByTime(6000);
+    chooseSpeed(2);
+
+    jest.advanceTimersByTime(1999);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+});
+
+test('a speed change during a pan applies on the next frame', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const step = stepsOf(widgets()[0])[0];
+    control('play').click();
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 1600);
+    expect(step.viewport.scrollLeft).toBeGreaterThan(0);
+
+    chooseSpeed(2);
+    const start = step.viewport.scrollLeft;
+    jest.advanceTimersByTime(1600);
+
+    const expected = 1600 * (ARTICLE_WIDTH / PLAY_VIEWPORT_TRAVERSAL_MS) * 2;
+    expect(step.viewport.scrollLeft - start).toBeCloseTo(expected, 0);
+});
+
+test('a speed change while paused applies on resume', async () => {
+    jest.useFakeTimers();
+    mount('alreadyVerticalFlowchart');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(6000);
+    play.click();
+    chooseSpeed(2);
+    play.click();
+
+    jest.advanceTimersByTime(1999);
+    expect(statusText()).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 2 of 2');
+});
+
+test('a speed change persists and every widget on the page follows', async () => {
+    jest.useFakeTimers();
+    mount(['wideFlowchartWithoutReflow', 'alreadyVerticalFlowchart']);
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const [first, second] = widgets();
+    chooseSpeed(2, first);
+
+    expect(speedControl(first).value).toBe('2');
+    expect(speedControl(second).value).toBe('2');
+    expect(localStorage.getItem(PLAY_SPEED_KEY)).toBe('2');
+
+    control('play', second).click();
+    jest.advanceTimersByTime(4999);
+    expect(statusText(second)).toBe('Step 1 of 2');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText(second)).toBe('Step 2 of 2');
+});
+
 // --- Playback scheduling ---------------------------------------------------
 //
 // Every step holds its opening view, and a step whose drawing overflows then
@@ -771,37 +967,95 @@ test('a manual scroll cancels playback and leaves no stale callback', async () =
     expect(step.viewport.scrollLeft).toBe(0);
 });
 
-test('next cancels playback, keeps the proportional scroll and clears resume', async () => {
+// Seeking. Next and Previous during playback are a seek: the walkthrough
+// continues from the new step's opening hold, the way a media player keeps
+// playing after a skip. While paused or stopped they are plain navigation.
+
+test('next during playback jumps ahead and keeps playing', async () => {
+    jest.useFakeTimers();
+    mount('wideTokenStream');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(3000);
+    control('next').click();
+
+    expect(statusText()).toBe('Step 2 of 4');
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+    expect(play.textContent).toBe('Pause');
+
+    jest.advanceTimersByTime(9999);
+    expect(statusText()).toBe('Step 2 of 4');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 3 of 4');
+});
+
+test('previous during playback jumps back and keeps playing', async () => {
+    jest.useFakeTimers();
+    mount('wideTokenStream');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    control('next').click();
+    expect(statusText()).toBe('Step 2 of 4');
+
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(3000);
+    control('previous').click();
+
+    expect(statusText()).toBe('Step 1 of 4');
+    expect(play.getAttribute('aria-pressed')).toBe('true');
+
+    jest.advanceTimersByTime(10001);
+    expect(statusText()).toBe('Step 2 of 4');
+});
+
+test('next during a pan opens the next step at its left edge and pans it after its own opening hold', async () => {
     jest.useFakeTimers();
     mount('wideFlowchartWithoutReflow');
-    const mermaid = createMermaid();
-    await window.initInteractiveDiagrams(mermaid);
+    await window.initInteractiveDiagrams(createMermaid());
 
     const steps = stepsOf(widgets()[0]);
     const play = control('play');
     play.click();
     jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS + FRAME_MS + 1600);
-    const moved = steps[0].viewport.scrollLeft;
-    expect(moved).toBeGreaterThan(0);
+    expect(steps[0].viewport.scrollLeft).toBeGreaterThan(0);
 
     control('next').click();
-    expect(play.getAttribute('aria-pressed')).toBe('false');
-    // Manual navigation keeps the proportional position. Both steps share one
-    // geometry, so that is the same number of pixels.
-    expect(steps[1].viewport.scrollLeft).toBeCloseTo(moved, 0);
+    expect(steps[1].viewport.scrollLeft).toBe(0);
+    expect(play.getAttribute('aria-pressed')).toBe('true');
 
-    jest.advanceTimersByTime(30000);
-    expect(statusText()).toBe('Step 2 of 2');
+    jest.advanceTimersByTime(9999);
+    expect(steps[1].viewport.scrollLeft).toBe(0);
 
-    // Play from the last step restarts the walkthrough at step 1, left edge.
-    play.click();
-    expect(statusText()).toBe('Step 1 of 2');
-    expect(steps[0].viewport.scrollLeft).toBe(0);
-
-    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
-    expect(steps[0].viewport.scrollLeft).toBe(0);
     jest.advanceTimersByTime(1 + FRAME_MS * 2);
-    expect(steps[0].viewport.scrollLeft).toBeGreaterThan(0);
+    expect(steps[1].viewport.scrollLeft).toBeGreaterThan(0);
+});
+
+test('next while paused discards the session', async () => {
+    jest.useFakeTimers();
+    mount('wideTokenStream');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const play = control('play');
+    play.click();
+    jest.advanceTimersByTime(3000);
+    play.click();
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+
+    control('next').click();
+    expect(statusText()).toBe('Step 2 of 4');
+    expect(play.getAttribute('aria-pressed')).toBe('false');
+
+    // Play starts a fresh opening hold, not the 7000ms the pause had left.
+    play.click();
+    jest.advanceTimersByTime(9999);
+    expect(statusText()).toBe('Step 2 of 4');
+
+    jest.advanceTimersByTime(2);
+    expect(statusText()).toBe('Step 3 of 4');
 });
 
 test('previous cancels playback and discards the paused session', async () => {

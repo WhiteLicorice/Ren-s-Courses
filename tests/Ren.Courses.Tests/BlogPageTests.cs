@@ -452,6 +452,7 @@ public class BlogPageTests
         Assert.Contains("data-diagram-narrow-direction", emitted);
         Assert.Contains("data-diagram-viewport", emitted);
         Assert.Contains("data-diagram-scroll-hint", emitted);
+        Assert.Contains("data-diagram-speed", emitted);
     }
 
     private static string RepoRoot

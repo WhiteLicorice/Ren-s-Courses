@@ -91,6 +91,7 @@ const PLAY_INITIAL_HOLD_MS = 10000;
 const PLAY_VIEWPORT_TRAVERSAL_MS = 8000;
 const PLAY_END_HOLD_MS = 5000;
 const PLAY_REDUCED_MOTION_PAGE_FRACTION = 0.9;
+const PLAY_SPEEDS = [0.5, 1, 1.5, 2, 3];
 
 /**
  * Press Play and watch one whole step from inside the page. Sampling every
@@ -299,7 +300,8 @@ test('every step keeps the same widget height and the controls behave', async ({
 // `modestOverflowWalkthrough` is the pacing fixture: measured at 1280px it hides
 // 207px behind a 574px viewport, so one pan lasts about 2.9 seconds. With a
 // 10-second opening hold and a 5-second edge hold, one whole step runs for
-// roughly 18 seconds, which sets every budget below.
+// roughly 18 seconds, which sets every budget below. The speed tests use 3× as
+// the fast case, where the same step runs for about 6 seconds.
 
 test('an overflowing step holds, pans continuously, holds the edge, then resets left', async ({ page }) => {
     test.setTimeout(90000);
@@ -456,6 +458,73 @@ test('the last step pans in full before playback stops', async ({ page }) => {
         max: node.scrollWidth - node.clientWidth
     }));
     expect(end.left).toBeGreaterThan(end.max - 2);
+});
+
+test('next during playback keeps playing from the new step', async ({ page }) => {
+    // This is the real-browser guard for hiding a viewport mid-pan. A browser
+    // that fired a scroll event when the old viewport lost its box would trip
+    // the takeover guard and release Play.
+    test.setTimeout(90000);
+    await mount(page, 'modestOverflowWalkthrough', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+    const play = widget.locator('[data-diagram-action="play"]');
+    const status = widget.locator('[data-diagram-status]');
+    const viewport = () => widget.locator('[data-diagram-step]:not([hidden]) [data-diagram-viewport]');
+    const read = () => viewport().evaluate(node => node.scrollLeft);
+
+    await play.click();
+    await expect(play).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(read, { timeout: 30000 }).toBeGreaterThan(5);
+
+    await widget.locator('[data-diagram-action="next"]').click();
+    await expect(status).toHaveText('Step 2 of 3');
+    await expect(play).toHaveAttribute('aria-pressed', 'true');
+    await expect(play).toHaveText('Pause');
+
+    // The seek opens the new step at its left edge.
+    await expect.poll(read).toBeLessThanOrEqual(1);
+
+    // And the walkthrough carries on from the new step's opening hold.
+    await expect.poll(read, { timeout: 30000 }).toBeGreaterThan(5);
+});
+
+test('the speed control scales the whole step', async ({ page }) => {
+    test.setTimeout(60000);
+    await mount(page, 'modestOverflowWalkthrough', { width: 1280 });
+    const widget = page.locator('[data-interactive-diagram]');
+
+    await widget.locator('[data-diagram-speed]').selectOption('3');
+
+    const run = await widget.evaluate(watchOneStep, 20000);
+    expect(run.overflow).toBeGreaterThan(20);
+
+    // The opening hold divides by three, within real-browser frame jitter.
+    expect(run.events.moved).toBeGreaterThan(PLAY_INITIAL_HOLD_MS / 3 * 0.9);
+    expect(run.events.moved).toBeLessThan(PLAY_INITIAL_HOLD_MS / 3 * 1.6);
+
+    // The pan rate divides by three as well.
+    const expectedMs = run.overflow / (run.viewportWidth / PLAY_VIEWPORT_TRAVERSAL_MS) / 3;
+    expect(run.events.edge - run.events.moved).toBeGreaterThan(expectedMs * 0.6);
+    expect(run.events.edge - run.events.moved).toBeLessThan(expectedMs * 1.6);
+
+    // The edge hold divides by three too.
+    expect(run.events.changed - run.events.edge).toBeGreaterThan(PLAY_END_HOLD_MS / 3 * 0.8);
+    expect(run.status).toBe('Step 2 of 3');
+});
+
+test('the speed choice survives a reload and reaches every widget', async ({ page }) => {
+    await mount(page, MULTIPLE_WIDGETS, { width: 1280 });
+    const widgets = page.locator('[data-interactive-diagram]');
+    const first = widgets.nth(0);
+    const second = widgets.nth(1);
+
+    await first.locator('[data-diagram-speed]').selectOption('2');
+    await expect(second.locator('[data-diagram-speed]')).toHaveValue('2');
+
+    await page.reload();
+    await expect(page.locator('[data-diagram-initialized="true"]')).toHaveCount(2, { timeout: 20000 });
+    await expect(widgets.nth(0).locator('[data-diagram-speed]')).toHaveValue('2');
+    await expect(widgets.nth(1).locator('[data-diagram-speed]')).toHaveValue('2');
 });
 
 test('a theme change resolves every palette variable and never blanks the stage', async ({ page }) => {

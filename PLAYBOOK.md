@@ -25,18 +25,18 @@ Most entries below end with the same check. It is written once here.
 
 ## Gate Baselines
 
-Measured 2026-09-06 at site commit `aea9707`, submodule pin `2d2b29e`, on a clean tree.
+Measured 2026-09-11 at site commit `56a6a66`, submodule pin `2d2b29e`, with the diagram speed work in the tree.
 
 | Gate | Result |
 |---|---|
 | .NET, Release | 201 passed, 0 failed |
-| Jest | 12 suites, 219 passed, 0 failed |
+| Jest | 12 suites, 232 passed, 0 failed |
 | Python | 11 passed, 0 failed |
-| Playwright, Chromium and Firefox | 294 of 296 passed |
-| Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
-| Production build | 45 PDFs, exit 0 |
+| Playwright, Chromium and Firefox | 302 of 302 passed |
+| Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed (not re-run) |
+| Production build | 50 docs, 3 generated / 46 cached / 1 external, exit 0 |
 
-The two Playwright failures were both `calendar.spec.js` in Firefox. Both passed when that spec ran alone, at 14 of 14. This is the worker contention recorded under Test Harness Traps, not a regression.
+The Playwright row is the full local release gate. This run hit no worker-contention timeout. When one appears, re-run that spec alone before calling it a regression; Test Harness Traps records the pattern.
 
 Re-read the submodule pin before you trust it. `git submodule status` is the source of truth.
 
@@ -121,9 +121,11 @@ Playback, confirmed 2026-09-02:
 - Play does not run on a `setInterval`. One cancellable session per widget drives a small state machine. The phases are `opening`, `pan`, `edge`, and `page`. A step that fits uses the opening hold alone.
 - Pan speed is one viewport width per 8 seconds. No research specifies a correct pan speed. This is the agreed comprehension-first default, and every value stays a named constant for later tuning: `PLAY_INITIAL_HOLD_MS`, `PLAY_VIEWPORT_TRAVERSAL_MS`, `PLAY_END_HOLD_MS`, `PLAY_REDUCED_MOTION_HOLD_MS`, and `PLAY_REDUCED_MOTION_PAGE_FRACTION`.
 - Every stationary hold is five times the first draft, which had asked a reader to take in a whole diagram in two seconds. Opening is 10000ms, edge is 5000ms, and the reduced-motion page hold is 10000ms. `PLAY_VIEWPORT_TRAVERSAL_MS` stays 8000 on purpose. It paces reading while the drawing moves, which is a different problem from how long a still view should last. One step of the pacing fixture runs about 18 seconds, so a browser test that watches a whole step carries an explicit `test.setTimeout`.
-- `state.playback` is both the live session and the generation token. Every timeout and animation frame checks `state.playback === session` before acting, which stops a cancelled phase from changing the step later. `pausePlayback` moves the session to `state.paused` and subtracts the elapsed hold. Manual scrolling, Previous, and Next call `stopPlayback`, which discards the session, so the next Play starts fresh from the left edge.
+- `state.playback` is both the live session and the generation token. Every timeout and animation frame checks `state.playback === session` before acting, which stops a cancelled phase from changing the step later. `pausePlayback` moves the session to `state.paused` and keeps only the base milliseconds still owed: a session records the multiplier its running timeout was scheduled with (`holdRate`), so elapsed real time converts back correctly at any speed. Manual scrolling calls `stopPlayback`, which discards the session, so the next Play starts fresh from the left edge. **Next and Previous during playback are a seek, not a stop.** `stepTo` keeps the live session, cancels the running phase, opens the target step at its left edge, and starts that step's opening hold, so Play stays pressed. While paused or stopped they discard the session and navigate as before.
+- **One speed multiplier scales every hold and the pan rate together**, the way `HTMLMediaElement.playbackRate` scales a video. `PLAY_SPEEDS` is `[0.5, 1, 1.5, 2, 3]`, the default is `1`, and the reader's choice persists under the `diagram-play-speed` localStorage key, beside `course-filter` and `user-theme`. `rescheduleHold` cancels a running hold and restarts it with what it still owes; a pan needs no rescheduling because `runPan` reads `playSpeed` every frame. The renderer builds the `<option>` list from `PLAY_SPEEDS`, so the Razor component, the test fixture, and the option list have one owner. Confirmed 2026-09-11: Jest covers the arithmetic and the seek, and Playwright covers a 3× step and a reload.
 - Overflow and viewport width are read again on every pan frame, so a resize or a rerender during playback changes the speed instead of breaking the pan. The pan position lives in the session, not in the DOM.
 - **`setScrollLeft` writes `scrollLeft` and then records what the browser actually stored. Keep the read-back.** The browser's own maximum can sit a fraction below the measured overflow. Without the read-back that clamp looks exactly like a reader grabbing the diagram, which stops playback at the right edge.
+- **Chromium reports a scroll when a hidden viewport loses its box.** A seek hides the step that was mid-pan, and Chromium fired a `scroll` whose `scrollLeft` no longer matched the last commanded value. The takeover guard read that as the reader grabbing the diagram and released Play on the seek. The fix is one early return in the scroll listener: a hidden step cannot be scrolled by the reader, so its scroll events never stop playback. Firefox did not reproduce it. The Playwright test "next during playback keeps playing from the new step" is the gate; it failed once in Chromium before the guard.
 - The live region is written only when the step text changes. A pan writes hundreds of scroll updates per step, and every assignment to `textContent` is another polite announcement.
 - Reduced motion replaces the pan with static pages. Each page is 90% of the viewport width, so consecutive views keep a tenth in common. `matchMedia` is absent in jsdom, so `createMotionQuery` returns null and the renderer treats that as full motion. W3C requires pause and resume for scripted scrolling ([SCR33](https://www.w3.org/WAI/WCAG22/Techniques/client-side-script/SCR33)) and recommends suppressing interaction-triggered animation for reduced-motion readers ([SCR40](https://www.w3.org/WAI/WCAG21/Techniques/client-side-script/SCR40)).
 - `modestOverflowWalkthrough` in `tests/fixtures/diagram-fixtures.js` is the pacing fixture. At a 1280px window it hides 207px behind a 574px viewport, so one pan takes roughly 3 seconds and a browser test finishes quickly. `wideFlowchartWithoutReflow` hides 1198px, which suits reduced-motion paging and is far too slow for a full traversal.

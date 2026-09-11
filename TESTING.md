@@ -17,13 +17,13 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
-| JS | `npm test` | 12 suites, 219 tests | Yes |
+| JS | `npm test` | 12 suites, 232 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 201 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
-| End-to-end | `npm run test:e2e` | 296 tests | No |
+| End-to-end | `npm run test:e2e` | 302 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-All counts were measured on 2026-09-06 at commit `aea9707`.
+All counts were measured on 2026-09-11 at commit `56a6a66` with the diagram speed work in the tree.
 
 ## .NET (xUnit)
 
