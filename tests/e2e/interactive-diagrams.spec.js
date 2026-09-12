@@ -91,7 +91,6 @@ const PLAY_INITIAL_HOLD_MS = 10000;
 const PLAY_VIEWPORT_TRAVERSAL_MS = 8000;
 const PLAY_END_HOLD_MS = 5000;
 const PLAY_REDUCED_MOTION_PAGE_FRACTION = 0.9;
-const PLAY_SPEEDS = [0.5, 1, 1.5, 2, 3];
 
 /**
  * Press Play and watch one whole step from inside the page. Sampling every
@@ -461,9 +460,9 @@ test('the last step pans in full before playback stops', async ({ page }) => {
 });
 
 test('next during playback keeps playing from the new step', async ({ page }) => {
-    // This is the real-browser guard for hiding a viewport mid-pan. A browser
-    // that fired a scroll event when the old viewport lost its box would trip
-    // the takeover guard and release Play.
+    // This is the real-browser guard for hiding a viewport mid-pan. The pan's
+    // last scroll event can arrive after the seek hides the step, with a
+    // scrollLeft of 0, and must not read as the reader taking over.
     test.setTimeout(90000);
     await mount(page, 'modestOverflowWalkthrough', { width: 1280 });
     const widget = page.locator('[data-interactive-diagram]');

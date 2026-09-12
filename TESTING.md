@@ -17,13 +17,13 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
-| JS | `npm test` | 12 suites, 232 tests | Yes |
+| JS | `npm test` | 12 suites, 234 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 201 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
 | End-to-end | `npm run test:e2e` | 302 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-All counts were measured on 2026-09-11 at commit `56a6a66` with the diagram speed work in the tree.
+All counts were measured on 2026-09-12 at commit `f595f1b` with the review fixes for the diagram speed work in the tree.
 
 ## .NET (xUnit)
 
@@ -85,7 +85,7 @@ npx jest --coverage       # with coverage
 | `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`, `initCalendarNav`, `changeMonth`, and the event popover |
 | `course-filter.js` | `initCourseFilter` restore from `localStorage`, `toggleCourseFilter`, and `clearCourseFilter` |
 | `code-features.js` | Wrapping, the double-wrap guard, language labels, and the copy button |
-| `interactive-diagrams.js` | Lazy Mermaid loading, fit and narrow and pan selection, the 14px label floor, direction rewriting, height reservation, overflow cues, resize, theme handling, and both fallback paths |
+| `interactive-diagrams.js` | Lazy Mermaid loading, fit and narrow and pan selection, the 14px label floor, direction rewriting, height reservation, overflow cues, resize, theme handling, both fallback paths, playback pacing, the speed control, and seeking |
 | `scroll-button.js` | The click scrolls to the top, and the absent button is a no-op |
 | `submission-menu.js` | Dropdown state, outside-click dismissal, Escape, and idempotent setup |
 | `theme.js` | `switchPrismTheme`, `data-theme`, `localStorage`, the theme-color meta tag, and the system preference fallback |
@@ -180,7 +180,7 @@ Expect two Firefox failures in a full local run. `playwright.config.js` uses two
 | `faqs.spec.js` | `/faqs`, the sections, the chip filter, the accordion, hash deep-linking, and `hashchange` |
 | `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |
-| `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, and theme and resize safety |
+| `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, playback pacing and the speed control, and theme and resize safety |
 | `navigation.spec.js` | Desktop navigation with 7 menu entries and the scroll hide-and-show, plus the mobile overlay |
 | `theme.spec.js` | The light and dark toggle, `localStorage`, the Prism CSS swap, the icon state, and persistence |
 | `edge-cases.spec.js` | `/null`, missing articles, offline snapshots, repair, and every major route checked for JS errors |

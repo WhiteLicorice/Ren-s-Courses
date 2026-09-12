@@ -145,7 +145,7 @@ diagrams:
 
 `narrowDirection` changes the web rendering only. A generated PDF always uses the authored `mermaid` source. A scrolling diagram also gains a "Scroll sideways to view the full diagram." instruction, edge cues, and keyboard focus. The widget reserves one height for every step, so Previous, Next, and Play never move the page.
 
-A Speed control beside Play sets the walkthrough pace: 0.5×, 1×, 1.5×, 2×, or 3×. One multiplier scales every hold and the pan rate together, so 1× is the default pacing. The choice applies at once, survives a page load, and every widget on a page follows it. Next and Previous during Play seek to that step and keep playing, the way a media player keeps playing after a skip.
+A Speed control beside Play sets the walkthrough pace: 0.5×, 1×, 1.5×, 2×, or 3×. One multiplier scales every hold and the pan rate together. 1× is the default pacing. The choice applies at once, survives a page load, and every widget on a page follows it. Next and Previous during Play seek to that step and keep playing, the way a media player keeps playing after a skip.
 
 The sentinel colour range `#100000` to `#10FFFF` is reserved. Never use it in a `mermaid` source. The content-hygiene gate fails the build if any material does. Author `classDef` colours outside that range survive untouched and stay fixed across themes by design.
 

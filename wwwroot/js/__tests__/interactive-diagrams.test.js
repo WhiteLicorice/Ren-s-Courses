@@ -604,9 +604,9 @@ test('a stored speed is applied at init', async () => {
     expect(statusText()).toBe('Step 2 of 2');
 });
 
-test('an unknown stored speed falls back to 1×', async () => {
+test.each(['7', 'fast'])('a stored speed of %s falls back to 1×', async (stored) => {
     jest.useFakeTimers();
-    localStorage.setItem(PLAY_SPEED_KEY, '7');
+    localStorage.setItem(PLAY_SPEED_KEY, stored);
     mount('alreadyVerticalFlowchart');
     await window.initInteractiveDiagrams(createMermaid());
 
@@ -618,15 +618,6 @@ test('an unknown stored speed falls back to 1×', async () => {
 
     jest.advanceTimersByTime(2);
     expect(statusText()).toBe('Step 2 of 2');
-
-    // A non-numeric value falls back the same way.
-    control('play').click();
-    document.body.innerHTML = '';
-    localStorage.setItem(PLAY_SPEED_KEY, 'fast');
-    mount('alreadyVerticalFlowchart');
-    await window.initInteractiveDiagrams(createMermaid());
-
-    expect(speedControl().value).toBe('1');
 });
 
 test('a faster speed shortens every hold', async () => {
@@ -1084,6 +1075,29 @@ test('previous cancels playback and discards the paused session', async () => {
 
     jest.advanceTimersByTime(1);
     expect(statusText()).toBe('Step 2 of 4');
+});
+
+test('play from the last step restarts the walkthrough at step 1, left edge', async () => {
+    jest.useFakeTimers();
+    mount('wideFlowchartWithoutReflow');
+    await window.initInteractiveDiagrams(createMermaid());
+
+    const steps = stepsOf(widgets()[0]);
+    steps[0].viewport.scrollLeft = 100;
+    steps[0].viewport.dispatchEvent(new Event('scroll'));
+    control('next').click();
+    expect(statusText()).toBe('Step 2 of 2');
+    // Manual navigation carries the position across, so step 2 is not at its edge.
+    expect(steps[1].viewport.scrollLeft).toBeCloseTo(100, 0);
+
+    control('play').click();
+    expect(statusText()).toBe('Step 1 of 2');
+    expect(steps[0].viewport.scrollLeft).toBe(0);
+
+    jest.advanceTimersByTime(PLAY_INITIAL_HOLD_MS - 1);
+    expect(steps[0].viewport.scrollLeft).toBe(0);
+    jest.advanceTimersByTime(1 + FRAME_MS * 2);
+    expect(steps[0].viewport.scrollLeft).toBeGreaterThan(0);
 });
 
 test('two widgets schedule playback independently', async () => {

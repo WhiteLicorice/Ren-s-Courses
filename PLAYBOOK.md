@@ -25,18 +25,18 @@ Most entries below end with the same check. It is written once here.
 
 ## Gate Baselines
 
-Measured 2026-09-11 at site commit `56a6a66`, submodule pin `2d2b29e`, with the diagram speed work in the tree.
+Measured 2026-09-12 at site commit `f595f1b`, submodule pin `2d2b29e`, with the review fixes for the diagram speed work in the tree.
 
 | Gate | Result |
 |---|---|
 | .NET, Release | 201 passed, 0 failed |
-| Jest | 12 suites, 232 passed, 0 failed |
+| Jest | 12 suites, 234 passed, 0 failed |
 | Python | 11 passed, 0 failed |
 | Playwright, Chromium and Firefox | 302 of 302 passed |
-| Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed (not re-run) |
-| Production build | 50 docs, 3 generated / 46 cached / 1 external, exit 0 |
+| Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
+| Production build | `PDF gen: 50 docs, 0 gen, 49 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
-The Playwright row is the full local release gate. This run hit no worker-contention timeout. When one appears, re-run that spec alone before calling it a regression; Test Harness Traps records the pattern.
+The Playwright row is the full local release gate. This run hit no worker-contention timeout. When one appears, re-run that spec alone before calling it a regression. Test Harness Traps records the pattern.
 
 Re-read the submodule pin before you trust it. `git submodule status` is the source of truth.
 
@@ -125,7 +125,7 @@ Playback, confirmed 2026-09-02:
 - **One speed multiplier scales every hold and the pan rate together**, the way `HTMLMediaElement.playbackRate` scales a video. `PLAY_SPEEDS` is `[0.5, 1, 1.5, 2, 3]`, the default is `1`, and the reader's choice persists under the `diagram-play-speed` localStorage key, beside `course-filter` and `user-theme`. `rescheduleHold` cancels a running hold and restarts it with what it still owes; a pan needs no rescheduling because `runPan` reads `playSpeed` every frame. The renderer builds the `<option>` list from `PLAY_SPEEDS`, so the Razor component, the test fixture, and the option list have one owner. Confirmed 2026-09-11: Jest covers the arithmetic and the seek, and Playwright covers a 3× step and a reload.
 - Overflow and viewport width are read again on every pan frame, so a resize or a rerender during playback changes the speed instead of breaking the pan. The pan position lives in the session, not in the DOM.
 - **`setScrollLeft` writes `scrollLeft` and then records what the browser actually stored. Keep the read-back.** The browser's own maximum can sit a fraction below the measured overflow. Without the read-back that clamp looks exactly like a reader grabbing the diagram, which stops playback at the right edge.
-- **Chromium reports a scroll when a hidden viewport loses its box.** A seek hides the step that was mid-pan, and Chromium fired a `scroll` whose `scrollLeft` no longer matched the last commanded value. The takeover guard read that as the reader grabbing the diagram and released Play on the seek. The fix is one early return in the scroll listener: a hidden step cannot be scrolled by the reader, so its scroll events never stop playback. Firefox did not reproduce it. The Playwright test "next during playback keeps playing from the new step" is the gate; it failed once in Chromium before the guard.
+- **A scroll event fires one frame after the write that caused it, and a hidden element reports `scrollLeft` 0.** `runPan` writes `scrollLeft` inside an animation frame. A Next click that lands before the next frame hides that step first, and the queued event then arrives for a hidden viewport. Chromium reads `0` there, so the takeover guard saw `|0 − commandedScrollLeft|` and released Play on the seek. The automatic advance never hit this because the edge hold outlasts the queue. The fix is one early return in the scroll listener: a hidden step cannot be scrolled by the reader. Confirmed 2026-09-12 with a standalone probe in Chromium 153: hiding a scrolled viewport by itself fires no scroll event, and a write followed by a hide in the same task fires exactly one, with `scrollLeft` 0. The Playwright test "next during playback keeps playing from the new step" is the gate.
 - The live region is written only when the step text changes. A pan writes hundreds of scroll updates per step, and every assignment to `textContent` is another polite announcement.
 - Reduced motion replaces the pan with static pages. Each page is 90% of the viewport width, so consecutive views keep a tenth in common. `matchMedia` is absent in jsdom, so `createMotionQuery` returns null and the renderer treats that as full motion. W3C requires pause and resume for scripted scrolling ([SCR33](https://www.w3.org/WAI/WCAG22/Techniques/client-side-script/SCR33)) and recommends suppressing interaction-triggered animation for reduced-motion readers ([SCR40](https://www.w3.org/WAI/WCAG21/Techniques/client-side-script/SCR40)).
 - `modestOverflowWalkthrough` in `tests/fixtures/diagram-fixtures.js` is the pacing fixture. At a 1280px window it hides 207px behind a 574px viewport, so one pan takes roughly 3 seconds and a browser test finishes quickly. `wideFlowchartWithoutReflow` hides 1198px, which suits reduced-motion paging and is far too slow for a full traversal.

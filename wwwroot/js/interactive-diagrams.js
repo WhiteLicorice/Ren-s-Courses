@@ -1372,9 +1372,11 @@ async function enhanceDiagram(widget, mermaid) {
 
     steps.forEach(step => {
         step.viewport.addEventListener('scroll', () => {
-            // A hidden step cannot be scrolled by the reader. Chromium reports a
-            // scroll when the browser tears a mid-pan viewport down, and reading
-            // that as a takeover would release Play on a seek.
+            // A hidden step cannot be scrolled by the reader. A scroll event
+            // fires one frame after the write that caused it. When a seek hides
+            // a mid-pan step inside that frame, the pan's own last event still
+            // arrives, and Chromium reports scrollLeft 0 for an element without
+            // a box. Reading that as a takeover would release Play on a seek.
             if (step.element.hidden) return;
             updateOverflowCues(step);
             // A scroll we did not command is the reader taking over.
