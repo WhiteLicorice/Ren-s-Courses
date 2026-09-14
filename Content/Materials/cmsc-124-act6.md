@@ -9,7 +9,7 @@ authors:
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
 isDraft: false
-noDeadline: true
+deadline: 2026-09-14
 diagrams:
   - title: Trace the loop at guard boundaries
     key: loop-boundary-trace
