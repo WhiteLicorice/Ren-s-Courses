@@ -50,7 +50,7 @@ exercise and its formatting.
 
 ## Part 1: Why Not Floating Point
 
-The obvious way to store ₱19.99 is as the number 19.99. Almost every real financial system refuses to do this. Why?
+The obvious way to store ₱19.99 is as the number 19.99. Almost every financial system refuses to do this. Why?
 
 Floating point stores numbers in binary. One tenth in binary is a repeating fraction, the same way one third in decimal is 0.333 forever. It has to be cut off somewhere, so the stored value is very slightly wrong.
 
@@ -65,11 +65,11 @@ The fix is to stop storing fractions. Keep the amount in **centavos**, as a whol
 | ₱0.05 | 5 |
 | ₱1,000,000.00 | 100000000 |
 
-Nothing is approximate. Addition and subtraction are exact. Your register holds an ordinary integer, which is the only thing it was ever good at.
+Nothing is approximate. Addition and subtraction are exact. Your register holds an ordinary integer, which is the only job it ever had.
 
 This is called **fixed point**. The decimal point isn't stored. Everyone agrees in advance that it sits two digits from the right.
 
-The cost is range. A 32-bit signed register tops out near 2.1 billion, so in centavos that's about ₱21.4 million. That's fine for a class exercise. But it's why real systems use 64-bit values for money.
+The cost is range. A 32-bit signed register tops out near 2.1 billion, so in centavos that's about ₱21.4 million. That's fine for a class exercise. But it's why production systems use 64-bit values for money.
 
 ## Part 2: Percentages Without Fractions
 
@@ -80,23 +80,21 @@ Five percent of a balance is `balance * 5 / 100`:
 ```nasm
         mov     eax, ebx          ; eax = balance in centavos
         mov     ecx, 5            ; 5 percent
-        mul     ecx               ; eax = balance * 5
-        mov     edx, 0
+        mul     ecx               ; edx:eax = balance * 5
         mov     ecx, 100
-        div     ecx               ; eax = balance * 5 / 100
+        div     ecx               ; eax = the whole product / 100
 ```
 
 For a rate with a decimal, like 3.75%, scale it. 3.75% is `375 / 10000`:
 
 ```nasm
         mov     ecx, 375
-        mul     ecx
-        mov     edx, 0
+        mul     ecx               ; edx:eax = balance * 375
         mov     ecx, 10000
-        div     ecx
+        div     ecx               ; eax = the whole product / 10000
 ```
 
-Three things go wrong here often. Dividing first, as in `balance / 100 * 5`, truncates the balance to whole pesos before applying the rate, losing up to 99 centavos every single iteration. Forgetting `mov edx, 0` before `div` is worse than usual here, since the `mul` you just did wrote into `edx`. If the product was small, `edx` is zero and you get away with it. If it was large, `edx` holds the high half and your division is nonsense. Clear it every time. And `div` discards the remainder whether you meant to lose it or not, so if you want a bank's rounding rather than plain truncation, that remainder is sitting in `edx`.
+Three things go wrong here often. Dividing first, as in `balance / 100 * 5`, truncates the balance to whole pesos before the rate applies, losing up to 99 centavos every single iteration. Clearing `edx` between the `mul` and the `div` throws away the top half of the product. The division that follows then works on a number smaller than the true product. A large balance times a rate needs more than 32 bits, so that high half carries digits that belong in the answer. Leave `edx` exactly as the `mul` left it. Zero `edx` only when the dividend is a plain 32-bit value with no high half. The currency split in Part 4 is that case. And `div` discards the remainder whether you meant to lose it or not. If you want a bank's rounding rather than plain truncation, that remainder is sitting in `edx`.
 
 ## Part 3: Carrying a Value Across Iterations
 
@@ -110,10 +108,9 @@ year_loop:
         ; interest = balance * 5 / 100
         mov     eax, esi
         mov     ebx, 5
-        mul     ebx
-        mov     edx, 0
+        mul     ebx               ; edx:eax = balance * 5
         mov     ebx, 100
-        div     ebx
+        div     ebx               ; divide the whole product by 100
 
         add     esi, eax          ; balance = balance + interest
 
@@ -133,7 +130,7 @@ The balance is 105000 and you want `1050.00`. Split it with one division:
 
 ```nasm
         mov     eax, esi
-        mov     edx, 0
+        mov     edx, 0            ; the balance has no high half, so zero edx
         mov     ebx, 100
         div     ebx               ; eax = pesos, edx = centavos
 
@@ -219,7 +216,7 @@ Year 3: 1157.62
 Total interest earned: 157.62
 ```
 
-Trace year 3 by hand before you trust the program. The balance entering it is 110250 centavos. Interest is 110250 × 5 = 551250, divided by 100 is 5512, and the remainder of 50 is discarded. So the balance becomes 115762, which prints as `1157.62`.
+Trace year 3 by hand before you trust the program. The balance on entry is 110250 centavos. Interest is 110250 × 5 = 551250, divided by 100 is 5512, and the remainder of 50 is discarded. So the balance becomes 115762, which prints as `1157.62`.
 
 *That discarded 50 is half a centavo the bank kept. Where in your code did the decision to keep it get made, and what would rounding instead look like?*
 
@@ -231,7 +228,7 @@ term to check any other case:
 python b6_validation.py 250000 7 5
 ```
 
-On Linux that's `python3`, as it was in Block 2.
+On Linux, use `python3`.
 
 ### Checking it
 
@@ -252,13 +249,15 @@ line, in the order the program asks for them.
 * A term of 0 years prints no year lines and zero total interest
 * Total interest equals the final balance minus the starting balance
 * Large balances near ₱20,000,000 don't produce a wrong answer through overflow
+* A balance of 2000000000 at 5% for 1 year prints `21000000.00` and a total interest of `1000000.00`
 * `make PROG=interest check` prints `OK: interest matches interest.expected`
 
 #### Common Pitfalls
 
 * Storing the balance in pesos rather than centavos, losing all precision
 * Dividing before multiplying when applying the rate
-* Leaving `edx` dirty after a `mul` and before the following `div`
+* Clearing `edx` between a `mul` and the `div` that follows, throwing away the top half of the product
+* Forgetting `mov edx, 0` before a `div` that works on a plain 32-bit value
 * Keeping the balance in a register that `mul` overwrites
 * Printing centavos with `print_int` alone, so `5` shows as `.5`
 * Recomputing interest from the original balance every year, which is simple interest, not compound
@@ -276,7 +275,7 @@ line, in the order the program asks for them.
 
 1. **Money is never floating point.** Store the smallest unit as a whole number.
 2. **Fixed point is a shared agreement**, not a stored decimal point.
-3. **Multiply first, divide last**, and clear `edx` between them every time.
+3. **Multiply first, divide last.** `mul` leaves the high half of the product in `edx`, and the `div` that follows divides the pair. Zero `edx` only when the dividend is a plain 32-bit value.
 4. **Decide early which register survives the loop.** `mul` and `div` will take the others.
 5. **The discarded remainder is a decision.** Truncating is a choice, and so is rounding.
 
