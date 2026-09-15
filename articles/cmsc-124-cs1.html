@@ -1,0 +1,1108 @@
+<!DOCTYPE html><html lang="en" data-environment="Production" class="scroll-smooth"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="/"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="manifest" href="site.webmanifest"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="css/app.css?v=84b3b5c05ba0" rel="stylesheet"><link href="css/site.css?v=49864ffd0366" rel="stylesheet"><link rel="preload" href="css/prism-dark.css?v=175c1d9dcabb" as="style"><link rel="preload" href="css/prism-light.css?v=4f1143de389d" as="style"><link id="prism-theme-link" rel="stylesheet" href="css/prism-dark.css?v=175c1d9dcabb" data-dark-href="css/prism-dark.css?v=175c1d9dcabb" data-light-href="css/prism-light.css?v=4f1143de389d"><script>window.siteThemeRegistry=[{site:"light",mermaid:"default",color:"#f8f9fa",shadowFlood:"#000000"},{site:"dark",mermaid:"dark",color:"#111827",shadowFlood:"#FFFFFF"}],window.siteThemeRootDefault="dark",window.siteThemeColors=window.siteThemeRegistry.reduce(function(e,t){return e[t.site]=t.color,e},{}),function(){var e=window.siteThemeRegistry.map(function(e){return e.site}),t=window.matchMedia("(prefers-color-scheme: dark)").matches,o=localStorage.getItem("user-theme"),r=e.indexOf(o)>=0?o:t?e.indexOf("dark")>=0?"dark":e[0]:e.indexOf("light")>=0?"light":e[0];document.documentElement.setAttribute("data-theme",r);var i=document.getElementById("prism-theme-link");if(i){var d=i.getAttribute("data-"+r+"-href");d&&(i.href=d)}var a=document.querySelector('meta[name="theme-color"]');a||((a=document.createElement("meta")).name="theme-color",document.head.appendChild(a)),a.content=window.siteThemeColors[r]}()</script><script src="vendor/prism/prism.js?v=4b9994fc5f44" data-manual></script><script src="vendor/prism/prism-python.min.js?v=ed4385685bcf"></script><script src="vendor/prism/prism-nasm.min.js?v=cbac18131497"></script><script src="vendor/prism/prism-bash.min.js?v=6260814110e5"></script><script src="vendor/prism/prism-powershell.min.js?v=1ed401e08fc4"></script><script src="vendor/prism/prism-kotlin.min.js?v=68c1ddff0d10"></script><script src="vendor/prism/prism-c.min.js?v=9e05cf21207b"></script><script src="vendor/prism/prism-gdscript.min.js?v=4ebbc856c026"></script><script src="vendor/prism/prism-csharp.min.js?v=f4eca14394e5"></script><script src="vendor/prism/prism-markdown.min.js?v=9f1166a087d9"></script><script src="vendor/prism/prism-fortran.min.js?v=576a16d878b5"></script><script src="vendor/prism/prism-lisp.min.js?v=9a27213d5243"></script><script src="vendor/prism/prism-cobol.min.js?v=4c4772a7c85b"></script><script src="vendor/prism/prism-smalltalk.min.js?v=aa8b7957124f"></script><script src="vendor/prism/prism-cpp.min.js?v=12077d9ea678"></script><script src="vendor/prism/prism-java.min.js?v=4c2dc81dfc9e"></script><script src="vendor/prism/prism-rust.min.js?v=8ca261bb9643"></script><script src="vendor/prism/prism-toml.min.js?v=bc71428fec26"></script><script src="vendor/prism/prism-yaml.min.js?v=719c8e8b8c34"></script><script src="vendor/prism/prism-dart.min.js?v=906161333796"></script><script src="vendor/prism/prism-go.min.js?v=1225b4afb593"></script><script src="vendor/prism/prism-julia.min.js?v=43f0d8ef17b0"></script><script src="vendor/prism/prism-json.min.js?v=956d86baa5ae"></script><script src="vendor/prism/prism-cmake.min.js?v=396b5dbd10b2"></script><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body class="min-h-screen bg-bg-base font-sans text-text-dim antialiased selection:bg-accent selection:text-white"><div class="flex min-h-screen flex-col bg-bg-base transition-colors duration-300"><a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded focus:font-bold focus:text-sm">Skip to main content</a><header id="main-navbar" class="fixed top-0 left-0 right-0 z-40 w-full border-b border-border-muted bg-bg-base transition-transform duration-300"><div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 xl:px-0"><div class="flex min-w-0 items-center gap-3 lg:w-0 lg:flex-1"><button id="offline-status-badge" type="button" data-offline-state="updating" class="offline-status-control" aria-describedby="offline-status-tooltip" aria-live="off" aria-label="Offline Mode saves this site and its course files for use without internet, so keep this page open while it updates them." aria-disabled="true"><span data-offline-icon aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke-dasharray="20 10"></circle></svg></span><span id="offline-status-tooltip" class="offline-status-tooltip" role="tooltip">Offline Mode saves this site and its course files for use without internet, so keep this page open while it updates them.</span></button> <a href class="-m-1.5 p-1.5"><div class="text-xl font-bold text-text-main hover:text-accent transition-colors">Ren&#x27;s Courses</div></a></div><nav class="hidden space-x-6 sm:flex items-center"><a href="" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Home</a><a href="projects" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">Showcase</a><a href="faqs" target="_self" class="inline-flex items-center px-3 py-1 text-sm font-medium text-text-dim hover:text-accent transition-all">FAQs</a><div class="relative"><button id="desktop-dropdown-btn" type="button" aria-expanded="false" aria-label="More menu" class="inline-flex items-center justify-center p-2 rounded-md text-text-dim hover:text-accent hover:bg-transparent transition-colors"><svg aria-hidden="true" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button><div id="desktop-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-border-muted shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"><div class="py-1 max-h-48 overflow-y-auto scrollbar-slim"><a href="materials" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Materials</span></div></a><a href="bookings" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Bookings</span></div></a><a href="calendar" target="_self" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Calendar</span></div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block px-4 py-2 text-sm text-text-dim hover:bg-surface-hover hover:text-accent transition-colors"><div class="flex items-center justify-between"><span>Grades</span></div></a></div></div></div><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent transition-colors rounded-md" aria-label="Switch to light mode"><svg aria-hidden="true" class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg aria-hidden="true" class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button></nav><div class="flex flex-1 justify-end sm:hidden"><button id="toggle-button" type="button" class="-m-2.5 p-2.5 text-text-dim hover:text-accent" aria-label="Open main menu"><svg aria-hidden="true" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg></button></div></div></header><div data-offline-live-region class="sr-only" aria-live="polite" aria-atomic="true"></div><div class="h-16 w-full"></div><div id="mobile-menu-container" class="hidden fixed inset-0 z-50"><div id="mobile-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-100"></div><div class="relative w-full h-full max-h-screen overflow-y-auto bg-bg-base border-b border-border-muted shadow-2xl transform transition-transform scrollbar-slim"><div class="flex items-center justify-between px-6 py-4 border-b border-border-muted/50 sticky top-0 bg-bg-base z-10"><span class="font-bold text-text-main">Navigate</span><div class="flex items-center gap-2"><button type="button" class="theme-toggle-btn p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted" aria-label="Switch to light mode"><svg aria-hidden="true" class="icon-sun hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg> <svg aria-hidden="true" class="icon-moon hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg></button> <button id="close-mobile-menu-button" aria-label="Close menu" class="p-2 text-text-dim hover:text-accent bg-surface rounded-md border border-border-muted"><svg aria-hidden="true" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div><div class="px-6 py-6 space-y-2 pb-24"><a href="" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Home</div></a><a href="projects" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Showcase</div></a><a href="faqs" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">FAQs</div></a><a href="materials" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Materials</div></a><a href="bookings" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Bookings</div></a><a href="calendar" target="_self" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Calendar</div></a><a href="https://script.google.com/a/macros/up.edu.ph/s/AKfycbzDek55-JQ1pRgdjQsj8Xoe3CMA-LCwt4ARG3f7SCoskOwsVfIhY0ztXSLVLOfH0i_smw/exec" target="_blank" class="block rounded-lg px-3 py-3 text-base font-semibold leading-7 text-text-main hover:bg-accent-dim hover:text-accent transition-colors"><div class="flex items-center gap-3">Grades</div></a></div></div></div><script>if(!window._navMenuInitialized){window._navMenuInitialized=!0;const e=document.querySelector("#mobile-menu-container"),t=document.querySelector("#mobile-backdrop"),n=document.querySelector("#toggle-button"),d=document.querySelector("#close-mobile-menu-button"),i=()=>{e.classList.remove("hidden"),document.body.classList.add("overflow-hidden")},s=()=>{e.classList.add("hidden"),document.body.classList.remove("overflow-hidden")},o=()=>{e.classList.contains("hidden")?i():s()};n.addEventListener("click",o),d.addEventListener("click",s),t.addEventListener("click",s),e.querySelectorAll('a:not([target="_blank"])').forEach(e=>{e.addEventListener("click",s)});const a=document.getElementById("desktop-dropdown-btn"),c=document.getElementById("desktop-dropdown-menu"),l=e=>{a&&c&&(e?(c.classList.remove("hidden"),a.setAttribute("aria-expanded","true")):(c.classList.add("hidden"),a.setAttribute("aria-expanded","false")))};function initThemeToggle(){const e=document.querySelectorAll(".theme-toggle-btn"),t=t=>{const n="light"===t?"Switch to dark mode":"Switch to light mode";e.forEach(e=>{const d=e.querySelector(".icon-sun"),i=e.querySelector(".icon-moon");e.setAttribute("aria-label",n),"light"===t?(d.classList.add("hidden"),i.classList.remove("hidden")):(i.classList.add("hidden"),d.classList.remove("hidden"))})},n=document.documentElement.getAttribute("data-theme")||"dark";t(n),e.forEach(e=>{e.addEventListener("click",()=>{const e="light"===document.documentElement.getAttribute("data-theme")?"dark":"light";window.switchPrismTheme&&(window.switchPrismTheme(e),t(e))})});new MutationObserver(e=>{e.forEach(e=>{"attributes"===e.type&&"data-theme"===e.attributeName&&t(document.documentElement.getAttribute("data-theme"))})}).observe(document.documentElement,{attributes:!0})}a&&c&&(a.addEventListener("click",e=>{e.stopPropagation();const t=!c.classList.contains("hidden");l(!t)}),document.addEventListener("click",e=>{c.classList.contains("hidden")||c.contains(e.target)||e.target===a||l(!1)})),document.addEventListener("keydown",t=>{"Escape"===t.key&&(e.classList.contains("hidden")||(s(),n.focus()),c&&!c.classList.contains("hidden")&&(l(!1),a.focus()))}),initThemeToggle();let r=0,m=!1;const u=document.getElementById("main-navbar");window.addEventListener("scroll",function(){m||(m=!0,requestAnimationFrame(function(){let t=window.pageYOffset||document.documentElement.scrollTop;if(t<=64)return u.classList.remove("-translate-y-full"),r=t,void(m=!1);t>r?(c&&!c.classList.contains("hidden")&&l(!1),e.classList.contains("hidden")?u.classList.add("-translate-y-full"):u.classList.remove("-translate-y-full")):u.classList.remove("-translate-y-full"),r=t,m=!1}))})}</script><header id="header"></header><main id="main" class="flex-grow w-full mx-auto max-w-5xl px-4 sm:px-6 xl:px-0"><div class="w-full px-4 animate-fade-in"><div class="grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] gap-8 relative max-w-[1920px] mx-auto"><div class="hidden xl:block"></div><article class="min-w-0 w-full mx-auto max-w-[65ch]"><header class="border-b border-border-muted pb-10 pt-10 text-center"><div class="mb-6 flex justify-center gap-2"><a href="materials/cmsc-124" class="rounded border border-accent/50 bg-accent-dim px-2 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors uppercase tracking-wider">cmsc-124</a></div><h1 class="text-3xl font-bold text-text-main sm:text-5xl font-mono">Fail Fast, Fail Early</h1><p class="mt-3 text-xl text-text-dim font-mono">CMSC 124 Case Study 1</p><div class="mt-8 flex flex-col items-center gap-3"><div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 text-sm text-text-dim font-mono"><a href="https://github.com/WhiteLicorice" target="_blank" rel="noopener noreferrer" class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-text-dim hover:text-accent transition-colors group"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-5 h-5 sm:w-4 sm:h-4 shrink-0 group-hover:text-accent fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg> <span class="font-medium">Ren</span></a><span class="hidden sm:inline text-border-muted mx-1">•</span> <time>September 7, 2026</time></div><div class="relative flex w-full flex-wrap items-start justify-center gap-4" data-material-actions><a href="https://drive.google.com/drive/folders/1V5i7v68QISDlQLd12m4kQHVz3uo8Z6dt?usp=drive_link" target="_blank" rel="noopener noreferrer" data-download-action data-download-source="external" class="group mt-1 flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-main"><svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4 transition-transform group-hover:translate-y-0.5"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"></path><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"></path></svg> <span class="border-b border-accent/30 pb-0.5 group-hover:border-text-main">Download</span></a></div></div></header><div class="xl:hidden mt-8 mb-4"><details class="group bg-surface border border-border-muted rounded-lg overflow-hidden"><summary class="flex items-center justify-between p-4 cursor-pointer list-none text-text-dim font-mono text-sm font-bold"><span><span class="text-accent mr-2">>></span>Table of Contents</span> <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="p-4 pt-0 border-t border-border-muted/50"><nav id="mobile-toc-content" class="mt-2"></nav></div></details></div><div class="prose max-w-none py-10"><blockquote><p>&quot;The best software engineers are the worst pessimists: they're always thinking of how things will fail, seldom how they'll succeed.&quot;</p></blockquote><p>This article earns no marks. You submit nothing. It's a post-mortem case study of a practical exam that exposed gaps earlier courses should have closed: namely CMSC 11, CMSC 21, CMSC 22, CMSC 123, and CMSC 142. This guides you through a worked solution to a problem like the one on the exam, demonstrating how to think, discover, decide, and build. By the end, you'll have a working Python reference, an approach to solving unfamiliar problems, a test-first habit, and a translation guide for the seven exam languages.</p><h2 id="the-courier">The Courier</h2><p>Everything that you need to know about our case study problem is in this section. The sections that follow teach you how to build the solution. They point back here instead of restating the rules. I suggest that you open this section in another tab or screen so you can reference it quickly. The test fixtures, including a guide on how to bootstrap it, can be downloaded using the <code>Download</code> button above, or from <a href="https://drive.google.com/drive/folders/1V5i7v68QISDlQLd12m4kQHVz3uo8Z6dt?usp=drive_link">here</a>. Use your university email to access the folder.</p><h3 id="the-problem">The Problem</h3><p>A courier walks a grid and leaves parcels behind. You write a program that reads a description of the walk from a file, simulates it, and prints one of three outputs.</p><h3 id="the-commands">The Commands</h3><p>The input file starts with a header line and continues with zero or more command lines. Each command line is exactly one of five strings:</p><table><thead><tr><th>Command</th><th>Effect</th></tr></thead><tbody><tr><td><code>U</code></td><td>Move up one row</td></tr><tr><td><code>D</code></td><td>Move down one row</td></tr><tr><td><code>L</code></td><td>Move left one column</td></tr><tr><td><code>R</code></td><td>Move right one column</td></tr><tr><td><code>DROP</code></td><td>Leave a parcel at the current cell</td></tr></tbody></table><p><code>U</code>, <code>D</code>, <code>L</code>, and <code>R</code> change the courier's position. <code>DROP</code> records a parcel where the courier stands, without changing the courier's position.</p><h3 id="the-run-contract">The Run Contract</h3><p>The harness calls your program like this:</p><pre><code>./run &lt;mode&gt; &lt;path&gt;
+</code></pre><p>The mode comes first, then the path to the input file. <code>&lt;mode&gt;</code> is one of <code>--pos</code>, <code>--visited</code>, or <code>--map</code>. Your program needs exactly two arguments.</p><p><em>Did you try passing in these arguments with quotes and without quotes during the exam? What changed in behavior?</em></p><h3 id="the-input-file">The Input File</h3><p>Read the file at <code>&lt;path&gt;</code> as <a href="https://en.wikipedia.org/wiki/UTF-8">UTF-8 (standard for text encoding)</a>. A text file is bytes on disk decoded as characters, so the line breaks you see in an editor are control bytes you can inspect.</p><p>A newline written <code>\n</code>, which features prominently in <code>print(&quot;\n&quot;)</code> from CMSC 11, ends one line and starts the next. A carriage return, written <code>\r</code>, is its old partner from Windows line endings. Many Windows editors still save each break as the pair <code>\r\n</code>. You'll meet that pair a lot. You type one character in a Windows editor and save the file. But if you examine the file afterward, it holds two bytes.</p><pre><code class="language-text">editor shows:   3 4
+                R
+bytes hold:     3 4\r\nR\r\n
+</code></pre><p>A good read routine normalizes that away in three small moves. Say the file holds <code>3 4\r\nR\r\n</code>. When you split on <code>&quot;\n&quot;</code>, you get <code>3 4\r</code> and <code>R\r</code> plus a trailing empty piece. When you strip trailing <code>\r</code> bytes, the first two become <code>3 4</code> and <code>R</code>. When you drop empty strings, the trailing piece and any blank lines go away. What remains is the header followed by commands.</p><pre><code class="language-text">file holds:   3 4\r\nR\r\n
+split on \n:  &quot;3 4\r&quot; | &quot;R\r&quot; | &quot;&quot;
+strip \r:     &quot;3 4&quot; | &quot;R&quot; | &quot;&quot;
+drop empties: &quot;3 4&quot; | &quot;R&quot;
+</code></pre><p>So strip trailing <code>\r</code> bytes from each split piece and drop lines that are empty afterward. The first remaining line is the header. Every line after the header is a command. A line with spaces in it still counts as a command.</p><p>The header has the form <code>H W</code>, with one space between the two values. Both values are integers from 1 through 20. A header with one field, three fields, nonnumeric values, or out-of-range values is invalid.</p><h3 id="the-grid">The Grid</h3><p>The courier starts at row 0 and column 0. Row 0 is the top row. Column 0 is the leftmost column.</p><table><thead><tr><th>Command</th><th style="text-align:right">Row change</th><th style="text-align:right">Column change</th></tr></thead><tbody><tr><td><code>U</code></td><td style="text-align:right">-1</td><td style="text-align:right">0</td></tr><tr><td><code>D</code></td><td style="text-align:right">+1</td><td style="text-align:right">0</td></tr><tr><td><code>L</code></td><td style="text-align:right">0</td><td style="text-align:right">-1</td></tr><tr><td><code>R</code></td><td style="text-align:right">0</td><td style="text-align:right">+1</td></tr></tbody></table><p>A move that lands outside the grid is an error. The program tracks three pieces of state: the courier's current position, the set of distinct cells the courier has visited, and the set of cells where a parcel was dropped. The starting cell counts as visited before the first command runs.</p><h3 id="the-output-modes">The Output Modes</h3><table><thead><tr><th>Mode</th><th>Output</th></tr></thead><tbody><tr><td><code>--pos</code></td><td>The final row and column, separated by one space</td></tr><tr><td><code>--visited</code></td><td>The number of distinct visited cells</td></tr><tr><td><code>--map</code></td><td><code>H</code> rows of <code>W</code> characters</td></tr></tbody></table><p>In <code>--map</code> output, <code>@</code> marks the courier's final position, <code>*</code> marks a parcel, and <code>.</code> marks an empty cell. When the courier finishes on a parcel cell, <code>@</code> wins.</p><p>The output mode changes only what gets printed afterward, not the simulation.</p><h3 id="the-exit-codes">The Exit Codes</h3><table><thead><tr><th style="text-align:right">Code</th><th>Meaning</th></tr></thead><tbody><tr><td style="text-align:right">0</td><td>The program ran to completion and printed valid output</td></tr><tr><td style="text-align:right">65</td><td>The input was rejected before simulation</td></tr><tr><td style="text-align:right">70</td><td>A known command caused a runtime failure during simulation</td></tr></tbody></table><p>Exit 65 covers static checks: bad arguments, an unreadable file, a bad header, an unknown command, or an unknown mode. Exit 70 covers one runtime condition. The courier stepped off the grid.</p><h3 id="five-worked-cases">Five Worked Cases</h3><p>The test suite has five graded cases. Each one runs in all three modes, giving 15 valid executions total.</p><p><strong>Case 1.</strong> A 3 by 4 grid. The courier moves right twice, drops a parcel, moves down twice, then moves up once.</p><pre><code class="language-text">3 4
+R
+R
+DROP
+D
+D
+U
+</code></pre><table><thead><tr><th>Mode</th><th>Expected</th></tr></thead><tbody><tr><td><code>--pos</code></td><td><code>1 2</code></td></tr><tr><td><code>--visited</code></td><td><code>5</code></td></tr><tr><td></td><td><code>..*.</code></td></tr><tr><td><code>--map</code></td><td><code>..@.</code></td></tr><tr><td></td><td><code>....</code></td></tr></tbody></table><p>The parcel stays at <code>(0, 2)</code> where the courier dropped it. The courier finishes at <code>(1, 2)</code> because the <code>U</code> after two <code>D</code>s moves one row back up.</p><p><strong>Case 2.</strong> A 2 by 2 grid. The courier drops a parcel at each corner.</p><pre><code class="language-text">2 2
+DROP
+R
+DROP
+D
+DROP
+L
+DROP
+</code></pre><table><thead><tr><th>Mode</th><th>Expected</th></tr></thead><tbody><tr><td><code>--pos</code></td><td><code>1 0</code></td></tr><tr><td><code>--visited</code></td><td><code>4</code></td></tr><tr><td><code>--map</code></td><td><code>**</code></td></tr><tr><td></td><td><code>@*</code></td></tr></tbody></table><p>All four cells hold parcels. The courier finishes at <code>(1, 0)</code>, so <code>@</code> replaces the <code>*</code> there.</p><p><strong>Case 3.</strong> A 1 by 5 grid. The courier moves right to the edge, comes back, and drops a parcel.</p><pre><code class="language-text">1 5
+R
+R
+R
+R
+L
+L
+DROP
+</code></pre><table><thead><tr><th>Mode</th><th>Expected</th></tr></thead><tbody><tr><td><code>--pos</code></td><td><code>0 2</code></td></tr><tr><td><code>--visited</code></td><td><code>5</code></td></tr><tr><td><code>--map</code></td><td><code>..@..</code></td></tr></tbody></table><p>The courier visits all five columns but finishes at column 2. The <code>DROP</code> happens after the moves, so the parcel lands under the courier and <code>@</code> hides it.</p><p><strong>Case 4.</strong> A 1 by 1 grid with a blank line in the input.</p><pre><code class="language-text">
+1 1
+
+DROP
+</code></pre><table><thead><tr><th>Mode</th><th>Expected</th></tr></thead><tbody><tr><td><code>--pos</code></td><td><code>0 0</code></td></tr><tr><td><code>--visited</code></td><td><code>1</code></td></tr><tr><td><code>--map</code></td><td><code>@</code></td></tr></tbody></table><p>Blank lines are stripped before parsing. On a one-cell grid, the courier can't move, but <code>DROP</code> still works. The <code>@</code> covers the parcel.</p><p><strong>Case 5.</strong> A 20 by 20 grid with one <code>DROP</code> and no movement.</p><pre><code class="language-text">20 20
+DROP
+</code></pre><table><thead><tr><th>Mode</th><th>Expected</th></tr></thead><tbody><tr><td><code>--pos</code></td><td><code>0 0</code></td></tr><tr><td><code>--visited</code></td><td><code>1</code></td></tr><tr><td><code>--map</code></td><td><code>@</code> followed by 19 dots, then 19 rows of 20 dots</td></tr></tbody></table><p>The grid is at maximum size. The courier never moves, so only the starting cell is visited. The <code>@</code> sits in the top-left corner and every other cell is empty.</p><h3 id="the-rejections">The Rejections</h3><p>Every rejection expectation file is empty. A correctly rejected input produces no stdout. The modes reuse each input, so the same rule and exit code apply across <code>errors-pos</code>, <code>errors-visited</code>, and <code>errors-map</code>.</p><table><thead><tr><th>Fixture</th><th>Input</th><th>Rule</th><th style="text-align:right">Exit</th></tr></thead><tbody><tr><td><code>err1</code></td><td>empty</td><td>no header</td><td style="text-align:right">65</td></tr><tr><td><code>err2</code></td><td><code>3 3</code>, <code>R</code>, <code>JUMP</code></td><td>unknown command</td><td style="text-align:right">65</td></tr><tr><td><code>err3</code></td><td><code>3</code>, <code>R</code></td><td>one header field</td><td style="text-align:right">65</td></tr><tr><td><code>err4</code></td><td><code>3 3 3</code>, <code>R</code></td><td>three header fields</td><td style="text-align:right">65</td></tr><tr><td><code>err5</code></td><td><code>x 3</code>, <code>R</code></td><td>nonnumeric height</td><td style="text-align:right">65</td></tr><tr><td><code>err6</code></td><td><code>3 x</code>, <code>R</code></td><td>nonnumeric width</td><td style="text-align:right">65</td></tr><tr><td><code>err7</code></td><td><code>0 3</code>, <code>R</code></td><td>height below range</td><td style="text-align:right">65</td></tr><tr><td><code>err8</code></td><td><code>3 0</code>, <code>R</code></td><td>width below range</td><td style="text-align:right">65</td></tr><tr><td><code>err9</code></td><td><code>21 3</code>, <code>R</code></td><td>height above range</td><td style="text-align:right">65</td></tr><tr><td><code>err10</code></td><td><code>3 21</code>, <code>R</code></td><td>width above range</td><td style="text-align:right">65</td></tr><tr><td><code>err11</code></td><td><code>3 3</code>, <code>R 1</code></td><td>command with extra text</td><td style="text-align:right">65</td></tr><tr><td><code>err12</code></td><td><code>3 3</code>, <code>U</code></td><td>move leaves top edge</td><td style="text-align:right">70</td></tr><tr><td><code>err13</code></td><td><code>3 3</code>, <code>L</code></td><td>move leaves left edge</td><td style="text-align:right">70</td></tr><tr><td><code>err14</code></td><td><code>2 3</code>, <code>D</code>, <code>D</code></td><td>second move leaves bottom edge</td><td style="text-align:right">70</td></tr><tr><td><code>err15</code></td><td><code>2 3</code>, <code>R</code>, <code>R</code>, <code>R</code></td><td>third move leaves right edge</td><td style="text-align:right">70</td></tr></tbody></table><p>The first eleven are static. They can be caught before simulation starts. The last four contain valid commands that fail during simulation. They use exit 70 instead of 65.</p><hr><h2 id="what-the-exam-actually-measured">1. What the Exam Actually Measured</h2><p>The Courier run has 60 executions. Five graded cases and fifteen rejection cases each run in all three modes, so the run splits into 15 valid and 45 rejection executions.</p><table><thead><tr><th>Side of the run</th><th style="text-align:right">Cases</th><th style="text-align:right">Modes</th><th style="text-align:right">Executions</th></tr></thead><tbody><tr><td>Valid outputs</td><td style="text-align:right">5</td><td style="text-align:right">3</td><td style="text-align:right">15</td></tr><tr><td>Rejections</td><td style="text-align:right">15</td><td style="text-align:right">3</td><td style="text-align:right">45</td></tr><tr><td>Total</td><td style="text-align:right">20</td><td style="text-align:right">3</td><td style="text-align:right">60</td></tr></tbody></table><p>Three quarters of the run is rejection handling. That makes error handling <em>not</em> a side quest. The harness reports one flat score out of 60. The 45 count tells you where a careful first pass can earn coverage.</p><p>The first useful surprise is the score from a program that only validates input and then stops. No simulation at all. The measured score is a whopping 33 out of 60. The program passes err1 through err11 in each of the three error folders. It misses the four off-grid cases and all fifteen valid cases.</p><p>That result changes the order of your work. A parser isn't a warm-up you throw away before the full solution. It's already a large part of the tested behavior. Once the parser has a clean boundary, the simulation has fewer jobs.</p><p>The score also gives you a quick diagnostic. Zero means the entry path or argument handling is wrong. Around 33 means the static contract is mostly present. 50 means the simulation and position output work but another mode still needs attention. These labels come from the fixture run, not a new grading rule.</p><p>Four gaps from previous courses show up here. The first is not splitting a specification into separate obligations (CMSC 123, CMSC 142). The second is not seeing a command line as a list of strings (CMSC 21, CMSC 22). The third is not trying a small case before building the whole thing (CMSC 11). The fourth is leaving failure handling for last (CMSC 11, CMSC 21, CMSC 22, CMSC 123, CMSC 142). Sections 2 through 5 address each gap.</p><p>Run the harness once before you change any code. Write down the six folder totals beside your editor.</p><h2 id="take-the-problem-apart">2. Take the Problem Apart</h2><p>Gap 1 is the habit of treating a paragraph as one task. The Courier gets less slippery when you turn each sentence into one obligation.</p><p>Reread <em>The Commands</em> and <em>The Grid</em> now. Each sentence there states one fact your program has to enforce or track. Use this checklist as a decomposition pattern:</p><table><thead><tr><th>Obligation group</th><th>Questions to answer</th></tr></thead><tbody><tr><td>Input guarantees</td><td>Which line is the header? Which lines are commands? What are the valid ranges and exact spellings?</td></tr><tr><td>Validation</td><td>How many real arguments must arrive? Which file, header, command, and mode checks reject with exit 65?</td></tr><tr><td>State</td><td>What's the current position? Which cells have been visited? Which cells hold parcels?</td></tr><tr><td>Output</td><td>What does each mode print? Which marker wins when two facts share one cell?</td></tr><tr><td>Failure</td><td>Which known command can still fail during simulation? What exit code marks that failure?</td></tr></tbody></table><p>The checklist doesn't choose a language, a class structure, or a loop to start with. It gives every later line of code a job, so write this checklist down before you start programming.</p><h2 id="the-command-line-is-a-list-of-strings">3. The Command Line Is a List of Strings</h2><p>In CMSC 21, you've written <code>int main(int argc, char *argv[])</code>. In CMSC 22, you've written <code>public static void main(String[] args)</code>. Those signatures are already in your hands, and those parameters were <em>always</em> there. This is the lesson that both CMSC 21 and CMSC 22 owed you about them. <code>argc</code> and <code>args.length</code> tell you how many strings arrived from the command line, when your program is invoked. <code>argv</code> and <code>args</code> hold those strings. The names differ, but the fact is the same.</p><p>When you type a command, the shell splits its words into strings. The operating system hands that list to the program. The entry point reads it by index. That list isn't the <em>contents</em> of any file. It's the command that tells the program which mode to use and which file to read.</p><p>For this run, the command has three visible words:</p><pre><code class="language-bash">./run --pos tests/cs1/pos/case1.rbt
+</code></pre><p>In C and C++, the executable name usually occupies <code>argv[0]</code>. The mode is <code>argv[1]</code>. The path is <code>argv[2]</code>. In Java, the runtime gives <code>args</code> only the mode and the path, so the mode is <code>args[0]</code> and the path is <code>args[1]</code>.</p><p>The seven exam languages use the same split with different surface names, if you read the back page before tackling the problem.</p><table><thead><tr><th>Language</th><th>Executable entry</th><th style="text-align:right">Mode index</th><th style="text-align:right">Path index</th></tr></thead><tbody><tr><td>Rust</td><td><code>env::args()</code> includes the executable</td><td style="text-align:right">1 before a slice, or 0 after <code>skip(1)</code></td><td style="text-align:right">2 before a slice, or 1 after <code>skip(1)</code></td></tr><tr><td>Kotlin</td><td><code>args</code> contains real arguments</td><td style="text-align:right">0</td><td style="text-align:right">1</td></tr><tr><td>Dart</td><td><code>main(List&lt;String&gt; arguments)</code> contains real arguments</td><td style="text-align:right">0</td><td style="text-align:right">1</td></tr><tr><td>C#</td><td><code>Main(string[] args)</code> contains real arguments</td><td style="text-align:right">0</td><td style="text-align:right">1</td></tr><tr><td>C++</td><td><code>argv[0]</code> is the executable</td><td style="text-align:right">1</td><td style="text-align:right">2</td></tr><tr><td>Go</td><td><code>os.Args[0]</code> is the executable</td><td style="text-align:right">1 before a slice, or 0 after <code>os.Args[1:]</code></td><td style="text-align:right">2 before a slice, or 1 after <code>os.Args[1:]</code></td></tr><tr><td>Julia</td><td><code>ARGS</code> contains real arguments and uses one-based indexing</td><td style="text-align:right">1</td><td style="text-align:right">2</td></tr></tbody></table><p>The starter templates set an intentional trap. They bind the first argument to a file path. The harness passes the mode first and the path second. If you keep that starter binding, your program opens <code>--pos</code> instead of the test file. That mistake fails all fifteen cases in a mode, exposing Gap 2.</p><p>The Python version here makes the correction visible:</p><pre><code class="language-python">arguments = sys.argv[1:]
+if len(arguments) != 2:
+    fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;)
+mode, path = arguments
+source = Path(path).read_text(encoding=&quot;utf-8&quot;)
+</code></pre><p>The slice removes the script name. The unpacking keeps the mode and path in their contract order. The rest of the program can now work with the input file directly.</p><p>Run the Python entry point with <code>--pos</code> before a known test path, then inspect the two values your program receives. Use <code>print</code>.</p><section class="interactive-diagram not-prose my-10 overflow-hidden rounded-lg border border-border-muted bg-surface" data-interactive-diagram aria-labelledby="learning-diagram-0-title"><header class="border-b border-border-muted px-5 py-4 sm:px-6"><h2 id="learning-diagram-0-title" class="font-mono text-xl font-bold text-text-main">From a command line to two arguments</h2><p class="mt-2 text-sm leading-6 text-text-dim">The shell supplies one list of strings, and the program assigns roles to its entries.</p></header><div class="diagram-controls flex flex-wrap items-center gap-2 border-b border-border-muted px-5 py-3 sm:px-6" data-diagram-controls hidden><button type="button" data-diagram-action="previous" class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">Previous</button><output class="min-w-24 text-center font-mono text-xs text-text-dim" data-diagram-status aria-live="polite">Step 1 of 2</output><button type="button" data-diagram-action="next" class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">Next</button> <label class="ml-auto flex items-center gap-2 font-mono text-xs text-text-dim">Speed <select data-diagram-speed class="rounded border border-border-muted bg-surface px-2 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent focus-visible:border-accent"></select></label> <button type="button" data-diagram-action="play" aria-pressed="false" class="rounded border border-accent/50 px-3 py-2 font-mono text-xs text-accent transition-colors hover:bg-accent hover:text-white">Play</button></div><div class="p-5 sm:p-6"><section data-diagram-step aria-labelledby="learning-diagram-0-step-0-title"><p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">Step 1</p><h3 id="learning-diagram-0-step-0-title" class="text-lg font-semibold text-text-main">The list arrives</h3><p class="mt-2 text-sm leading-6 text-text-dim">The executable name may occupy index zero, depending on the language interface.</p><div class="diagram-viewport mt-5" id="learning-diagram-0-step-0-viewport" data-diagram-viewport aria-describedby="learning-diagram-0-step-0-instruction"><div class="diagram-stage" data-diagram-canvas></div></div><p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="learning-diagram-0-step-0-instruction" data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p><pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim" data-diagram-source>flowchart LR&#xA;  command[&quot;run --pos tests/cs1/pos/case1.rbt&quot;] --&gt; list[&quot;argument list&quot;]&#xA;  list --&gt; program[&quot;program entry point&quot;]&#xA;  classDef raw fill:#eceff1,stroke:#546e7a,color:#263238&#xA;  classDef current fill:#bbdefb,stroke:#1565c0,color:#0d47a1&#xA;  classDef done fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20&#xA;  class command raw&#xA;  class list current&#xA;  class program done&#xA;</pre><p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p></section><section data-diagram-step hidden aria-labelledby="learning-diagram-0-step-1-title"><p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">Step 2</p><h3 id="learning-diagram-0-step-1-title" class="text-lg font-semibold text-text-main">The roles become clear after splitting out the executable name</h3><p class="mt-2 text-sm leading-6 text-text-dim">The first real argument is the mode and the second real argument is the path.</p><div class="diagram-viewport mt-5" id="learning-diagram-0-step-1-viewport" data-diagram-viewport aria-describedby="learning-diagram-0-step-1-instruction"><div class="diagram-stage" data-diagram-canvas></div></div><p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="learning-diagram-0-step-1-instruction" data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p><pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim" data-diagram-source>flowchart LR&#xA;  zero[&quot;argv[0] executable&quot;] --&gt; mode[&quot;argv[1] --pos&quot;]&#xA;  mode --&gt; path[&quot;argv[2] test path&quot;]&#xA;  java[&quot;args[0] --pos&quot;] --&gt; javaPath[&quot;args[1] test path&quot;]&#xA;  classDef raw fill:#eceff1,stroke:#546e7a,color:#263238&#xA;  classDef current fill:#bbdefb,stroke:#1565c0,color:#0d47a1&#xA;  classDef done fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20&#xA;  class zero raw&#xA;  class mode current&#xA;  class path done&#xA;  class java raw&#xA;  class javaPath done&#xA;</pre><p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p></section></div></section><h2 id="try-it-and-see">4. Try It and See</h2><p>Gap 3 isn't solved by understanding the harness description, or reading test cases or any prose. You solve it by running a small program and looking at its result.</p><p>The fastest way to check is a small argument probe. It prints the arguments after the script name to standard error and exits with 65. Standard error keeps the probe visible without pretending the program produced a valid answer. The exit code also makes it a valid rejection stub for the harness.</p><pre><code class="language-python">import sys
+
+
+print(sys.argv[1:], file=sys.stderr)
+sys.exit(65)
+</code></pre><p>A <code>run</code> wrapper is a small launcher that forwards the harness's arguments to your program. For Python, it calls <code>main.py</code>.</p><pre><code class="language-bash">#!/usr/bin/env bash
+exec python3 &quot;$(dirname &quot;$0&quot;)/main.py&quot; &quot;$@&quot;
+</code></pre><p>Then run the harness against each folder. The wrapper receives the flag and path in that order. The Python file prints the list it sees. The harness still checks stdout and exit code, so the stub fails valid cases and runtime cases.</p><p>The measured result is 11 out of 15 in each error folder and 33 out of 60 overall. That's not a disappointing result. It proves that the harness is running the entry point, that the expected rejection code is 65, and that the static error cases are test cases worth passing.</p><p>One run takes seconds. Guessing about the argument list can waste an entire debugging session and burn 90 minutes. Run the experiment first, then build on what you see.</p><p>Run the stub with <code>--pos tests/cs1/pos/case1.rbt</code> and read its standard error.</p><h2 id="fail-on-purpose-fail-early-fail-fast">5. Fail on Purpose, Fail Early, Fail Fast</h2><p>The fourth gap is making the happy path the first path. The Courier reverses that priority. Look at <em>The Rejections</em> near the top. The fixtures number the rules clearly enough to show the order your program should check them.</p><p>The first eleven checks are static. They inspect the file and its command names without moving the courier. The last four contain known commands. They become invalid only when the simulation applies a move. The code order follows that distinction.</p><p>The samples in this article are cuts from one Python file. They assume the imports <code>re</code>, <code>sys</code>, and <code>Path</code> and the four helpers <code>fail</code>, <code>die</code>, <code>number</code>, and <code>output</code> that the first Appendix listing shows in place. That listing is the finished file. A sample carries on from the code you wrote before it, and where a later sample reworks a block, replace the block instead of keeping both versions.</p><pre><code class="language-python">lines = []
+for raw in source.split(&quot;\n&quot;):
+    line = raw.rstrip(&quot;\r&quot;)
+    if line:
+        lines.append(line)
+if not lines:
+    fail(&quot;the file has no header line&quot;)
+
+header = lines[0].split(&quot; &quot;)
+if len(header) != 2:
+    fail(&quot;the header needs a height and a width&quot;)
+height = number(header[0], &quot;bad height&quot;)
+width = number(header[1], &quot;bad width&quot;)
+if height &lt; 1 or height &gt; 20 or width &lt; 1 or width &gt; 20:
+    fail(&quot;the height and width must each be between 1 and 20&quot;)
+
+for line in lines[1:]:
+    if line not in {&quot;U&quot;, &quot;D&quot;, &quot;L&quot;, &quot;R&quot;, &quot;DROP&quot;}:
+        fail(f&quot;unknown command '{line}'&quot;)
+</code></pre><p>The static-only version passes err1 through err11 in all three error folders. The measured folder totals are 11/15, 11/15, and 11/15. The valid folders still fail because this version stops before simulation and output. That gives 33 out of 60.</p><p>Place a guard beside the fact it protects. A file guard belongs after reading. A range guard belongs after parsing. A movement guard belongs after changing a candidate position and before recording that position as valid. A mode guard belongs before the program prints an answer.</p><p>Run all six folders and confirm the error folders report 11/15 each. Then mark err1 through err11 as static and err12 through err15 as runtime in your own checklist.</p><section class="interactive-diagram not-prose my-10 overflow-hidden rounded-lg border border-border-muted bg-surface" data-interactive-diagram aria-labelledby="learning-diagram-1-title"><header class="border-b border-border-muted px-5 py-4 sm:px-6"><h2 id="learning-diagram-1-title" class="font-mono text-xl font-bold text-text-main">The validation funnel</h2><p class="mt-2 text-sm leading-6 text-text-dim">Invalid files stop before simulation, while valid movement failures use a different exit code.</p></header><div class="diagram-controls flex flex-wrap items-center gap-2 border-b border-border-muted px-5 py-3 sm:px-6" data-diagram-controls hidden><button type="button" data-diagram-action="previous" class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">Previous</button><output class="min-w-24 text-center font-mono text-xs text-text-dim" data-diagram-status aria-live="polite">Step 1 of 2</output><button type="button" data-diagram-action="next" class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">Next</button> <label class="ml-auto flex items-center gap-2 font-mono text-xs text-text-dim">Speed <select data-diagram-speed class="rounded border border-border-muted bg-surface px-2 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent focus-visible:border-accent"></select></label> <button type="button" data-diagram-action="play" aria-pressed="false" class="rounded border border-accent/50 px-3 py-2 font-mono text-xs text-accent transition-colors hover:bg-accent hover:text-white">Play</button></div><div class="p-5 sm:p-6"><section data-diagram-step aria-labelledby="learning-diagram-1-step-0-title"><p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">Step 1</p><h3 id="learning-diagram-1-step-0-title" class="text-lg font-semibold text-text-main">Check static input first</h3><p class="mt-2 text-sm leading-6 text-text-dim">File, header, range, command, and mode checks reject malformed input with exit 65.</p><div class="diagram-viewport mt-5" id="learning-diagram-1-step-0-viewport" data-diagram-viewport aria-describedby="learning-diagram-1-step-0-instruction"><div class="diagram-stage" data-diagram-canvas></div></div><p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="learning-diagram-1-step-0-instruction" data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p><pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim" data-diagram-source>flowchart LR&#xA;  file[&quot;input file&quot;] --&gt; readable{&quot;readable?&quot;}&#xA;  readable --&gt;|no| bad65a[&quot;exit 65&quot;]&#xA;  readable --&gt;|yes| header{&quot;valid header?&quot;}&#xA;  header --&gt;|no| bad65b[&quot;exit 65&quot;]&#xA;  header --&gt;|yes| commands{&quot;known commands?&quot;}&#xA;  commands --&gt;|no| bad65c[&quot;exit 65&quot;]&#xA;  commands --&gt;|yes| simulation[&quot;simulate&quot;]&#xA;  classDef raw fill:#eceff1,stroke:#546e7a,color:#263238&#xA;  classDef current fill:#bbdefb,stroke:#1565c0,color:#0d47a1&#xA;  classDef done fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20&#xA;  class file raw&#xA;  class readable current&#xA;  class header current&#xA;  class commands current&#xA;  class bad65a done&#xA;  class bad65b done&#xA;  class bad65c done&#xA;  class simulation raw&#xA;</pre><p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p></section><section data-diagram-step hidden aria-labelledby="learning-diagram-1-step-1-title"><p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">Step 2</p><h3 id="learning-diagram-1-step-1-title" class="text-lg font-semibold text-text-main">Check movement during simulation</h3><p class="mt-2 text-sm leading-6 text-text-dim">A known movement that leaves the grid exits with 70.</p><div class="diagram-viewport mt-5" id="learning-diagram-1-step-1-viewport" data-diagram-viewport aria-describedby="learning-diagram-1-step-1-instruction"><div class="diagram-stage" data-diagram-canvas></div></div><p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="learning-diagram-1-step-1-instruction" data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p><pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim" data-diagram-source>flowchart LR&#xA;  simulation[&quot;simulate move&quot;] --&gt; bounds{&quot;inside grid?&quot;}&#xA;  bounds --&gt;|no| bad70[&quot;exit 70&quot;]&#xA;  bounds --&gt;|yes| output[&quot;select output mode&quot;]&#xA;  classDef raw fill:#eceff1,stroke:#546e7a,color:#263238&#xA;  classDef current fill:#bbdefb,stroke:#1565c0,color:#0d47a1&#xA;  classDef done fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20&#xA;  class simulation raw&#xA;  class bounds current&#xA;  class bad70 done&#xA;  class output done</pre><p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p></section></div></section><h2 id="the-guided-build">6. The Guided Build</h2><p>The guided build uses Python because Python keeps attention on the decisions. Python isn't one of the seven host languages that count for the exam. CMSC 11 taught Python. CMSC 123 and CMSC 142 taught Python again, presumably, if not C or C++. That makes Python the only language that bookends this course sequence for every reader.</p><p>The listing focuses on the decisions, not on syntax details. The harness is Python too, so the entry path is familiar on the day you run it. No group ships Python for a graded laboratory activity. The Python solution is the reasoning. Appendix A holds solutions for the seven languages that you use in laboratory activities.</p><p>Each part adds one behavior. Run all six folders after each part. The totals below come from harness runs.</p><table><thead><tr><th style="text-align:right">Part</th><th>Adds</th><th>Folder result</th><th style="text-align:right">Total</th></tr></thead><tbody><tr><td style="text-align:right">0</td><td>Argument handling and immediate exit</td><td>0/5, 0/5, 0/5, 0/15, 0/15, 0/15</td><td style="text-align:right">0/60</td></tr><tr><td style="text-align:right">1</td><td>File reading, blank removal, header form, and range</td><td>0/5, 0/5, 0/5, 9/15, 9/15, 9/15</td><td style="text-align:right">27/60</td></tr><tr><td style="text-align:right">2</td><td>Command names and command arity</td><td>0/5, 0/5, 0/5, 11/15, 11/15, 11/15</td><td style="text-align:right">33/60</td></tr><tr><td style="text-align:right">3</td><td>Simulation, off-grid failure, and <code>--pos</code></td><td>5/5, 0/5, 0/5, 15/15, 15/15, 15/15</td><td style="text-align:right">50/60</td></tr><tr><td style="text-align:right">4</td><td>The three output modes</td><td>5/5, 5/5, 5/5, 15/15, 15/15, 15/15</td><td style="text-align:right">60/60</td></tr></tbody></table><p>The six folder results appear in this order: <code>pos</code>, <code>visited</code>, <code>map</code>, <code>errors-pos</code>, <code>errors-visited</code>, and <code>errors-map</code>. Keep that order in your own terminal notes. It prevents a total from hiding a missing mode.</p><h3 id="part-0-put-the-entry-point-under-test">Part 0: Put the Entry Point Under Test</h3><p>Start by accepting exactly two arguments besides the script name. The Python process has its own name at <code>sys.argv[0]</code>, so the mode begins at index 1. Exit immediately after the argument check. There's no file read yet.</p><pre><code class="language-python">arguments = sys.argv[1:]
+if len(arguments) != 2:
+    fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;)
+mode, path = arguments
+</code></pre><p>This part scores 0/60. There's no output yet, so nothing can pass. What you get instead is an entry point that accepts exactly two arguments besides the script name and stops cleanly. The beginning is pristine, so no environmental errors may occur.</p><p>Run all six folders. Record the six zero totals before you move to Part 1.</p><h3 id="part-1-read-and-validate-the-header">Part 1: Read and Validate the Header</h3><p>Read the path as UTF-8. Remove blank lines and one trailing carriage return per line. Split the first remaining line on one literal space. That split preserves empty fields, so <code>3 3</code> doesn't become a valid header. Parse both numbers and apply the inclusive 1 through 20 range.</p><pre><code class="language-python">try:
+    source = Path(path).read_text(encoding=&quot;utf-8&quot;)
+except (OSError, UnicodeError) as error:
+    fail(f&quot;cannot read '{path}': {error}&quot;)
+
+lines = []
+for raw in source.split(&quot;\n&quot;):
+    line = raw.rstrip(&quot;\r&quot;)
+    if line:
+        lines.append(line)
+if not lines:
+    fail(&quot;the file has no header line&quot;)
+
+header = lines[0].split(&quot; &quot;)
+if len(header) != 2:
+    fail(&quot;the header needs a height and a width&quot;)
+height = number(header[0], &quot;bad height&quot;)
+width = number(header[1], &quot;bad width&quot;)
+if height &lt; 1 or height &gt; 20 or width &lt; 1 or width &gt; 20:
+    fail(&quot;the height and width must each be between 1 and 20&quot;)
+</code></pre><p>This part scores 27/60. It passes nine rejection cases in each error folder. The unknown-command case still needs command validation. The four runtime cases also pass through because no move has been applied yet.</p><p>Run all six folders. Look at the first failing error in each folder.</p><h3 id="part-2-validate-exact-commands">Part 2: Validate Exact Commands</h3><p>Scan the lines after the header. Compare each line against the five exact spellings. Keep <code>DROP</code> separate from movement. It changes the parcel set but doesn't change the position. Stop after this scan so the next score isolates static validation.</p><pre><code class="language-python">parcels = set()
+visited = {(0, 0)}
+row = 0
+column = 0
+
+for line in lines[1:]:
+    if line not in {&quot;U&quot;, &quot;D&quot;, &quot;L&quot;, &quot;R&quot;, &quot;DROP&quot;}:
+        fail(f&quot;unknown command '{line}'&quot;)
+    if line == &quot;DROP&quot;:
+        parcels.add((row, column))
+        continue
+</code></pre><p>This part scores 33/60. It passes err1 through err11 in each error folder. It doesn't pass the four off-grid cases because it hasn't applied movement yet.</p><p>Run the three error folders and confirm that each reports 11/15 before you start the simulation.</p><h3 id="part-3-simulate-and-guard-the-grid">Part 3: Simulate and Guard the Grid</h3><p>Map each movement to a row and column change. Apply the change. Check the new position before inserting it into the visited set. This order lets the runtime failure use exit 70 and keeps an off-grid cell out of the visited set.</p><pre><code class="language-python">for line in lines[1:]:
+    if line == &quot;U&quot;:
+        step_row, step_column = -1, 0
+    elif line == &quot;D&quot;:
+        step_row, step_column = 1, 0
+    elif line == &quot;L&quot;:
+        step_row, step_column = 0, -1
+    elif line == &quot;R&quot;:
+        step_row, step_column = 0, 1
+    elif line == &quot;DROP&quot;:
+        parcels.add((row, column))
+        continue
+    else:
+        fail(f&quot;unknown command '{line}'&quot;)
+
+    row += step_row
+    column += step_column
+    if row &lt; 0 or row &gt;= height or column &lt; 0 or column &gt;= width:
+        die(&quot;the courier stepped off the grid&quot;)
+    visited.add((row, column))
+
+if mode == &quot;--pos&quot;:
+    output(f&quot;{row} {column}&quot;)
+</code></pre><p>This part scores 50/60. Position output now passes all five valid cases. Static and runtime rejection handling passes all 45 rejection executions. The visited and map modes still have no output.</p><p>Run all six folders. Confirm that the three valid folders split into 5/5, 0/5, and 0/5.</p><h3 id="part-4-select-the-output-mode">Part 4: Select the Output Mode</h3><p>The simulation has one final state. Each mode reads that state differently. Check the mode after the simulation so an unknown mode can't print a plausible partial answer.</p><pre><code class="language-python">if mode == &quot;--pos&quot;:
+    output(f&quot;{row} {column}&quot;)
+elif mode == &quot;--visited&quot;:
+    output(str(len(visited)))
+elif mode == &quot;--map&quot;:
+    for current_row in range(height):
+        rendered = []
+        for current_column in range(width):
+            if current_row == row and current_column == column:
+                rendered.append(&quot;@&quot;)
+            elif (current_row, current_column) in parcels:
+                rendered.append(&quot;*&quot;)
+            else:
+                rendered.append(&quot;.&quot;)
+        output(&quot;&quot;.join(rendered))
+else:
+    fail(f&quot;unknown mode '{mode}'&quot;)
+</code></pre><p>The complete program appears as the first listing in Appendix A. It preserves the checks in this order. On Windows, the <code>\r</code> stripping in the input reader handles files saved with Windows line endings. The output uses Unix-style newlines, so the harness can compare stdout across platforms.</p><p>This part scores 60/60. Run all six folders and read the totals. Each folder should report its full count now, matching the last row of the table above.</p><section class="interactive-diagram not-prose my-10 overflow-hidden rounded-lg border border-border-muted bg-surface" data-interactive-diagram aria-labelledby="learning-diagram-2-title"><header class="border-b border-border-muted px-5 py-4 sm:px-6"><h2 id="learning-diagram-2-title" class="font-mono text-xl font-bold text-text-main">The Courier state</h2><p class="mt-2 text-sm leading-6 text-text-dim">The simulation keeps position, visited cells, and parcel cells as separate state.</p></header><div class="diagram-controls flex flex-wrap items-center gap-2 border-b border-border-muted px-5 py-3 sm:px-6" data-diagram-controls hidden><button type="button" data-diagram-action="previous" class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">Previous</button><output class="min-w-24 text-center font-mono text-xs text-text-dim" data-diagram-status aria-live="polite">Step 1 of 2</output><button type="button" data-diagram-action="next" class="rounded border border-border-muted px-3 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent hover:text-accent">Next</button> <label class="ml-auto flex items-center gap-2 font-mono text-xs text-text-dim">Speed <select data-diagram-speed class="rounded border border-border-muted bg-surface px-2 py-2 font-mono text-xs text-text-main transition-colors hover:border-accent focus-visible:border-accent"></select></label> <button type="button" data-diagram-action="play" aria-pressed="false" class="rounded border border-accent/50 px-3 py-2 font-mono text-xs text-accent transition-colors hover:bg-accent hover:text-white">Play</button></div><div class="p-5 sm:p-6"><section data-diagram-step aria-labelledby="learning-diagram-2-step-0-title"><p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">Step 1</p><h3 id="learning-diagram-2-step-0-title" class="text-lg font-semibold text-text-main">Start with three pieces of state</h3><p class="mt-2 text-sm leading-6 text-text-dim">The courier starts at row zero and column zero, with the start cell already visited.</p><div class="diagram-viewport mt-5" id="learning-diagram-2-step-0-viewport" data-diagram-viewport aria-describedby="learning-diagram-2-step-0-instruction"><div class="diagram-stage" data-diagram-canvas></div></div><p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="learning-diagram-2-step-0-instruction" data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p><pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim" data-diagram-source>flowchart LR&#xA;  input[&quot;header and commands&quot;] --&gt; position[&quot;position row, column&quot;]&#xA;  input --&gt; visited[&quot;visited cell set&quot;]&#xA;  input --&gt; parcels[&quot;parcel cell set&quot;]&#xA;  classDef raw fill:#eceff1,stroke:#546e7a,color:#263238&#xA;  classDef current fill:#bbdefb,stroke:#1565c0,color:#0d47a1&#xA;  classDef done fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20&#xA;  class input raw&#xA;  class position current&#xA;  class visited done&#xA;  class parcels done&#xA;</pre><p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p></section><section data-diagram-step hidden aria-labelledby="learning-diagram-2-step-1-title"><p class="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-accent">Step 2</p><h3 id="learning-diagram-2-step-1-title" class="text-lg font-semibold text-text-main">Update each piece in order</h3><p class="mt-2 text-sm leading-6 text-text-dim">A move changes position, then the program checks bounds and records the new cell.</p><div class="diagram-viewport mt-5" id="learning-diagram-2-step-1-viewport" data-diagram-viewport aria-describedby="learning-diagram-2-step-1-instruction"><div class="diagram-stage" data-diagram-canvas></div></div><p class="diagram-scroll-hint mt-2 font-mono text-xs text-text-dim" id="learning-diagram-2-step-1-instruction" data-diagram-scroll-hint hidden>Scroll sideways to view the full diagram.</p><pre class="diagram-source mt-5 overflow-x-auto rounded border border-border-muted bg-bg-base p-4 text-xs text-text-dim" data-diagram-source>flowchart LR&#xA;  command[&quot;U D L R&quot;] --&gt; move[&quot;change position&quot;]&#xA;  move --&gt; guard{&quot;inside grid?&quot;}&#xA;  guard --&gt;|no| exit70[&quot;exit 70&quot;]&#xA;  guard --&gt;|yes| record[&quot;insert visited cell&quot;]&#xA;  record --&gt; next[&quot;read next command&quot;]&#xA;  classDef raw fill:#eceff1,stroke:#546e7a,color:#263238&#xA;  classDef current fill:#bbdefb,stroke:#1565c0,color:#0d47a1&#xA;  classDef done fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20&#xA;  class command raw&#xA;  class move current&#xA;  class guard current&#xA;  class exit70 done&#xA;  class record done&#xA;  class next raw&#xA;</pre><p class="mt-3 text-sm text-accent" data-diagram-error role="alert" hidden></p></section></div></section><h2 id="the-same-reasoning-in-your-own-language">7. The Same Reasoning in Your Own Language</h2><p>The seven exam references share one algorithm. They differ in five language interfaces: argument index, file reading, integer parsing, exit call, and the container used for the visited set. The first four were detailed on the back page, while the last one tests your fluency over your chosen language.</p><table><thead><tr><th>Decision</th><th>Python walkthrough</th><th>Seven-language reference choices</th></tr></thead><tbody><tr><td>Argument index</td><td>Slice <code>sys.argv[1:]</code></td><td>Rust, C++, and Go account for the executable. Kotlin, Dart, C#, and Julia receive real arguments directly.</td></tr><tr><td>File reading</td><td><code>Path.read_text</code> with UTF-8</td><td>Each template uses its language file API and the same line cleanup.</td></tr><tr><td>Integer parsing</td><td>Regex plus <code>int</code> and signed 64-bit bounds</td><td>Rust, Kotlin, Dart, C#, C++, Go, and Julia parse before the range check.</td></tr><tr><td>Exit call</td><td><code>sys.exit(65)</code> or <code>sys.exit(70)</code></td><td>Each language calls its process exit function with the same code.</td></tr><tr><td>Visited container</td><td>Set of <code>(row, column)</code> tuples</td><td>Each reference uses a set-like collection of coordinate pairs.</td></tr></tbody></table><p>Translate each named obligation, not every Python token. Appendix A holds all eight listings.</p><p>Run one non-Python verifier now. Walk through the five rows while you watch its six folder results.</p><h2 id="what-to-carry-into-laboratory-activity-1-and-future-problems">8. What to Carry into Laboratory Activity 1 and Future Problems</h2><p>Your four gaps become four actions.</p><ol><li>Break the problem statement into input, validation, state, output, and failure.</li><li>Print or inspect the arguments before you guess their order.</li><li>Try one small input and read the actual result.</li><li>Add failure guards before the happy path grows around them.</li></ol><p>Write those four actions at the top of your next laboratory file. Then create a five-row checklist for the next problem before you start coding.</p><hr><h2 id="appendix-a.the-courier-in-eight-languages">Appendix A. The Courier in Eight Languages</h2><p>These listings are complete. Python comes first because it carries the walkthrough. Each listing matches the runnable file beside this article. The comments inside the code call out language-specific decisions.</p><h3 id="python">Python</h3><pre><code class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;Reference solution for the CMSC 124 Courier case study.&quot;&quot;&quot;
+
+import re
+import sys
+from pathlib import Path
+from typing import NoReturn
+
+
+def fail(message: str) -&gt; NoReturn:
+    print(f&quot;exam: {message}&quot;, file=sys.stderr)
+    sys.exit(65)
+
+
+def die(message: str) -&gt; NoReturn:
+    print(f&quot;exam: {message}&quot;, file=sys.stderr)
+    sys.exit(70)
+
+
+def output(line: str) -&gt; None:
+    sys.stdout.buffer.write(f&quot;{line}\n&quot;.encode(&quot;utf-8&quot;))
+
+
+def number(text: str, complaint: str) -&gt; int:
+    # Parse the header token as a signed 64-bit integer, then let the
+    # range check below decide whether the value is usable.
+    if re.fullmatch(r&quot;[+-]?\d+&quot;, text) is None:
+        fail(complaint)
+    value: int = int(text, 10)
+    if not -(1 &lt;&lt; 63) &lt;= value &lt;= (1 &lt;&lt; 63) - 1:
+        fail(complaint)
+    return value
+
+
+def main() -&gt; None:
+    # Python's argv[0] is the script name, so the mode is argv[1].
+    arguments: list[str] = sys.argv[1:]
+    if len(arguments) != 2:
+        fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;)
+    mode, path = arguments
+
+    try:
+        source: str = Path(path).read_text(encoding=&quot;utf-8&quot;)
+    except (OSError, UnicodeError) as error:
+        fail(f&quot;cannot read '{path}': {error}&quot;)
+
+    lines: list[str] = []
+    for raw in source.split(&quot;\n&quot;):
+        line = raw.rstrip(&quot;\r&quot;)
+        if line:
+            lines.append(line)
+    if not lines:
+        fail(&quot;the file has no header line&quot;)
+
+    # split(&quot; &quot;) keeps empty fields, which enforces the exact header form.
+    header: list[str] = lines[0].split(&quot; &quot;)
+    if len(header) != 2:
+        fail(&quot;the header needs a height and a width&quot;)
+    height: int = number(header[0], &quot;bad height&quot;)
+    width: int = number(header[1], &quot;bad width&quot;)
+    if height &lt; 1 or height &gt; 20 or width &lt; 1 or width &gt; 20:
+        fail(&quot;the height and width must each be between 1 and 20&quot;)
+
+    parcels: set[tuple[int, int]] = set()
+    visited: set[tuple[int, int]] = set()
+    row: int = 0
+    column: int = 0
+    visited.add((row, column))
+
+    for line in lines[1:]:
+        step_row: int
+        step_column: int
+        if line == &quot;U&quot;:
+            step_row, step_column = -1, 0
+        elif line == &quot;D&quot;:
+            step_row, step_column = 1, 0
+        elif line == &quot;L&quot;:
+            step_row, step_column = 0, -1
+        elif line == &quot;R&quot;:
+            step_row, step_column = 0, 1
+        elif line == &quot;DROP&quot;:
+            parcels.add((row, column))
+            continue
+        else:
+            fail(f&quot;unknown command '{line}'&quot;)
+
+        row += step_row
+        column += step_column
+        if row &lt; 0 or row &gt;= height or column &lt; 0 or column &gt;= width:
+            die(&quot;the courier stepped off the grid&quot;)
+        visited.add((row, column))
+
+    if mode == &quot;--pos&quot;:
+        output(f&quot;{row} {column}&quot;)
+    elif mode == &quot;--visited&quot;:
+        output(str(len(visited)))
+    elif mode == &quot;--map&quot;:
+        for current_row in range(height):
+            rendered: list[str] = []
+            for current_column in range(width):
+                if current_row == row and current_column == column:
+                    rendered.append(&quot;@&quot;)
+                elif (current_row, current_column) in parcels:
+                    rendered.append(&quot;*&quot;)
+                else:
+                    rendered.append(&quot;.&quot;)
+            output(&quot;&quot;.join(rendered))
+    else:
+        fail(f&quot;unknown mode '{mode}'&quot;)
+
+
+main()
+</code></pre><h3 id="rust">Rust</h3><pre><code class="language-rust">// Reference solution for the CMSC 124 Courier case study.
+
+use std::{collections::HashSet, env, fs, process};
+
+fn fail(message: &amp;str) -&gt; ! {
+    eprintln!(&quot;exam: {message}&quot;);
+    process::exit(65);
+}
+
+fn die(message: &amp;str) -&gt; ! {
+    eprintln!(&quot;exam: {message}&quot;);
+    process::exit(70);
+}
+
+fn main() {
+    // Skip argv[0], the executable name. The mode is the first real argument.
+    let arguments: Vec&lt;String&gt; = env::args().skip(1).collect();
+    if arguments.len() != 2 {
+        fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;);
+    }
+    let mode = arguments[0].clone();
+    let path = arguments[1].clone();
+
+    let source = fs::read_to_string(&amp;path)
+        .unwrap_or_else(|error| fail(&amp;format!(&quot;cannot read '{path}': {error}&quot;)));
+
+    let mut lines: Vec&lt;String&gt; = Vec::new();
+    // Remove only blank lines and a trailing carriage return. Keep other text exact.
+    for raw in source.split('\n') {
+        let line = raw.trim_end_matches('\r').to_string();
+        if !line.is_empty() {
+            lines.push(line);
+        }
+    }
+    if lines.is_empty() {
+        fail(&quot;the file has no header line&quot;);
+    }
+
+    let header: Vec&lt;&amp;str&gt; = lines[0].split(' ').collect();
+    if header.len() != 2 {
+        fail(&quot;the header needs a height and a width&quot;);
+    }
+    let height: i64 = header[0].parse().unwrap_or_else(|_| fail(&quot;bad height&quot;));
+    let width: i64 = header[1].parse().unwrap_or_else(|_| fail(&quot;bad width&quot;));
+    if height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20 {
+        fail(&quot;the height and width must each be between 1 and 20&quot;);
+    }
+
+    let mut parcels: HashSet&lt;(i64, i64)&gt; = HashSet::new();
+    let mut visited: HashSet&lt;(i64, i64)&gt; = HashSet::new();
+    let mut row: i64 = 0;
+    let mut column: i64 = 0;
+    // A HashSet counts each cell once, including the starting cell.
+    visited.insert((row, column));
+
+    for line in &amp;lines[1..] {
+        let (step_row, step_column) = match line.as_str() {
+            &quot;U&quot; =&gt; (-1, 0),
+            &quot;D&quot; =&gt; (1, 0),
+            &quot;L&quot; =&gt; (0, -1),
+            &quot;R&quot; =&gt; (0, 1),
+            &quot;DROP&quot; =&gt; {
+                parcels.insert((row, column));
+                continue;
+            }
+            other =&gt; fail(&amp;format!(&quot;unknown command '{other}'&quot;)),
+        };
+        row += step_row;
+        column += step_column;
+        if row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width {
+            die(&quot;the courier stepped off the grid&quot;);
+        }
+        visited.insert((row, column));
+    }
+
+    match mode.as_str() {
+        &quot;--pos&quot; =&gt; println!(&quot;{row} {column}&quot;),
+        &quot;--visited&quot; =&gt; println!(&quot;{}&quot;, visited.len()),
+        &quot;--map&quot; =&gt; {
+            for r in 0..height {
+                let mut rendered = String::new();
+                for c in 0..width {
+                    if r == row &amp;&amp; c == column {
+                        rendered.push('@');
+                    } else if parcels.contains(&amp;(r, c)) {
+                        rendered.push('*');
+                    } else {
+                        rendered.push('.');
+                    }
+                }
+                println!(&quot;{rendered}&quot;);
+            }
+        }
+        other =&gt; fail(&amp;format!(&quot;unknown mode '{other}'&quot;)),
+    }
+}
+</code></pre><h3 id="kotlin">Kotlin</h3><pre><code class="language-kotlin">// Reference solution for the CMSC 124 Courier case study.
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.system.exitProcess
+
+private fun fail(message: String): Nothing {
+    System.err.println(&quot;exam: $message&quot;)
+    exitProcess(65)
+}
+
+private fun die(message: String): Nothing {
+    System.err.println(&quot;exam: $message&quot;)
+    exitProcess(70)
+}
+
+private fun number(text: String, complaint: String): Long =
+    text.toLongOrNull() ?: fail(complaint)
+
+fun main(args: Array&lt;String&gt;) {
+    // Kotlin starts the real argument list at index 0. The mode comes first.
+    if (args.size != 2) {
+        fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;)
+    }
+    val mode = args[0]
+    val path = args[1]
+
+    val source = try {
+        Files.readString(Path.of(path), StandardCharsets.UTF_8)
+    } catch (error: Exception) {
+        fail(&quot;cannot read '$path': ${error.message}&quot;)
+    }
+
+    val lines = source.split(&quot;\n&quot;)
+        // Keep the header and commands exact after removing blank lines.
+        .map { it.removeSuffix(&quot;\r&quot;) }
+        .filter { it.isNotEmpty() }
+    if (lines.isEmpty()) {
+        fail(&quot;the file has no header line&quot;)
+    }
+
+    val header = lines[0].split(&quot; &quot;)
+    if (header.size != 2) {
+        fail(&quot;the header needs a height and a width&quot;)
+    }
+    val height = number(header[0], &quot;bad height&quot;)
+    val width = number(header[1], &quot;bad width&quot;)
+    if (height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20) {
+        fail(&quot;the height and width must each be between 1 and 20&quot;)
+    }
+
+    val parcels = mutableSetOf&lt;Pair&lt;Long, Long&gt;&gt;()
+    val visited = mutableSetOf&lt;Pair&lt;Long, Long&gt;&gt;()
+    var row = 0L
+    var column = 0L
+    // The set stores pairs, so revisiting a cell does not increase the count.
+    visited.add(row to column)
+
+    for (line in lines.drop(1)) {
+        var stepRow = 0L
+        var stepColumn = 0L
+        when (line) {
+            &quot;U&quot; -&gt; stepRow = -1L
+            &quot;D&quot; -&gt; stepRow = 1L
+            &quot;L&quot; -&gt; stepColumn = -1L
+            &quot;R&quot; -&gt; stepColumn = 1L
+            &quot;DROP&quot; -&gt; {
+                parcels.add(row to column)
+                continue
+            }
+            else -&gt; fail(&quot;unknown command '$line'&quot;)
+        }
+
+        row += stepRow
+        column += stepColumn
+        if (row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width) {
+            die(&quot;the courier stepped off the grid&quot;)
+        }
+        visited.add(row to column)
+    }
+
+    when (mode) {
+        &quot;--pos&quot; -&gt; println(&quot;$row $column&quot;)
+        &quot;--visited&quot; -&gt; println(visited.size)
+        &quot;--map&quot; -&gt; {
+            for (r in 0 until height) {
+                val rendered = StringBuilder()
+                for (c in 0 until width) {
+                    when {
+                        r == row &amp;&amp; c == column -&gt; rendered.append('@')
+                        parcels.contains(r to c) -&gt; rendered.append('*')
+                        else -&gt; rendered.append('.')
+                    }
+                }
+                println(rendered)
+            }
+        }
+        else -&gt; fail(&quot;unknown mode '$mode'&quot;)
+    }
+}
+</code></pre><h3 id="dart">Dart</h3><pre><code class="language-dart">// Reference solution for the CMSC 124 Courier case study.
+
+import 'dart:convert';
+import 'dart:io';
+
+Never fail(String message) {
+  stderr.writeln('exam: $message');
+  exit(65);
+}
+
+Never die(String message) {
+  stderr.writeln('exam: $message');
+  exit(70);
+}
+
+int number(String text, String complaint) =&gt;
+    int.tryParse(text) ?? fail(complaint);
+
+List&lt;String&gt; readLines(String path) {
+  String source;
+  try {
+    source = File(path).readAsStringSync(encoding: utf8);
+  } on FileSystemException catch (error) {
+    fail(&quot;cannot read '$path': ${error.message}&quot;);
+  }
+  return source
+      .split('\n')
+      .map((line) =&gt;
+          line.endsWith('\r') ? line.substring(0, line.length - 1) : line)
+      .where((line) =&gt; line.isNotEmpty)
+      .toList();
+}
+
+void main(List&lt;String&gt; arguments) {
+  // Dart uses index 0 for the first real argument, which is the mode flag.
+  if (arguments.length != 2) {
+    fail('usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;');
+  }
+  final mode = arguments[0];
+  final lines = readLines(arguments[1]);
+  if (lines.isEmpty) {
+    fail('the file has no header line');
+  }
+
+  final header = lines[0].split(' ');
+  if (header.length != 2) {
+    fail('the header needs a height and a width');
+  }
+  final height = number(header[0], 'bad height');
+  final width = number(header[1], 'bad width');
+  if (height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20) {
+    fail('the height and width must each be between 1 and 20');
+  }
+
+  final parcels = &lt;String&gt;{};
+  final visited = &lt;String&gt;{};
+  var row = 0;
+  var column = 0;
+  // Store coordinates as strings because a Dart Set compares string values.
+  visited.add('$row $column');
+
+  for (final line in lines.skip(1)) {
+    var stepRow = 0;
+    var stepColumn = 0;
+    if (line == 'U') {
+      stepRow = -1;
+    } else if (line == 'D') {
+      stepRow = 1;
+    } else if (line == 'L') {
+      stepColumn = -1;
+    } else if (line == 'R') {
+      stepColumn = 1;
+    } else if (line == 'DROP') {
+      parcels.add('$row $column');
+      continue;
+    } else {
+      fail(&quot;unknown command '$line'&quot;);
+    }
+
+    row += stepRow;
+    column += stepColumn;
+    if (row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width) {
+      die('the courier stepped off the grid');
+    }
+    visited.add('$row $column');
+  }
+
+  if (mode == '--pos') {
+    stdout.writeln('$row $column');
+  } else if (mode == '--visited') {
+    stdout.writeln(visited.length);
+  } else if (mode == '--map') {
+    for (var r = 0; r &lt; height; r++) {
+      final rendered = StringBuffer();
+      for (var c = 0; c &lt; width; c++) {
+        if (r == row &amp;&amp; c == column) {
+          rendered.write('@');
+        } else if (parcels.contains('$r $c')) {
+          rendered.write('*');
+        } else {
+          rendered.write('.');
+        }
+      }
+      stdout.writeln(rendered.toString());
+    }
+  } else {
+    fail(&quot;unknown mode '$mode'&quot;);
+  }
+}
+</code></pre><h3 id="c">C#</h3><pre><code class="language-csharp">// Reference solution for the CMSC 124 Courier case study.
+
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+
+internal static class Program
+{
+    [DoesNotReturn]
+    private static void Fail(string message)
+    {
+        Console.Error.WriteLine($&quot;exam: {message}&quot;);
+        Environment.Exit(65);
+        throw new InvalidOperationException();
+    }
+
+    [DoesNotReturn]
+    private static void Die(string message)
+    {
+        Console.Error.WriteLine($&quot;exam: {message}&quot;);
+        Environment.Exit(70);
+        throw new InvalidOperationException();
+    }
+
+    private static long Number(string text, string complaint)
+    {
+        if (!long.TryParse(text, out var value))
+        {
+            Fail(complaint);
+        }
+        return value;
+    }
+
+    private static void Main(string[] args)
+    {
+        // C# uses index 0 for the first real argument, which is the mode.
+        if (args.Length != 2)
+        {
+            Fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;);
+        }
+        var mode = args[0];
+        var path = args[1];
+
+        string source;
+        try
+        {
+            source = File.ReadAllText(path, Encoding.UTF8);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            Fail($&quot;cannot read '{path}': {error.Message}&quot;);
+            return;
+        }
+
+        var lines = new List&lt;string&gt;();
+        foreach (var raw in source.Split('\n'))
+        {
+            var line = raw.TrimEnd('\r');
+            if (line.Length != 0)
+            {
+                lines.Add(line);
+            }
+        }
+        if (lines.Count == 0)
+        {
+            Fail(&quot;the file has no header line&quot;);
+        }
+
+        var header = lines[0].Split(' ');
+        if (header.Length != 2)
+        {
+            Fail(&quot;the header needs a height and a width&quot;);
+        }
+        var height = Number(header[0], &quot;bad height&quot;);
+        var width = Number(header[1], &quot;bad width&quot;);
+        if (height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20)
+        {
+            Fail(&quot;the height and width must each be between 1 and 20&quot;);
+        }
+
+        var parcels = new HashSet&lt;(long, long)&gt;();
+        var visited = new HashSet&lt;(long, long)&gt;();
+        long row = 0;
+        long column = 0;
+        // A HashSet keeps the visited count distinct when a path doubles back.
+        visited.Add((row, column));
+
+        for (var index = 1; index &lt; lines.Count; index++)
+        {
+            var line = lines[index];
+            long stepRow = 0;
+            long stepColumn = 0;
+            switch (line)
+            {
+                case &quot;U&quot;: stepRow = -1; break;
+                case &quot;D&quot;: stepRow = 1; break;
+                case &quot;L&quot;: stepColumn = -1; break;
+                case &quot;R&quot;: stepColumn = 1; break;
+                case &quot;DROP&quot;:
+                    parcels.Add((row, column));
+                    continue;
+                default:
+                    Fail($&quot;unknown command '{line}'&quot;);
+                    break;
+            }
+
+            row += stepRow;
+            column += stepColumn;
+            if (row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width)
+            {
+                Die(&quot;the courier stepped off the grid&quot;);
+            }
+            visited.Add((row, column));
+        }
+
+        switch (mode)
+        {
+            case &quot;--pos&quot;:
+                Console.WriteLine($&quot;{row} {column}&quot;);
+                break;
+            case &quot;--visited&quot;:
+                Console.WriteLine(visited.Count);
+                break;
+            case &quot;--map&quot;:
+                for (long r = 0; r &lt; height; r++)
+                {
+                    var rendered = new StringBuilder();
+                    for (long c = 0; c &lt; width; c++)
+                    {
+                        if (r == row &amp;&amp; c == column) { rendered.Append('@'); }
+                        else if (parcels.Contains((r, c))) { rendered.Append('*'); }
+                        else { rendered.Append('.'); }
+                    }
+                    Console.WriteLine(rendered.ToString());
+                }
+                break;
+            default:
+                Fail($&quot;unknown mode '{mode}'&quot;);
+                break;
+        }
+    }
+}
+</code></pre><h3 id="c-1">C++</h3><pre><code class="language-cpp">// Reference solution for the CMSC 124 Courier case study.
+
+#include &lt;cstdlib&gt;
+#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+#include &lt;set&gt;
+#include &lt;sstream&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+
+using Cell = std::pair&lt;long long, long long&gt;;
+
+[[noreturn]] void fail(const std::string&amp; message)
+{
+    std::cerr &lt;&lt; &quot;exam: &quot; &lt;&lt; message &lt;&lt; '\n';
+    std::exit(65);
+}
+
+[[noreturn]] void die(const std::string&amp; message)
+{
+    std::cerr &lt;&lt; &quot;exam: &quot; &lt;&lt; message &lt;&lt; '\n';
+    std::exit(70);
+}
+
+std::vector&lt;std::string&gt; split(const std::string&amp; text, char separator)
+{
+    std::vector&lt;std::string&gt; fields;
+    std::istringstream stream(text);
+    std::string field;
+    while (std::getline(stream, field, separator))
+    {
+        fields.push_back(field);
+    }
+    return fields;
+}
+
+long long number(const std::string&amp; text, const std::string&amp; complaint)
+{
+    try
+    {
+        std::size_t used = 0;
+        const long long value = std::stoll(text, &amp;used);
+        if (used != text.size())
+        {
+            fail(complaint);
+        }
+        return value;
+    }
+    catch (const std::exception&amp;)
+    {
+        fail(complaint);
+    }
+}
+
+int main(int argc, char* argv[])
+{
+    // C++ keeps the executable at argv[0], so argv[1] holds the mode.
+    if (argc != 3)
+    {
+        fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;);
+    }
+    const std::string mode(argv[1]);
+    const std::string path(argv[2]);
+
+    std::ifstream file(path);
+    if (!file)
+    {
+        fail(&quot;cannot read '&quot; + path + &quot;'&quot;);
+    }
+    std::ostringstream buffer;
+    buffer &lt;&lt; file.rdbuf();
+    const std::string source = buffer.str();
+
+    std::vector&lt;std::string&gt; lines;
+    for (std::string line : split(source, '\n'))
+    {
+        if (!line.empty() &amp;&amp; line.back() == '\r')
+        {
+            line.pop_back();
+        }
+        if (!line.empty())
+        {
+            lines.push_back(line);
+        }
+    }
+    if (lines.empty())
+    {
+        fail(&quot;the file has no header line&quot;);
+    }
+
+    const std::vector&lt;std::string&gt; header = split(lines[0], ' ');
+    if (header.size() != 2)
+    {
+        fail(&quot;the header needs a height and a width&quot;);
+    }
+    const long long height = number(header[0], &quot;bad height&quot;);
+    const long long width = number(header[1], &quot;bad width&quot;);
+    if (height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20)
+    {
+        fail(&quot;the height and width must each be between 1 and 20&quot;);
+    }
+
+    std::set&lt;Cell&gt; parcels;
+    std::set&lt;Cell&gt; visited;
+    long long row = 0;
+    long long column = 0;
+    // A set makes the visited total a count of distinct coordinate pairs.
+    visited.insert({row, column});
+
+    for (std::size_t index = 1; index &lt; lines.size(); index++)
+    {
+        const std::string&amp; line = lines[index];
+        long long step_row = 0;
+        long long step_column = 0;
+        if (line == &quot;U&quot;) { step_row = -1; }
+        else if (line == &quot;D&quot;) { step_row = 1; }
+        else if (line == &quot;L&quot;) { step_column = -1; }
+        else if (line == &quot;R&quot;) { step_column = 1; }
+        else if (line == &quot;DROP&quot;) { parcels.insert({row, column}); continue; }
+        else { fail(&quot;unknown command '&quot; + line + &quot;'&quot;); }
+
+        row += step_row;
+        column += step_column;
+        if (row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width)
+        {
+            die(&quot;the courier stepped off the grid&quot;);
+        }
+        visited.insert({row, column});
+    }
+
+    if (mode == &quot;--pos&quot;)
+    {
+        std::cout &lt;&lt; row &lt;&lt; ' ' &lt;&lt; column &lt;&lt; '\n';
+    }
+    else if (mode == &quot;--visited&quot;)
+    {
+        std::cout &lt;&lt; visited.size() &lt;&lt; '\n';
+    }
+    else if (mode == &quot;--map&quot;)
+    {
+        for (long long r = 0; r &lt; height; r++)
+        {
+            std::string rendered;
+            for (long long c = 0; c &lt; width; c++)
+            {
+                if (r == row &amp;&amp; c == column) { rendered += '@'; }
+                else if (parcels.count({r, c}) != 0) { rendered += '*'; }
+                else { rendered += '.'; }
+            }
+            std::cout &lt;&lt; rendered &lt;&lt; '\n';
+        }
+    }
+    else
+    {
+        fail(&quot;unknown mode '&quot; + mode + &quot;'&quot;);
+    }
+
+    return 0;
+}
+</code></pre><h3 id="go">Go</h3><pre><code class="language-go">// Reference solution for the CMSC 124 Courier case study.
+
+package main
+
+import (
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;strconv&quot;
+	&quot;strings&quot;
+)
+
+type cell struct {
+	row    int64
+	column int64
+}
+
+func fail(format string, arguments ...any) {
+	fmt.Fprintf(os.Stderr, &quot;exam: &quot;+format+&quot;\n&quot;, arguments...)
+	os.Exit(65)
+}
+
+func die(format string, arguments ...any) {
+	fmt.Fprintf(os.Stderr, &quot;exam: &quot;+format+&quot;\n&quot;, arguments...)
+	os.Exit(70)
+}
+
+func number(text string, complaint string) int64 {
+	value, err := strconv.ParseInt(text, 10, 64)
+	if err != nil {
+		fail(&quot;%s&quot;, complaint)
+	}
+	return value
+}
+
+func main() {
+    // os.Args[0] is the executable. Slice it away before reading the mode.
+	arguments := os.Args[1:]
+	if len(arguments) != 2 {
+		fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;)
+	}
+	mode := arguments[0]
+	path := arguments[1]
+
+	source, err := os.ReadFile(path)
+	if err != nil {
+		fail(&quot;cannot read '%s': %v&quot;, path, err)
+	}
+
+	lines := []string{}
+	for _, raw := range strings.Split(string(source), &quot;\n&quot;) {
+		line := strings.TrimSuffix(raw, &quot;\r&quot;)
+		if line != &quot;&quot; {
+			lines = append(lines, line)
+		}
+	}
+	if len(lines) == 0 {
+		fail(&quot;the file has no header line&quot;)
+	}
+
+	header := strings.Split(lines[0], &quot; &quot;)
+	if len(header) != 2 {
+		fail(&quot;the header needs a height and a width&quot;)
+	}
+	height := number(header[0], &quot;bad height&quot;)
+	width := number(header[1], &quot;bad width&quot;)
+	if height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20 {
+		fail(&quot;the height and width must each be between 1 and 20&quot;)
+	}
+
+	parcels := map[cell]bool{}
+	visited := map[cell]bool{}
+	var row int64 = 0
+	var column int64 = 0
+	// A map keyed by cell coordinates records each visited cell once.
+	visited[cell{row, column}] = true
+
+	for _, line := range lines[1:] {
+		var stepRow, stepColumn int64
+		switch line {
+		case &quot;U&quot;:
+			stepRow = -1
+		case &quot;D&quot;:
+			stepRow = 1
+		case &quot;L&quot;:
+			stepColumn = -1
+		case &quot;R&quot;:
+			stepColumn = 1
+		case &quot;DROP&quot;:
+			parcels[cell{row, column}] = true
+			continue
+		default:
+			fail(&quot;unknown command '%s'&quot;, line)
+		}
+
+		row += stepRow
+		column += stepColumn
+		if row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width {
+			die(&quot;the courier stepped off the grid&quot;)
+		}
+		visited[cell{row, column}] = true
+	}
+
+	switch mode {
+	case &quot;--pos&quot;:
+		fmt.Printf(&quot;%d %d\n&quot;, row, column)
+	case &quot;--visited&quot;:
+		fmt.Printf(&quot;%d\n&quot;, len(visited))
+	case &quot;--map&quot;:
+		for r := int64(0); r &lt; height; r++ {
+			rendered := strings.Builder{}
+			for c := int64(0); c &lt; width; c++ {
+				switch {
+				case r == row &amp;&amp; c == column:
+					rendered.WriteByte('@')
+				case parcels[cell{r, c}]:
+					rendered.WriteByte('*')
+				default:
+					rendered.WriteByte('.')
+				}
+			}
+			fmt.Println(rendered.String())
+		}
+	default:
+		fail(&quot;unknown mode '%s'&quot;, mode)
+	}
+}
+</code></pre><h3 id="julia">Julia</h3><pre><code class="language-julia"># Reference solution for the CMSC 124 Courier case study.
+#
+# Everything lives inside main() so the simulation's variables are locals. At
+# top level a `for` loop starts a new scope, and assigning to `row` from inside
+# one would need a `global` declaration in every nested loop.
+
+function fail(message)
+    println(stderr, &quot;exam: $message&quot;)
+    exit(65)
+end
+
+function die(message)
+    println(stderr, &quot;exam: $message&quot;)
+    exit(70)
+end
+
+function number(text, complaint)
+    value = tryparse(Int, text)
+    value === nothing &amp;&amp; fail(complaint)
+    return value
+end
+
+function readlines_nonempty(path)
+    source = try
+        read(path, String)
+    catch error
+        fail(&quot;cannot read '$path': $(sprint(showerror, error))&quot;)
+    end
+    kept = String[]
+    for raw in split(source, '\n')
+        line = String(rstrip(raw, '\r'))
+        if !isempty(line)
+            push!(kept, line)
+        end
+    end
+    return kept
+end
+
+function main()
+    # Julia arrays are 1-indexed, so ARGS[1] is the mode and ARGS[2] is the path.
+    if length(ARGS) != 2
+        fail(&quot;usage: run &lt;--pos|--visited|--map&gt; &lt;path&gt;&quot;)
+    end
+    mode = ARGS[1]
+    lines = readlines_nonempty(ARGS[2])
+    if isempty(lines)
+        fail(&quot;the file has no header line&quot;)
+    end
+
+    header = split(lines[1], ' ')
+    if length(header) != 2
+        fail(&quot;the header needs a height and a width&quot;)
+    end
+    height = number(header[1], &quot;bad height&quot;)
+    width = number(header[2], &quot;bad width&quot;)
+    if height &lt; 1 || height &gt; 20 || width &lt; 1 || width &gt; 20
+        fail(&quot;the height and width must each be between 1 and 20&quot;)
+    end
+
+    parcels = Set{Tuple{Int,Int}}()
+    visited = Set{Tuple{Int,Int}}()
+    row = 0
+    column = 0
+    # Coordinate tuples stay zero-based even though Julia arrays start at one.
+    push!(visited, (row, column))
+
+    for line in lines[2:end]
+        step_row = 0
+        step_column = 0
+        if line == &quot;U&quot;
+            step_row = -1
+        elseif line == &quot;D&quot;
+            step_row = 1
+        elseif line == &quot;L&quot;
+            step_column = -1
+        elseif line == &quot;R&quot;
+            step_column = 1
+        elseif line == &quot;DROP&quot;
+            push!(parcels, (row, column))
+            continue
+        else
+            fail(&quot;unknown command '$line'&quot;)
+        end
+
+        row += step_row
+        column += step_column
+        if row &lt; 0 || row &gt;= height || column &lt; 0 || column &gt;= width
+            die(&quot;the courier stepped off the grid&quot;)
+        end
+        push!(visited, (row, column))
+    end
+
+    if mode == &quot;--pos&quot;
+        println(&quot;$row $column&quot;)
+    elseif mode == &quot;--visited&quot;
+        println(length(visited))
+    elseif mode == &quot;--map&quot;
+        # Rows and columns are counted from zero in this problem, so nothing
+        # in this loop indexes a Julia array.
+        for r in 0:(height - 1)
+            rendered = Char[]
+            for c in 0:(width - 1)
+                if r == row &amp;&amp; c == column
+                    push!(rendered, '@')
+                elseif (r, c) in parcels
+                    push!(rendered, '*')
+                else
+                    push!(rendered, '.')
+                end
+            end
+            println(String(rendered))
+        end
+    else
+        fail(&quot;unknown mode '$mode'&quot;)
+    end
+end
+
+main()
+</code></pre><hr><p><em>This post-mortem Courier case study was prepared for CMSC 124 (Design and Implementation of Programming Languages) by Rene Andre Bedonia Jocsing as a reference for the reasoning behind the CMSC 124 Lab 0 Practical Exam.</em></p></div><div class="border-t border-border-muted pt-8 pb-12"><a href class="group flex items-center gap-2 text-sm font-medium text-text-dim hover:text-accent transition-colors"><span>&larr;</span> Home</a></div></article><aside class="hidden xl:block relative"><div class="sticky top-8 overflow-y-auto max-h-[calc(100vh-4rem)] pt-10 pl-8 scrollbar-slim"><nav id="toc-content"></nav></div></aside></div></div><button id="scroll-btn" class="fixed bottom-8 right-8 z-50 p-2.5 rounded-full bg-accent/90 text-white shadow-lg shadow-accent/40 hover:bg-accent hover:scale-110 transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none backdrop-blur-sm" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.47 2.47a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06l-6.22-6.22V21a.75.75 0 01-1.5 0V4.81l-6.22 6.22a.75.75 0 11-1.06-1.06l7.5-7.5z" clip-rule="evenodd"></path></svg></button><script>Prism.highlightAll()</script><script src="js/interactive-diagrams.js?v=fc74b095c673"></script></main><footer id="footer" class="mt-16 border-t border-border-muted bg-bg-base transition-colors duration-300"><div class="mx-auto flex max-w-5xl flex-col items-center py-8"><div class="flex space-x-6 mb-4"><a class="text-text-dim hover:text-accent transition-all hover:scale-110 p-2 &#xA; hover:drop-shadow-[0_0_6px_var(--accent)]" target="_blank" rel="noopener noreferrer" href="https://github.com/WhiteLicorice/Ren-s-Courses" aria-label="GitHub Repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hover:text-primary-400 w-6 h-6 fill-current fill-current text-gray-200"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a></div><div class="flex flex-col items-center space-y-1 text-sm text-text-dim font-mono"><div>© 2026 <a class="hover:text-accent transition-colors duration-300 font-bold" href="https://github.com/WhiteLicorice" target="_blank">WhiteLicorice</a></div><a href="https://github.com/BlazorStatic/BlazorStatic" class="hover:text-accent transition-colors duration-300 opacity-75 hover:opacity-100" target="_blank">Powered by BlazorStatic</a></div></div></footer></div><blazor-focus-on-navigate selector="h1"></blazor-focus-on-navigate><script src="js/theme.js?v=15d2e08696ca"></script><script src="js/calendar.js?v=f8ee5238f160"></script><script src="js/code-features.js?v=da62fb3143ef"></script><script src="js/scrollbars.js?v=e3975bf05982"></script><script src="js/scroll-button.js?v=f80e5fbaeaf7"></script><script src="js/submission-menu.js?v=4ac8e87d3fc5"></script><script src="js/toc.js?v=14e91cc7fb6a"></script><script src="js/course-filter.js?v=7713136817e8"></script><script src="js/faq.js?v=9e9c4a7ed5c0"></script><script src="js/site.js?v=49476e4203e6"></script></body></html>
