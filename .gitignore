@@ -1,3 +1,6 @@
+# Ignore staging folder for assessment
+.assessment
+
 # Ignore Claude Code working directory for chores and other grunt work
 .claude
 
