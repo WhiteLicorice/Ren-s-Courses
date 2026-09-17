@@ -3,7 +3,7 @@ title: Walk the Parser
 subtitle: CMSC 124 Activity 7
 lead: Monkey see, monkey climb tree.
 published: 2026-09-17
-deadline: 2026-09-17
+deadline: 2026-09-18
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
