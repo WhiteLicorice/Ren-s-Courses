@@ -1,6 +1,6 @@
 ---
 title: Packet Headers
-subtitle: CMSC 131 Laboratory Activity 1
+subtitle: CMSC 131 Lab 1
 lead: Bare metal CMSC 137.
 published: 2026-09-18
 tags: [cmsc-131]
