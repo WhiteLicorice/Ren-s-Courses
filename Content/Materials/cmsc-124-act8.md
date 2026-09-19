@@ -159,17 +159,6 @@ diagrams:
               classDef dead fill:#f3f4f6,stroke:#9ca3af,color:#6b7280
               class KEPT,H3 current
               class TEMP,RETURN dead
-  - title: One access path remains after record returns
-    key: saved-h1-access-path
-    description: The stack cells are gone. Static `saved` contains reference H1 and provides the only live access path to the heap object.
-    steps:
-      - title: saved reaches H1
-        description: The static cell is the l-value. Reference H1 is its stored r-value, and the H1 object remains allocated.
-        mermaid: |
-          flowchart LR
-              SAVED["static saved<br/>reference H1"] --> H1["heap H1<br/>Cell.value = 3"]
-              classDef current fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#111827
-              class SAVED,H1 current
 ---
 
 The identifier `box`, its stored reference, and the heap object reached through that reference aren't the same thing. Today you'll put each one on a timeline. The program's behavior becomes easier to trace once every storage cell and object has a clear beginning and end.
