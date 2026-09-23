@@ -3,7 +3,7 @@ title: When Storage Exists
 subtitle: CMSC 124 Activity 8
 lead: Track the name, the cell, and the lifetime separately.
 published: 2026-09-21
-deadline: 2026-09-23
+deadline: 2026-09-25
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
