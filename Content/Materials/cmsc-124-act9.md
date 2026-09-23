@@ -95,7 +95,7 @@ A **lookup path** lists the scopes that one rule can check, in order. Lookup sto
 
 Indentation shows textual nesting:
 
-```text
+```
 rate = 10
 
 scope():
@@ -137,7 +137,7 @@ lookup path changes.
 
 Use this pseudocode. Indentation shows which procedures are textually nested.
 
-```text
+```
 x = 1
 
 outer():
@@ -181,7 +181,7 @@ During `target`, the local `x` belonging to `caller` is alive because `caller` h
 
 *Suggested time: 12 minutes, including the worked example.*
 
-```text
+```
 rate = 10
 
 scope():
@@ -213,7 +213,7 @@ Treating every live cell as visible under both rules confuses lifetime with scop
 
 Use this running program:
 
-```text
+```
 x = 1
 
 outer():
@@ -248,7 +248,7 @@ At the `print(x + y)` point in the running program, the live declarations are gl
 
 Trace one source edit. This is the original program:
 
-```text
+```
 rate = 10
 
 scope():
@@ -268,7 +268,7 @@ scope()
 
 Now move the complete definition of `show` to global level. Keep every declaration, value, and call the same:
 
-```text
+```
 rate = 10
 
 show():
@@ -303,7 +303,7 @@ Moving a definition changes source nesting. It doesn't rewrite the call history.
 
 Compare these complete programs. Program A is the original running case:
 
-```text
+```
 x = 1
 
 outer():
@@ -324,7 +324,7 @@ outer()
 
 Program B moves only the definition of `target` to global level:
 
-```text
+```
 x = 1
 
 target():

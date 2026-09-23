@@ -731,7 +731,7 @@ You have 60 minutes for the three checkpoints. Keep each worked example beside t
 
 Use this Extended Backus-Naur Form (EBNF) grammar:
 
-```text
+```
 expression ::= term
 term       ::= factor { ( PLUS | MINUS ) factor }
 factor     ::= primary { ( STAR | SLASH ) primary }
@@ -750,7 +750,7 @@ A token is **consumed** once the parser advances past it. The **next unread toke
 
 *Read `term ::= factor { ( PLUS | MINUS ) factor }` as "term produces a factor followed by zero or more plus-or-minus factor pairs." Read `primary()` as "call primary."*
 
-```text
+```
 expression():  // expression ::= term
     return term()
 
@@ -832,20 +832,20 @@ The multiplication becomes a complete subtree before the addition can be built. 
 
 Parse this stream. The numbers carry their lexemes.
 
-```text
+```
 NUMBER(6) MINUS NUMBER(2) STAR NUMBER(3) EOF
 ```
 
 Keep this contract beside you while you trace. You don't need to flip back to the front page.
 
-```text
+```
 expression ::= term
 term       ::= factor { ( PLUS | MINUS ) factor }
 factor     ::= primary { ( STAR | SLASH ) primary }
 primary    ::= NUMBER | LEFT_PAREN expression RIGHT_PAREN
 ```
 
-```text
+```
 expression():  // expression ::= term
     return term()
 
@@ -886,7 +886,7 @@ Take `1 + 2` with this addition grammar. You'll repair the same addition rule wi
 
 See this old rule:
 
-```text
+```
 chain ::= chain PLUS item | item
 ```
 
@@ -904,13 +904,13 @@ This rewritten grammar preserves accepted token sequences. It still accepts one 
 
 Use this replacement rule, repairing the defect:
 
-```text
+```
 chain ::= item { PLUS item }
 ```
 
 And its corresponding pseudocode:
 
-```text
+```
 chain():
     node = item()
     while match(PLUS):
@@ -936,7 +936,7 @@ For `1 + 2 + 3`, the first `item()` call returns `Number(1)`. The first loop pas
 
 Repair this exact left-recursive rule while preserving its subtraction chains and left grouping:
 
-```text
+```
 sum ::= sum MINUS product | product
 ```
 
@@ -952,7 +952,7 @@ Any rewrite must preserve the sequences, terminate, and associate left.
 
 For this section, place the expression grammar inside a small program rule:
 
-```text
+```
 program ::= { expression SEMICOLON } EOF
 ```
 
@@ -970,7 +970,7 @@ The scanner turns `4 + ); 2;` into `NUMBER(4) PLUS RIGHT_PAREN SEMICOLON NUMBER(
 
 This is the decision that `primary()` makes:
 
-```text
+```
 primary():     // primary ::= NUMBER | LEFT_PAREN expression RIGHT_PAREN
     if match(NUMBER): return Number(previous token)
     if match(LEFT_PAREN):
@@ -997,7 +997,7 @@ Recovery doesn't invent a right operand or turn `)` into one. The next parse sta
 
 This language-neutral driver shows where recovery runs. `discard()` advances past one token without creating an AST node.
 
-```text
+```
 program():
     while peek() is not EOF:
         attempt expression() followed by consume(SEMICOLON)
@@ -1022,7 +1022,7 @@ At `EOF`, the driver's loop stops. It doesn't call `expression()` again. After a
 
 Recover from this source:
 
-```text
+```
 6 * (2 + ); 9 - 1;
 ```
 

@@ -99,7 +99,7 @@ An **attribute** is information attached to a node. Here, `actual` is the type a
 
 The final **predicate** is a true-or-false condition:
 
-```text
+```
 expression.expected == expression.actual
 ```
 
@@ -111,7 +111,7 @@ Don't evaluate that predicate until both sides are known. It runs once for the w
 
 An attribute grammar is usually written as a syntax rule with its semantic rules stacked underneath it. That's the notation we'll use whenever this course writes attribute rules out. Today's assignment looks like this in that notation:
 
-```text
+```
 Syntax rule:    <assign> ::= <target> = <expr>
 Semantic rules: <expr>.expected  <- <target>.actual      (inherited)
                 <expr>.actual    <- typeOf(<expr>)       (synthesized)
@@ -123,7 +123,7 @@ Predicate:      <expr>.expected == <expr>.actual
 `typeOf` is rule 2 and nothing more. With two types and one operator, the whole
 function fits in four lines:
 
-```text
+```
 typeOf(int, int)   = int
 typeOf(int, real)  = real
 typeOf(real, int)  = real
@@ -160,7 +160,7 @@ The four figures below are one tree. Its structure never changes. The annotation
 
 Analyze this assignment with symbol table `P : int`, `Q : real`, and `R : real`:
 
-```text
+```
 R = P + Q
 ```
 

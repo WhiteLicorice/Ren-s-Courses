@@ -120,7 +120,7 @@ A **state** maps each variable to its current value. This is Lesson 2's memory-c
 
 Start with that state and run:
 
-```text
+```
 x = x + 4;
 y = 2 * x;
 ```
@@ -162,7 +162,7 @@ Start from `{z -> 3}` and execute `z = z + 2`.
 
 Begin with state `{x -> 3, y -> 0}` and execute these assignments in order:
 
-```text
+```
 x = x + 4;
 y = 2 * x;
 ```
@@ -176,7 +176,7 @@ y = 2 * x;
 
 The operational trace for `z = z + 2` listed a lookup, an addition, and an update. We can also describe the same meaning using only its input and output:
 
-```text
+```
 input {z -> 3}  ->  z = z + 2  ->  output {z -> 5}
 ```
 
@@ -186,13 +186,13 @@ input {z -> 3}  ->  z = z + 2  ->  output {z -> 5}
 
 In the assignment rule below, `E` is the right-side arithmetic expression. To find its value in `s`, look up every variable in `E` using `s`, then perform the arithmetic. The `x` in the general rule stands for whichever variable the assignment targets.
 
-```text
+```
 M[x = E](s) = s with x replaced by the value of E in s
 ```
 
 For a sequence, function composition preserves program order:
 
-```text
+```
 M[S1; S2](s) = M[S2](M[S1](s))
 ```
 
@@ -204,21 +204,21 @@ M[S1; S2](s) = M[S2](M[S1](s))
 
 Start from `{a -> 2, b -> 1}` and use this fresh sequence:
 
-```text
+```
 a = a + 3;
 b = 4 * a;
 ```
 
 Apply the sequence rule from the inside out. The first function reads `a = 2`, computes 5, and returns a state with only `a` replaced:
 
-```text
+```
 M[a = a + 3]({a -> 2, b -> 1})
 = {a -> 5, b -> 1}
 ```
 
 That whole mapping becomes the input to the second function:
 
-```text
+```
 M[b = 4 * a](M[a = a + 3]({a -> 2, b -> 1}))
 = M[b = 4 * a]({a -> 5, b -> 1})
 = {a -> 5, b -> 20}
@@ -230,12 +230,12 @@ The second update changes `b` and leaves `a` untouched. The function description
 
 Use these rules with input state `{x -> 3, y -> 0}`:
 
-```text
+```
 M[x = E](s) = s with x replaced by the value of E in s
 M[S1; S2](s) = M[S2](M[S1](s))
 ```
 
-```text
+```
 x = x + 4;
 y = 2 * x;
 ```
@@ -258,7 +258,7 @@ The **weakest precondition**, written `wp(S, Q)`, is the least restrictive condi
 
 Work backward with these rules:
 
-```text
+```
 wp(x = E, Q) = Q with E substituted for x
 wp(S1; S2, Q) = wp(S1, wp(S2, Q))
 ```
@@ -273,7 +273,7 @@ Both jobs of `=` now sit on the same line. In `wp(z = z + 2, z = 5)`, the first 
 
 For `z = z + 2` with desired postcondition `z = 5`, substitute the right side `z + 2` for `z` in the postcondition:
 
-```text
+```
 wp(z = z + 2, z = 5)
 = z + 2 = 5
 = z = 3
@@ -283,7 +283,7 @@ The Hoare triple is `{z = 3} z = z + 2 {z = 5}`.
 
 The substitution runs one way only. This mistaken calculation puts the desired value into the statement's right side:
 
-```text
+```
 wp(z = z + 2, z = 5)
 = wp(z = 5 + 2, z = 5)    <- 5 replaced z only on the right side
 = 7 = 5
@@ -295,7 +295,7 @@ That calculation changes the statement and then gets a false condition. The rule
 
 Work with this sequence and required postcondition `y = 14`:
 
-```text
+```
 x = x + 4;
 y = 2 * x;
 ```
@@ -322,7 +322,7 @@ These obligations prove **partial correctness**. They show that the postconditio
 
 Trace this loop:
 
-```text
+```
 i = 0;
 total = 0;
 // First boundary: check the guard here.
@@ -352,7 +352,7 @@ Use the boundary states `(0, 0)`, `(1, 2)`, `(2, 4)`, and `(3, 6)` to test possi
 
 The guard allows the body to run only while `i < 3`. The body raises `i` by one, so the boundary values stay between 0 and 3. Add those bounds to the equality:
 
-```text
+```
 I: total = 2 * i and 0 <= i <= 3
 ```
 
@@ -380,7 +380,7 @@ The guard `i < 3` first becomes false at `i = 3`. The body raises `i` by one, so
 
 Carry the running program's final state `{x -> 7, y -> 14}` into this loop:
 
-```text
+```
 while (x < 10) {
     x = x + 1;
     y = 2 * x;

@@ -181,7 +181,7 @@ Read the file at `<path>` as [UTF-8 (standard for text encoding)](https://en.wik
 
 A newline written `\n`, which features prominently in `print("\n")` from CMSC 11, ends one line and starts the next. A carriage return, written `\r`, is its old partner from Windows line endings. Many Windows editors still save each break as the pair `\r\n`. You'll meet that pair a lot. You type one character in a Windows editor and save the file. But if you examine the file afterward, it holds two bytes.
 
-```text
+```
 editor shows:   3 4
                 R
 bytes hold:     3 4\r\nR\r\n
@@ -189,7 +189,7 @@ bytes hold:     3 4\r\nR\r\n
 
 A good read routine normalizes that away in three small moves. Say the file holds `3 4\r\nR\r\n`. When you split on `"\n"`, you get `3 4\r` and `R\r` plus a trailing empty piece. When you strip trailing `\r` bytes, the first two become `3 4` and `R`. When you drop empty strings, the trailing piece and any blank lines go away. What remains is the header followed by commands.
 
-```text
+```
 file holds:   3 4\r\nR\r\n
 split on \n:  "3 4\r" | "R\r" | ""
 strip \r:     "3 4" | "R" | ""
@@ -253,7 +253,7 @@ giving 15 valid executions total.
 **Case 1.** A 3 by 4 grid. The courier moves right twice, drops a parcel,
 moves down twice, then moves up once.
 
-```text
+```
 3 4
 R
 R
@@ -276,7 +276,7 @@ finishes at `(1, 2)` because the `U` after two `D`s moves one row back up.
 
 **Case 2.** A 2 by 2 grid. The courier drops a parcel at each corner.
 
-```text
+```
 2 2
 DROP
 R
@@ -300,7 +300,7 @@ replaces the `*` there.
 **Case 3.** A 1 by 5 grid. The courier moves right to the edge, comes back,
 and drops a parcel.
 
-```text
+```
 1 5
 R
 R
@@ -323,7 +323,7 @@ it.
 
 **Case 4.** A 1 by 1 grid with a blank line in the input.
 
-```text
+```
 
 1 1
 
@@ -341,7 +341,7 @@ move, but `DROP` still works. The `@` covers the parcel.
 
 **Case 5.** A 20 by 20 grid with one `DROP` and no movement.
 
-```text
+```
 20 20
 DROP
 ```

@@ -212,7 +212,7 @@ Two references are **aliases** when they reach the same object. An access that s
 
 A **named constant** is an identifier bound to a value once and never rebound. Its binding time determines whether the running program needs a storage cell for it.
 
-```text
+```
 static MAX = 100
 static START = clock()
 ```
@@ -225,7 +225,7 @@ The translator can bind `MAX` at compile time because its value appears in the s
 
 Trace one call in this smaller case:
 
-```text
+```
 static total = 1
 
 inspect(reading):
@@ -264,7 +264,7 @@ storage is allocated and turns red when that storage becomes invalid.
 
 Execute this pseudocode in a language with explicit heap deallocation:
 
-```text
+```
 static visits = 0
 
 record(reading):
@@ -301,7 +301,7 @@ b. Give the exact interval during which `alias` is dangling, with the event that
 
 Trace this complete program:
 
-```text
+```
 static kept
 
 make():
@@ -330,7 +330,7 @@ The reference value crosses the return boundary. The local cell does not. After 
 
 Use this modified program. It has one call and does not execute `delete`:
 
-```text
+```
 static visits = 0
 static saved
 

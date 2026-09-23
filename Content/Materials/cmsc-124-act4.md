@@ -126,7 +126,7 @@ This grammar uses Extended Backus-Naur Form (EBNF) to write a context-free gramm
 
 Braces mean zero or more repetitions. A vertical bar means a choice.
 
-```text
+```
 <assign>   ::= id = <term>
 <term>     ::= <factor> { + <factor> }
 <factor>   ::= <primary> { * <primary> }
@@ -149,7 +149,7 @@ Wirth published PL/0's grammar as pictures, and plenty of language reports still
 
 Two paths leave the `factor` box. Going straight to the end gives the sentence `<factor>` on its own. Taking the return path instead adds `+ <factor>` and drops you back at the same fork, so you may collect as many plus-factor pairs as you want. Zero or more trips around that return path is what the braces say:
 
-```text
+```
 <term> ::= <factor> { + <factor> }
 ```
 
@@ -169,7 +169,7 @@ Leaving the braces in the final sentence treats EBNF notation as tokens. Braces 
 
 Use this grammar for both questions:
 
-```text
+```
 <assign>   ::= id = <term>
 <term>     ::= <factor> { + <factor> }
 <factor>   ::= <primary> { * <primary> }
@@ -186,7 +186,7 @@ Use this grammar for both questions:
 
 Generate `id = id * id`. The derivation expands one nonterminal per step, and unrolling a brace pair counts as a step of its own. Every intermediate form remains visible:
 
-```text
+```
 <assign>
 => id = <term>
 => id = <factor> { + <factor> }
@@ -213,7 +213,7 @@ A pair of parentheses makes a **grouping** explicit. Compare `B + (C * D)` with 
 
 The EBNF repetition supplies a sequence of operator-operand pairs. It doesn't decide how a parser builds the tree. A **fold** builds one result from a sequence by carrying an accumulated result through it one item at a time. A **left fold** processes those items from left to right. Here the parser starts with the first factor as its accumulated tree and wraps that tree with each next pair:
 
-```text
+```
 start: A
 fold + B: (A + B)
 fold + C: ((A + B) + C)
@@ -229,7 +229,7 @@ The words `start` and `fold` label the action on each line. They aren't grammar 
 
 Use the activity grammar below to derive the target token sentence:
 
-```text
+```
 <assign>   ::= id = <term>
 <term>     ::= <factor> { + <factor> }
 <factor>   ::= <primary> { * <primary> }
@@ -238,7 +238,7 @@ Use the activity grammar below to derive the target token sentence:
 
 The target is:
 
-```text
+```
 id = id + id * id
 ```
 
@@ -255,7 +255,7 @@ A grammar is **ambiguous** when at least one sentence has two distinct parse tre
 
 Consider this flatter grammar:
 
-```text
+```
 <term> ::= <term> + <term>
          | <term> * <term>
          | id
@@ -287,7 +287,7 @@ The other route writes the grouping into the grammar and needs no fold. A rule
 is **left recursive** when it repeats its own label as the first symbol to the
 right of `::=`:
 
-```text
+```
 <term> ::= <term> + <factor> | <factor>
 ```
 
@@ -298,7 +298,7 @@ the left. Every plus sign attaches to a `<term>` that's already finished, forcin
 
 Move the recursion to the other side and the grouping flips:
 
-```text
+```
 <term> ::= <factor> + <term> | <factor>
 ```
 
@@ -313,7 +313,7 @@ like the one that activity asks you to write.
 
 Use this flat grammar and target together:
 
-```text
+```
 <term> ::= <term> + <term>
          | <term> * <term>
          | id

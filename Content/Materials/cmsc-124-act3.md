@@ -157,7 +157,7 @@ is how much of the line has been classified, and where the cursor sits.
 
 Scan this complete source line:
 
-```text
+```
 while2 = limit<=25;
 ```
 
@@ -204,7 +204,7 @@ Both lines look like incomplete assignments, but the scanner's contract still ap
 
 Now scan this fresh source. Spaces still move the cursor forward and still emit no token. Stop only when a rule tells you to stop.
 
-```text
+```
 while (count1 <= 25) @
 ```
 
