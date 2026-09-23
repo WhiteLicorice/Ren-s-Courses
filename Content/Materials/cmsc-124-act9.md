@@ -75,21 +75,6 @@ diagrams:
               classDef later fill:#f3f4f6,stroke:#9ca3af,color:#6b7280
               class SG,DI chosen
               class DC,DG later
-  - title: The moved running case changes only static lookup
-    key: moved-running-case-comparison
-    description: The moved `target` definition changes the static path and result while the dynamic path and result stay fixed.
-    steps:
-      - title: Compare the completed traces
-        description: "Static lookup changes from `target -> outer -> global` to `target -> global`. Dynamic lookup remains `target -> caller -> outer -> global`."
-        mermaid: |
-          flowchart LR
-              BEFORE["Before move<br/>static: target to outer to global<br/>result: 2 + 4 = 6"] --> AFTER["After move<br/>static: target to global<br/>result: 1 + 4 = 5"]
-              DYNAMIC["Dynamic path unchanged<br/>target to caller to outer to global<br/>result: 3 + 4 = 7"]
-              BEFORE ~~~ DYNAMIC
-              classDef changed fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#111827
-              classDef fixed fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#111827
-              class AFTER changed
-              class DYNAMIC fixed
 ---
 
 When three active blocks all declare `x`, the rule `use the nearest one` isn't complete. Nearest in the source and nearest in the active call chain can be different places. Today you'll build both lookup paths before allowing the program to print anything.
