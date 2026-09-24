@@ -110,6 +110,58 @@ test.describe('Materials Filtered Page (/materials/cmsc-125)', () => {
 
 // ── Article page (/articles/cmsc-124-lab0) ───────────────────────────────────
 
+test.describe('Article with diagrams (/articles/cmsc-124-act9)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/articles/cmsc-124-act9');
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => typeof window.generateTOC === 'function');
+  });
+
+  test('TOC entries do not target headings inside diagram widgets', async ({ page }) => {
+    const diagramTargets = await page.locator('#toc-content a[data-target]').evaluateAll(links =>
+      links.map(link => link.dataset.target)
+        .filter(id => document.getElementById(id)?.closest('[data-interactive-diagram]')));
+    expect(diagramTargets).toEqual([]);
+  });
+
+  test('the scroll spy follows authored headings after a TOC click', async ({ page }) => {
+    const link = page.locator('#toc-content a[data-target]').filter({ hasText: "Scope Isn't Lifetime" });
+    const targetId = await link.getAttribute('data-target');
+    expect(targetId).toBeTruthy();
+    await link.click();
+    await page.waitForFunction(id => {
+      const heading = document.getElementById(id);
+      return heading && Math.abs(heading.getBoundingClientRect().top - 80) < 4;
+    }, targetId);
+
+    await page.mouse.move(700, 500);
+    for (let step = 0; step < 8; step++) {
+      await page.mouse.wheel(0, 500);
+      await page.waitForTimeout(250);
+      const expected = await page.evaluate(() => {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const atBottom = maxScroll > 0 && window.scrollY >= maxScroll - 2;
+        const headings = [
+          document.querySelector('article h1'),
+          ...document.querySelectorAll('.prose h1, .prose h2, .prose h3')
+        ].filter(heading => heading && !heading.closest('[data-interactive-diagram]'));
+        let id = headings[0]?.id;
+        headings.forEach(heading => {
+          const rect = heading.getBoundingClientRect();
+          if (rect.height !== 0 && rect.top - 80 <= 1) id = heading.id;
+        });
+        return { atBottom, id };
+      });
+      if (expected.atBottom) continue;
+
+      const activeIds = await page.locator('#toc-content a.text-accent')
+        .evaluateAll(links => links.map(active => active.dataset.target));
+      expect(activeIds).toEqual([expected.id]);
+    }
+  });
+});
+
 test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/articles/cmsc-124-lab0');
@@ -145,6 +197,32 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
     const tocLinks = page.locator('#toc-content a[data-target]');
     expect(await tocLinks.count()).toBeGreaterThan(0);
     await expect(tocLinks.first()).toBeVisible();
+  });
+
+  test('the active TOC entry stays visible in the sidebar', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => typeof window.generateTOC === 'function');
+    await page.waitForSelector('#toc-content a[data-target]', { timeout: 5000 });
+    const targetId = await page.locator('#toc-content a[data-target]').nth(40).getAttribute('data-target');
+
+    await page.evaluate(id => {
+      const heading = document.getElementById(id);
+      window.scrollTo({
+        top: window.scrollY + heading.getBoundingClientRect().top - 80,
+        behavior: 'instant'
+      });
+    }, targetId);
+    await page.waitForTimeout(200);
+
+    const bounds = await page.evaluate(() => {
+      const active = document.querySelector('#toc-content a.text-accent').getBoundingClientRect();
+      const box = document.querySelector('#toc-content').parentElement.getBoundingClientRect();
+      return { activeTop: active.top, activeBottom: active.bottom, boxTop: box.top, boxBottom: box.bottom };
+    });
+    expect(bounds.activeTop).toBeGreaterThanOrEqual(bounds.boxTop);
+    expect(bounds.activeBottom).toBeLessThanOrEqual(bounds.boxBottom);
   });
 
   test('mobile TOC <details> element is present', async ({ page }) => {

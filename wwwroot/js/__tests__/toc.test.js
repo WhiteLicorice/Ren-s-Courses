@@ -34,6 +34,55 @@ function buildDOM() {
     `;
 }
 
+function buildDOMWithDiagram() {
+    document.body.innerHTML = `
+        <article>
+            <h1 id="main-title">Main Title</h1>
+            <div class="prose">
+                <h2 id="section-one">Section One</h2>
+                <h3 id="section-two">Section Two</h3>
+                <section data-interactive-diagram>
+                    <header><h2 id="learning-diagram-0-title">Widget</h2></header>
+                    <section data-diagram-step><h3 id="learning-diagram-0-step-0-title">Step one</h3></section>
+                    <section data-diagram-step hidden><h3 id="learning-diagram-0-step-1-title">Step two</h3></section>
+                </section>
+                <h2 id="build.sh-run">Build and Run</h2>
+            </div>
+            <div id="toc-content"></div>
+            <details id="mobile-details" open>
+                <div id="mobile-toc-content"></div>
+            </details>
+        </article>
+    `;
+}
+
+function buildSidebarDOM() {
+    document.body.innerHTML = `
+        <article>
+            <h1 id="main-title">Main Title</h1>
+            <div class="prose">
+                <h2 id="section-one">Section One</h2>
+                <h3 id="section-two">Section Two</h3>
+                <h2 id="build.sh-run">Build and Run</h2>
+            </div>
+            <div id="toc-scroller"><div id="toc-content"></div></div>
+            <details id="mobile-details" open>
+                <div id="mobile-toc-content"></div>
+            </details>
+        </article>
+    `;
+}
+
+function arrangeWithDOM(buildCustomDOM) {
+    realPushState('/articles/demo');
+    buildCustomDOM();
+    Element.prototype.scrollIntoView = jest.fn();
+    window.scrollTo = jest.fn();
+    jest.spyOn(window.history, 'replaceState').mockImplementation(() => {});
+    loadTocScript();
+    window.generateTOC();
+}
+
 // Call the real pushState (bypasses any active jest.spyOn mock on pushState).
 function realPushState(url) {
     Object.getPrototypeOf(window.history).pushState.call(window.history, {}, '', url);
@@ -327,6 +376,129 @@ describe('generateTOC — scroll spy', () => {
         window.dispatchEvent(new Event('scroll'));
         await flushRaf();
         expect(activeIn('#toc-content')).toEqual(['main-title']);
+    });
+
+    test('a heading with no layout box never pins the spy', async () => {
+        arrangeWithDOM(() => {
+            document.body.innerHTML = `
+                <article>
+                    <h1 id="main-title">Main Title</h1>
+                    <div class="prose">
+                        <h2 id="section-one">Section One</h2>
+                        <h3 id="section-two">Section Two</h3>
+                        <h3 id="collapsed" hidden>Collapsed</h3>
+                        <h2 id="build.sh-run">Build and Run</h2>
+                    </div>
+                    <div id="toc-content"></div>
+                    <details id="mobile-details" open>
+                        <div id="mobile-toc-content"></div>
+                    </details>
+                </article>
+            `;
+        });
+        stubTops({
+            'main-title': -500,
+            'section-one': -100,
+            'section-two': NAV_OFFSET + 200,
+            'build.sh-run': NAV_OFFSET + 600
+        });
+        window.dispatchEvent(new Event('scroll'));
+        await flushRaf();
+        expect(activeIn('#toc-content')).toEqual(['section-one']);
+    });
+});
+
+describe('generateTOC — interactive diagram headings', () => {
+    beforeEach(() => arrangeWithDOM(buildDOMWithDiagram));
+
+    test('does not add diagram headings to either TOC', () => {
+        ['#toc-content', '#mobile-toc-content'].forEach(selector => {
+            const ids = Array.from(document.querySelectorAll(`${selector} a`))
+                .map(link => link.dataset.target);
+            expect(ids.some(id => id.startsWith('learning-diagram-'))).toBe(false);
+        });
+    });
+
+    test('a hidden diagram heading cannot pin the spy after a TOC click', async () => {
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        stubTops({
+            'main-title': -500,
+            'section-one': -100,
+            'section-two': -50,
+            'build.sh-run': NAV_OFFSET + 600
+        });
+        window.dispatchEvent(new Event('scroll'));
+        await flushRaf();
+        expect(activeIn('#toc-content')).toEqual(['section-two']);
+    });
+});
+
+describe('generateTOC — sidebar follows the active entry', () => {
+    let scroller;
+
+    beforeEach(() => {
+        arrangeWithDOM(buildSidebarDOM);
+        scroller = document.getElementById('toc-scroller');
+        scroller.getBoundingClientRect = () => ({ top: 0, bottom: 300, height: 300 });
+        Object.defineProperty(scroller, 'scrollHeight', { configurable: true, value: 1000 });
+        Object.defineProperty(scroller, 'clientHeight', { configurable: true, value: 300 });
+    });
+
+    const stubLinkRect = (id, top, bottom) => {
+        document.querySelector(`#toc-content a[data-target="${id}"]`).getBoundingClientRect = () => ({
+            top, bottom, left: 0, right: 100, width: 100, height: bottom - top
+        });
+    };
+
+    test('scrolls down when the active entry sits below the box', () => {
+        stubLinkRect('section-one', 400, 420);
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        expect(scroller.scrollTop).toBe(136);
+    });
+
+    test('scrolls up when the active entry sits above the box', () => {
+        scroller.scrollTop = 200;
+        stubLinkRect('section-one', -60, -40);
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        expect(scroller.scrollTop).toBe(124);
+    });
+
+    test('does not scroll when the active entry is inside the box', () => {
+        scroller.scrollTop = 120;
+        stubLinkRect('section-one', 50, 70);
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        expect(scroller.scrollTop).toBe(120);
+    });
+
+    test('does not use window scrolling or scrollIntoView for the sidebar follow', () => {
+        stubLinkRect('section-one', 400, 420);
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        window.scrollTo.mockClear();
+        Element.prototype.scrollIntoView.mockClear();
+        expect(window.scrollTo).not.toHaveBeenCalled();
+        expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    test('does not follow the same active id a second time', async () => {
+        stubLinkRect('section-one', 400, 420);
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        scroller.scrollTop = 200;
+        stubTops({
+            'main-title': -500,
+            'section-one': -100,
+            'section-two': NAV_OFFSET + 200,
+            'build.sh-run': NAV_OFFSET + 600
+        });
+        window.dispatchEvent(new Event('scroll'));
+        await flushRaf();
+        expect(scroller.scrollTop).toBe(200);
+    });
+
+    test('does not scroll a box that cannot scroll', () => {
+        Object.defineProperty(scroller, 'scrollHeight', { configurable: true, value: 300 });
+        stubLinkRect('section-one', 400, 420);
+        document.querySelector('#toc-content a[data-target="section-one"]').click();
+        expect(scroller.scrollTop).toBe(0);
     });
 });
 

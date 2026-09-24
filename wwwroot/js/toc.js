@@ -10,6 +10,7 @@
 // Clearance for the fixed navbar (NavMenu.razor, h-16) plus breathing room.
 // Keep in sync with the scroll-margin-top on .prose headings in Styles/app.css.
 const TOC_NAV_OFFSET = 80;
+const TOC_SIDEBAR_MARGIN = 16;
 
 window.generateTOC = () => {
     const prose = document.querySelector('.prose');
@@ -21,7 +22,10 @@ window.generateTOC = () => {
 
     // Grab Main Title + Content Headers
     const mainTitle = document.querySelector('article h1');
-    const contentHeaders = Array.from(prose.querySelectorAll('h1, h2, h3'));
+    // Diagram widgets carry their own <h2> title and one <h3> per step (InteractiveDiagram.razor).
+    // They are not part of the authored outline, and the hidden steps have no position.
+    const contentHeaders = Array.from(prose.querySelectorAll('h1, h2, h3'))
+        .filter(header => !header.closest('[data-interactive-diagram]'));
     const headers = mainTitle ? [mainTitle, ...contentHeaders] : contentHeaders;
 
     if (headers.length === 0) return;
@@ -34,7 +38,11 @@ window.generateTOC = () => {
     const bothContainers = [tocContainer, mobileTocContainer].filter(Boolean);
 
     // Move the active-section highlight to the entry for `id`, in every TOC list.
+    let lastActiveId = null;
     const setActive = (id) => {
+        if (id === lastActiveId) return;
+        lastActiveId = id;
+
         bothContainers.forEach(container => {
             container.querySelectorAll('a').forEach(link => {
                 const isActive = link.dataset.target === id;
@@ -50,6 +58,21 @@ window.generateTOC = () => {
                 else link.removeAttribute('aria-current');
             });
         });
+
+        if (!tocContainer) return;
+        const activeLink = Array.from(tocContainer.querySelectorAll('a'))
+            .find(link => link.dataset.target === id);
+        // Blog.razor:252 wraps the desktop TOC nav in this sticky scroll box.
+        const scrollBox = tocContainer.parentElement;
+        if (!activeLink || !scrollBox || scrollBox.scrollHeight <= scrollBox.clientHeight) return;
+
+        const linkRect = activeLink.getBoundingClientRect();
+        const boxRect = scrollBox.getBoundingClientRect();
+        if (linkRect.bottom > boxRect.bottom) {
+            scrollBox.scrollTop += linkRect.bottom - boxRect.bottom + TOC_SIDEBAR_MARGIN;
+        } else if (linkRect.top < boxRect.top) {
+            scrollBox.scrollTop -= boxRect.top - linkRect.top + TOC_SIDEBAR_MARGIN;
+        }
     };
 
     // Helper: Builds the UL/LI structure
@@ -177,7 +200,10 @@ window.generateTOC = () => {
 
         let id = headers[0].id;
         headers.forEach(header => {
-            if (header.getBoundingClientRect().top - TOC_NAV_OFFSET <= 1) id = header.id;
+            const rect = header.getBoundingClientRect();
+            // A heading with no box (hidden, or display:none) reads top 0 and would always win.
+            if (rect.height === 0) return;
+            if (rect.top - TOC_NAV_OFFSET <= 1) id = header.id;
         });
         return id;
     };

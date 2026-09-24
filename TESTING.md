@@ -17,13 +17,13 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
-| JS | `npm test` | 12 suites, 234 tests | Yes |
+| JS | `npm test` | 12 suites, 243 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 201 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
-| End-to-end | `npm run test:e2e` | 302 tests | No |
+| End-to-end | `npm run test:e2e` | 308 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-All counts were measured on 2026-09-12 at commit `f595f1b` with the review fixes for the diagram speed work in the tree.
+The JS, .NET, and end-to-end counts were measured on 2026-09-24. The run used base commit `2713169` with the TOC changes in this working tree. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -80,7 +80,7 @@ npx jest --coverage       # with coverage
 
 | Script | What the suite tests |
 |---|---|
-| `toc.js` | `replaceState` rather than `pushState` on click, no-href links, keyboard activation, the `hashchange` listener, and scroll on load |
+| `toc.js` | `replaceState` rather than `pushState` on click, no-href links, keyboard activation, scroll on load, the position spy, zero-height guard, diagram heading exclusion, and desktop sidebar follow |
 | `faq.js` | `replaceState` on a quick-link click, `_openDetailsForHash`, and the `hashchange` listener |
 | `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`, `initCalendarNav`, `changeMonth`, and the event popover |
 | `course-filter.js` | `initCourseFilter` restore from `localStorage`, `toggleCourseFilter`, and `clearCourseFilter` |
