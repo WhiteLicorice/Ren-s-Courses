@@ -1,6 +1,9 @@
 'use strict';
 
 const { test, expect } = require('@playwright/test');
+const {
+  COURSE, ARTICLE_SLUG, ARTICLE_ROUTE, EXTERNAL_ARTICLE_ROUTE, EXTERNAL_DOWNLOAD_LINK
+} = require('../fixtures/site/routes');
 
 // ── Materials tag cloud (/materials) ─────────────────────────────────────────
 
@@ -11,7 +14,7 @@ test.describe('Materials Tag Cloud (/materials)', () => {
   });
 
   test('tag cloud renders with links to /materials/{tag}', async ({ page }) => {
-    // Static output uses relative hrefs: href="materials/cmsc-125" (no leading slash).
+    // Static output uses relative hrefs: href="materials/fixture-course-a" (no leading slash).
     const tagLinks = page.locator('a[href*="materials/"]');
     await expect(tagLinks.first()).toBeVisible();
     expect(await tagLinks.count()).toBeGreaterThan(0);
@@ -38,13 +41,11 @@ test.describe('Materials Tag Cloud (/materials)', () => {
   });
 });
 
-// ── Filtered materials page (/materials/cmsc-125) ────────────────────────────
-// Uses cmsc-125 — confirmed to have materials in the current term's static output.
-// (cmsc-124 has articles but none published in the current term window.)
+// ── Filtered materials page (/materials/fixture-course-a) ────────────────────
 
-test.describe('Materials Filtered Page (/materials/cmsc-125)', () => {
+test.describe('Materials Filtered Page (/materials/fixture-course-a)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/materials/cmsc-125');
+    await page.goto(`/materials/${COURSE}`);
     await page.waitForLoadState('load');
   });
 
@@ -64,25 +65,17 @@ test.describe('Materials Filtered Page (/materials/cmsc-125)', () => {
     expect(page.url()).toMatch(/\/materials\/?$/);
   });
 
-  test('post cards are visible (requires site built within term window)', async ({ page }) => {
-    // CourseContentProvider only surfaces materials while STATIC_GEN_TIME is
-    // between TERM_START and TERM_END.  The CI workflow pins STATIC_GEN_TIME
-    // to 2026-03-15T12:00:00Z which is inside the current term.
+  test('post cards are visible', async ({ page }) => {
+    // The fixture build freezes STATIC_GEN_TIME inside the term window, so the
+    // course's material is always visible.
     const cards = page.locator('article');
-    const count = await cards.count();
-    if (count === 0) {
-      // Site was built outside the term window — skip gracefully.
-      test.skip();
-      return;
-    }
     await expect(cards.first()).toBeVisible({ timeout: 5000 });
-    expect(count).toBeGreaterThan(0);
+    expect(await cards.count()).toBeGreaterThan(0);
   });
 
   test('post card title links to an article page', async ({ page }) => {
     const cards = page.locator('article');
-    if (await cards.count() === 0) { test.skip(); return; }
-    // Static output uses relative hrefs: href="articles/cmsc-125-..." (no leading slash).
+    // Static output uses relative hrefs: href="articles/fixture-course-a-lab1" (no leading slash).
     const firstCard = cards.first();
     const postLink = firstCard.locator('a[href*="articles/"]').first();
     await expect(postLink).toBeVisible();
@@ -92,7 +85,6 @@ test.describe('Materials Filtered Page (/materials/cmsc-125)', () => {
 
   test('clicking a post card title navigates to /articles/{slug}', async ({ page }) => {
     const cards = page.locator('article');
-    if (await cards.count() === 0) { test.skip(); return; }
     const postLink = cards.first().locator('a[href*="articles/"]').first();
     await postLink.click();
     await page.waitForURL(/\/articles\//);
@@ -101,18 +93,17 @@ test.describe('Materials Filtered Page (/materials/cmsc-125)', () => {
 
   test('post card shows a date and a primary tag badge', async ({ page }) => {
     const cards = page.locator('article');
-    if (await cards.count() === 0) { test.skip(); return; }
     const firstCard = cards.first();
     // Published date is rendered as a <time> element.
     await expect(firstCard.locator('time')).toBeVisible();
   });
 });
 
-// ── Article page (/articles/cmsc-124-lab0) ───────────────────────────────────
+// ── Article page (/articles/fixture-course-a-lab1) ───────────────────────────
 
-test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
+test.describe('Article Page (/articles/fixture-course-a-lab1)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/articles/cmsc-124-lab0');
+    await page.goto(ARTICLE_ROUTE);
     await page.waitForLoadState('load');
     // toc.js and code-features.js run on DOMContentLoaded via site.js.
     await page.waitForFunction(() => typeof window.generateTOC === 'function');
@@ -129,13 +120,13 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
   test('native Download action downloads the generated PDF', async ({ page }) => {
     const link = page.locator('[data-download-action][data-download-source="generated"]');
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('download', 'cmsc-124-lab0.pdf');
+    await expect(link).toHaveAttribute('download', `${ARTICLE_SLUG}.pdf`);
 
     const downloadPromise = page.waitForEvent('download');
     await link.click();
     const download = await downloadPromise;
 
-    expect(download.suggestedFilename()).toMatch(/^cmsc-124-lab0(?:\.[0-9a-f]{12})?\.pdf$/);
+    expect(download.suggestedFilename()).toMatch(new RegExp(`^${ARTICLE_SLUG}(?:\\.[0-9a-f]{12})?\\.pdf$`));
     expect(await download.failure()).toBeNull();
   });
 
@@ -210,4 +201,17 @@ test.describe('Article Page (/articles/cmsc-124-lab0)', () => {
 
     await expect(code).not.toHaveClass(/\bscrollbar-dragging\b/);
   });
+});
+
+// ── Article with an external download (/articles/fixture-course-b-lab1) ──────
+
+test('a declared downloadLink replaces the generated PDF', async ({ page }) => {
+  // The build exempts this material from PDF generation. The page must link the
+  // declared URL and carry no generated action.
+  await page.goto(EXTERNAL_ARTICLE_ROUTE);
+  const link = page.locator('[data-download-action]');
+  await expect(link).toHaveCount(1);
+  await expect(link).toHaveAttribute('data-download-source', 'external');
+  await expect(link).toHaveAttribute('href', EXTERNAL_DOWNLOAD_LINK);
+  await expect(link).toHaveAttribute('target', '_blank');
 });

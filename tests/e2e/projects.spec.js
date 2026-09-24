@@ -1,6 +1,7 @@
 'use strict';
 
 const { test, expect } = require('@playwright/test');
+const { COURSE } = require('../fixtures/site/routes');
 
 // ── Projects tag cloud (/projects) ───────────────────────────────────────────
 
@@ -12,7 +13,7 @@ test.describe('Projects Tag Cloud (/projects)', () => {
 
   test('tag cloud renders with links to /projects/{tag}', async ({ page }) => {
     // Reuses CatalogsList component — same structure as /materials tag cloud.
-    // Static output uses relative hrefs: href="projects/cmsc-131" (no leading slash).
+    // Static output uses relative hrefs: href="projects/fixture-course-a" (no leading slash).
     const tagLinks = page.locator('a[href*="projects/"]');
     await expect(tagLinks.first()).toBeVisible();
     expect(await tagLinks.count()).toBeGreaterThan(0);
@@ -33,11 +34,11 @@ test.describe('Projects Tag Cloud (/projects)', () => {
   });
 });
 
-// ── Filtered showcase page (/projects/cmsc-131) ──────────────────────────────
+// ── Filtered showcase page (/projects/fixture-course-a) ──────────────────────
 
-test.describe('Projects Filtered Page (/projects/cmsc-131)', () => {
+test.describe('Projects Filtered Page (/projects/fixture-course-a)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/projects/cmsc-131');
+    await page.goto(`/projects/${COURSE}`);
     await page.waitForLoadState('load');
   });
 

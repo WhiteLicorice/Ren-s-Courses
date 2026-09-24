@@ -4,10 +4,13 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 /**
- * Playwright configuration for E2E tests against the pre-built static output.
+ * Playwright configuration for E2E tests against the pre-built fixture site.
  *
  * Prerequisites before running tests:
- *   ASPNETCORE_ENVIRONMENT=Production dotnet run   (generates ./output/)
+ *   npm run build:e2e-site   (generates ./output-e2e/ from tests/fixtures/site)
+ *
+ * The suite never reads ./output/. That folder holds the real site, built from
+ * live content, and no test may depend on a live material.
  *
  * Local run:
  *   npm run test:e2e
@@ -51,7 +54,9 @@ module.exports = defineConfig({
   ],
 
   use: {
-    baseURL: 'http://localhost:8080',
+    // Not 8080: a leftover `serve output` there holds the live site, and
+    // reuseExistingServer would run the suite against it without a warning.
+    baseURL: 'http://localhost:8081',
 
     // Capture trace on the first retry of a failed test.
     trace: 'on-first-retry',
@@ -60,11 +65,10 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  // Serve the pre-built BlazorStatic output directory.
-  // Run `ASPNETCORE_ENVIRONMENT=Production dotnet run` first to populate output/.
+  // Serve the pre-built fixture site. Run `npm run build:e2e-site` first.
   webServer: {
-    command: 'npx serve@14 output --listen 8080 --no-clipboard',
-    url: 'http://localhost:8080',
+    command: 'npx serve@14 output-e2e --listen 8081 --no-clipboard',
+    url: 'http://localhost:8081',
     // Reuse an already-running local server; always start fresh in CI.
     reuseExistingServer: !process.env.CI,
     timeout: 30 * 1000,

@@ -40,6 +40,36 @@ The Playwright row is the full local release gate. This run hit no worker-conten
 
 Re-read the submodule pin before you trust it. `git submodule status` is the source of truth.
 
+## Test Fixtures
+
+**No test may depend on a live material.** The rule covers Jest, .NET, and Playwright. It covers a new test and any test you move or edit. A live material is anything under `Content/`, or a route the build generates from it, such as `/articles/cmsc-124-lab0`.
+
+An author can re-date, retire, or rewrite a material. The term window and the active-course gate also hide it. A test anchored to a published route then fails, or passes vacuously, for a reason unrelated to the code under test. A published article is a place to look with your own eyes. It is never a fixture.
+
+Simulate the page with a fixture instead:
+
+- **Jest.** Build the DOM in the test. Reuse a shared builder where one exists, such as `buildWidgetMarkup`. Do not hand-copy Razor markup.
+- **.NET.** Use `EphemeralPost<T>`, `DiagramFixtures.cs`, and the fixture course tags from `TestEnvironment`.
+- **Playwright, one widget.** Serve an in-memory harness page with `page.route` and `route.fulfill` on a synthetic route on the static server's own origin. The site's own stylesheet and scripts then load from the built site. `interactive-diagrams.spec.js` (`/__diagram-harness`) and `toc.spec.js` (`/__toc-harness`) are the models.
+- **Playwright, a whole page.** Add a Markdown file under `tests/fixtures/site/Content`. Rebuild with `npm run build:e2e-site`. The site generator in `Program.cs` writes the fixture site to `output-e2e/`, and the suite serves only that folder. Put route names in `tests/fixtures/site/routes.js`, so a spec never repeats a slug.
+
+The fixture site replaced a live build on 2026-09-24. Before that, the suite served `output/`, built with `SHOWCASE_MODE=true` from `Content/`. Specs named `cmsc-124-lab0`, `cmsc-125`, and `cmsc-131`, and 18 tests skipped whenever the term window hid their content. The fixture site now fixes the content and the frozen time, so those skips became assertions.
+
+`SITE_PROFILE=e2e` selects `SiteLayout.EndToEndFixture` in `Program.cs`. **Every generated path must stay apart from production.** `PdfCacheService.PruneAsync` deletes the cache state and the PDF of every slug outside the current build. A fixture build that shared `artifacts/` or `wwwroot/pdfs` would delete the production PDF cache. `ProgramTests` guards each separated path.
+
+A hand-mirrored fixture needs two guards:
+
+1. A .NET contract test. It renders the Razor component and asserts that the fixture carries the same hooks. `BlogPageTests.DiagramWidgetContract_MatchesTheJavaScriptFixtureBuilder` guards `tests/fixtures/diagram-fixtures.js`. `BlogPageTests.TocHarnessContract_MatchesTheArticleLayout` guards `tests/fixtures/toc-fixtures.js`.
+2. A Playwright guard test. It asserts that the harness requests no `/articles/` route.
+
+`fixture-site.spec.js` guards the fixture site itself. It fails when the server under test holds a live article, a live course, or a live PDF.
+
+Also guard the fixture inside each test that needs a specific fixture property. Examples are "the sidebar box can scroll" and "a hidden diagram step heading exists". Without that guard, a fixture edit makes the test vacuous with no signal.
+
+**One exception.** `DiagramContentHygieneTests` reads `Content/Materials` on purpose. Its subject is the authored content, so a fixture cannot stand in for it. It targets no specific material and passes with zero files. Keep any new content lint to the same two limits.
+
+Confirmed 2026-09-24. The first TOC fix at `0f28707` added e2e tests against the live `cmsc-124-act9` and `cmsc-124-lab0`. Those tests moved to `toc.spec.js`. Against the pre-fix `toc.js`, the harness fails 5 of 12 tests, the same defect the live page showed.
+
 ## Content Authoring
 
 Three contracts live here: submission links, the `downloadLink` exemption, and diagram markers. README shows the syntax. This section records why each behaves as it does.
@@ -55,7 +85,7 @@ Confirmed 2026-07-14, `downloadLink` updated 2026-09-05:
 - An external URL never enters the offline manifest. `OfflineBundleGenerator.AddReference` rejects any host except the synthetic `offline.local`.
 - All 36 materials that carried a legacy Google Drive `downloadLink` were stripped on 2026-09-05. The key is opt-in from zero. Every removed URL survives at `git show 811ec0a:Content/Materials/<file>.md`.
 - **The fork probe is the only check that exercises the exempt branch end to end.** Add `downloadLink` to a material, rebuild, and expect `1 exempt` in discovery and `1 external` in the summary, with the PDF pruned and `data-download-source="external"` on the page. Remove the key and expect the material to return to `generated`. Repeat this probe after any change to discovery or pruning. A green suite never exercises it, because no committed material declares the key.
-- Only the materials inside the term window publish article pages, so a probe must use one of those. Do not probe `cmsc-124-lab0`. `tests/e2e/materials.spec.js` asserts its native PDF download.
+- Only the materials inside the term window publish article pages, so a probe must use one of those.
 
 Diagram markers, confirmed 2026-07-15:
 
@@ -134,7 +164,7 @@ Playback, confirmed 2026-09-02:
 Fixtures:
 
 - **`tests/fixtures/diagram-fixtures.js` hand-mirrors `InteractiveDiagram.razor`, and that duplication can drift silently.** Both suites would keep passing against their own markup while the real article page breaks. `BlogPageTests.DiagramWidgetContract_MatchesTheJavaScriptFixtureBuilder` renders the component and asserts every emitted `data-` attribute appears in the fixture file. **Match whole tokens.** A substring check accepts a renamed attribute, because `data-diagram-scroll-hint` sits inside `data-diagram-scroll-hintX`. Confirmed red with that exact rename.
-- **No test may depend on real material existing.** Material gets re-dated, retired, or hidden by the term window and the active-course gate. A test anchored to a published route then fails for a reason unrelated to the code under test. Use `tests/fixtures/diagram-fixtures.js`, `DiagramFixtures.cs`, or ephemeral frontmatter. `interactive-diagrams.spec.js` keeps a guard test asserting that the harness requests no `/articles/` route at all. A published article is a place to look with your own eyes, never a fixture.
+- **No diagram test may depend on a live material.** Test Fixtures above holds the rule and its guards. `interactive-diagrams.spec.js` keeps a guard test asserting that the harness requests no `/articles/` route at all.
 
 ## Diagram Theming
 
@@ -248,6 +278,9 @@ Read this before you call a browser failure a regression. Several entries here d
 - **Scroll anchoring breaks a scroll assertion in Firefox.** The `navigation.spec.js` navbar test failed intermittently because a late layout shift of roughly 97px made Firefox re-anchor the view, which fires a downward scroll event the test never issued. Observed with a `MutationObserver` log: `scroll 500 -> hide -> scroll 300 -> show -> scroll 396.8 -> hide`. The fix sets `overflow-anchor: none`, waits for the scroll position to stop changing, and asserts with a retrying expectation instead of one `evaluate` read. `html` also carries `scroll-smooth`, so `scrollBy` starts an animation. Use `scrollTo` with an explicit `scroll-behavior: auto`.
 - `locator.evaluate` given a string containing an arrow function returns `undefined` rather than calling it. Pass the function itself.
 - A focused scroll container answers `ArrowRight` for horizontal scrolling. `End` does not move it sideways.
-- The e2e suite needs `SHOWCASE_MODE=true` to exercise every spec. Under the CI-matching `SHOWCASE_MODE=false`, the only FAQ content is filtered out and `faqs.spec.js` fails with "element(s) not found" rather than skipping. Unlike `materials.spec.js`, that spec has no `test.skip()` visibility guard.
+- **The e2e server runs on port 8081, not 8080.** `reuseExistingServer` accepts any server already on the port. On 2026-09-24 a leftover `serve output` on 8080 held the real site, and a full run used it without a warning. `fixture-site.spec.js` now fails in that case.
+- **BlazorStatic resolves a relative `ContentPath` against the bin folder.** The csproj copies only `Content/**` there. `SiteLayout.ContentPathFor` therefore passes the fixture tree as an absolute path. The first fixture build failed with `Could not find a part of the path '...\bin\Release\net9.0\tests\fixtures\site\Content\Materials'`.
+- **A per-file `IgnoredPathsOnContentCopy` entry does nothing.** A directory entry works, as `js/__tests__` shows. `SiteLayout.RemoveForeignPdfs` deletes the production PDFs from `output-e2e/pdfs` after generation instead.
+- **A BlazorStatic generation error does not stop the process.** The generator logs `An error occurred while generating static pages` and the host keeps running. A build script then hangs and never reports a failure. Watch the log. Stop the `BlazorStaticMinimalBlog` process by hand. This is an open flaw.
 - Two historical drift lessons worth keeping. `navigation.spec.js` once hardcoded 8 `menu.json` entries after the Submissions tab was dropped, leaving 7, and four tests failed in both browsers. Note the namesake: the per-material submission-links dropdown is a live feature and is unrelated. Separately, a substring locator for the "All Materials" back-link became a strict-mode violation once an empty-state panel added a second "View all materials" link. Use `getByRole('link', { name: 'All Materials', exact: true })`.
 - Playwright does not run in CI, by decision. The suite takes too long for a GitHub runner. `AGENTS.md` requires running the real thing before shipping, so the e2e suite is a local release gate. See [TESTING.md](./TESTING.md).

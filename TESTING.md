@@ -18,12 +18,12 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
 | JS | `npm test` | 12 suites, 243 tests | Yes |
-| .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 201 tests | Yes |
+| .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 217 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
-| End-to-end | `npm run test:e2e` | 308 tests | No |
+| End-to-end | `npm run test:e2e` | 316 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-The JS, .NET, and end-to-end counts were measured on 2026-09-24. The run used base commit `2713169` with the TOC changes in this working tree. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
+The JS, .NET, and end-to-end counts were measured on 2026-09-24 against the fixture site, with the TOC and fixture-site changes in the tree. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -64,7 +64,7 @@ var fm = post.FrontMatter;   // deserialized
 var md = post.RawMarkdown;   // "---\ntitle: Test\n..."
 ```
 
-Most tests need no file on disk. Three fixture files are the exception. The suites depend on all three. `tests/fixtures/diagram-fixtures.js` and `tests/Ren.Courses.Tests/DiagramFixtures.cs` hold the shared diagram matrix that Jest and Playwright both read. `tests/fixtures/toc-fixtures.js` holds the article page that `toc.spec.js` serves.
+Most tests need no file on disk. Three fixture files are the exception. The suites depend on all three. `tests/fixtures/diagram-fixtures.js` and `tests/Ren.Courses.Tests/DiagramFixtures.cs` hold the shared diagram matrix that Jest and Playwright both read. `tests/fixtures/toc-fixtures.js` holds the article page that `toc.spec.js` serves. No test may depend on a live material. [PLAYBOOK.md](./PLAYBOOK.md), section Test Fixtures, gives the rule and its guards.
 
 ## JS (Jest)
 
@@ -112,37 +112,35 @@ python -m unittest discover -s .github/utils -p "test_*.py" -v
 
 ## End-to-End (Playwright)
 
-Playwright runs against the pre-built static output. A lightweight file server serves it. The suite covers every major user flow.
+Playwright runs against a pre-built fixture site. A lightweight file server serves it. The suite covers every major user flow.
+
+No test reads a live material. The site generator builds the fixture site from `tests/fixtures/site/Content` into `output-e2e/`. The suite never reads `output/`, which holds the production site. [PLAYBOOK.md](./PLAYBOOK.md), section Test Fixtures, gives the rule and its guards.
 
 CI does not run this suite. The Playwright run takes too long for a GitHub runner, so CI runs the JS, .NET, and Python gates instead. Treat the end-to-end suite as the release gate you run locally.
 
 ### Building the Fixture Site
 
-Build the site first. The suite reads `output/` and does not create it.
+Build the fixture site first. The suite reads `output-e2e/` and does not create it.
 
 ```bash
-SHOWCASE_MODE=true \
-ASPNETCORE_ENVIRONMENT=Production \
-TERM_START=2026-08-01 \
-TERM_END=2026-12-31 \
-ACTIVE_COURSES="cmsc-124,cmsc-131" \
-dotnet run --no-launch-profile --configuration Release
+npm run build:e2e-site
 ```
 
-`TERM_START` and `TERM_END` are not optional. Without them the static constructor of `BuildTimeProvider` calls `DateTime.Parse(null)`, throws `TypeInitializationException`, and the build exits 82.
+The script is `tests/fixtures/site/build.js`. It sets `SITE_PROFILE=e2e` and a fixed environment:
 
-`SHOWCASE_MODE=true` shows every non-draft post. Some specs need that content and skip without it.
+| Variable | Value |
+|---|---|
+| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `STATIC_GEN_TIME` | `2026-09-15T02:00:00Z` |
+| `TERM_START`, `TERM_END` | `2026-08-01`, `2026-12-31` |
+| `ACTIVE_COURSES` | `fixture-course-a,fixture-course-b` |
+| `SHOWCASE_MODE` | `false`, so the real visibility rules run |
 
-The same command in PowerShell:
+`SITE_PROFILE=e2e` selects `SiteLayout.EndToEndFixture` in `Program.cs`. That layout keeps every generated path apart from production: the content root, the output folder, the PDF cache in `artifacts/e2e-site`, and the generated PDFs. The PDF cache prunes every slug it does not see, so a shared cache would delete the production PDFs.
 
-```powershell
-$env:ASPNETCORE_ENVIRONMENT = "Production"
-$env:TERM_START = "2026-08-01"
-$env:TERM_END = "2026-12-31"
-$env:ACTIVE_COURSES = "cmsc-124,cmsc-131"
-$env:SHOWCASE_MODE = "true"
-dotnet run --no-launch-profile --configuration Release
-```
+The first build links `artifacts/e2e-site/pdf-toolchain` to the pinned toolchain in `artifacts/pdf-toolchain`. Without a production toolchain, the build downloads one.
+
+Rebuild after you change a fixture Markdown file, a Razor component, a stylesheet, or a script. The suite serves whatever `output-e2e/` holds.
 
 ### Running the Suite
 
@@ -152,7 +150,7 @@ Install the browsers once:
 npx playwright install --with-deps chromium
 ```
 
-Then run the tests. `playwright.config.js` starts `npx serve output` for you.
+Then run the tests. `playwright.config.js` starts `npx serve output-e2e` on port 8081 for you. It does not use port 8080, where a leftover `serve output` would serve the production site.
 
 ```bash
 npm run test:e2e                                 # Chromium and Firefox
@@ -169,14 +167,14 @@ npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1
 
 Read the summary line for the result. A pipe into `tail` reports the exit code of `tail`, not of Playwright.
 
-Expect two Firefox failures in a full local run. `playwright.config.js` uses two workers locally. Each browser context installs the service worker and pre-caches more than 150 assets from one `npx serve` process. That contention times out a different Firefox test on each run. Re-run the failing spec alone before you call it a regression. It passes alone.
+A full local run can show one or two Firefox failures. `playwright.config.js` uses two workers locally. Each browser context installs the service worker and pre-caches the whole site from one `npx serve` process. That contention times out a different Firefox test on each run. Re-run the failing spec alone before you call it a regression. It passes alone.
 
 ### Suite Coverage
 
 | Spec file | What it covers |
 |---|---|
 | `home.spec.js` | `/`, the title, the glitch text, the lead, and the chip filter |
-| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}`, the tag cloud, post cards, code blocks, and the copy button |
+| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}`, the tag cloud, post cards, the generated and external download actions, code blocks, and the copy button |
 | `faqs.spec.js` | `/faqs`, the sections, the chip filter, the accordion, hash deep-linking, and `hashchange` |
 | `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |
@@ -185,6 +183,7 @@ Expect two Firefox failures in a full local run. `playwright.config.js` uses two
 | `navigation.spec.js` | Desktop navigation with 7 menu entries and the scroll hide-and-show, plus the mobile overlay |
 | `theme.spec.js` | The light and dark toggle, `localStorage`, the Prism CSS swap, the icon state, and persistence |
 | `edge-cases.spec.js` | `/null`, missing articles, offline snapshots, repair, and every major route checked for JS errors |
+| `fixture-site.spec.js` | Guards: the server under test is the fixture site, and it publishes no live article, course, or PDF |
 
 ## What CI Runs
 
@@ -230,9 +229,11 @@ ASPNETCORE_ENVIRONMENT=Production \
 dotnet run --no-launch-profile --configuration Release
 ```
 
+`TERM_START` and `TERM_END` are not optional. Without them the static constructor of `BuildTimeProvider` calls `DateTime.Parse(null)`, throws `TypeInitializationException`, and the build exits 82.
+
 ## After a Change to `output/`
 
-Run the offline finalizer after any command that changes `output/`. The production `dotnet run` does this for you. A later mutation does not.
+Run the offline finalizer after any command that changes `output/`. The production `dotnet run` does this for you. A later mutation does not. `npm run build:e2e-site` also finalizes `output-e2e/` for you.
 
 ```bash
 dotnet run --no-build --project BlazorStaticMinimalBlog.csproj --configuration Release -- --finalize-offline

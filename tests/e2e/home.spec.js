@@ -51,8 +51,6 @@ test.describe('Home Page (/)', () => {
 
   test('clicking a chip activates it and reveals the clear button', async ({ page }) => {
     const chips = page.locator('.course-filter-chip');
-    if (await chips.count() === 0) test.skip();
-
     const firstChip = chips.first();
     await firstChip.click();
 
@@ -68,8 +66,6 @@ test.describe('Home Page (/)', () => {
 
   test('clicking the clear button resets all filters', async ({ page }) => {
     const chips = page.locator('.course-filter-chip');
-    if (await chips.count() === 0) test.skip();
-
     // Activate a filter first.
     await chips.first().click();
     await page.waitForFunction(
@@ -93,8 +89,6 @@ test.describe('Home Page (/)', () => {
 
   test('clicking an active chip a second time deactivates it', async ({ page }) => {
     const chips = page.locator('.course-filter-chip');
-    if (await chips.count() === 0) test.skip();
-
     const firstChip = chips.first();
 
     // Activate.
@@ -116,8 +110,8 @@ test.describe('Home Page (/)', () => {
     const chips = page.locator('.course-filter-chip');
     const posts = page.locator('[data-course-tags]');
 
-    // Skip if there is nothing to filter (e.g. site built outside term window).
-    if (await chips.count() === 0 || await posts.count() === 0) test.skip();
+    // Guard the fixture: the case needs posts from more than one course.
+    expect(await chips.count()).toBeGreaterThan(1);
 
     const firstChip = chips.first();
     const filteredTag = await firstChip.getAttribute('data-tag');

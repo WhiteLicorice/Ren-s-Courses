@@ -35,9 +35,10 @@ ViewModels/     CalendarViewModel
 Offline/        service-worker.template.js
 Styles/         app.css, the Tailwind entry point
 wwwroot/        Static assets: js/, css/, fonts/, vendor/, pdfs/
-tests/          e2e/ (Playwright), fixtures/, Ren.Courses.Tests/ (xUnit)
+tests/          e2e/ (Playwright), fixtures/ (with the e2e fixture site), Ren.Courses.Tests/ (xUnit)
 .github/        workflows/build-and-publish.yml and utils/generate_feed.py
 output/         Generated site. Not tracked.
+output-e2e/     Generated fixture site for Playwright. Not tracked.
 artifacts/      Toolchain and PDF caches. Not tracked.
 ```
 

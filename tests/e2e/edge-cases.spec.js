@@ -5,9 +5,9 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
-const OFFLINE_META_CACHE = 'ren-courses-offline-meta';
+const { OUTPUT_ROOT, ARTICLE_ROUTE } = require('../fixtures/site/routes');
 
-const ARTICLE_ROUTE = '/articles/cmsc-124-lab0';
+const OFFLINE_META_CACHE = 'ren-courses-offline-meta';
 
 const MIME_TYPES = {
   '.css': 'text/css',
@@ -22,7 +22,7 @@ const MIME_TYPES = {
 };
 
 function createOfflineUpdateFixture(route = ARTICLE_ROUTE, options = {}) {
-  const outputRoot = path.resolve(__dirname, '..', '..', 'output');
+  const outputRoot = OUTPUT_ROOT;
   const relativeRoute = route.replace(/^\/+/, '');
   const routeFile = route.startsWith('/articles/')
     ? `${relativeRoute}.html`
@@ -127,11 +127,11 @@ async function readActiveOfflineCacheName(page) {
 }
 
 function createTwoDeploymentFixture() {
-  const outputRoot = path.resolve(__dirname, '..', '..', 'output');
+  const outputRoot = OUTPUT_ROOT;
   const baseManifest = JSON.parse(fs.readFileSync(
     path.join(outputRoot, 'offline-manifest.json'), 'utf8'));
   const baseWorker = fs.readFileSync(path.join(outputRoot, 'service-worker.js'), 'utf8');
-  const articleFile = path.join(outputRoot, 'articles/cmsc-124-lab0.html');
+  const articleFile = path.join(outputRoot, `${ARTICLE_ROUTE.slice(1)}.html`);
   const articleTemplate = fs.readFileSync(articleFile, 'utf8');
   const deploymentIds = {
     A: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -171,7 +171,7 @@ function createTwoDeploymentFixture() {
       return { status: 503, body: 'fixture failure', contentType: 'text/plain' };
     }
 
-    if (url.pathname === '/articles/cmsc-124-lab0') {
+    if (url.pathname === ARTICLE_ROUTE) {
       return {
         body: articleTemplate.replace(
           /<body([^>]*)>/,
@@ -402,7 +402,7 @@ test.describe('Edge Cases', () => {
     const manifest = await response.json();
     expect(manifest.routes).toEqual(expect.arrayContaining([
       './',
-      'articles/cmsc-124-lab0',
+      ARTICLE_ROUTE.slice(1),
       'calendar',
       'projects',
       'bookings',
@@ -440,7 +440,7 @@ test.describe('Edge Cases', () => {
     test.describe.configure({ mode: 'serial' });
 
     // Each test waits for the service worker to pre-cache every generated route
-    // and asset, over 150 entries in a showcase build. That finishes in about
+    // and asset. That finishes in about
     // 11 seconds alone, but exceeds the default 30-second budget in Firefox
     // when the rest of the suite competes for the machine.
     test.slow();
@@ -465,7 +465,7 @@ test.describe('Edge Cases', () => {
           localStorage.setItem('user-theme', selectedTheme);
         }, theme);
 
-        await page.goto('/articles/cmsc-124-lab0', { waitUntil: 'load' });
+        await page.goto(ARTICLE_ROUTE, { waitUntil: 'load' });
         await waitForControlledServiceWorker(page);
         await page.reload({ waitUntil: 'domcontentloaded' });
         await expect(page.locator('article')).toBeVisible();
@@ -479,7 +479,7 @@ test.describe('Edge Cases', () => {
         }, cacheName);
 
         expect(cacheState).not.toBeNull();
-        expect(cacheState).toContain('/articles/cmsc-124-lab0');
+        expect(cacheState).toContain(ARTICLE_ROUTE);
 
         offline = true;
         await page.context().setOffline(true);
@@ -487,7 +487,7 @@ test.describe('Edge Cases', () => {
         await expect(page.locator('article')).toBeVisible();
 
         const state = await readOfflineArticleState(page);
-        expect(state.pathname).toBe('/articles/cmsc-124-lab0');
+        expect(state.pathname).toBe(ARTICLE_ROUTE);
         expect(state.hasArticle).toBe(true);
         expect(state.codeBlockCount).toBeGreaterThan(0);
         expect(state.hasPrism).toBe(true);
@@ -670,11 +670,11 @@ test.describe('Deterministic offline cache', () => {
       await page.reload({ waitUntil: 'load' });
       await expect(page.locator('#offline-fixture-version')).toHaveText('OFFLINE FIXTURE V2');
 
-      const cachedArticle = await page.evaluate(async cacheName => {
+      const cachedArticle = await page.evaluate(async ({ cacheName, route }) => {
         const response = await (await caches.open(cacheName)).match(
-          new URL('/articles/cmsc-124-lab0', location.href));
+          new URL(route, location.href));
         return response ? response.text() : null;
-      }, cacheName);
+      }, { cacheName, route: ARTICLE_ROUTE });
       expect(cachedArticle).toContain('OFFLINE FIXTURE V1');
       expect(cachedArticle).not.toContain('OFFLINE FIXTURE V2');
     } finally {
@@ -709,8 +709,7 @@ test.describe('Deterministic offline cache', () => {
 
       expect(await page.evaluate(async cacheName => caches.has(cacheName), cacheA)).toBe(true);
       await page.context().setOffline(true);
-      const oldArticle = await page.evaluate(async () => (await fetch(
-        '/articles/cmsc-124-lab0')).text());
+      const oldArticle = await page.evaluate(async route => (await fetch(route)).text(), ARTICLE_ROUTE);
       expect(oldArticle).toContain('DEPLOYMENT A');
 
       await page.context().setOffline(false);

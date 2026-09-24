@@ -216,16 +216,13 @@ test.describe('Calendar Page (/calendar)', () => {
 
   // ── Tag filter buttons ──────────────────────────────────────────────────────
 
-  test('tag filter buttons are rendered (if tagged events exist)', async ({ page }) => {
+  test('tag filter buttons are rendered', async ({ page }) => {
     const filterBtns = page.locator('.filter-btn');
-    if (await filterBtns.count() === 0) test.skip();
     await expect(filterBtns.first()).toBeVisible();
   });
 
   test('clicking a tag filter button activates it (bg-accent-dim)', async ({ page }) => {
     const filterBtns = page.locator('.filter-btn');
-    if (await filterBtns.count() === 0) test.skip();
-
     await filterBtns.first().click();
 
     // toggleCalendarTag → _updateCalendarChips adds bg-accent-dim to active chip.
@@ -237,8 +234,6 @@ test.describe('Calendar Page (/calendar)', () => {
 
   test('activating a filter makes the reset button visible', async ({ page }) => {
     const filterBtns = page.locator('.filter-btn');
-    if (await filterBtns.count() === 0) test.skip();
-
     await filterBtns.first().click();
 
     // filterCalendarMulti sets cal-reset-btn display to 'flex'.
@@ -253,8 +248,6 @@ test.describe('Calendar Page (/calendar)', () => {
 
   test('clicking the reset button clears all tag filters', async ({ page }) => {
     const filterBtns = page.locator('.filter-btn');
-    if (await filterBtns.count() === 0) test.skip();
-
     await filterBtns.first().click();
     await page.waitForFunction(
       () => {
@@ -293,11 +286,8 @@ test.describe('Calendar Page (/calendar)', () => {
 
   test('show-more button opens the event popover', async ({ page }) => {
     // Only check visible show-more buttons (those inside the non-hidden month-view).
-    // The static output may contain show-more buttons in hidden month-views that
-    // cannot be clicked.
+    // Hidden month-views may also hold show-more buttons that cannot be clicked.
     const showMoreBtn = page.locator('.month-view:not(.hidden) .show-more-btn').first();
-    if (await showMoreBtn.count() === 0) test.skip();
-
     await showMoreBtn.click();
 
     const popover = page.locator('#calendar-popover');
@@ -309,8 +299,6 @@ test.describe('Calendar Page (/calendar)', () => {
 
   test('popover close button hides the popover', async ({ page }) => {
     const showMoreBtn = page.locator('.month-view:not(.hidden) .show-more-btn').first();
-    if (await showMoreBtn.count() === 0) test.skip();
-
     await showMoreBtn.click();
     await expect(page.locator('#calendar-popover')).toBeVisible();
 
@@ -325,8 +313,6 @@ test.describe('Calendar Page (/calendar)', () => {
 
   test('popover shows events with title text', async ({ page }) => {
     const showMoreBtn = page.locator('.month-view:not(.hidden) .show-more-btn').first();
-    if (await showMoreBtn.count() === 0) test.skip();
-
     await showMoreBtn.click();
     await expect(page.locator('#calendar-popover')).toBeVisible();
 
