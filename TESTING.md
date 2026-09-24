@@ -80,7 +80,7 @@ npx jest --coverage       # with coverage
 
 | Script | What the suite tests |
 |---|---|
-| `toc.js` | `replaceState` rather than `pushState` on click, no-href links, keyboard activation, scroll on load, the position spy, zero-height guard, diagram heading exclusion, and desktop sidebar follow |
+| `toc.js` | `replaceState` rather than `pushState` on click, no-href links, keyboard activation, the `hashchange` listener, scroll on load, the position spy, the zero-height guard, diagram heading exclusion, and the desktop sidebar follow |
 | `faq.js` | `replaceState` on a quick-link click, `_openDetailsForHash`, and the `hashchange` listener |
 | `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`, `initCalendarNav`, `changeMonth`, and the event popover |
 | `course-filter.js` | `initCourseFilter` restore from `localStorage`, `toggleCourseFilter`, and `clearCourseFilter` |

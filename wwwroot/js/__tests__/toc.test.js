@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { DIAGRAM_FIXTURES, buildWidgetMarkup } = require('../../../tests/fixtures/diagram-fixtures');
+
 const tocSource = fs.readFileSync(path.join(__dirname, '../toc.js'), 'utf8');
 
 // Navbar clearance used by the scroll spy. Mirrors NAV_OFFSET in toc.js.
@@ -41,11 +43,7 @@ function buildDOMWithDiagram() {
             <div class="prose">
                 <h2 id="section-one">Section One</h2>
                 <h3 id="section-two">Section Two</h3>
-                <section data-interactive-diagram>
-                    <header><h2 id="learning-diagram-0-title">Widget</h2></header>
-                    <section data-diagram-step><h3 id="learning-diagram-0-step-0-title">Step one</h3></section>
-                    <section data-diagram-step hidden><h3 id="learning-diagram-0-step-1-title">Step two</h3></section>
-                </section>
+                ${buildWidgetMarkup(DIAGRAM_FIXTURES.wideTokenStream)}
                 <h2 id="build.sh-run">Build and Run</h2>
             </div>
             <div id="toc-content"></div>
@@ -470,11 +468,19 @@ describe('generateTOC — sidebar follows the active entry', () => {
         expect(scroller.scrollTop).toBe(120);
     });
 
-    test('does not use window scrolling or scrollIntoView for the sidebar follow', () => {
+    test('the follow moves only the sidebar box, never the window', async () => {
+        // Drive the follow from the scroll spy: a click also scrolls the heading
+        // into view, which would hide a window scroll made by the follow itself.
         stubLinkRect('section-one', 400, 420);
-        document.querySelector('#toc-content a[data-target="section-one"]').click();
-        window.scrollTo.mockClear();
-        Element.prototype.scrollIntoView.mockClear();
+        stubTops({
+            'main-title': -500,
+            'section-one': -100,
+            'section-two': NAV_OFFSET + 200,
+            'build.sh-run': NAV_OFFSET + 600
+        });
+        window.dispatchEvent(new Event('scroll'));
+        await flushRaf();
+        expect(scroller.scrollTop).toBe(136);
         expect(window.scrollTo).not.toHaveBeenCalled();
         expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
     });
