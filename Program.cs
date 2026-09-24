@@ -15,13 +15,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseStaticWebAssets();
 var contentRootPath = builder.Environment.ContentRootPath;
-var productionOutputPath = Path.Combine(contentRootPath, "output");
+// SITE_PROFILE=e2e builds the Playwright fixture site from tests/fixtures/site
+// into output-e2e. Unset, it builds the real site into output.
+var siteLayout = SiteLayout.FromProfile(Environment.GetEnvironmentVariable("SITE_PROFILE"));
+WebsiteKeys.ContentRoot = siteLayout.ContentPathFor(contentRootPath);
+var productionOutputPath = Path.Combine(contentRootPath, siteLayout.OutputFolderName);
 var isDevelopment = builder.Environment.IsDevelopment();
 
 if (args.Contains("--finalize-offline", StringComparer.Ordinal))
 {
     OfflineBundleGenerator.Generate(
-        Path.Combine(builder.Environment.ContentRootPath, "output"),
+        productionOutputPath,
         Path.Combine(builder.Environment.ContentRootPath, "Offline", "service-worker.template.js"));
     return;
 }
@@ -36,6 +40,10 @@ builder.Services.AddBlazorStaticService(opt =>
     opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "service-worker.js"));
     opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "service-worker.js.gz"));
     opt.IgnoredPathsOnContentCopy.Add(Path.Combine(productionOutputPath, "js", "__tests__"));
+    // wwwroot/pdfs reaches the output with the rest of wwwroot. A layout that
+    // generates its PDFs elsewhere publishes them to the same pdfs/ URL.
+    if (!siteLayout.PublishesPdfsFromWwwroot)
+        opt.ContentToCopyToOutput.Add(new ContentToCopy(siteLayout.PdfOutputDirectory, "pdfs"));
 })
 .AddBlazorStaticContentService<CourseFrontMatter>(opt =>
 {
@@ -97,7 +105,10 @@ var markdownPipelineRoot = Path.Combine(
 var pdfOptions = new PdfGeneratorOptions
 {
     ContentRoot = builder.Environment.ContentRootPath,
-    PipelineRoot = markdownPipelineRoot
+    PipelineRoot = markdownPipelineRoot,
+    MaterialsDirectory = siteLayout.MaterialsDirectory,
+    ArtifactsDirectory = siteLayout.PdfArtifactsDirectory,
+    OutputDirectory = siteLayout.PdfOutputDirectory
 };
 var pdfManifest = new PdfGenerationManifest();
 builder.Services.AddSingleton(pdfManifest);
@@ -152,7 +163,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>();
 
 if (!isDevelopment)
-    ProductionOutput.Reset(contentRootPath);
+    ProductionOutput.Reset(contentRootPath, siteLayout.OutputFolderName);
 
 app.UseBlazorStaticGenerator(shutdownApp: !app.Environment.IsDevelopment());
 
@@ -160,33 +171,100 @@ app.Run();
 
 if (!isDevelopment)
 {
+    siteLayout.RemoveForeignPdfs(contentRootPath, productionOutputPath);
     OfflineBundleGenerator.Generate(
-        Path.Combine(contentRootPath, "output"),
+        productionOutputPath,
         Path.Combine(contentRootPath, "Offline", "service-worker.template.js"));
+}
+
+/// <summary>
+/// Where one static build reads its content and writes its files. The e2e
+/// profile keeps every generated path apart from production: the PDF cache
+/// prunes each slug it does not see, so a shared cache would delete real PDFs.
+/// </summary>
+internal sealed record SiteLayout(
+    string ContentRoot,
+    string OutputFolderName,
+    string PdfArtifactsDirectory,
+    string PdfOutputDirectory)
+{
+    internal static readonly SiteLayout Production = new(
+        "Content", "output", "artifacts", Path.Combine("wwwroot", "pdfs"));
+
+    internal static readonly SiteLayout EndToEndFixture = new(
+        "tests/fixtures/site/Content",
+        "output-e2e",
+        Path.Combine("artifacts", "e2e-site"),
+        Path.Combine("artifacts", "e2e-site", "pdfs"));
+
+    internal string MaterialsDirectory => Path.Combine(ContentRoot, "Materials");
+
+    // BlazorStatic resolves a relative ContentPath against the bin folder, where the
+    // csproj copies Content/**. The fixture tree is not copied, so it goes in absolute.
+    internal string ContentPathFor(string contentRootPath) => this == Production
+        ? ContentRoot
+        : Path.GetFullPath(Path.Combine(contentRootPath, ContentRoot));
+
+    internal bool PublishesPdfsFromWwwroot => PdfOutputDirectory == Production.PdfOutputDirectory;
+
+    /// <summary>
+    /// Delete each published PDF that this layout did not generate. wwwroot/pdfs
+    /// reaches every output with the rest of wwwroot, and a per-file
+    /// IgnoredPathsOnContentCopy entry does not stop it. Without this step a
+    /// fixture page could link a live material's PDF.
+    /// </summary>
+    internal void RemoveForeignPdfs(string contentRootPath, string outputPath)
+    {
+        if (PublishesPdfsFromWwwroot) return;
+
+        var published = Path.Combine(outputPath, "pdfs");
+        if (!Directory.Exists(published)) return;
+
+        var generated = Path.Combine(contentRootPath, PdfOutputDirectory);
+        var own = Directory.Exists(generated)
+            ? Directory.EnumerateFiles(generated).Select(Path.GetFileName).ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : [];
+        foreach (var file in Directory.EnumerateFiles(published))
+        {
+            if (!own.Contains(Path.GetFileName(file))) File.Delete(file);
+        }
+    }
+
+    internal static SiteLayout FromProfile(string? profile) => profile switch
+    {
+        null or "" => Production,
+        "e2e" => EndToEndFixture,
+        _ => throw new InvalidOperationException($"Unknown SITE_PROFILE '{profile}'. Set it to 'e2e' or leave it unset.")
+    };
 }
 
 internal static class ProductionOutput
 {
-    internal static void Reset(string contentRootPath)
+    internal static void Reset(string contentRootPath, string folderName = "output")
     {
-        var outputPath = Resolve(contentRootPath);
+        var outputPath = Resolve(contentRootPath, folderName);
         if (Directory.Exists(outputPath)) Directory.Delete(outputPath, recursive: true);
         Directory.CreateDirectory(outputPath);
     }
 
-    internal static string Resolve(string contentRootPath)
+    internal static string Resolve(string contentRootPath, string folderName = "output")
     {
+        // Reset deletes this folder recursively, so accept only the known outputs.
+        if (folderName != SiteLayout.Production.OutputFolderName
+            && folderName != SiteLayout.EndToEndFixture.OutputFolderName)
+            throw new InvalidOperationException($"Refusing unknown output folder: '{folderName}'");
+
         var fullContentRoot = Path.GetFullPath(contentRootPath);
-        var outputPath = Path.GetFullPath(Path.Combine(fullContentRoot, "output"));
+        var outputPath = Path.GetFullPath(Path.Combine(fullContentRoot, folderName));
         var pathRoot = Path.GetPathRoot(outputPath);
         var parentPath = Directory.GetParent(outputPath)?.FullName;
 
         if (string.Equals(fullContentRoot, Path.GetPathRoot(fullContentRoot), StringComparison.OrdinalIgnoreCase)
-            || string.Equals(Path.GetFileName(fullContentRoot), "output", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(Path.GetFileName(fullContentRoot), folderName, StringComparison.OrdinalIgnoreCase)
             || string.IsNullOrWhiteSpace(parentPath)
             || string.Equals(outputPath, pathRoot, StringComparison.OrdinalIgnoreCase)
             || !string.Equals(parentPath, fullContentRoot, StringComparison.OrdinalIgnoreCase)
-            || !string.Equals(Path.GetFileName(outputPath), "output", StringComparison.OrdinalIgnoreCase))
+            || !string.Equals(Path.GetFileName(outputPath), folderName, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"Refusing unsafe production output path: {outputPath}");
 
         return outputPath;
@@ -234,32 +312,35 @@ public static class WebsiteKeys
     public const string DisabledPage = "_disabled";
 
     // --- DOMAIN SPECIFIC KEYS ---
+    // Set once at startup from the SiteLayout. Every SourcePath below derives from it.
+    public static string ContentRoot { get; set; } = SiteLayout.Production.ContentRoot;
+
     public static class Materials
     {
-        public const string SourcePath = "Content/Materials";
+        public static string SourcePath => $"{ContentRoot}/Materials";
         public const string TagPageUrl = "materials";
         public const string UrlPrefix = "articles";
     }
 
     public static class Projects
     {
-        public const string SourcePath = "Content/Projects";
+        public static string SourcePath => $"{ContentRoot}/Projects";
         public const string TagPageUrl = "projects";
     }
 
     public static class Bookings
     {
-        public const string SourcePath = "Content/Bookings";
+        public static string SourcePath => $"{ContentRoot}/Bookings";
     }
 
     public static class CalendarEvents
     {
-        public const string SourcePath = "Content/Events";
+        public static string SourcePath => $"{ContentRoot}/Events";
     }
 
     public static class FAQs
     {
-        public const string SourcePath = "Content/FAQs";
+        public static string SourcePath => $"{ContentRoot}/FAQs";
         public const string PageUrl = "faqs";
     }
 

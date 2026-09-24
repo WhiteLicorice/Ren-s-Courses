@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
+    "build:e2e-site": "node tests/fixtures/site/build.js",
     "test:e2e": "npx playwright test --project=chromium --project=firefox"
   },
   "jest": {
