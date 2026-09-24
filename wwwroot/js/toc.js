@@ -10,6 +10,7 @@
 // Clearance for the fixed navbar (NavMenu.razor, h-16) plus breathing room.
 // Keep in sync with the scroll-margin-top on .prose headings in Styles/app.css.
 const TOC_NAV_OFFSET = 80;
+// Gap left between the active entry and the sidebar box edge when the box follows it.
 const TOC_SIDEBAR_MARGIN = 16;
 
 window.generateTOC = () => {
