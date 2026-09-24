@@ -64,7 +64,7 @@ var fm = post.FrontMatter;   // deserialized
 var md = post.RawMarkdown;   // "---\ntitle: Test\n..."
 ```
 
-Most tests need no file on disk. Two fixture files are the exception. Both are load-bearing. `tests/fixtures/diagram-fixtures.js` and `tests/Ren.Courses.Tests/DiagramFixtures.cs` hold the shared diagram matrix that Jest and Playwright both read.
+Most tests need no file on disk. Three fixture files are the exception. The suites depend on all three. `tests/fixtures/diagram-fixtures.js` and `tests/Ren.Courses.Tests/DiagramFixtures.cs` hold the shared diagram matrix that Jest and Playwright both read. `tests/fixtures/toc-fixtures.js` holds the article page that `toc.spec.js` serves.
 
 ## JS (Jest)
 
@@ -176,11 +176,12 @@ Expect two Firefox failures in a full local run. `playwright.config.js` uses two
 | Spec file | What it covers |
 |---|---|
 | `home.spec.js` | `/`, the title, the glitch text, the lead, and the chip filter |
-| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}`, the tag cloud, post cards, the TOC, code blocks, and the copy button |
+| `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}`, the tag cloud, post cards, code blocks, and the copy button |
 | `faqs.spec.js` | `/faqs`, the sections, the chip filter, the accordion, hash deep-linking, and `hashchange` |
 | `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |
 | `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, playback pacing and the speed control, and theme and resize safety |
+| `toc.spec.js` | An in-memory article on a synthetic route. The outline without diagram headings, click navigation, the article path in the URL, the highlight, the at-bottom rule, navbar clearance, hash load, the scroll spy after a click, the sidebar follow, in-body fragment links, and a guard that no test requests an `/articles/` route |
 | `navigation.spec.js` | Desktop navigation with 7 menu entries and the scroll hide-and-show, plus the mobile overlay |
 | `theme.spec.js` | The light and dark toggle, `localStorage`, the Prism CSS swap, the icon state, and persistence |
 | `edge-cases.spec.js` | `/null`, missing articles, offline snapshots, repair, and every major route checked for JS errors |

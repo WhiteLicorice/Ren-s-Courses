@@ -437,7 +437,7 @@ public class BlogPageTests
             foreach (var child in element.Children) pending.Enqueue(child);
         }
 
-        var fixturePath = Path.Combine(RepoRoot, "tests", "fixtures", "diagram-fixtures.js");
+        var fixturePath = Path.Combine(RepoPaths.Root, "tests", "fixtures", "diagram-fixtures.js");
         Assert.True(File.Exists(fixturePath), $"Fixture builder not found at {fixturePath}");
         var fixtureSource = File.ReadAllText(fixturePath);
 
@@ -455,17 +455,40 @@ public class BlogPageTests
         Assert.Contains("data-diagram-speed", emitted);
     }
 
-    private static string RepoRoot
+    [Fact]
+    public void TocHarnessContract_MatchesTheArticleLayout()
     {
-        get
-        {
-            for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-            {
-                if (File.Exists(Path.Combine(dir.FullName, "BlazorStaticMinimalBlog.csproj")))
-                    return dir.FullName;
-            }
-            throw new DirectoryNotFoundException("Cannot locate the repository root");
-        }
+        // tests/fixtures/toc-fixtures.js hand-mirrors the article layout for the
+        // Playwright TOC suite. toc.js reads these hooks, and the sidebar follow
+        // scrolls the parent of #toc-content. If the two drift, that suite keeps
+        // passing while the real page breaks.
+        using var ctx = new BunitContext();
+        var diagram = DiagramFixtures.WideTokenStream("k");
+        var post = DiagramFixtures.BuildPost("toc-contract", DiagramFixtures.MarkersFor(diagram), diagram);
+
+        ctx.Services.AddSingleton(CreateServiceWithPosts([post]));
+        ctx.Services.AddSingleton(new CourseContentProvider(CreateServiceWithPosts([])));
+        ctx.Services.AddSingleton<FrontmatterStatusService>();
+        ConfigureArticleScripts(ctx);
+
+        var cut = ctx.Render<Blog>(parameters => parameters.Add(p => p.FileName, "toc-contract"));
+
+        var fixturePath = Path.Combine(RepoPaths.Root, "tests", "fixtures", "toc-fixtures.js");
+        Assert.True(File.Exists(fixturePath), $"Fixture builder not found at {fixturePath}");
+        var fixtureSource = File.ReadAllText(fixturePath);
+
+        var desktopToc = cut.Find("#toc-content");
+        string[] hooks =
+        [
+            desktopToc.OuterHtml,
+            cut.Find("#mobile-toc-content").OuterHtml,
+            $"class=\"{desktopToc.ParentElement!.ClassName}\"",
+            $"class=\"{cut.Find("article").ClassName}\"",
+            $"class=\"{cut.Find("article h1").ClassName}\"",
+            $"class=\"{cut.Find(".prose").ClassName}\""
+        ];
+        var missing = hooks.Where(hook => !fixtureSource.Contains(hook, StringComparison.Ordinal)).ToList();
+        Assert.True(missing.Count == 0, $"toc-fixtures.js does not mirror: {string.Join(" | ", missing)}");
     }
 
     [Fact]
