@@ -8,6 +8,7 @@ authors:
       gitHubUserName: "WhiteLicorice"
       nickname: "Ren"
 isDraft: false
+published: 2026-10-08
 deadline: 2026-10-11
 diagrams:
   - title: Group first, then let state change
