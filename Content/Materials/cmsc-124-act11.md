@@ -3,7 +3,7 @@ title: Read, Convert, Store
 subtitle: CMSC 124 Activity 11
 lead: Show your solution and final answer.
 published: 2026-10-12
-deadline: 2026-10-12
+deadline: 2026-10-14
 tags: [cmsc-124]
 authors:
     - name: "Rene Andre Bedonia Jocsing"
