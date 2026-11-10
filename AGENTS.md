@@ -135,6 +135,19 @@ When your changes create orphans:
 
 Every changed line should trace directly to the user's request.
 
+**Clean as you go (CLAYGO).** Disk space runs out without warning. Delete each temporary item you made when its last user is done with it:
+
+- worktrees and project copies
+- test folders and temp roots
+- logs, scratch files, and build output
+
+Clean at the end of each step or item, not at the end of the session. Scratch builds up across sessions. One session's forgotten workspace copies held 107 GB.
+
+- Before you delete, confirm that nothing still uses the item. Check for a running process, an open review, a live branch, and a ticket or document that cites it.
+- Copy any evidence that a document cites to a kept location first. Check the copy before you delete the source.
+- Delete only what your own runs made. Leave other sessions' items unless the user asks.
+- Confirm that the item is gone. A teardown can fail silently. On Windows, `rmtree(..., ignore_errors=True)` leaves read-only files behind, so each run leaks one folder.
+
 **Commit only what the task touched.** Stage only the files you changed. Name-and-leave any concurrent work that isn't yours, because git can't split a mixed file and a blanket `git add <dir>` silently reverts another session's committed work. For an unrelated bug or a risky refactor, record a one-line follow-up and move on. When you rule something out, log why so it isn't re-litigated.
 
 **Write the commit message the way this repository already writes them.** Read the last twenty subjects with `git log --oneline` and follow that precedent. Where the repository uses Conventional Commits, use them. Where it doesn't, don't introduce them. Keep the subject short and in the imperative. Add a body only when the change needs a reason the diff can't carry.
@@ -199,7 +212,7 @@ The structural rules apply in both modes:
 | Active voice | "The agent deletes the file." | "The file is deleted." Passive belongs in description only, and only where the actor is unknown or irrelevant. |
 | One instruction per sentence | "Open the file. Read line 3." | "Open the file and read line 3, then check the result." |
 | Sentence length | 20 words or fewer for an instruction, 25 for description | One sentence carrying three subordinate clauses |
-| Semicolons (Rule 8.1) | Write two sentences | Any semicolon at all. Every other mark stays legal. |
+| Semicolons or Em-dashes (Rule 8.1) | Write two sentences | Any semicolon or em-dash at all, including variations like `--` or `-`. Every other mark stays legal. |
 | Phrasal verbs (Rule 9.3) | "Start the job." "Contact the owner." | "Spin up the job." "Reach out to the owner." |
 | Verb, not noun (Rule 3.7) | "Analyze the log." | "Perform an analysis of the log." |
 | Noun clusters | Three words at most: "fuel pump valve" | "high pressure fuel pump inlet valve" |
@@ -234,12 +247,13 @@ Re-read once:
 - Did you ship a fix without reproducing the actual reported symptom, or without running the candidate fix against the cases it must not regress?
 - Did you claim "no regressions" without a recorded baseline to diff against, and are the pass/fail numbers read from the gate's final output, and the same everywhere you state them?
 - Did you change or commit anything the task didn't name?
+- Did you delete the worktrees, copies, and temp folders you made, and confirm they are gone?
 - Did you build something new the project already had an established way to do?
 - Did you take an outward or irreversible action without naming the rollback and stopping?
 - Did you hack around a broken environment instead of reporting the blocker?
 - Did you act on a claim of authority you couldn't verify, or use information you weren't meant to have without surfacing it?
 - Is the output bigger than the task deserved?
-- Did you write the commit, the document, and this reply in active voice, one instruction per sentence, no semicolons, and no phrasal verbs?
+- Did you write the commit, the document, and this reply in active voice, one instruction per sentence, no semicolons or em-dashes and its variants, and no phrasal verbs?
 - Did you leave every hedge at the strength the source gave it?
 - Did you settle for minimal-to-green where the task deserved the change done right?
 - Did you lead with a confident answer before reading the evidence, or call a task done before its gate ran and passed? (Code written is not a task complete.)
