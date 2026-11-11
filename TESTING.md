@@ -158,6 +158,8 @@ Each build writes `output-e2e/` in its own worktree. Both outputs equal the outp
 
 Do not set `ASPNETCORE_URLS` by hand. Port 0 keeps the choice safe. A port you pick can be taken before Kestrel binds it.
 
+PDF generation reads its Tectonic cache under `Dependencies/RensMarkdownTemplates/artifacts/tectonic-cache`. Set `PDF_TECTONIC_ONLY_CACHED=1` and `PDF_TECTONIC_CACHE_DIR` to a complete shared cache to generate a PDF with no request to the bundle host. A cold or incomplete cache fails and names the missing resource. Both settings default to the old behavior.
+
 Port 8081 belongs to the Playwright server. The builds do not touch it.
 
 `tests/fixtures/site/Content/Materials` holds four flat materials and one nested material. The nested file sits at `fixture-course-a/fixture-lab-nested/fixture-course-a-lab-nested.md`, and its image sits in a `media` folder beside it. Two flat materials carry a status badge that is not future. `fixture-course-a-expired.md` is expired. `fixture-course-a-due-today.md` is due on the frozen build day. Both declare `downloadLink`, so the build generates no PDF for them.
