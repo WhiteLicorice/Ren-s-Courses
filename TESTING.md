@@ -22,10 +22,10 @@ The public repository does not track the course materials. The workflow clones t
 | JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 14 tests | Yes |
-| End-to-end | `npm run test:e2e` | 318 tests | No |
+| End-to-end | `npm run test:e2e` | 326 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 after the B-001 rebase and the R4 fixes. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
+We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004 and B-008 merges. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 

@@ -25,14 +25,14 @@ Most entries below end with the same check. It is written once here.
 
 ## Gate Baselines
 
-Measured 2026-11-11 on the B-019 branch at the R4 fix, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the final head build. B-001 changes no route, PDF, or feed input.
+Measured 2026-11-11 on `master` after the B-004 and B-008 merges, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the B-019 head build. B-001 changes no route, PDF, or feed input.
 
 | Gate | Result |
 |---|---|
 | .NET, Release | 271 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
 | Python | 14 passed, 0 failed |
-| Playwright, Chromium and Firefox | 318 of 318 passed |
+| Playwright, Chromium and Firefox | 326 of 326 passed |
 | Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
 | Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
