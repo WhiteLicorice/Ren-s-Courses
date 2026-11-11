@@ -321,3 +321,68 @@ test.describe('Calendar Page (/calendar)', () => {
     expect(await events.count()).toBeGreaterThan(0);
   });
 });
+
+test.describe('Calendar text selection (/calendar, touch)', () => {
+  // A phone reader selects an event title or a date by long-press. Block the
+  // service worker so the measurement always reads the bytes under test.
+  test.use({
+    viewport: { width: 360, height: 740 },
+    hasTouch: true,
+    serviceWorkers: 'block',
+  });
+
+  async function readUserSelect(locator) {
+    return locator.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return style.userSelect || style.webkitUserSelect || '';
+    });
+  }
+
+  test('event titles and dates are selectable at phone width', async ({ page }) => {
+    await page.goto('/calendar');
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => typeof window.changeMonth === 'function');
+
+    const month = page.locator('.month-view:not(.hidden)').first();
+    const eventTitle = month.locator('.md\\:hidden .calendar-event span.font-bold').first();
+    const dateNumber = month.locator('.md\\:hidden span.text-2xl.font-bold.font-mono').first();
+
+    await expect(eventTitle).toBeVisible();
+    await expect(dateNumber).toBeVisible();
+
+    const titleSelect = await readUserSelect(eventTitle);
+    const dateSelect = await readUserSelect(dateNumber);
+
+    expect(titleSelect, `event title computed user-select: ${titleSelect}`).not.toBe('none');
+    expect(dateSelect, `date computed user-select: ${dateSelect}`).not.toBe('none');
+  });
+
+  test('month navigation and filter chips respond to touch', async ({ page }) => {
+    await page.goto('/calendar');
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => typeof window.changeMonth === 'function');
+
+    const label = page.locator('#month-label');
+    const initialMonth = await label.innerText();
+
+    // Step back first so the forward tap is not a boundary no-op.
+    await page.locator('button[onclick*="changeMonth(-1)"]').tap();
+    await page.waitForFunction(
+      (initial) => document.getElementById('month-label')?.innerText !== initial,
+      initialMonth
+    );
+    expect(await label.innerText()).not.toBe(initialMonth);
+
+    await page.locator('button[onclick*="changeMonth(1)"]').tap();
+    await page.waitForFunction(
+      (initial) => document.getElementById('month-label')?.innerText === initial,
+      initialMonth
+    );
+    expect(await label.innerText()).toBe(initialMonth);
+
+    const chip = page.locator('.filter-btn').first();
+    await chip.tap();
+    await expect(chip).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.filter-btn.bg-accent-dim').first()).toBeVisible();
+  });
+});
