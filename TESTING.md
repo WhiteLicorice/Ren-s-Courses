@@ -192,7 +192,7 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 | `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |
 | `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, and theme and resize safety |
-| `toc.spec.js` | An in-memory article on a synthetic route. The outline without diagram headings, click navigation, the article path in the URL, the highlight, the at-bottom rule, navbar clearance, hash load, the scroll spy after a click, the sidebar follow, in-body fragment links, and a guard that no test requests an `/articles/` route |
+| `toc.spec.js` | An in-memory article on a synthetic route. The outline without diagram headings, click navigation, the article path in the URL, the highlight, the at-bottom rule, navbar clearance, hash load, the scroll spy after a click, the sidebar follow, in-body fragment links, a guard that no test requests an `/articles/` route, the full heading and 44px tap height of the mobile list at 375px, and the unchanged truncation of the desktop sidebar at 1440px |
 | `navigation.spec.js` | Desktop navigation with 7 menu entries and the scroll hide-and-show, plus the mobile overlay |
 | `theme.spec.js` | The light and dark toggle, `localStorage`, the Prism CSS swap, the icon state, and persistence |
 | `edge-cases.spec.js` | `/null`, missing articles, offline snapshots, repair, and every major route checked for JS errors |

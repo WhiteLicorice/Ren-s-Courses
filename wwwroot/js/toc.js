@@ -76,10 +76,14 @@ window.generateTOC = () => {
         }
     };
 
-    // Helper: Builds the UL/LI structure
-    const createList = () => {
+    // Helper: Builds the UL/LI structure. The mobile list is touch-first: a phone
+    // has no hover, so it shows the full heading and gives each entry a tap target.
+    // The desktop sidebar keeps its compact, truncated density.
+    const createList = (mobile) => {
         const ul = document.createElement('ul');
-        ul.className = 'flex flex-col gap-2 font-mono text-xs text-text-dim';
+        ul.className = mobile
+            ? 'flex flex-col gap-2 font-mono text-sm text-text-dim'
+            : 'flex flex-col gap-2 font-mono text-xs text-text-dim';
 
         // 1. Add "On this page" Header (Seems ugly lol)
         //const tocHeader = document.createElement('li');
@@ -108,13 +112,25 @@ window.generateTOC = () => {
             a.setAttribute('role', 'link');
 
             // 2. Handle Long Headers
-            // Truncate text strictly to ~35 chars to prevent sidebar blowout,
-            // but add a 'title' tooltip so the full text is visible on hover.
+            // The desktop sidebar truncates at ~35 chars to prevent blowout, and
+            // a 'title' tooltip still shows the full text on hover. The mobile list
+            // wraps the full heading instead, because a phone cannot hover.
             const rawText = header.innerText;
-            a.innerText = rawText.length > 35 ? rawText.substring(0, 35) + '...' : rawText;
+            if (mobile) {
+                a.innerText = rawText;
+                // 44px clears the 24px WCAG 2.5.8 minimum and the ticket's dense
+                // alternative, and the 8px gap between entries stays.
+                a.style.display = 'flex';
+                a.style.alignItems = 'center';
+                a.style.minHeight = '44px';
+            } else {
+                a.innerText = rawText.length > 35 ? rawText.substring(0, 35) + '...' : rawText;
+            }
             a.title = rawText;
 
-            a.className = 'block truncate transition-colors duration-200 hover:text-accent cursor-pointer';
+            a.className = mobile
+                ? 'block transition-colors duration-200 hover:text-accent cursor-pointer'
+                : 'block truncate transition-colors duration-200 hover:text-accent cursor-pointer';
             a.dataset.target = header.id;
 
             // Indentation based on hierarchy
@@ -160,8 +176,8 @@ window.generateTOC = () => {
     };
 
     // Inject TOC into DOM
-    if (tocContainer) { tocContainer.innerHTML = ''; tocContainer.appendChild(createList()); }
-    if (mobileTocContainer) { mobileTocContainer.innerHTML = ''; mobileTocContainer.appendChild(createList()); }
+    if (tocContainer) { tocContainer.innerHTML = ''; tocContainer.appendChild(createList(false)); }
+    if (mobileTocContainer) { mobileTocContainer.innerHTML = ''; mobileTocContainer.appendChild(createList(true)); }
 
     // Markdown-authored [text](#heading) links render as href="#heading", which
     // <base href="/"> resolves to the site root. Rewriting to a path-absolute href
