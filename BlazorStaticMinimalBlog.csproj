@@ -21,12 +21,13 @@
     <None Update="Content/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Remove="Content/.git/**" />
     <Content Remove="wwwroot/js/__tests__/**" />
   </ItemGroup>
 
   <!-- to make hot reload work on .md files -->
   <ItemGroup>
-    <Watch Include="Content/**/*" />
+    <Watch Include="Content/**/*" Exclude="Content/.git/**" />
   </ItemGroup>
 
   <!-- Restore Node dependencies on a clean checkout or after package metadata changes. -->

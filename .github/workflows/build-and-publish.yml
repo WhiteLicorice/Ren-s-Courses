@@ -32,7 +32,23 @@ jobs:
         with:
           fetch-depth: 1
           submodules: recursive
-      
+
+      # The course materials live in the private depot. Clone it into Content
+      # before any step reads it. A push to the depot reaches the site on the
+      # next hourly run, not at once.
+      - name: Checkout material depot
+        uses: actions/checkout@v5
+        with:
+          repository: WhiteLicorice/RensMaterialDepot
+          ssh-key: ${{ secrets.MATERIAL_DEPOT_DEPLOY_KEY }}
+          path: Content
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - name: Verify material depot checkout
+        run: bash .github/utils/check_content.sh
+
       # --- FREEZE TIME ---
       # This ensures both builds use the EXACT same "Now" timestamp
       - name: Freeze Build Time

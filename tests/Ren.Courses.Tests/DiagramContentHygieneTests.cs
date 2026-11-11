@@ -12,28 +12,38 @@ namespace Ren.Courses.Tests;
 /// </summary>
 public class DiagramContentHygieneTests
 {
-    private static string RepoRoot
+    /// <summary>
+    /// The material depot checkout, or null when it is absent. The public
+    /// repository tracks only Content/.gitkeep, so Content/Materials exists
+    /// only after the workflow or a developer clones the private depot.
+    /// </summary>
+    internal static string? FindMaterialsDirectory(string startDirectory)
     {
-        get
+        for (var dir = new DirectoryInfo(startDirectory);
+             dir is not null;
+             dir = dir.Parent)
         {
-            for (var dir = new DirectoryInfo(AppContext.BaseDirectory);
-                 dir is not null;
-                 dir = dir.Parent)
-            {
-                var candidate = Path.Combine(dir.FullName, "Content", "Materials");
-                if (Directory.Exists(candidate))
-                    return dir.FullName;
-            }
-            throw new DirectoryNotFoundException("Cannot locate Content/Materials from repo root");
+            if (!File.Exists(Path.Combine(dir.FullName, "BlazorStaticMinimalBlog.csproj")))
+                continue;
+
+            var candidate = Path.Combine(dir.FullName, "Content", "Materials");
+            return Directory.Exists(candidate) ? candidate : null;
         }
+
+        return null;
     }
 
-    [Fact]
+    private static string MaterialsDirectory =>
+        FindMaterialsDirectory(AppContext.BaseDirectory)
+        ?? throw new InvalidOperationException(
+            "Content/Materials is absent. MaterialDepotFact skips this test in that case.");
+
+    [MaterialDepotFact]
     public void AllDiagrams_HaveValidUniqueKeys()
     {
         var violations = new List<string>();
         var files = Directory.GetFiles(
-            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+            MaterialsDirectory, "*.md", SearchOption.AllDirectories);
 
         var deser = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -76,12 +86,12 @@ public class DiagramContentHygieneTests
         Assert.Empty(violations);
     }
 
-    [Fact]
+    [MaterialDepotFact]
     public void AllBodyMarkers_ReferenceValidFrontmatterKey()
     {
         var violations = new List<string>();
         var files = Directory.GetFiles(
-            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+            MaterialsDirectory, "*.md", SearchOption.AllDirectories);
 
         var deser = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -112,12 +122,12 @@ public class DiagramContentHygieneTests
         Assert.Empty(violations);
     }
 
-    [Fact]
+    [MaterialDepotFact]
     public void AllDiagramsWithSteps_AreReferencedAtLeastOnce()
     {
         var violations = new List<string>();
         var files = Directory.GetFiles(
-            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+            MaterialsDirectory, "*.md", SearchOption.AllDirectories);
 
         var deser = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -148,12 +158,12 @@ public class DiagramContentHygieneTests
         Assert.Empty(violations);
     }
 
-    [Fact]
+    [MaterialDepotFact]
     public void AllDiagrams_DeclareUsableNarrowDirections()
     {
         var violations = new List<string>();
         var files = Directory.GetFiles(
-            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+            MaterialsDirectory, "*.md", SearchOption.AllDirectories);
 
         var deser = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -259,7 +269,7 @@ public class DiagramContentHygieneTests
         return post.FrontMatter.Diagrams.Single();
     }
 
-    [Fact]
+    [MaterialDepotFact]
     public void NoDiagramSource_UsesReservedSentinelRange()
     {
         // The browser renderer reserves #100000-#10FFFF as sentinel colours that
@@ -267,7 +277,7 @@ public class DiagramContentHygieneTests
         // rewritten into a CSS variable. See README "Custom themes".
         var violations = new List<string>();
         var files = Directory.GetFiles(
-            Path.Combine(RepoRoot, "Content", "Materials"), "*.md", SearchOption.AllDirectories);
+            MaterialsDirectory, "*.md", SearchOption.AllDirectories);
 
         var deser = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -303,5 +313,19 @@ public class DiagramContentHygieneTests
         if (!int.TryParse(hex.Substring(1), System.Globalization.NumberStyles.HexNumber, null, out var value))
             return false;
         return value >= 0x100000 && value <= 0x10FFFF;
+    }
+}
+
+/// <summary>
+/// Runs a content-hygiene test only when the private material depot is checked
+/// out. The workflow guard fails before the .NET gate when that checkout is
+/// empty, so the skip cannot hide a broken CI run.
+/// </summary>
+public sealed class MaterialDepotFactAttribute : FactAttribute
+{
+    public MaterialDepotFactAttribute()
+    {
+        if (DiagramContentHygieneTests.FindMaterialsDirectory(AppContext.BaseDirectory) is null)
+            Skip = "Content/Materials is absent. Clone the private material depot into Content to run this test.";
     }
 }

@@ -4,6 +4,11 @@
 # Ignore Claude Code working directory for chores and other grunt work
 .claude
 
+# Content is a checkout of the private material depot at build time.
+# Only .gitkeep is tracked so that the folder exists in a fresh clone.
+Content/*
+!Content/.gitkeep
+
 # Ignore Playwright outputs
 .playwright*
 
