@@ -487,8 +487,7 @@
     display: none;
 }
 
-.diagram-controls button:disabled,
-.diagram-controls select:disabled {
+.diagram-controls button:disabled {
     cursor: not-allowed;
     opacity: 0.45;
 }

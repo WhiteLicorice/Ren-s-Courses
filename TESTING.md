@@ -17,13 +17,13 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
-| JS | `npm test` | 12 suites, 255 tests | Yes |
+| JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 219 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
-| End-to-end | `npm run test:e2e` | 316 tests | No |
+| End-to-end | `npm run test:e2e` | 298 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-We measured the JS and .NET counts on 2026-11-11. We measured the end-to-end count on 2026-09-24 against the fixture site, with the TOC and fixture-site changes in the tree. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
+We measured the JS, .NET, and end-to-end counts on 2026-11-11. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -85,7 +85,7 @@ npx jest --coverage       # with coverage
 | `calendar.js` | `filterCalendar`, `filterCalendarMulti`, `toggleCalendarTag`, `clearCalendarFilter`, `initCalendarNav`, `changeMonth`, and the event popover |
 | `course-filter.js` | `initCourseFilter` restore from `localStorage`, `toggleCourseFilter`, and `clearCourseFilter` |
 | `code-features.js` | Wrapping, the double-wrap guard, language labels, and the copy button |
-| `interactive-diagrams.js` | Lazy Mermaid loading, fit and narrow and pan selection, the 14px label floor, direction rewriting, height reservation, overflow cues, resize, theme handling, both fallback paths, playback pacing, the speed control, and seeking |
+| `interactive-diagrams.js` | Lazy Mermaid loading, fit and narrow and pan selection, the 14px label floor, direction rewriting, height reservation, overflow cues, resize, theme handling, both fallback paths, and manual step navigation |
 | `scroll-button.js` | The click scrolls to the top, and the absent button is a no-op |
 | `submission-menu.js` | Dropdown state, outside-click dismissal, Escape, and idempotent setup |
 | `theme.js` | `switchPrismTheme`, `data-theme`, `localStorage`, the theme-color meta tag, and the system preference fallback |
@@ -178,7 +178,7 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 | `faqs.spec.js` | `/faqs`, the sections, the chip filter, the accordion, hash deep-linking, and `hashchange` |
 | `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |
-| `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, playback pacing and the speed control, and theme and resize safety |
+| `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, and theme and resize safety |
 | `toc.spec.js` | An in-memory article on a synthetic route. The outline without diagram headings, click navigation, the article path in the URL, the highlight, the at-bottom rule, navbar clearance, hash load, the scroll spy after a click, the sidebar follow, in-body fragment links, and a guard that no test requests an `/articles/` route |
 | `navigation.spec.js` | Desktop navigation with 7 menu entries and the scroll hide-and-show, plus the mobile overlay |
 | `theme.spec.js` | The light and dark toggle, `localStorage`, the Prism CSS swap, the icon state, and persistence |

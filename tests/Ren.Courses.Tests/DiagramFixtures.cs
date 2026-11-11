@@ -13,9 +13,7 @@ namespace Ren.Courses.Tests;
 /// no production article acts as test infrastructure.
 ///
 /// The fixture names match tests/fixtures/diagram-fixtures.js, which carries
-/// the same matrix for the Jest and Playwright suites. That file also holds a
-/// few browser-only fixtures, such as the playback pacing one, that no .NET
-/// test needs.
+/// the same matrix for the Jest and Playwright suites.
 /// </summary>
 public static class DiagramFixtures
 {
@@ -128,7 +126,7 @@ public static class DiagramFixtures
         ]
     };
 
-    /// <summary>One step only, so playback stays disabled.</summary>
+    /// <summary>One step only, so Previous and Next stay disabled.</summary>
     public static LearningDiagram SingleStepDiagram(string key = "single-frame") => new()
     {
         Key = key,

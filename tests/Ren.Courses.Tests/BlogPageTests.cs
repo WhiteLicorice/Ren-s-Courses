@@ -280,7 +280,7 @@ public class BlogPageTests
         Assert.Contains(diagram.Description, widget.TextContent);
         Assert.Equal(diagram.Steps.Count, widget.QuerySelectorAll("[data-diagram-step]").Length);
         Assert.Contains("flowchart LR", widget.QuerySelector("[data-diagram-source]")!.TextContent);
-        Assert.Equal(3, widget.QuerySelectorAll("button").Length);
+        Assert.Equal(2, widget.QuerySelectorAll("button").Length);
 
         // Placement assertion: widget sits between "Before" and "After" in markup
         var markup = cut.Markup;
@@ -452,7 +452,6 @@ public class BlogPageTests
         Assert.Contains("data-diagram-narrow-direction", emitted);
         Assert.Contains("data-diagram-viewport", emitted);
         Assert.Contains("data-diagram-scroll-hint", emitted);
-        Assert.Contains("data-diagram-speed", emitted);
     }
 
     [Fact]

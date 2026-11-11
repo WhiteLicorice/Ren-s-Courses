@@ -2,67 +2,6 @@
 
 const MERMAID_SCRIPT_URL = 'vendor/mermaid/mermaid.min.js';
 
-// Playback pacing. No research names one correct pan speed, so these are the
-// comprehension-first defaults. They stay named constants for later tuning.
-//
-// A step holds its opening view, pans across whatever the viewport hides, then
-// holds the right edge. A step that fits keeps the opening hold and nothing
-// else.
-//
-// Every hold is five times the first draft, which asked readers to take in a
-// whole diagram in two seconds. The pan speed is deliberately unchanged: it
-// governs reading while the drawing moves, not how long a still view lasts.
-const PLAY_INITIAL_HOLD_MS = 10000;
-const PLAY_VIEWPORT_TRAVERSAL_MS = 8000;
-const PLAY_END_HOLD_MS = 5000;
-
-// Readers who ask for reduced motion get static pages instead of a pan. Each
-// page keeps a tenth of the previous view, so nothing falls between two pages.
-const PLAY_REDUCED_MOTION_HOLD_MS = 10000;
-const PLAY_REDUCED_MOTION_PAGE_FRACTION = 0.9;
-const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
-
-const PLAY_HOLD_MS = {
-    opening: PLAY_INITIAL_HOLD_MS,
-    page: PLAY_REDUCED_MOTION_HOLD_MS,
-    edge: PLAY_END_HOLD_MS
-};
-
-// Speed. One multiplier scales every hold and the pan rate together, the way
-// HTMLMediaElement.playbackRate scales a video. 1 is the comprehension-first
-// pacing above. The reader's choice lives in localStorage so it survives a
-// page load, and every widget on a page shows the same value.
-const PLAY_SPEEDS = [0.5, 1, 1.5, 2, 3];
-const PLAY_DEFAULT_SPEED = 1;
-const PLAY_SPEED_KEY = 'diagram-play-speed';
-
-let playSpeed = PLAY_DEFAULT_SPEED;
-
-function parseSpeed(value) {
-    const speed = Number(value);
-    return PLAY_SPEEDS.includes(speed) ? speed : PLAY_DEFAULT_SPEED;
-}
-
-function readStoredSpeed() {
-    try {
-        return parseSpeed(localStorage.getItem(PLAY_SPEED_KEY));
-    } catch {
-        return PLAY_DEFAULT_SPEED;
-    }
-}
-
-function storeSpeed(speed) {
-    try {
-        localStorage.setItem(PLAY_SPEED_KEY, String(speed));
-    } catch {
-        // Private mode or a full store. The page still works.
-    }
-}
-
-function formatSpeed(speed) {
-    return `${speed}×`;
-}
-
 // A normal Mermaid label must never render below this size. Everything the
 // layout does follows from that floor.
 const MIN_LABEL_PX = 14;
@@ -426,15 +365,6 @@ function rewriteDiagramSvg(svgString, harvest, authorAllowed) {
     return out;
 }
 
-function createMotionQuery() {
-    if (typeof window.matchMedia !== 'function') return null;
-    try {
-        return window.matchMedia(REDUCED_MOTION_QUERY);
-    } catch {
-        return null;
-    }
-}
-
 /**
  * Give the browser a turn between renders, so each step is its own short task
  * instead of one long block that stalls a scroll.
@@ -714,8 +644,8 @@ function withStepsMeasurable(state, action) {
 }
 
 /**
- * Reserve the tallest complete step area, so Previous, Next and Play never
- * move the surrounding page. Titles and descriptions count, not only stages.
+ * Reserve the tallest complete step area, so Previous and Next never move the
+ * surrounding page. Titles and descriptions count, not only stages.
  */
 function reserveStepHeight(state) {
     state.steps.forEach(step => step.element.style.removeProperty('min-height'));
@@ -755,25 +685,13 @@ function scrollRatio(step) {
     return Math.min(1, Math.max(0, (step.viewport.scrollLeft || 0) / overflow));
 }
 
-/**
- * Move a viewport under our own command. Recording the target first is what
- * lets the scroll listener tell our movement from the reader's.
- */
+/** Move a viewport to a horizontal position. */
 function setScrollLeft(step, target) {
     step.viewport.scrollLeft = target;
-    // Read back what the browser actually took. Its own maximum can sit a
-    // fraction below the measured overflow, and a clamp must never be mistaken
-    // for the reader taking the diagram over.
-    step.commandedScrollLeft = step.viewport.scrollLeft || 0;
 }
 
 function setScrollRatio(step, ratio) {
     setScrollLeft(step, (step.overflow ?? 0) * ratio);
-}
-
-function atRightEdge(step) {
-    const overflow = step.overflow ?? 0;
-    return overflow <= 1 || (step.viewport.scrollLeft || 0) >= overflow - 0.5;
 }
 
 // --- Rendering lifecycle ---------------------------------------------------
@@ -982,14 +900,12 @@ function observeResize(state) {
 // --- Controls --------------------------------------------------------------
 
 /**
- * Show one step. Manual navigation carries the horizontal position across
- * proportionally, so a reader keeps their place in a wide drawing. Playback
- * asks for `preserveScroll: false`, because every automatic step must open at
- * its left edge whatever the previous step ended on.
+ * Show one step. Navigation carries the horizontal position across
+ * proportionally, so a reader keeps their place in a wide drawing.
  */
-function showStep(state, index, { preserveScroll = true } = {}) {
+function showStep(state, index) {
     const previous = state.steps[state.current];
-    const ratio = preserveScroll && previous ? scrollRatio(previous) : 0;
+    const ratio = previous ? scrollRatio(previous) : 0;
 
     state.current = index;
     state.steps.forEach((step, stepIndex) => {
@@ -1000,8 +916,7 @@ function showStep(state, index, { preserveScroll = true } = {}) {
     setScrollRatio(step, ratio);
     updateOverflowCues(step);
 
-    // Only a real step change may reach the live region. A pan writes the same
-    // sentence hundreds of times, and every write is another announcement.
+    // Only a real step change may reach the live region.
     const status = `Step ${index + 1} of ${state.steps.length}`;
     if (state.status.textContent !== status) state.status.textContent = status;
 
@@ -1009,307 +924,8 @@ function showStep(state, index, { preserveScroll = true } = {}) {
     state.nextButton.disabled = index === state.steps.length - 1;
 }
 
-/** The renderer owns the options, so only one list can drift. */
-function populateSpeedSelect(select) {
-    select.replaceChildren(...PLAY_SPEEDS.map(speed => {
-        const option = document.createElement('option');
-        option.value = String(speed);
-        option.textContent = formatSpeed(speed);
-        return option;
-    }));
-    select.value = String(playSpeed);
-}
-
-// --- Playback --------------------------------------------------------------
-//
-// One session object drives a widget's walkthrough. It holds the phase, the
-// hold that is still owed, and the pan position. At most one timeout and one
-// animation frame are outstanding, and both are cancelled together.
-//
-// `state.playback` is the live session and doubles as the generation token:
-// every scheduled callback checks that it still owns it, so a phase cancelled
-// a moment earlier can never change the step later. Pause moves the session to
-// `state.paused` instead of discarding it. Manual input discards it.
-
-function createSession() {
-    return {
-        phase: null,
-        holdMs: null,
-        holdRate: 1,
-        holdStartedAt: 0,
-        timestamp: null,
-        panLeft: 0,
-        timeout: null,
-        frame: null
-    };
-}
-
-function cancelSession(session) {
-    if (session.timeout !== null) {
-        clearTimeout(session.timeout);
-        session.timeout = null;
-    }
-    if (session.frame !== null) {
-        window.cancelAnimationFrame(session.frame);
-        session.frame = null;
-    }
-}
-
-function releasePlayButton(state) {
-    state.playButton.textContent = 'Play';
-    state.playButton.setAttribute('aria-pressed', 'false');
-}
-
-/** End playback and forget the session. The next Play starts a fresh one. */
-function stopPlayback(state) {
-    if (state.playback) cancelSession(state.playback);
-    state.playback = null;
-    state.paused = null;
-    releasePlayButton(state);
-}
-
-/** End playback but keep the phase, the remaining hold and the position. */
-function pausePlayback(state) {
-    const session = state.playback;
-    if (!session) return;
-
-    cancelSession(session);
-    if (session.holdMs !== null) {
-        session.holdMs = remainingHold(session);
-    }
-    state.playback = null;
-    state.paused = session;
-    releasePlayButton(state);
-}
-
-/** True while the session that scheduled a callback is still the live one. */
-function sessionIsLive(state, session) {
-    if (state.playback !== session) return false;
-    if (state.widget.isConnected) return true;
-    stopPlayback(state);
-    return false;
-}
-
-/** Base milliseconds still owed by the running hold. */
-function remainingHold(session) {
-    const elapsed = (Date.now() - session.holdStartedAt) * session.holdRate;
-    return Math.max(0, session.holdMs - elapsed);
-}
-
-function startHold(state, session) {
-    session.holdStartedAt = Date.now();
-    session.holdRate = playSpeed;
-    session.timeout = setTimeout(() => {
-        session.timeout = null;
-        if (!sessionIsLive(state, session)) return;
-        finishPhase(state, session);
-    }, session.holdMs / playSpeed);
-}
-
-/** A running hold is rescheduled with what it still owes. A pan needs nothing. */
-function rescheduleHold(state) {
-    const session = state.playback;
-    if (!session || session.phase === 'pan' || session.timeout === null) return;
-    cancelSession(session);
-    session.holdMs = remainingHold(session);
-    startHold(state, session);
-}
-
-function applySpeed(speed) {
-    playSpeed = speed;
-    storeSpeed(speed);
-    for (const state of diagramStates) {
-        if (state.speedSelect.value !== String(speed)) state.speedSelect.value = String(speed);
-        rescheduleHold(state);
-    }
-}
-
-function requestPanFrame(state, session) {
-    session.frame = window.requestAnimationFrame(timestamp => runPan(state, session, timestamp));
-}
-
-function enterPhase(state, session, phase) {
-    session.phase = phase;
-
-    if (phase !== 'pan') {
-        session.holdMs = PLAY_HOLD_MS[phase];
-        startHold(state, session);
-        return;
-    }
-
-    session.holdMs = null;
-    session.timestamp = null;
-    session.panLeft = state.steps[state.current].viewport.scrollLeft || 0;
-    requestPanFrame(state, session);
-}
-
-/** Re-enter the phase a pause interrupted, with whatever hold was left. */
-function resumePhase(state, session) {
-    if (session.phase === 'pan') {
-        session.timestamp = null;
-        requestPanFrame(state, session);
-        return;
-    }
-    startHold(state, session);
-}
-
-function prefersReducedMotion(state) {
-    return state.motionQuery?.matches === true;
-}
-
-/** One static page forward, keeping a tenth of the current view. */
-function pageForward(state, step) {
-    const overflow = step.overflow ?? 0;
-    const page = readAvailableWidth(state) * PLAY_REDUCED_MOTION_PAGE_FRACTION;
-    const target = page > 0
-        ? Math.min(overflow, (step.viewport.scrollLeft || 0) + page)
-        : overflow;
-
-    setScrollLeft(step, target);
-    updateOverflowCues(step);
-}
-
-function advanceStep(state, session) {
-    if (state.current >= state.steps.length - 1) {
-        stopPlayback(state);
-        return;
-    }
-
-    showStep(state, state.current + 1, { preserveScroll: false });
-    enterPhase(state, session, 'opening');
-}
-
-/**
- * Move to a step by button. During playback this is a seek: the new step opens
- * at its left edge and the walkthrough continues from its opening hold, the way
- * a media player keeps playing after a skip. While paused or stopped it is
- * plain navigation, and any paused session is discarded.
- */
 function stepTo(state, index) {
-    const session = state.playback;
-    if (session) {
-        cancelSession(session);
-        showStep(state, index, { preserveScroll: false });
-        enterPhase(state, session, 'opening');
-        return;
-    }
-    stopPlayback(state);
     showStep(state, index);
-}
-
-function finishPhase(state, session) {
-    const step = state.steps[state.current];
-
-    if (prefersReducedMotion(state)) {
-        if (atRightEdge(step)) {
-            advanceStep(state, session);
-            return;
-        }
-        pageForward(state, step);
-        enterPhase(state, session, 'page');
-        return;
-    }
-
-    // The end hold is the last thing a step does. Anything else that still
-    // hides content on the right has a pan to run.
-    if (session.phase !== 'edge' && !atRightEdge(step)) {
-        enterPhase(state, session, 'pan');
-        return;
-    }
-    advanceStep(state, session);
-}
-
-/**
- * Move the current step one frame further left to right. The overflow and the
- * viewport width are read again every frame, so a resize or a theme rerender
- * during playback changes the speed rather than breaking the pan.
- */
-function runPan(state, session, timestamp) {
-    session.frame = null;
-    if (!sessionIsLive(state, session)) return;
-
-    const step = state.steps[state.current];
-    const overflow = step.overflow ?? 0;
-
-    // A resize can remove the overflow while the pan is running.
-    if (overflow <= 1) {
-        advanceStep(state, session);
-        return;
-    }
-
-    const speed = readAvailableWidth(state) * playSpeed / PLAY_VIEWPORT_TRAVERSAL_MS;
-    if (!(speed > 0)) {
-        // Nothing measurable to pace against. Show the far edge rather than stall.
-        session.panLeft = overflow;
-        setScrollLeft(step, overflow);
-        updateOverflowCues(step);
-        enterPhase(state, session, 'edge');
-        return;
-    }
-
-    // The first frame only starts the clock. There is no earlier timestamp to
-    // measure against, and guessing one would jump the drawing.
-    if (session.timestamp === null) {
-        session.timestamp = timestamp;
-        requestPanFrame(state, session);
-        return;
-    }
-
-    const elapsed = Math.max(0, timestamp - session.timestamp);
-    session.timestamp = timestamp;
-    session.panLeft = Math.min(overflow, session.panLeft + speed * elapsed);
-    setScrollLeft(step, session.panLeft);
-    updateOverflowCues(step);
-
-    if (session.panLeft >= overflow) {
-        enterPhase(state, session, 'edge');
-        return;
-    }
-    requestPanFrame(state, session);
-}
-
-function startPlayback(state) {
-    if (state.steps.length < 2) return;
-
-    const resumed = state.paused;
-    state.paused = null;
-    state.playButton.textContent = 'Pause';
-    state.playButton.setAttribute('aria-pressed', 'true');
-
-    if (resumed) {
-        state.playback = resumed;
-        resumePhase(state, resumed);
-        return;
-    }
-
-    // A fresh walkthrough restarts from the top once the last step is done, and
-    // always opens its step at the left edge.
-    if (state.current === state.steps.length - 1) showStep(state, 0, { preserveScroll: false });
-    const step = state.steps[state.current];
-    setScrollLeft(step, 0);
-    updateOverflowCues(step);
-
-    const session = createSession();
-    state.playback = session;
-    enterPhase(state, session, 'opening');
-}
-
-/**
- * A reader can change the motion preference while a diagram is playing. Drop
- * the current phase and carry the same step on from where it stands.
- */
-function observeMotionPreference(state) {
-    if (typeof state.motionQuery?.addEventListener !== 'function') return;
-
-    state.motionQuery.addEventListener('change', () => {
-        const session = state.playback;
-        if (!session || !sessionIsLive(state, session)) return;
-
-        cancelSession(session);
-        if (prefersReducedMotion(state)) enterPhase(state, session, 'page');
-        else if (atRightEdge(state.steps[state.current])) enterPhase(state, session, 'edge');
-        else enterPhase(state, session, 'pan');
-    });
 }
 
 function collectSteps(widget) {
@@ -1320,8 +936,7 @@ function collectSteps(widget) {
         hint: element.querySelector('[data-diagram-scroll-hint]'),
         source: element.querySelector('[data-diagram-source]'),
         error: element.querySelector('[data-diagram-error]'),
-        overflow: 0,
-        commandedScrollLeft: 0
+        overflow: 0
     }));
 }
 
@@ -1335,9 +950,6 @@ async function enhanceDiagram(widget, mermaid) {
         mermaid,
         steps,
         current: 0,
-        playback: null,
-        paused: null,
-        motionQuery: createMotionQuery(),
         committed: false,
         selected: null,
         mode: null,
@@ -1349,9 +961,7 @@ async function enhanceDiagram(widget, mermaid) {
         },
         status: widget.querySelector('[data-diagram-status]'),
         previousButton: widget.querySelector('[data-diagram-action="previous"]'),
-        nextButton: widget.querySelector('[data-diagram-action="next"]'),
-        playButton: widget.querySelector('[data-diagram-action="play"]'),
-        speedSelect: widget.querySelector('[data-diagram-speed]')
+        nextButton: widget.querySelector('[data-diagram-action="next"]')
     };
 
     state.previousButton.addEventListener('click', () => {
@@ -1360,36 +970,15 @@ async function enhanceDiagram(widget, mermaid) {
     state.nextButton.addEventListener('click', () => {
         if (state.current < state.steps.length - 1) stepTo(state, state.current + 1);
     });
-    state.playButton.addEventListener('click', () => {
-        if (state.playback) pausePlayback(state);
-        else startPlayback(state);
-    });
-    populateSpeedSelect(state.speedSelect);
-    state.speedSelect.addEventListener('change', () => {
-        applySpeed(parseSpeed(state.speedSelect.value));
-    });
-    observeMotionPreference(state);
-
     steps.forEach(step => {
         step.viewport.addEventListener('scroll', () => {
-            // A hidden step cannot be scrolled by the reader. A scroll event
-            // fires one frame after the write that caused it. When a seek hides
-            // a mid-pan step inside that frame, the pan's own last event still
-            // arrives, and Chromium reports scrollLeft 0 for an element without
-            // a box. Reading that as a takeover would release Play on a seek.
-            if (step.element.hidden) return;
             updateOverflowCues(step);
-            // A scroll we did not command is the reader taking over.
-            const moved = Math.abs((step.viewport.scrollLeft || 0) - (step.commandedScrollLeft ?? 0));
-            if ((step.overflow ?? 0) > 1 && moved > 1) stopPlayback(state);
         });
     });
 
     await refresh(state, { rerender: true });
 
     widget.querySelector('[data-diagram-controls]').hidden = false;
-    state.playButton.disabled = steps.length < 2;
-    state.speedSelect.disabled = steps.length < 2;
     widget.dataset.diagramInitialized = 'true';
     observeResize(state);
     diagramStates.push(state);
@@ -1436,9 +1025,6 @@ function whenIdle(timeout = 2000) {
 }
 
 window.initInteractiveDiagrams = async (providedMermaid) => {
-    // Read here, not at script load, so a test can set storage before init.
-    playSpeed = readStoredSpeed();
-
     const widgets = Array.from(document.querySelectorAll('[data-interactive-diagram]'))
         .filter(widget => !widget.dataset.diagramInitialized);
     if (widgets.length === 0) {

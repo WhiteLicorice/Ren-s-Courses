@@ -26,10 +26,8 @@ module.exports = defineConfig({
   // Run tests within each file in parallel; files themselves run in parallel too.
   fullyParallel: true,
 
-  // The diagram playback tests watch real 10-second holds, so one worker stays
-  // busy for minutes while the rest of the suite runs beside it. Under that
-  // load a timing-sensitive test can exceed the 30-second default without
-  // anything being wrong. 60 seconds absorbs it and still catches a real hang.
+  // The global timeout is 60 seconds, not the 30-second default. B-002 owns
+  // the value, so keep it as it stands.
   timeout: 60 * 1000,
 
   // Prevent accidentally committed .only calls from silently passing CI.

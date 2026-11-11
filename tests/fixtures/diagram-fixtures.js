@@ -160,52 +160,6 @@ const DIAGRAM_FIXTURES = {
         ]
     },
 
-    /**
-     * A short left-to-right walkthrough that hides only a little of itself, so
-     * one pan crosses it in a few seconds. Playback pacing tests use this: the
-     * wide fixtures above hide more than a whole viewport and take far too long
-     * to cross in a browser test. It declares no narrow direction, so the
-     * widget must pan rather than reflow.
-     *
-     * The shape follows authored material: one node per character, a highlight
-     * that moves from step to step, and a step count above two.
-     */
-    modestOverflowWalkthrough: {
-        title: 'Scanning one identifier',
-        description: 'The cursor moves along the source one character at a time.',
-        narrowDirection: '',
-        steps: [
-            {
-                title: 'Read the first character',
-                description: 'A letter starts an identifier.',
-                active: 'C1'
-            },
-            {
-                title: 'Continue the lexeme',
-                description: 'Letters keep the identifier going.',
-                active: 'C3'
-            },
-            {
-                title: 'Close the lexeme',
-                description: 'The five characters become one lexeme.',
-                active: 'L'
-            }
-        ].map(step => ({
-            title: step.title,
-            description: step.description,
-            mermaid: [
-                'flowchart LR',
-                '    C1["t<br/>col 10"] --> C2["o<br/>col 11"]',
-                '    C2 --> C3["t<br/>col 12"]',
-                '    C3 --> C4["a<br/>col 13"]',
-                '    C4 --> C5["l<br/>col 14"]',
-                '    C5 --> L["lexeme<br/>total"]',
-                '    classDef current fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#111827',
-                `    class ${step.active} current`
-            ].join('\n')
-        }))
-    },
-
     /** Already vertical and small. Must fit without a narrow re-render. */
     alreadyVerticalFlowchart: {
         title: 'Two phase commit',
@@ -217,7 +171,7 @@ const DIAGRAM_FIXTURES = {
         ]
     },
 
-    /** One step only. Playback stays disabled. */
+    /** One step only. Previous and Next stay disabled. */
     singleStepDiagram: {
         title: 'Single frame',
         description: 'Nothing to step through.',
@@ -370,14 +324,12 @@ function buildWidgetMarkup(fixture, index = 0) {
                 <h2 id="learning-diagram-${index}-title" class="font-mono text-xl font-bold text-text-main">${escapeHtml(fixture.title)}</h2>
                 ${fixture.description ? `<p class="mt-2 text-sm leading-6 text-text-dim">${escapeHtml(fixture.description)}</p>` : ''}
             </header>
-            <div class="diagram-controls flex flex-wrap items-center gap-2 border-b border-border-muted px-5 py-3 sm:px-6"
+            <div class="diagram-controls flex flex-wrap justify-between items-center gap-2 border-b border-border-muted px-5 py-3 sm:px-6"
                 data-diagram-controls hidden>
                 <button type="button" data-diagram-action="previous">Previous</button>
                 <output class="min-w-24 text-center font-mono text-xs text-text-dim" data-diagram-status
                     aria-live="polite">Step 1 of ${fixture.steps.length}</output>
                 <button type="button" data-diagram-action="next">Next</button>
-                <label>Speed <select data-diagram-speed></select></label>
-                <button type="button" data-diagram-action="play" aria-pressed="false">Play</button>
             </div>
             <div class="p-5 sm:p-6">${steps}</div>
         </section>`;
