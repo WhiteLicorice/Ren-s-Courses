@@ -3,7 +3,7 @@
 Copyright © 2026 Rene Andre Bedonia Jocsing. All rights reserved.
 
 ## 1. Proprietary Nature
-This repository contains the source code and course materials for a Headless Learning Management System used within the BS in Computer Science curriculum at the University of the Philippines Visayas.
+This repository contains the source code for a Headless Learning Management System used within the BS in Computer Science curriculum at the University of the Philippines Visayas. The course materials live in a private repository. They reach readers through the deployed site and the PDFs it serves.
 
 **This is NOT Open Source software.** The repository is public for transparency, for portfolio purposes, and to accept contributions under the terms below.
 
