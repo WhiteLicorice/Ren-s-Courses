@@ -67,10 +67,18 @@ The owner does these steps.
 2. Create a fastcron job with these values:
    - Method: `POST`
    - URL: `https://api.github.com/repos/WhiteLicorice/Ren-s-Courses/actions/workflows/build-and-publish.yml/dispatches`
-   - Headers: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2026-03-10`
+   - Headers, one per line. Do not use commas.
+     ```
+     Authorization: Bearer <token>
+     Accept: application/vnd.github+json
+     X-GitHub-Api-Version: 2026-03-10
+     ```
    - Body: `{"ref":"master","inputs":{"mode":"auto"}}`
-   - Schedule: `7 * * * *`
+   - Schedule: `7 * * * *`, or the UI interval `1 hour`
+   - Username and Password: leave both empty. The bearer header carries the token.
 3. Run the job once. A new workflow run appears in seconds. Its `check` job prints `build=false` when nothing changed.
+
+A `401 Bad credentials` response means fastcron did not send the bearer token cleanly. Check for comma-separated headers, a token in the Password field, or a space after the token.
 
 The token can start workflows in this repository. It cannot change code. Never put the token in the repository, a ticket, or a chat. fastcron stores it in the job headers. An expired token stops the sync on the GitHub side without an error in this repository, so check the fastcron response.
 
