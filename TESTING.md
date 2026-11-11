@@ -22,10 +22,10 @@ The public repository does not track the course materials. The workflow clones t
 | JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 14 tests | Yes |
-| End-to-end | `npm run test:e2e` | 336 tests | No |
+| End-to-end | `npm run test:e2e` | 346 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004, B-008, and B-012 merges. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
+We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004, B-006, B-008, and B-012 merges. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -160,7 +160,7 @@ Do not set `ASPNETCORE_URLS` by hand. Port 0 keeps the choice safe. A port you p
 
 Port 8081 belongs to the Playwright server. The builds do not touch it.
 
-`tests/fixtures/site/Content/Materials` holds two flat materials and one nested material. The nested file sits at `fixture-course-a/fixture-lab-nested/fixture-course-a-lab-nested.md`, and its image sits in a `media` folder beside it.
+`tests/fixtures/site/Content/Materials` holds four flat materials and one nested material. The nested file sits at `fixture-course-a/fixture-lab-nested/fixture-course-a-lab-nested.md`, and its image sits in a `media` folder beside it. Two flat materials carry a status badge that is not future. `fixture-course-a-expired.md` is expired. `fixture-course-a-due-today.md` is due on the frozen build day. Both declare `downloadLink`, so the build generates no PDF for them.
 
 `SITE_PROFILE=e2e` selects `SiteLayout.EndToEndFixture` in `Program.cs`. That layout keeps every generated path apart from production: the content root, the output folder, the PDF cache in `artifacts/e2e-site`, and the generated PDFs. The PDF cache prunes every slug it does not see, so a shared cache would delete the production PDFs.
 
@@ -213,6 +213,7 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 | `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, and theme and resize safety |
 | `table-code.spec.js` | An in-memory article on a synthetic route. Inline code in a table cell computes to 13px or more at 360px, 390px, and 430px. Paragraph inline code stays at 14px. The table stays inside its scroll box |
 | `toc.spec.js` | An in-memory article on a synthetic route. The outline without diagram headings, click navigation, the article path in the URL, the highlight, the at-bottom rule, navbar clearance, hash load, the scroll spy after a click, the sidebar follow, in-body fragment links, a guard that no test requests an `/articles/` route, the full heading and 44px tap height of the mobile list at 375px, and the unchanged truncation of the desktop sidebar at 1440px |
+| `badge-contrast.spec.js` | The status badge on material cards at 360px, 390px, and 430px with touch emulation. Expired, due today, and future measure at least 4.5 to 1 in the light and dark themes, on `/` and on a course page |
 | `navigation.spec.js` | Desktop navigation with 7 menu entries and the scroll hide-and-show, plus the mobile overlay |
 | `theme.spec.js` | The light and dark toggle, `localStorage`, the Prism CSS swap, the icon state, and persistence |
 | `edge-cases.spec.js` | `/null`, missing articles, offline snapshots, repair, and every major route checked for JS errors |

@@ -28,6 +28,15 @@ module.exports = {
     EXTERNAL_ARTICLE_ROUTE: '/articles/fixture-course-b-lab1',
     EXTERNAL_DOWNLOAD_LINK: 'https://example.com/fixture-course-b-lab1.pdf',
 
+    /** Status badges: the deadline equals or precedes the frozen build day. */
+    EXPIRED_ARTICLE_SLUG: 'fixture-course-a-expired',
+    EXPIRED_ARTICLE_ROUTE: '/articles/fixture-course-a-expired',
+    DUE_TODAY_ARTICLE_SLUG: 'fixture-course-a-due-today',
+    DUE_TODAY_ARTICLE_ROUTE: '/articles/fixture-course-a-due-today',
+
+    /** A course page that lists every status badge. */
+    COURSE_PAGE_ROUTE: '/materials/fixture-course-a',
+
     /** SlugHelper.Slugify("How do I submit a fixture laboratory?") */
     FAQ_SLUG: 'how-do-i-submit-a-fixture-laboratory'
 };
