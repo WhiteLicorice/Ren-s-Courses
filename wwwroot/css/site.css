@@ -177,6 +177,13 @@
     opacity: 1;
 }
 
+@media (hover: none) {
+    .offline-status-control:focus .offline-status-tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
 @keyframes offline-spinner {
     to {
         transform: rotate(360deg);
