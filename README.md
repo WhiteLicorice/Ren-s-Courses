@@ -6,7 +6,7 @@
 
 A headless Learning Management System for courses I teach under the University of the Philippines Visayas, Division of Physical Sciences and Mathematics, BS in Computer Science curriculum.
 
-Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. The site compiles to static HTML. It deploys to both GitHub Pages and Netlify on every push and on an hourly cron.
+Built with .NET 9, Blazor, BlazorStatic (v1.0.0-beta.17), and Tailwind CSS v4. The site compiles to static HTML. It deploys to both GitHub Pages and Netlify on every push and on an hourly external dispatch.
 
 ## Quick Start
 
@@ -93,11 +93,11 @@ artifacts/      Toolchain and PDF caches. Not tracked.
 
 ## How It Works
 
-`.github/workflows/build-and-publish.yml` runs on push to `master` and hourly on a cron. It freezes a UTC timestamp, then runs the JS, .NET, and Python gates in that order. It generates the per-course RSS feeds. Then it builds the static site twice: once with `base href="/"` for Netlify, and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get minified, stamped, and finalized with the offline manifest generator before they reach their deploy branches.
+`.github/workflows/build-and-publish.yml` runs on every push to `master`, on an hourly fastcron dispatch, and on the platform cron as a fallback. A `check` job decides whether a build is needed. It compares the depot commit and the release dates with the metadata on both deploy branches. When nothing changed, the run ends after the check. A push or a dispatch with `mode=force` always builds. A build freezes a UTC timestamp, runs the JS, .NET, and Python gates, and generates the per-course RSS feeds. It then builds the static site twice: once with `base href="/"` for Netlify, and once with `base href="/Ren-s-Courses/"` for GitHub Pages. Both outputs get minified, stamped, and finalized with the offline manifest generator before they reach their deploy branches.
 
 `CourseContentProvider` publishes a material only when its `Published` date sits inside the `TERM_START` to `TERM_END` window and is no later than the frozen build time. After the term ends, current-term materials disappear unless showcase mode is on. CI pins these as environment variables, so the build is deterministic. [TESTING.md](./TESTING.md) has the full visibility rules and the local recipes.
 
-A push to the private material depot does not trigger this workflow. The next successful hourly run picks up eligible depot changes. Publication can take longer than one hour.
+A push to the private material depot does not trigger a build directly. The hourly fastcron dispatch reads the change. A dated material publishes within an hour of its release instant. The platform cron drops most events, so it is only a fallback. [PLAYBOOK.md](./PLAYBOOK.md) gives the fastcron setup.
 
 All client-side behavior is vanilla JS with no framework. Theme, calendar, TOC, code blocks, the FAQ accordion, course filtering, and scroll-to-top are each their own script, loaded with a plain `<script>` tag.
 

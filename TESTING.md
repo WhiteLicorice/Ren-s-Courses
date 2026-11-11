@@ -21,7 +21,7 @@ The public repository does not track the course materials. The workflow clones t
 |---|---|---|---|
 | JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
-| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 14 tests | Yes |
+| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 26 tests | Yes |
 | End-to-end | `npm run test:e2e` | 352 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
@@ -109,6 +109,8 @@ Each suite reads its script from disk and runs it with `new Function(source)()`.
 ## Python (unittest)
 
 `.github/utils/generate_feed.py` builds one RSS 2.0 feed per course at build time. It has 14 tests. They cover feed generation, date parsing, the term-end boundary, empty-feed output, showcase-mode skipping, the active-course gate, and nested materials.
+
+`.github/utils/should_build.py` decides whether a dispatch or scheduled run needs a full build. It has 12 tests. They cover the depot commit comparison, the release window, draft materials, a date-only value at midnight Philippine time, missing metadata, and a stale deploy branch. The `check` job uses it. [PLAYBOOK.md](./PLAYBOOK.md), section Deployment Trigger, gives the fastcron setup.
 
 ```bash
 python -m unittest discover -s .github/utils -p "test_*.py" -v
@@ -223,23 +225,27 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 
 ## What CI Runs
 
-`.github/workflows/build-and-publish.yml` runs on every push to `master` and hourly on a cron. The order is:
+`.github/workflows/build-and-publish.yml` runs on every push to `master`, on an hourly fastcron dispatch, and on the platform cron as a fallback. The order is:
 
-1. Check out the repository with recursive submodules.
-2. Check out the private material depot into `Content`.
-3. Verify that `Content/Materials` holds a Markdown file.
-4. Freeze a UTC timestamp into `STATIC_GEN_TIME`.
-5. Restore the PDF toolchain cache and the generated PDF cache.
-6. Run `npm ci`.
-7. Run the JS gate.
-8. Delete `Properties/launchSettings.json`, so no launch profile can force Development.
-9. Run the .NET gate in Release.
-10. Run the Python gate.
-11. Generate the per-course RSS feeds.
-12. Build for Netlify with `base href="/"`, then minify, stamp, finalize, and push to `netlify-pages`.
-13. Build for GitHub Pages with `base href="/Ren-s-Courses/"`, then repeat and push to `gh-pages`.
+1. Run the `check` job. It checks out the site and the depot, reads `build-metadata.txt` from `netlify-pages` and `gh-pages`, and prints `build=true` or `build=false`. A push or `mode=force` prints `build=true` without the comparison.
+2. Stop when the check prints `build=false`. The heavy job does not start.
+3. Check out the repository with recursive submodules.
+4. Check out the private material depot into `Content`.
+5. Verify that `Content/Materials` holds a Markdown file.
+6. Freeze a UTC timestamp into `STATIC_GEN_TIME`.
+7. Restore the PDF toolchain cache and the generated PDF cache.
+8. Run `npm ci`.
+9. Run the JS gate.
+10. Delete `Properties/launchSettings.json`, so no launch profile can force Development.
+11. Run the .NET gate in Release.
+12. Run the Python gate.
+13. Generate the per-course RSS feeds.
+14. Build for Netlify with `base href="/"`, then minify, stamp, finalize, and push to `netlify-pages`.
+15. Build for GitHub Pages with `base href="/Ren-s-Courses/"`, then repeat and push to `gh-pages`.
 
-Step 3 fails the run when the depot checkout is empty. No build then reads an empty `Content`.
+Step 5 fails the run when the depot checkout is empty. No build then reads an empty `Content`.
+
+The stamp writes `Build Time` and `Depot Commit` into `build-metadata.txt`. The `check` job reads both lines on the next dispatch. `Depot Commit` is the depot HEAD at build time.
 
 The RSS step must receive `ACTIVE_COURSES`. Without it the generator sees an empty active set and drops every tagged post.
 

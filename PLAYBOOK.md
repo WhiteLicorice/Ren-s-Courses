@@ -31,10 +31,12 @@ Measured 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 
 |---|---|
 | .NET, Release | 271 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
-| Python | 14 passed, 0 failed |
+| Python | 26 passed, 0 failed |
 | Playwright, Chromium and Firefox | 352 of 352 passed |
 | Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
 | Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
+
+The Python row is 26 after the deployment-trigger gate landed on 2026-11-12. Twelve of the tests are new. The other rows keep their original measurement dates.
 
 The Playwright row is the full local release gate. When a worker-contention timeout appears, re-run that spec alone before calling it a regression. Test Harness Traps records the pattern.
 
@@ -51,13 +53,37 @@ Confirmed 2026-11-11 at `9986bbf` against the `actions/checkout@v5` source and R
 - The content checks that read `Content/Materials` skip with `MaterialDepotFact` when the folder is absent. The five content-hygiene tests and the material-layout real-corpus lint use it. A contributor without the private depot still runs the rest of the .NET gate. The guard, not the test, protects the deploy.
 - `.gitignore` ignores everything under `Content` except `.gitkeep`, so a local depot clone never shows in `git status`. Clone the depot only after you remove the tracked `.gitkeep`, and restore it with `git restore -- Content/.gitkeep`. Git refuses to clone into a nonempty folder. Never delete an existing depot checkout.
 - The csproj removes `Content/.git/**` from the output copy and from the watch glob. The depot checkout places a `.git` folder inside `Content`.
-- A push to the depot does not trigger this workflow. The next successful hourly run picks up eligible changes. Publication can take longer than one hour. A dispatch trigger is out of scope.
+- A push to the depot does not trigger a build directly. An hourly fastcron job calls the workflow dispatch endpoint. The `check` job then builds when the depot commit changed or a dated material became visible. The platform cron remains a fallback. The Deployment Trigger section gives the setup.
+
+### Deployment Trigger
+
+GitHub's `schedule` event is best-effort. On this repository an hourly cron delivered 3 to 5 runs per day, with gaps of 4 to 12 hours. A dated material could stay hidden for hours after its release. Confirmed 2026-11-12 from the run history of `build-and-publish.yml`. The build at `2026-11-11T14:10:51Z` hid `cmsc-124-act15` as a future post. No scheduled run fired at `16:12Z` or later. A manual dispatch at `19:17Z` published it in two minutes.
+
+fastcron is the dependable timer. It calls the dispatch endpoint hourly at minute 7. The endpoint creates the run at once and does not use the platform scheduler. The workflow keeps the platform cron as a fallback and `workflow_dispatch` for manual runs.
+
+The owner does these steps.
+
+1. Create a fine-grained personal access token. Set the resource owner to `WhiteLicorice`. Set repository access to `Ren-s-Courses` only. Set the `Actions` repository permission to `Read and write`. Set an expiry and record it.
+2. Create a fastcron job with these values:
+   - Method: `POST`
+   - URL: `https://api.github.com/repos/WhiteLicorice/Ren-s-Courses/actions/workflows/build-and-publish.yml/dispatches`
+   - Headers: `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`, `X-GitHub-Api-Version: 2026-03-10`
+   - Body: `{"ref":"master","inputs":{"mode":"auto"}}`
+   - Schedule: `7 * * * *`
+3. Run the job once. A new workflow run appears in seconds. Its `check` job prints `build=false` when nothing changed.
+
+The token can start workflows in this repository. It cannot change code. Never put the token in the repository, a ticket, or a chat. fastcron stores it in the job headers. An expired token stops the sync on the GitHub side without an error in this repository, so check the fastcron response.
+
+The `check` job reads `build-metadata.txt` from `netlify-pages` and `gh-pages`. Each file carries `Build Time` and `Depot Commit`. The job builds when a file is missing, when the commit differs, or when a non-draft material's `published` instant falls after the recorded build time and no later than now. A date-only `published` value is midnight Philippine time. `.github/utils/should_build.py` holds the decision. `.github/utils/test_should_build.py` covers it.
+
+A push to the site, or a manual `gh workflow run build-and-publish.yml`, always builds. Use `gh workflow run build-and-publish.yml -f mode=auto` to exercise the gate by hand.
 
 To roll back, move the depot checkout out of `Content` first. Then revert one commit at a time, newest first:
 
-1. `meta: update the license for the private material repository` restores the old `LICENSE.md` section 1.
-2. `docs: describe the material depot as the Content source` restores the old `README.md`, `TESTING.md`, and `PLAYBOOK.md`.
-3. `devops: pull the material depot into Content at build time` restores the 133 tracked `Content` files. It removes the guard, the workflow steps, the ignore rules, and the test change. It also removes `.gitkeep` and the csproj exclusion.
+1. The deployment-trigger commit removes the `check` job, the gate script and its tests, and the fastcron instructions. It restores the cron-only workflow.
+2. `meta: update the license for the private material repository` restores the old `LICENSE.md` section 1.
+3. `docs: describe the material depot as the Content source` restores the old `README.md`, `TESTING.md`, and `PLAYBOOK.md`.
+4. `devops: pull the material depot into Content at build time` restores the 133 tracked `Content` files. It removes the guard, the workflow steps, the ignore rules, and the test change. It also removes `.gitkeep` and the csproj exclusion.
 
 Do not rely on Git to refuse writing over the ignored depot files.
 
