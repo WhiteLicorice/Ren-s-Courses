@@ -153,19 +153,25 @@ async function normalizedHtmlResponse(response) {
     });
 }
 
+function assertUsableResponse(resource, response) {
+    if (response.type === 'opaque' || !response.ok) {
+        throw new Error(`Required resource returned ${response.status}: ${resource.url.href}`);
+    }
+
+    if (resource.route) {
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('text/html')) {
+            throw new Error(`Offline route is not HTML: ${resource.url.href}`);
+        }
+    }
+}
+
 async function fetchRequiredResource(resource) {
     if (resource.manifest) return { resource, response: resource.response.clone() };
 
     const response = await retry(async () => {
         const result = await fetch(requestFor(resource.url));
-        if (!result.ok) throw new Error(`Required resource returned ${result.status}: ${resource.url.href}`);
-
-        if (resource.route) {
-            const contentType = result.headers.get('content-type') || '';
-            if (!contentType.includes('text/html')) {
-                throw new Error(`Offline route is not HTML: ${resource.url.href}`);
-            }
-        }
+        assertUsableResponse(resource, result);
         return resource.route ? normalizedHtmlResponse(result) : result;
     }, resource.url.href);
 
@@ -248,7 +254,19 @@ async function copyUnchangedResources(previous, hashes, cache, manifest) {
         if (!hash || hash !== previous.hashes.get(href)) continue;
 
         const response = await previous.cache.match(requestFor(resource.url, 'default'));
-        if (response) copies.push({ resource, response });
+        if (!response) continue;
+
+        try {
+            assertUsableResponse(resource, response);
+        } catch (error) {
+            console.warn('[SW] Skipping unusable previous entry:', resource.url.href, error);
+            continue;
+        }
+
+        copies.push({
+            resource,
+            response: resource.route ? await normalizedHtmlResponse(response) : response
+        });
     }
 
     const results = await mapLimited(copies, CACHE_CONCURRENCY,

@@ -17,7 +17,7 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
-| JS | `npm test` | 12 suites, 248 tests | Yes |
+| JS | `npm test` | 12 suites, 255 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 219 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
 | End-to-end | `npm run test:e2e` | 316 tests | No |
