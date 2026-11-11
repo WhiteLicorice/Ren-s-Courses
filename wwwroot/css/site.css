@@ -278,6 +278,13 @@
     display: none !important;
 }
 
+/* Inline code in a table cell matches the cell text size. The prose table rule
+   sets 0.875em, and the code rule shrinks that again, which rendered 12.25px
+   on a phone. This selector scores 0,1,2, above the 0,1,0 code rule. */
+.prose table :is(td, th) :where(code):not(:where(pre *)) {
+    font-size: 1em;
+}
+
 /* ============================== */
 /* 3. COPY BUTTON STYLES          */
 /* ============================== */

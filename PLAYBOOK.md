@@ -25,14 +25,14 @@ Most entries below end with the same check. It is written once here.
 
 ## Gate Baselines
 
-Measured 2026-11-11 on `master` after the B-004 and B-008 merges, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the B-019 head build. B-001 changes no route, PDF, or feed input.
+Measured 2026-11-11 on `master` after the B-004, B-008, and B-012 merges, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the B-019 head build. B-001 changes no route, PDF, or feed input.
 
 | Gate | Result |
 |---|---|
 | .NET, Release | 271 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
 | Python | 14 passed, 0 failed |
-| Playwright, Chromium and Firefox | 326 of 326 passed |
+| Playwright, Chromium and Firefox | 336 of 336 passed |
 | Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
 | Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
@@ -148,6 +148,7 @@ Confirmed 2026-07-14 through 2026-08-16:
 - **Markdig and Pandoc disagree about lists.** Markdig allows a `- ` list immediately after a paragraph. Pandoc's `markdown` reader requires a blank line first. The generator passes `--from markdown+lists_without_preceding_blankline` to match Markdig. The extension is present in pinned Pandoc 3.10.
 - **An embedded image needs both the source asset and the staging fix.** Shared commit `a042e75` stages resolved images into the isolated Tectonic work directory and reports an unresolved reference before compilation. Without it, Pandoc can emit a relative `\includegraphics` path that Tectonic cannot resolve from its work directory. Advance the pin before relying on an embedded image.
 - Running headers keep page 1 empty, show the material subtitle on an even page, and show `Prepared by: <full author name>` on an odd page after page 1. One `\RunningHeaderText` macro drives portrait pages, rotated rubric pages, and landscape longtable headers. PDF metadata ignores `nickname` deliberately.
+- **A site stylesheet cannot change a PDF.** The pipeline maps Markdown to LaTeX with the template files in the submodule. It reads `wwwroot` only to stage a referenced media file, at `PdfGeneratorService.cs:736-742`. No stylesheet input exists. A rule in `wwwroot/css/site.css` therefore changes the web page only. Confirmed 2026-11-11 for the table-cell inline code rule at commit `11d2738`.
 - Verification path for a cold run: delete `artifacts/pdf-toolchain`, `artifacts/tectonic-cache`, `artifacts/material-pdfs`, and `wwwroot/pdfs`, then run the production build. A warm run afterwards must report every document as a cache hit.
 
 ## Static Generation
