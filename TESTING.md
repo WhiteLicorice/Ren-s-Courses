@@ -17,13 +17,13 @@ Clone the repository with `git clone --recurse-submodules`. In an existing check
 
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
-| JS | `npm test` | 12 suites, 243 tests | Yes |
-| .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 217 tests | Yes |
+| JS | `npm test` | 12 suites, 248 tests | Yes |
+| .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 219 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
 | End-to-end | `npm run test:e2e` | 316 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-The JS, .NET, and end-to-end counts were measured on 2026-09-24 against the fixture site, with the TOC and fixture-site changes in the tree. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
+We measured the JS and .NET counts on 2026-11-11. We measured the end-to-end count on 2026-09-24 against the fixture site, with the TOC and fixture-site changes in the tree. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -90,7 +90,7 @@ npx jest --coverage       # with coverage
 | `submission-menu.js` | Dropdown state, outside-click dismissal, Escape, and idempotent setup |
 | `theme.js` | `switchPrismTheme`, `data-theme`, `localStorage`, the theme-color meta tag, and the system preference fallback |
 | `site.js` | Offline status and lifecycle, through `offline-status.test.js` and `offline-lifecycle.test.js` |
-| `Offline/service-worker.template.js` | Snapshot install, validation, repair, and navigation fallback, through `service-worker.test.js` |
+| `Offline/service-worker.template.js` | Snapshot install, incremental update copy, validation, repair, and navigation fallback, through `service-worker.test.js` |
 
 `wwwroot/js/scrollbars.js` has no Jest suite. Playwright covers its behavior instead.
 

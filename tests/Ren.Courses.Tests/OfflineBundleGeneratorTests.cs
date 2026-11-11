@@ -143,6 +143,43 @@ public class OfflineBundleGeneratorTests
         Assert.Contains("escapes", exception.Message);
     }
 
+    [Fact]
+    public void Generate_records_a_content_hash_for_every_route_and_asset()
+    {
+        using var fixture = new OfflineFixture();
+        fixture.Write("index.html", "<script src=\"app.js\"></script>");
+        fixture.Write("app.js", "one");
+        fixture.WriteTemplate();
+
+        var manifest = OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath);
+
+        Assert.Equal(2, manifest.SchemaVersion);
+        foreach (var entry in manifest.Routes.Concat(manifest.Assets))
+        {
+            Assert.True(manifest.Hashes.ContainsKey(entry), entry);
+            Assert.Matches("^[a-f0-9]{64}$", manifest.Hashes[entry]);
+        }
+    }
+
+    [Fact]
+    public void Generate_changes_only_the_hash_of_a_changed_entry()
+    {
+        using var fixture = new OfflineFixture();
+        fixture.Write("index.html", "<script src=\"app.js\"></script><link rel=\"stylesheet\" href=\"app.css\">");
+        fixture.Write("app.js", "one");
+        fixture.Write("app.css", "body { color: black; }");
+        fixture.WriteTemplate();
+
+        var first = OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath);
+        fixture.Write("app.js", "two");
+        var second = OfflineBundleGenerator.Generate(fixture.OutputRoot, fixture.TemplatePath);
+
+        Assert.NotEqual(first.Hashes["app.js"], second.Hashes["app.js"]);
+        Assert.Equal(first.Hashes["app.css"], second.Hashes["app.css"]);
+        Assert.Equal(first.Hashes["./"], second.Hashes["./"]);
+        Assert.NotEqual(first.BuildId, second.BuildId);
+    }
+
     private sealed class OfflineFixture : IDisposable
     {
         private readonly string _root = Path.Combine(Path.GetTempPath(), $"ren-courses-offline-{Guid.NewGuid():N}");

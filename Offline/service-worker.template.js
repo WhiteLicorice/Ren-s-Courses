@@ -1,5 +1,5 @@
 const OFFLINE_BUILD_ID = '__OFFLINE_BUILD_ID__';
-const OFFLINE_SCHEMA_VERSION = 1;
+const OFFLINE_SCHEMA_VERSION = 2;
 const SNAPSHOT_PREFIX = 'ren-courses-offline-';
 const META_CACHE_NAME = 'ren-courses-offline-meta';
 const LEGACY_CACHE_PREFIXES = [
@@ -105,7 +105,24 @@ async function fetchManifest() {
         throw new Error('Offline manifest entries must be strings');
     }
 
-    return { manifest, response, url };
+    return { manifest, response, url, hashes: entryHashes(manifest) };
+}
+
+function entryHashes(manifest) {
+    const hashes = manifest.hashes;
+    if (!hashes || typeof hashes !== 'object' || Array.isArray(hashes)) {
+        throw new Error('Offline manifest must map every entry to a content hash');
+    }
+
+    const byUrl = new Map();
+    for (const entry of [...manifest.routes, ...manifest.assets]) {
+        const hash = hashes[entry];
+        if (typeof hash !== 'string' || !/^[0-9a-f]{64}$/.test(hash)) {
+            throw new Error(`Offline manifest hash is missing or invalid: ${entry}`);
+        }
+        byUrl.set(scopeUrl(entry).href, hash);
+    }
+    return byUrl;
 }
 
 function routeUrl(route) {
@@ -200,6 +217,46 @@ async function storeResource(cache, result) {
     await cache.put(requestFor(result.resource.url, 'default'), result.response.clone());
 }
 
+async function previousSnapshot(previousMeta, buildId) {
+    const previousBuildId = previousMeta?.activeBuildId;
+    if (!previousBuildId || previousBuildId === buildId) return null;
+
+    const cacheName = snapshotCacheName(previousBuildId);
+    const names = await caches.keys();
+    if (!names.includes(cacheName)) return null;
+
+    try {
+        const cache = await caches.open(cacheName);
+        const response = await cache.match(requestFor(scopeUrl(MANIFEST_PATH), 'default'));
+        if (!response) return null;
+
+        const manifest = await response.json();
+        if (manifest.schemaVersion !== OFFLINE_SCHEMA_VERSION
+            || manifest.buildId !== previousBuildId) return null;
+        return { cache, hashes: entryHashes(manifest) };
+    } catch (error) {
+        console.warn('[SW] Previous snapshot cannot be reused:', error);
+        return null;
+    }
+}
+
+async function copyUnchangedResources(previous, hashes, cache, manifest) {
+    const copies = [];
+    for (const resource of requiredResources(manifest)) {
+        const href = resource.url.href;
+        const hash = hashes.get(href);
+        if (!hash || hash !== previous.hashes.get(href)) continue;
+
+        const response = await previous.cache.match(requestFor(resource.url, 'default'));
+        if (response) copies.push({ resource, response });
+    }
+
+    const results = await mapLimited(copies, CACHE_CONCURRENCY,
+        copy => storeResource(cache, copy));
+    const failure = results.find(result => result.status === 'rejected');
+    if (failure) throw failure.reason;
+}
+
 async function missingSnapshotResources(cache, manifest) {
     const resources = requiredSnapshotResources(manifest);
     const missing = [];
@@ -240,6 +297,11 @@ async function installSnapshot() {
         cacheIsActive = previousMeta?.activeBuildId === manifest.buildId;
         if (!cacheIsActive) await caches.delete(cacheNameForBuild);
         const cache = await caches.open(cacheNameForBuild);
+
+        if (!cacheIsActive) {
+            const previous = await previousSnapshot(previousMeta, manifest.buildId);
+            if (previous) await copyUnchangedResources(previous, fetched.hashes, cache, manifest);
+        }
 
         const missingResources = await missingSnapshotResources(cache, manifest);
         if (cacheIsActive && missingResources.length === 0) {

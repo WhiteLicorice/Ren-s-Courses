@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const crypto = require('crypto');
 const { TextDecoder, TextEncoder } = require('util');
 
 const source = fs.readFileSync(
@@ -139,8 +140,19 @@ function responseFor(body, contentType = 'text/plain') {
     return new Response(body, { headers: { 'Content-Type': contentType } });
 }
 
-function manifestFor(buildId = BUILD_ID, routes = ['./', 'articles/about'], assets = ['app.js', 'app.css']) {
-    return { schemaVersion: 1, buildId, routes, assets };
+function contentHash(value) {
+    return crypto.createHash('sha256').update(String(value)).digest('hex');
+}
+
+function manifestFor(buildId = BUILD_ID, routes = ['./', 'articles/about'], assets = ['app.js', 'app.css'], options = {}) {
+    const changed = options.changed || new Set();
+    const salt = options.salt || 'stable';
+    const hashes = {};
+    for (const entry of [...routes, ...assets]) {
+        const state = changed.has(entry) ? 'changed' : 'stable';
+        hashes[entry] = contentHash(`${salt}:${state}:${entry}`);
+    }
+    return { schemaVersion: 2, buildId, routes, assets, hashes };
 }
 
 function urlFor(pathname) {
@@ -331,7 +343,7 @@ test.each([
     ['route alias cache write failure', { fault: { put: (name, key) => name.endsWith(BUILD_ID) && key.endsWith('/articles/about/') } }],
     ['asset cache write failure', { fault: { put: (name, key) => name.endsWith(BUILD_ID) && key.endsWith('/app.css') } }],
 ])('%s preserves the previous complete active snapshot and records both builds', async (_name, options) => {
-    const manifest = manifestFor(BUILD_ID);
+    const manifest = manifestFor(BUILD_ID, ['./', 'articles/about'], ['app.js', 'app.css'], { salt: 'rebuilt' });
     const worker = createWorker({ manifest, ...options });
     const oldManifest = manifestFor(OLD_BUILD_ID);
     const oldCache = await worker.caches.open(`ren-courses-offline-${OLD_BUILD_ID}`);
@@ -444,4 +456,102 @@ test('activation clears all error fields only after the current snapshot validat
     await worker.dispatch('activate');
 
     expect(await worker.readMeta()).toEqual(readyMeta());
+});
+
+test('a new build copies unchanged entries and fetches only the changed entries', async () => {
+    const routes = ['./', 'articles/about', 'articles/changed'];
+    const assets = ['app.js', 'app.css'];
+    const previousManifest = manifestFor(OLD_BUILD_ID, routes, assets);
+    const manifest = manifestFor(BUILD_ID, routes, assets, { changed: new Set(['articles/changed']) });
+    const worker = createWorker({ manifest });
+    const previousCache = await worker.caches.open(`ren-courses-offline-${OLD_BUILD_ID}`);
+    await seedCache(previousCache, previousManifest);
+    await seedMeta(worker.caches, readyMeta(OLD_BUILD_ID));
+    const previousEntries = await snapshotEntries(worker.caches, OLD_BUILD_ID);
+    const previousWrites = previousCache.putAttempts.length;
+
+    await worker.dispatch('install');
+
+    expect(worker.fetches).toEqual(['/offline-manifest.json', '/articles/changed']);
+    const entries = await snapshotEntries(worker.caches, BUILD_ID);
+    expect(entries[urlFor('articles/about')]).toEqual(previousEntries[urlFor('articles/about')]);
+    expect(entries[urlFor('articles/about/')]).toEqual(previousEntries[urlFor('articles/about/')]);
+    expect(entries[urlFor('app.css')]).toEqual(previousEntries[urlFor('app.css')]);
+    expect(new TextDecoder().decode(new Uint8Array(entries[urlFor('articles/changed')])))
+        .toBe('network /articles/changed');
+    expect(previousCache.putAttempts.length).toBe(previousWrites);
+});
+
+test('an entry that changed under the same URL is fetched, not copied', async () => {
+    const routes = ['./'];
+    const assets = ['app.js'];
+    const previousManifest = manifestFor(OLD_BUILD_ID, routes, assets);
+    const manifest = manifestFor(BUILD_ID, routes, assets, { changed: new Set(['app.js']) });
+    const worker = createWorker({ manifest });
+    const previousCache = await worker.caches.open(`ren-courses-offline-${OLD_BUILD_ID}`);
+    await seedCache(previousCache, previousManifest, { 'app.js': 'old app bytes' });
+    await seedMeta(worker.caches, readyMeta(OLD_BUILD_ID));
+
+    await worker.dispatch('install');
+
+    expect(worker.fetches).toEqual(['/offline-manifest.json', '/app.js']);
+    const entries = await snapshotEntries(worker.caches, BUILD_ID);
+    const text = new TextDecoder().decode(new Uint8Array(entries[urlFor('app.js')]));
+    expect(text).toBe('network /app.js');
+    expect(text).not.toBe('old app bytes');
+});
+
+test('a first visit with no previous snapshot installs the complete snapshot', async () => {
+    const manifest = manifestFor();
+    const worker = createWorker({ manifest });
+
+    await worker.dispatch('install');
+
+    expect(worker.fetches).toEqual(expect.arrayContaining([
+        '/offline-manifest.json', '/', '/articles/about', '/app.js', '/app.css',
+    ]));
+    const entries = await snapshotEntries(worker.caches, BUILD_ID);
+    for (const path of ['offline-manifest.json', 'articles/about', 'articles/about/', 'app.js', 'app.css']) {
+        expect(entries[urlFor(path)]).toBeDefined();
+    }
+    expect(entries[urlFor('/')]).toBeDefined();
+});
+
+test('a schema-1 previous snapshot is handled and replaced with a complete snapshot', async () => {
+    const routes = ['./', 'articles/about'];
+    const assets = ['app.js'];
+    const previousManifest = { schemaVersion: 1, buildId: OLD_BUILD_ID, routes, assets };
+    const manifest = manifestFor(BUILD_ID, routes, assets);
+    const worker = createWorker({ manifest });
+    const previousCache = await worker.caches.open(`ren-courses-offline-${OLD_BUILD_ID}`);
+    await seedCache(previousCache, previousManifest, { './': 'old root bytes' });
+    await seedMeta(worker.caches, readyMeta(OLD_BUILD_ID));
+    const previousEntries = await snapshotEntries(worker.caches, OLD_BUILD_ID);
+
+    await worker.dispatch('install');
+
+    expect(worker.fetches).toEqual(expect.arrayContaining([
+        '/offline-manifest.json', '/', '/articles/about', '/app.js',
+    ]));
+    expect(await snapshotEntries(worker.caches, OLD_BUILD_ID)).toEqual(previousEntries);
+    const entries = await snapshotEntries(worker.caches, BUILD_ID);
+    expect(entries[urlFor('/')]).toBeDefined();
+    expect(entries[urlFor('articles/about')]).toBeDefined();
+    expect(entries[urlFor('app.js')]).toBeDefined();
+
+    await worker.dispatch('activate');
+    expect(await worker.caches.keys()).not.toContain(`ren-courses-offline-${OLD_BUILD_ID}`);
+});
+
+test('a manifest without per-entry hashes is rejected', async () => {
+    const manifest = { schemaVersion: 2, buildId: BUILD_ID, routes: ['./'], assets: ['app.js'] };
+    const worker = createWorker({ manifest });
+
+    await expect(worker.dispatch('install')).rejects.toThrow(/hash/i);
+    expect(await worker.readMeta()).toEqual(expect.objectContaining({
+        activeBuildId: null,
+        state: 'error',
+        errorCode: 'installation-failed',
+        failedBuildId: BUILD_ID,
+    }));
 });

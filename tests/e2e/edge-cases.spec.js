@@ -137,8 +137,14 @@ function createTwoDeploymentFixture() {
     A: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     B: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
   };
+  const requiredAsset = baseManifest.assets.find(asset => asset.includes('mermaid.min.js'));
   const deployments = Object.fromEntries(Object.entries(deploymentIds).map(([name, buildId]) => {
-    const manifest = { ...baseManifest, buildId };
+    const hashes = { ...baseManifest.hashes };
+    if (name === 'B') {
+      hashes[requiredAsset] = 'b'.repeat(64);
+      hashes[ARTICLE_ROUTE.slice(1)] = 'c'.repeat(64);
+    }
+    const manifest = { ...baseManifest, buildId, hashes };
     const worker = baseWorker.replace(
       /const OFFLINE_BUILD_ID = '[a-f0-9]{64}';/,
       `const OFFLINE_BUILD_ID = '${buildId}';`);
@@ -147,7 +153,6 @@ function createTwoDeploymentFixture() {
   let activeDeployment = 'A';
   let failRequiredAsset = false;
   let requestCounts = new Map();
-  const requiredAsset = baseManifest.assets.find(asset => asset.includes('mermaid.min.js'));
 
   const countRequest = requestUrl => {
     const url = new URL(requestUrl, 'http://127.0.0.1');
@@ -723,14 +728,20 @@ test.describe('Deterministic offline cache', () => {
       expect(await page.evaluate(async cacheName => caches.has(cacheName), cacheA)).toBe(false);
       expect(await page.evaluate(async () => caches.has('unrelated-cache'))).toBe(true);
 
-      const expectedRequestKeys = [
-        '/offline-manifest.json',
-        ...fixture.manifest.routes.map(route => route === './' ? '/' : `/${route}`),
-        ...fixture.manifest.assets.map(asset => `/${asset}`),
-      ];
       const requestCounts = fixture.requestCounts();
-      for (const key of expectedRequestKeys) {
-        expect(requestCounts[key]).toBe(1);
+      expect(requestCounts['/offline-manifest.json']).toBe(1);
+      expect(requestCounts[`/${fixture.requiredAsset}`]).toBe(1);
+      expect(requestCounts[ARTICLE_ROUTE]).toBe(1);
+      const unchangedEntries = [
+        ...fixture.manifest.routes
+          .filter(route => route !== ARTICLE_ROUTE.slice(1))
+          .map(route => route === './' ? '/' : `/${route}`),
+        ...fixture.manifest.assets
+          .filter(asset => asset !== fixture.requiredAsset)
+          .map(asset => `/${asset}`),
+      ];
+      for (const key of unchangedEntries) {
+        expect(requestCounts[key] || 0).toBe(0);
       }
 
       await page.context().setOffline(true);

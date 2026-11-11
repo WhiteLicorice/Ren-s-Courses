@@ -19,11 +19,14 @@ public sealed class OfflineManifest
 
     [JsonPropertyName("assets")]
     public string[] Assets { get; init; } = [];
+
+    [JsonPropertyName("hashes")]
+    public SortedDictionary<string, string> Hashes { get; init; } = new(StringComparer.Ordinal);
 }
 
 public static class OfflineBundleGenerator
 {
-    private const int SchemaVersion = 1;
+    private const int SchemaVersion = 2;
     private const string MermaidAsset = "vendor/mermaid/mermaid.min.js";
     private const string BuildIdToken = "__OFFLINE_BUILD_ID__";
     private static readonly Regex BaseHref = new(
@@ -79,14 +82,23 @@ public static class OfflineBundleGenerator
         AddAsset(MermaidAsset, outputRoot, assets);
         ProcessCssReferences(outputRoot, assets);
 
+        var routeHashes = routeFiles.ToDictionary(
+            pair => pair.Key, pair => HashFile(pair.Value), StringComparer.Ordinal);
+        var assetHashes = assets.ToDictionary(
+            pair => pair.Key, pair => HashFile(pair.Value), StringComparer.Ordinal);
+        var hashes = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (var pair in routeHashes) hashes[pair.Key] = pair.Value;
+        foreach (var pair in assetHashes) hashes.TryAdd(pair.Key, pair.Value);
+
         var workerTemplate = File.ReadAllText(workerTemplatePath);
-        var buildId = CreateBuildId(routes, routeFiles, assets, workerTemplatePath);
+        var buildId = CreateBuildId(routeHashes, assetHashes, workerTemplatePath);
         var manifest = new OfflineManifest
         {
             SchemaVersion = SchemaVersion,
             BuildId = buildId,
             Routes = routes,
             Assets = assets.Keys.ToArray(),
+            Hashes = hashes,
         };
 
         if (!workerTemplate.Contains(BuildIdToken, StringComparison.Ordinal))
@@ -351,16 +363,15 @@ public static class OfflineBundleGenerator
     }
 
     private static string CreateBuildId(
-        IEnumerable<string> routes,
-        IReadOnlyDictionary<string, string> routeFiles,
-        IReadOnlyDictionary<string, string> assets,
+        IReadOnlyDictionary<string, string> routeHashes,
+        IReadOnlyDictionary<string, string> assetHashes,
         string workerTemplatePath)
     {
         var pairs = new List<string>();
-        foreach (var route in routes)
-            pairs.Add($"route\n{route}\n{HashFile(routeFiles[route])}");
-        foreach (var asset in assets.Keys)
-            pairs.Add($"asset\n{asset}\n{HashFile(assets[asset])}");
+        foreach (var pair in routeHashes)
+            pairs.Add($"route\n{pair.Key}\n{pair.Value}");
+        foreach (var pair in assetHashes)
+            pairs.Add($"asset\n{pair.Key}\n{pair.Value}");
         pairs.Add($"worker-template\n{HashFile(workerTemplatePath)}");
 
         pairs.Sort(StringComparer.Ordinal);
