@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import tempfile
 import unittest
@@ -242,6 +243,89 @@ Body
 
             feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
             self.assertNotIn("Old Untagged Post", feed_xml)
+
+    def test_nested_material_is_included_with_its_flat_article_link(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            nested = Path(content_dir, "fixture-course-a", "fixture-lab-nested")
+            nested.mkdir(parents=True)
+            (nested / "fixture-course-a-lab-nested.md").write_text(
+                """---
+title: Nested Material
+published: 2026-05-20
+tags:
+  - fixture-course-a
+lead: A material inside course and material folders.
+---
+Body
+""",
+                encoding="utf-8",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+
+            self.assertIn("Nested Material", feed_xml)
+            self.assertIn(
+                "<link>https://renscourses.netlify.app/articles/fixture-course-a-lab-nested</link>",
+                feed_xml,
+            )
+
+    def test_nested_index_material_links_to_its_folder_name(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            nested = Path(content_dir, "fixture-course-a", "fixture-lab-index")
+            nested.mkdir(parents=True)
+            (nested / "index.md").write_text(
+                """---
+title: Nested Index Material
+published: 2026-05-20
+tags:
+  - fixture-course-a
+lead: An index file inside course and material folders.
+---
+Body
+""",
+                encoding="utf-8",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+
+            self.assertIn("Nested Index Material", feed_xml)
+            self.assertIn(
+                "<link>https://renscourses.netlify.app/articles/fixture-lab-index</link>",
+                feed_xml,
+            )
+
+    def test_article_slug_matches_the_shared_material_table(self):
+        table = json.loads(
+            (Path(__file__).resolve().parents[2]
+             / "tests" / "fixtures" / "material-slugs.json").read_text(encoding="utf-8")
+        )
+
+        with tempfile.TemporaryDirectory() as content_dir:
+            for raw, expected in table.items():
+                path = Path(content_dir, raw + ".md")
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("---\ntitle: Test\n---\n", encoding="utf-8")
+
+                with mock.patch.object(generate_feed, "CONTENT_DIR", content_dir):
+                    self.assertEqual(expected, generate_feed.article_slug(str(path)), raw)
 
     @staticmethod
     def _write_post(content_dir: str, file_name: str, content: str) -> None:

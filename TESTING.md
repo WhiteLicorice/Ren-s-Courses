@@ -20,12 +20,12 @@ The public repository does not track the course materials. The workflow clones t
 | Gate | Command | Count | Runs in CI |
 |---|---|---|---|
 | JS | `npm test` | 12 suites, 223 tests | Yes |
-| .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 219 tests | Yes |
-| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 11 tests | Yes |
-| End-to-end | `npm run test:e2e` | 298 tests | No |
+| .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
+| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 14 tests | Yes |
+| End-to-end | `npm run test:e2e` | 318 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-We measured the JS, .NET, and end-to-end counts on 2026-11-11. The Python and Edge offline counts remain from 2026-09-12 at commit `f595f1b`.
+We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 after the B-001 rebase and the R4 fixes. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -43,7 +43,7 @@ Then run the suite:
 dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj
 ```
 
-Five content-hygiene tests read `Content/Materials`. A clone without the private material depot has no such folder, so those tests skip with `MaterialDepotFact`. The workflow clones the depot before the .NET gate, and its guard fails earlier if the checkout is empty.
+The five content-hygiene tests and the material-layout real-corpus lint read `Content/Materials`. A clone without the private material depot has no such folder, so those six tests skip with `MaterialDepotFact`. The workflow clones the depot before the .NET gate, and its guard fails earlier if the checkout is empty.
 
 ### Patterns to Keep
 
@@ -108,7 +108,7 @@ Each suite reads its script from disk and runs it with `new Function(source)()`.
 
 ## Python (unittest)
 
-`.github/utils/generate_feed.py` builds one RSS 2.0 feed per course at build time. It has 11 tests. They cover feed generation, date parsing, the term-end boundary, empty-feed output, showcase-mode skipping, and the active-course gate.
+`.github/utils/generate_feed.py` builds one RSS 2.0 feed per course at build time. It has 14 tests. They cover feed generation, date parsing, the term-end boundary, empty-feed output, showcase-mode skipping, the active-course gate, and nested materials.
 
 ```bash
 python -m unittest discover -s .github/utils -p "test_*.py" -v
@@ -116,21 +116,22 @@ python -m unittest discover -s .github/utils -p "test_*.py" -v
 
 ## End-to-End (Playwright)
 
-Playwright runs against a pre-built fixture site. A lightweight file server serves it. The suite covers every major user flow.
+Playwright runs against two pre-built fixture sites. A lightweight file server serves the absolute fixture. The suite covers every major user flow.
 
-No test reads a live material. The site generator builds the fixture site from `tests/fixtures/site/Content` into `output-e2e/`. The suite never reads `output/`, which holds the production site. [PLAYBOOK.md](./PLAYBOOK.md), section Test Fixtures, gives the rule and its guards.
+No test reads a live material. The site generator builds the fixture content from `tests/fixtures/site/Content`. It writes `output-e2e/` with an absolute ContentPath and `output-e2e-relative/` with a relative one. The suite never reads `output/`, which holds the production site. [PLAYBOOK.md](./PLAYBOOK.md), section Test Fixtures, gives the rule and its guards.
 
 CI does not run this suite. The Playwright run takes too long for a GitHub runner, so CI runs the JS, .NET, and Python gates instead. Treat the end-to-end suite as the release gate you run locally.
 
 ### Building the Fixture Site
 
-Build the fixture site first. The suite reads `output-e2e/` and does not create it.
+Build both fixture sites first. The suite reads `output-e2e/` and `output-e2e-relative/` and does not create either.
 
 ```bash
 npm run build:e2e-site
+npm run build:e2e-relative
 ```
 
-The script is `tests/fixtures/site/build.js`. It sets `SITE_PROFILE=e2e` and a fixed environment:
+The script is `tests/fixtures/site/build.js`. It sets `SITE_PROFILE=e2e` or `SITE_PROFILE=e2e-relative` and a fixed environment:
 
 | Variable | Value |
 |---|---|
@@ -140,11 +141,17 @@ The script is `tests/fixtures/site/build.js`. It sets `SITE_PROFILE=e2e` and a f
 | `ACTIVE_COURSES` | `fixture-course-a,fixture-course-b` |
 | `SHOWCASE_MODE` | `false`, so the real visibility rules run |
 
+`tests/fixtures/site/Content/Materials` holds two flat materials and one nested material. The nested file sits at `fixture-course-a/fixture-lab-nested/fixture-course-a-lab-nested.md`, and its image sits in a `media` folder beside it.
+
 `SITE_PROFILE=e2e` selects `SiteLayout.EndToEndFixture` in `Program.cs`. That layout keeps every generated path apart from production: the content root, the output folder, the PDF cache in `artifacts/e2e-site`, and the generated PDFs. The PDF cache prunes every slug it does not see, so a shared cache would delete the production PDFs.
 
 The first build links `artifacts/e2e-site/pdf-toolchain` to the pinned toolchain in `artifacts/pdf-toolchain`. Without a production toolchain, the build downloads one.
 
-Rebuild after you change a fixture Markdown file, a Razor component, a stylesheet, or a script. The suite serves whatever `output-e2e/` holds.
+`SITE_PROFILE=e2e-relative` selects `SiteLayout.RelativeFixture`. It reads the fixture content through the relative `bin/Release/net9.0/Content` copy. It writes `output-e2e-relative/`. It uses `artifacts/e2e-site-relative` for the PDF cache and toolchain. The relative build deletes that bin content folder after the app exits. The normal fixture build deletes it before the run, and the production build copies the depot checkout under `Content/` into it. A later production build in the same worktree therefore cannot read fixture files.
+
+`relative-materials.spec.js` serves the relative output under `/` and `/Ren-s-Courses/` from its own Node server. The server rewrites `<base href="/">` to the prefix for HTML responses. The GitHub Pages workflow sets the base in `App.razor` before the build. This test exercises relative URL resolution under both bases, not the build-time base edit. The server listens on an OS-assigned loopback port, logs it, and closes in `afterAll`. It must not use 5000 or 8081. The first full run failed two Chromium worker checks while the server sent `Cache-Control: no-store`. Commit `f81583a` removed that header and set `Content-Length`. The reruns passed. The cause is inferred, not proven. A controlled comparison was not run. Do not send `Cache-Control: no-store`.
+
+Rebuild after you change a fixture Markdown file, a Razor component, a stylesheet, or a script. The suite serves whatever the two output folders hold.
 
 ### Running the Suite
 
@@ -179,6 +186,8 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 |---|---|
 | `home.spec.js` | `/`, the title, the glitch text, the lead, and the chip filter |
 | `materials.spec.js` | `/materials`, `/materials/{tag}`, `/articles/{slug}`, the tag cloud, post cards, the generated and external download actions, code blocks, and the copy button |
+| `nested-materials.spec.js` | The nested fixture: the flat article URL, the image beside the file, the generated PDF link, and the image entry in the offline manifest |
+| `relative-materials.spec.js` | The fixture content built with a relative ContentPath, served under `/` and `/Ren-s-Courses/`: exact article URL, image natural width, linked PDF, and worker readiness |
 | `faqs.spec.js` | `/faqs`, the sections, the chip filter, the accordion, hash deep-linking, and `hashchange` |
 | `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |

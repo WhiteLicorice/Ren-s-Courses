@@ -30,6 +30,11 @@ if (args.Contains("--finalize-offline", StringComparer.Ordinal))
     return;
 }
 
+// Two materials that share a file name would share one article URL and one PDF
+// name. Fail before any generation starts, and name both paths.
+MaterialLayout.ValidateUniqueSlugs(Path.GetFullPath(
+    Path.Combine(contentRootPath, siteLayout.MaterialsDirectory)));
+
 builder.Services.AddBlazorStaticService(opt =>
 {
     opt.OutputFolderPath = productionOutputPath;
@@ -50,7 +55,8 @@ builder.Services.AddBlazorStaticService(opt =>
     opt.ContentPath = WebsiteKeys.Materials.SourcePath;
     opt.Tags.TagsPageUrl = WebsiteKeys.Materials.TagPageUrl;
     opt.PageUrl = WebsiteKeys.Materials.UrlPrefix;
-    opt.AfterContentParsedAndAddedAction = WebsiteKeys.RemoveHiddenArticlePages;
+    opt.AfterContentParsedAndAddedAction = (svc, content) =>
+        WebsiteKeys.PrepareArticlePages(svc, content, siteLayout.MaterialsDirectory);
 })
 .AddBlazorStaticContentService<ProjectFrontMatter>(opt =>
 {
@@ -197,13 +203,25 @@ internal sealed record SiteLayout(
         Path.Combine("artifacts", "e2e-site"),
         Path.Combine("artifacts", "e2e-site", "pdfs"));
 
-    internal string MaterialsDirectory => Path.Combine(ContentRoot, "Materials");
+    // The relative fixture uses the production Content path. Its build script copies
+    // the fixture tree into bin/Content, so BlazorStatic and the PDF generator read
+    // the same relative path production uses. The PDF output and cache stay apart.
+    internal static readonly SiteLayout RelativeFixture = new(
+        "Content",
+        "output-e2e-relative",
+        Path.Combine("artifacts", "e2e-site-relative"),
+        Path.Combine("artifacts", "e2e-site-relative", "pdfs"));
 
-    // BlazorStatic resolves a relative ContentPath against the bin folder, where the
-    // csproj copies Content/**. The fixture tree is not copied, so it goes in absolute.
-    internal string ContentPathFor(string contentRootPath) => this == Production
-        ? ContentRoot
-        : Path.GetFullPath(Path.Combine(contentRootPath, ContentRoot));
+    internal string MaterialsDirectory => this == RelativeFixture
+        ? Path.Combine(AppContext.BaseDirectory, "Content", "Materials")
+        : Path.Combine(ContentRoot, "Materials");
+
+    // BlazorStatic resolves a relative ContentPath against the bin folder. Production
+    // and the relative fixture use that relative path. The absolute e2e fixture does
+    // not copy its tree to bin, so it passes an absolute path.
+    internal string ContentPathFor(string contentRootPath) => this == EndToEndFixture
+        ? Path.GetFullPath(Path.Combine(contentRootPath, ContentRoot))
+        : ContentRoot;
 
     internal bool PublishesPdfsFromWwwroot => PdfOutputDirectory == Production.PdfOutputDirectory;
 
@@ -234,7 +252,8 @@ internal sealed record SiteLayout(
     {
         null or "" => Production,
         "e2e" => EndToEndFixture,
-        _ => throw new InvalidOperationException($"Unknown SITE_PROFILE '{profile}'. Set it to 'e2e' or leave it unset.")
+        "e2e-relative" => RelativeFixture,
+        _ => throw new InvalidOperationException($"Unknown SITE_PROFILE '{profile}'. Set it to 'e2e', 'e2e-relative', or leave it unset.")
     };
 }
 
@@ -251,7 +270,8 @@ internal static class ProductionOutput
     {
         // Reset deletes this folder recursively, so accept only the known outputs.
         if (folderName != SiteLayout.Production.OutputFolderName
-            && folderName != SiteLayout.EndToEndFixture.OutputFolderName)
+            && folderName != SiteLayout.EndToEndFixture.OutputFolderName
+            && folderName != SiteLayout.RelativeFixture.OutputFolderName)
             throw new InvalidOperationException($"Refusing unknown output folder: '{folderName}'");
 
         var fullContentRoot = Path.GetFullPath(contentRootPath);
@@ -364,10 +384,22 @@ public static class WebsiteKeys
             svc.Options.PagesToGenerate.Remove(page);
     }
 
-    // AfterContentParsedAndAddedAction callback: drops individual article
-    // pages for posts that are not currently visible (inactive course, future
-    // release, or out-of-window untagged post). Listing and tag pages are
-    // untouched. Mirrors CourseContentProvider.GetVisiblePosts.
+    // AfterContentParsedAndAddedAction callback: restores the flat article URL
+    // for a nested material, then drops article pages for posts that are not
+    // visible (inactive course, future release, or out-of-window untagged post).
+    // Listing and tag pages are untouched. Mirrors CourseContentProvider.GetVisiblePosts.
+    internal static void PrepareArticlePages(
+        BlazorStaticService svc, BlazorStaticContentService<CourseFrontMatter> contentService) =>
+        PrepareArticlePages(svc, contentService, Materials.SourcePath);
+
+    internal static void PrepareArticlePages(
+        BlazorStaticService svc, BlazorStaticContentService<CourseFrontMatter> contentService,
+        string materialsDirectory)
+    {
+        MaterialLayout.Normalize(svc, contentService, materialsDirectory);
+        RemoveHiddenArticlePages(svc, contentService);
+    }
+
     internal static void RemoveHiddenArticlePages(
         BlazorStaticService svc, BlazorStaticContentService<CourseFrontMatter> contentService)
     {

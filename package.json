@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "build:e2e-site": "node tests/fixtures/site/build.js",
+    "build:e2e-relative": "node tests/fixtures/site/build.js --relative",
     "test:e2e": "npx playwright test --project=chromium --project=firefox"
   },
   "jest": {

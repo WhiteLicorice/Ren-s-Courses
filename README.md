@@ -105,6 +105,14 @@ All client-side behavior is vanilla JS with no framework. Theme, calendar, TOC, 
 
 Materials are Markdown files under `Content/Materials`. The public repository does not track them. The deploy workflow clones the private material depot into `Content` before it builds. To run a local build with the real materials, follow the depot setup in Quick Start. Remove only `Content/.gitkeep`, clone the depot, then restore the placeholder. YAML frontmatter drives everything below.
 
+### Material Layout
+
+A material can sit directly in `Content/Materials`. It can also sit inside `Content/Materials/<course>/<material>/`. The article URL is `articles/<file stem>`, except that an `index.md` file drops that last segment. A root `index.md` stays `articles/index`. So `Content/Materials/course/index.md` publishes at `articles/course`. A move between the two layouts keeps the old URL, except when the file is named `index.md`.
+
+Put an image in a `media` folder beside the Markdown file. Reference it as `media/<file>`. The build publishes the image under `Content/Materials/<course>/<material>/media/`, and the PDF embeds it.
+
+Two materials in different folders must not share a slug. The build stops and names both paths. The slug after the generator's normalization must match `^[A-Za-z0-9][A-Za-z0-9_-]*$`. It starts with an ASCII letter or digit and uses only ASCII letters, digits, underscores, and hyphens. The generator trims edge hyphens, so the PDF name and the duplicate key use `lesson`, while the page URL and the feed link keep `-lesson-`. The build stops on any other character and names the file, the slug, and the allowed characters.
+
 ### Submission Links
 
 A material that requires a deliverable can declare one or more submission forms. The list is optional. Each entry renders as a named action on that material's article page.

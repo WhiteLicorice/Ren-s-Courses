@@ -19,6 +19,11 @@ module.exports = {
     ARTICLE_SLUG: 'fixture-course-a-lab1',
     ARTICLE_ROUTE: '/articles/fixture-course-a-lab1',
 
+    /** Nested as Materials/fixture-course-a/fixture-lab-nested/<name>.md. */
+    NESTED_ARTICLE_SLUG: 'fixture-course-a-lab-nested',
+    NESTED_ARTICLE_ROUTE: '/articles/fixture-course-a-lab-nested',
+    NESTED_MEDIA_ASSET: 'Content/Materials/fixture-course-a/fixture-lab-nested/media/fixture-figure.png',
+
     /** Declares downloadLink, so the build generates no PDF for it. */
     EXTERNAL_ARTICLE_ROUTE: '/articles/fixture-course-b-lab1',
     EXTERNAL_DOWNLOAD_LINK: 'https://example.com/fixture-course-b-lab1.pdf',

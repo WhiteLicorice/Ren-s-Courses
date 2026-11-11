@@ -1,0 +1,8 @@
+{
+  "course/index/index": "index",
+  "course/lab/index": "lab",
+  "index": "index",
+  "course/index": "course",
+  "course": "course",
+  "course/lab/lesson": "lesson"
+}

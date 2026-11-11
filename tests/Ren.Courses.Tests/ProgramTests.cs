@@ -50,6 +50,17 @@ public class ProgramTests
         Assert.Equal(Path.Combine(fixture.Root, "output-e2e"), outputPath);
     }
 
+    [Fact]
+    public void ResolveOutputPath_accepts_the_relative_fixture_folder()
+    {
+        using var fixture = new OutputFixture();
+
+        var outputPath = ProductionOutput.Resolve(
+            fixture.Root, SiteLayout.RelativeFixture.OutputFolderName);
+
+        Assert.Equal(Path.Combine(fixture.Root, "output-e2e-relative"), outputPath);
+    }
+
     [Theory]
     [InlineData("wwwroot")]
     [InlineData("Content")]
@@ -113,16 +124,36 @@ public class ProgramTests
     }
 
     [Fact]
-    public void SiteLayout_content_path_stays_relative_for_production_and_absolute_for_e2e()
+    public void SiteLayout_content_path_stays_relative_for_production_and_the_relative_fixture()
     {
-        // BlazorStatic resolves a relative ContentPath against the bin folder, and
-        // the csproj copies only Content/** there. The fixture tree is not copied.
+        // BlazorStatic resolves a relative ContentPath against the bin folder. The
+        // relative fixture copies its tree there. The absolute e2e fixture does not.
         var root = Path.Combine(Path.GetTempPath(), "repo");
 
         Assert.Equal("Content", SiteLayout.Production.ContentPathFor(root));
+        Assert.Equal("Content", SiteLayout.RelativeFixture.ContentPathFor(root));
         Assert.Equal(
             Path.GetFullPath(Path.Combine(root, "tests", "fixtures", "site", "Content")),
             SiteLayout.EndToEndFixture.ContentPathFor(root));
+    }
+
+    [Fact]
+    public void SiteLayout_relative_fixture_reads_the_bin_content_tree()
+    {
+        Assert.True(Path.IsPathRooted(SiteLayout.RelativeFixture.MaterialsDirectory));
+        Assert.EndsWith(Path.Combine("Content", "Materials"),
+            SiteLayout.RelativeFixture.MaterialsDirectory);
+    }
+
+    [Fact]
+    public void SiteLayout_relative_fixture_isolates_the_generated_paths()
+    {
+        var relative = SiteLayout.RelativeFixture;
+        var production = SiteLayout.Production;
+
+        Assert.NotEqual(production.OutputFolderName, relative.OutputFolderName);
+        Assert.NotEqual(production.PdfArtifactsDirectory, relative.PdfArtifactsDirectory);
+        Assert.NotEqual(production.PdfOutputDirectory, relative.PdfOutputDirectory);
     }
 
     [Fact]

@@ -104,6 +104,15 @@ def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Option
     
     return None
 
+def article_slug(filepath: str) -> str:
+    """Mirror the site: relative path without extension, strip /index, last segment."""
+    relative = os.path.relpath(filepath, CONTENT_DIR)
+    relative = os.path.splitext(relative)[0].replace("\\", "/")
+    if relative.endswith("/index"):
+        relative = relative[: -len("/index")]
+    return relative.rsplit("/", 1)[-1]
+
+
 def generate_rss_xml(posts: List[PostItem], title_suffix: str = "") -> str:
     """Generates a valid RSS 2.0 XML string from a list of posts."""
     
@@ -188,7 +197,7 @@ def generate_feed() -> None:
         return
 
     # 1. SCAN (Replaced Regex loop with python-frontmatter)
-    for filepath in glob(os.path.join(CONTENT_DIR, "*.md")):
+    for filepath in glob(os.path.join(CONTENT_DIR, "**", "*.md"), recursive=True):
         try:
             # Load file and parse FrontMatter automatically
             with open(filepath, 'r', encoding='utf-8') as f:
@@ -237,8 +246,7 @@ def generate_feed() -> None:
                 continue
 
             # Prepare Data
-            filename = os.path.basename(filepath)
-            slug = os.path.splitext(filename)[0]
+            slug = article_slug(filepath)
             url = f"articles/{slug}"
 
             all_posts.append({

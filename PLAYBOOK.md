@@ -25,16 +25,16 @@ Most entries below end with the same check. It is written once here.
 
 ## Gate Baselines
 
-Measured 2026-11-11 at the B-001 removal on `master` after `9986bbf`, submodule pin `2d2b29e`. The Edge offline and production build rows remain from 2026-09-12 at `f595f1b`.
+Measured 2026-11-11 on the B-019 branch at the R4 fix, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the final head build. B-001 changes no route, PDF, or feed input.
 
 | Gate | Result |
 |---|---|
-| .NET, Release | 219 passed, 0 failed |
+| .NET, Release | 271 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
-| Python | 11 passed, 0 failed |
-| Playwright, Chromium and Firefox | 298 of 298 passed |
-| Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed, measured 2026-09-12 |
-| Production build | `PDF gen: 50 docs, 0 gen, 49 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. Earlier rows counted PDFs only. This row quotes the generator's own summary line. Measured 2026-09-12. |
+| Python | 14 passed, 0 failed |
+| Playwright, Chromium and Firefox | 318 of 318 passed |
+| Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
+| Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
 The Playwright row is the full local release gate. When a worker-contention timeout appears, re-run that spec alone before calling it a regression. Test Harness Traps records the pattern.
 
@@ -48,7 +48,7 @@ Confirmed 2026-11-11 at `9986bbf` against the `actions/checkout@v5` source and R
 
 - `actions/checkout` with `path: Content` deletes the contents of an existing folder when that folder is not already a checkout of the same repository. The tracked `.gitkeep` does not survive on the runner. It exists only to keep the folder in a fresh clone of the public repository.
 - The workflow runs `.github/utils/check_content.sh` after the depot checkout. The script fails the run when `Content/Materials` holds no Markdown file. The guard is the CI enforcement.
-- The five content-hygiene tests in `DiagramContentHygieneTests` skip with `MaterialDepotFact` when `Content/Materials` is absent. A contributor without the private depot still runs the rest of the .NET gate. The guard, not the test, protects the deploy.
+- The content checks that read `Content/Materials` skip with `MaterialDepotFact` when the folder is absent. The five content-hygiene tests and the material-layout real-corpus lint use it. A contributor without the private depot still runs the rest of the .NET gate. The guard, not the test, protects the deploy.
 - `.gitignore` ignores everything under `Content` except `.gitkeep`, so a local depot clone never shows in `git status`. Clone the depot only after you remove the tracked `.gitkeep`, and restore it with `git restore -- Content/.gitkeep`. Git refuses to clone into a nonempty folder. Never delete an existing depot checkout.
 - The csproj removes `Content/.git/**` from the output copy and from the watch glob. The depot checkout places a `.git` folder inside `Content`.
 - A push to the depot does not trigger this workflow. The next successful hourly run picks up eligible changes. Publication can take longer than one hour. A dispatch trigger is out of scope.
@@ -87,7 +87,7 @@ A hand-mirrored fixture needs two guards:
 
 Also guard the fixture inside each test that needs a specific fixture property. Examples are "the sidebar box can scroll" and "a hidden diagram step heading exists". Without that guard, a fixture edit makes the test vacuous with no signal.
 
-**One exception.** `DiagramContentHygieneTests` reads `Content/Materials` on purpose. Its subject is the authored content, so a fixture cannot stand in for it. It targets no specific material and passes with zero files. When the folder is absent, the five content-scanning tests skip with `MaterialDepotFact` instead of throwing. The workflow guard fails the CI run before the .NET gate, so the skip cannot hide an empty deploy. Keep any new content lint to the same limits.
+**One exception.** `DiagramContentHygieneTests` reads `Content/Materials` on purpose. Its subject is the authored content, so a fixture cannot stand in for it. It targets no specific material and passes with zero files. When the folder is absent, the five content-scanning tests skip with `MaterialDepotFact` instead of throwing. The material-layout real-corpus lint uses the same attribute and skips too. The workflow guard fails the CI run before the .NET gate, so the skip cannot hide an empty deploy. Keep any new content lint to the same limits.
 
 Confirmed 2026-09-24. The first TOC fix at `0f28707` added e2e tests against the live `cmsc-124-act9` and `cmsc-124-lab0`. Those tests moved to `toc.spec.js`. Against the pre-fix `toc.js`, the harness fails 5 of 12 tests, the same defect the live page showed.
 
@@ -117,6 +117,18 @@ Diagram markers, confirmed 2026-07-15:
 - `ResolveSegments` uses one global instance counter, not a per-key count. Two distinct diagrams on one page get ids 0 and 1 instead of colliding at 0.
 - `tests/Ren.Courses.Tests/DiagramContentHygieneTests.cs` scans every file under `Content/Materials` and fails the build on a missing, invalid, or duplicate `key`, on a marker naming an undeclared key, and on a declared diagram no marker references. Runtime stays graceful, so an unknown-key marker logs a warning and an unreferenced diagram is skipped.
 
+## Material Layout
+
+Confirmed 2026-11-11 against site commit `c13f018` with the nested-material change in the working tree. That commit alone lacks the feature.
+
+- A material at `Content/Materials/<course>/<material>/<name>.md` publishes at `articles/<name>`, the same URL a flat `<name>.md` has. `MaterialLayout.Normalize` rewrites the BlazorStatic post URL and the generated page, so old links and feed items stay valid. Flat files keep their old URL and PDF name.
+- **BlazorStatic makes a nested URL from the path relative to `ContentPath`.** The after-parse hook flattens it. It is a usable hook, not the only possible design. The page URL and output file are already in `PagesToGenerate` when the hook runs.
+- **An absolute `ContentPath` breaks BlazorStatic's media rewrite.** The fixture profile passes an absolute path, so `HtmlMediaRewriter` turns an image `src` into a rooted Windows path. The media copy target then becomes the source folder, `CopyContent` copies a file onto itself, and the host never stops. `MaterialLayout.Normalize` rewrites the copy target and the `src` to `Content/Materials/...`. Keep this normalization. Production passes a relative path and its media entries already point at the published folder.
+- **The published image URL is relative on purpose.** `Content/Materials/...` resolves under `<base href="/">` and `<base href="/Ren-s-Courses/">`. Do not add a leading slash.
+- **A duplicate file name fails the build.** `MaterialLayout.ValidateUniqueSlugs` compares names without case and after trimming edge hyphens, the same rule as the generator. It also checks the slug against the allowlist. A slug must match `^[A-Za-z0-9][A-Za-z0-9_-]*$` after the generator's normalization. The allowed characters are ASCII letters, digits, underscore, and hyphen. The first character must be an ASCII letter or digit. The generator trims edge hyphens, so the PDF name and the duplicate key use `lesson`, while the page URL and the feed link keep `-lesson-`. The check runs before PDF generation. The duplicate error names both paths. The slug error names the file, the slug, and the allowed characters. The generator repeats the duplicate check with its own exception, so a standalone generator run cannot collide either. The slug check is site-only. The generator is unchanged for it.
+- The generator change lives in `RensMarkdownTemplates`. `PdfGeneratorService.RouteName` removes one trailing `/index` first, then takes the last path segment, the same rule BlazorStatic uses. Advance the pin before you rely on it. A relative image is resolved against the material folder first, so a `media` folder beside the file needs no extra generator change.
+- `generate_feed.py` mirrors the same slug rule, including a nested `index.md`. Its recursive scan is the reason a nested material reaches the feed at all.
+
 ## PDF Generation
 
 The generator lives in the submodule, not here. Read that boundary first. Most confusion in this area comes from looking for a file in the wrong repository.
@@ -125,7 +137,7 @@ Confirmed 2026-07-14 through 2026-08-16:
 
 - PDF generation runs at application startup, immediately before BlazorStatic generation. `PdfGeneratorService` discovers non-draft Markdown recursively from `Content/Materials` itself, because BlazorStatic's post collection is not populated at that point. It publishes a per-route `PdfGenerationManifest`. A document-level failure is isolated. It never stops the site build.
 - A document fingerprint length-frames every logical input: generator schema version, the complete raw Markdown, the selected template directory, the shared toolchain manifest, `package-lock.json`, Mermaid configuration, referenced local media, and shared PDF assets. Any frontmatter or body change therefore invalidates that document alone. Cache state lives in `artifacts/material-pdfs/state`. Content-addressed PDFs live in `wwwroot/pdfs`. A missing, corrupt, mismatched, inactive, or orphaned entry is invalidated or pruned. Both PDF and state publication are atomic.
-- The pinned submodule restores its Node dependencies before Tailwind or PDF generation. Application startup bootstraps pinned Pandoc 3.10 and Tectonic 0.16.9 archives for the current Windows or Linux x64 runtime. Downloads use checksums, partial files, retries, extraction staging, and executable validation. Tectonic receives the pinned remote bundle URL and keeps its range cache under `artifacts/tectonic-cache`. It does not download the multi-gigabyte bundle eagerly.
+- The pinned submodule restores its Node dependencies before Tailwind or PDF generation. Application startup bootstraps pinned Pandoc 3.10 and Tectonic 0.16.9 archives for the current Windows or Linux x64 runtime. Downloads use checksums, partial files, retries, extraction staging, and executable validation. Tectonic receives the pinned remote bundle URL and keeps its range cache under `artifacts/tectonic-cache`. The real path is `Dependencies/RensMarkdownTemplates/artifacts/tectonic-cache`. The site-root `artifacts/tectonic-cache` is not read, so a build that copies only that folder downloads the bundle again. It does not download the multi-gigabyte bundle eagerly when the cache is present.
 - Generated PDFs must stay out of SDK static-web-asset discovery, which the early-imported `Directory.Build.props` handles. Read that file rather than duplicating its exclusion list here. BlazorStatic copies the physical directory after startup generation.
 - **The generator does not live here.** The PDF generator, canonical frontmatter DTOs, diagram-marker implementation, templates, institutional assets, pinned tool manifest, Mermaid dependencies, and pipeline tests all live in the public `WhiteLicorice/RensMarkdownTemplates` repository. This repository holds the Blazor adapter and the site-specific content hygiene tests. CI must initialize submodules recursively. Change the shared repository first, run its test gate, render its Mermaid fixture through the CLI, then advance the pin here.
 - **Mermaid PDF configuration moved with the generator.** The `.mmdc.json` palette work and the finding that a top-level `"htmlLabels": false` is what switches node labels to SVG text both belong to the shared repository now. Neither `.mmdc.json` nor `@mermaid-js/mermaid-cli` exists in this tree. Do not look for them here.
@@ -296,4 +308,5 @@ Read this before you call a browser failure a regression. Several entries here d
 - **A per-file `IgnoredPathsOnContentCopy` entry does nothing.** A directory entry works, as `js/__tests__` shows. `SiteLayout.RemoveForeignPdfs` deletes the production PDFs from `output-e2e/pdfs` after generation instead.
 - **A BlazorStatic generation error does not stop the process.** The generator logs `An error occurred while generating static pages` and the host keeps running. A build script then hangs and never reports a failure. Watch the log. Stop the `BlazorStaticMinimalBlog` process by hand. This is an open flaw.
 - Two historical drift lessons worth keeping. `navigation.spec.js` once hardcoded 8 `menu.json` entries after the Submissions tab was dropped, leaving 7, and four tests failed in both browsers. Note the namesake: the per-material submission-links dropdown is a live feature and is unrelated. Separately, a substring locator for the "All Materials" back-link became a strict-mode violation once an empty-state panel added a second "View all materials" link. Use `getByRole('link', { name: 'All Materials', exact: true })`.
+- **A deep checkout path breaks the Mermaid browser launch on Windows.** Puppeteer 25.3.0 resolves Chrome under `Dependencies/RensMarkdownTemplates/artifacts/puppeteer`. When the checkout puts that executable past 260 characters, Node `spawn` fails with ENOENT even though the file exists. A worktree under a long temporary path hits this. Copy `chrome-headless-shell-win64` to a short path. Set `PUPPETEER_EXECUTABLE_PATH` for the build. Do not change the generator for it.
 - Playwright does not run in CI, by decision. The suite takes too long for a GitHub runner. `AGENTS.md` requires running the real thing before shipping, so the e2e suite is a local release gate. See [TESTING.md](./TESTING.md).

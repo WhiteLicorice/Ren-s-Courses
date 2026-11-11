@@ -40,6 +40,8 @@ node_modules/
 output
 # end-to-end fixture site (npm run build:e2e-site)
 output-e2e
+# relative-production fixture site (npm run build:e2e-relative)
+output-e2e-relative
 
 # Playwright E2E test artifacts
 playwright-report/
