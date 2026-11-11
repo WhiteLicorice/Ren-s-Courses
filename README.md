@@ -239,7 +239,7 @@ The template reads variables as `$pdf.variables.<key>$`. String and numeric valu
 
 ## Offline PWA
 
-A production build generates `output/offline-manifest.json` and `output/service-worker.js` after static pages, feeds, minification, and build metadata are complete. The manifest lists clean generated routes and exact local assets. It records a SHA-256 content hash for each entry. Its build ID is embedded in the worker. A new build copies unchanged entries from the previous offline snapshot, so a reader downloads only the entries that changed or are new.
+A production build generates `output/offline-manifest.json` and `output/service-worker.js` after static pages, feeds, minification, and build metadata are complete. The manifest lists clean generated routes and exact local assets. It records a SHA-256 content hash for each entry. The generator embeds its build ID in the worker. A new build copies unchanged entries from the previous offline snapshot, so a reader downloads only the entries that changed or are new.
 
 The worker installs an immutable `ren-courses-offline-<buildId>` snapshot. It validates every route, stylesheet, script, local font, media file, generated PDF, and web manifest before it activates. A failed update keeps the current snapshot and its error state across reloads. Offline navigation uses the clean route and trailing-slash aliases with a three-second cached fallback. An unknown route returns HTTP 503.
 
