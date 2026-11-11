@@ -36,6 +36,10 @@ const env = {
     ...process.env,
     SITE_PROFILE: relative ? 'e2e-relative' : 'e2e',
     ASPNETCORE_ENVIRONMENT: 'Production',
+    // Port 0 asks Kestrel for a free loopback port. BlazorStatic fetches every
+    // page from the address it binds, so the host must listen. A fixed port
+    // makes two builds in two checkouts clash on 5000.
+    ASPNETCORE_URLS: 'http://127.0.0.1:0',
     STATIC_GEN_TIME: '2026-09-15T02:00:00Z',
     TERM_START: '2026-08-01',
     TERM_END: '2026-12-31',

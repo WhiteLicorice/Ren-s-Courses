@@ -136,10 +136,29 @@ The script is `tests/fixtures/site/build.js`. It sets `SITE_PROFILE=e2e` or `SIT
 | Variable | Value |
 |---|---|
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `ASPNETCORE_URLS` | `http://127.0.0.1:0`, so Kestrel binds a free loopback port |
 | `STATIC_GEN_TIME` | `2026-09-15T02:00:00Z` |
 | `TERM_START`, `TERM_END` | `2026-08-01`, `2026-12-31` |
 | `ACTIVE_COURSES` | `fixture-course-a,fixture-course-b` |
 | `SHOWCASE_MODE` | `false`, so the real visibility rules run |
+
+`ASPNETCORE_URLS` uses port 0. Kestrel binds a free loopback port, and the build log prints the chosen port on the `Now listening on:` line. BlazorStatic fetches every page from the address the host binds, so the host must listen. A fixed port makes two builds clash.
+
+### Two Builds at Once
+
+Two builds may run at the same time on one machine, even from two worktrees. Port 0 gives each build its own free port, so they do not clash.
+
+Start each build in its own worktree:
+
+```bash
+npm run build:e2e-site
+```
+
+Each build writes `output-e2e/` in its own worktree. Both outputs equal the output of a single build.
+
+Do not set `ASPNETCORE_URLS` by hand. Port 0 keeps the choice safe. A port you pick can be taken before Kestrel binds it.
+
+Port 8081 belongs to the Playwright server. The builds do not touch it.
 
 `tests/fixtures/site/Content/Materials` holds two flat materials and one nested material. The nested file sits at `fixture-course-a/fixture-lab-nested/fixture-course-a-lab-nested.md`, and its image sits in a `media` folder beside it.
 
