@@ -131,6 +131,7 @@ Confirmed 2026-07-14 through 2026-08-06:
 - **`generate_feed.py` must receive `ACTIVE_COURSES`.** Without it the generator sees an empty active set and drops every tagged post.
 - Tests use dedicated fixture tags, `fixture-course-a` and `fixture-course-b` active and `fixture-course-c` inactive, set in `TestEnvironment`. Never anchor a test to a real course tag.
 - Empty states exist and are tested. `Blog.razor` shows "No Materials available." and `Projects.razor` shows "No projects available.", mirroring the Bookings text that already existed.
+- **An absent content `media` folder does not fail the build.** A production build with `Content/Projects/media` deleted and both content favicon copies removed finished with exit 0 on 2026-11-11 at `c13f018`. The log copies `Content/Materials/media` and does not mention `Content/Projects/media`. Do not add a placeholder or `.gitkeep` to keep an empty `media` folder in Git.
 
 ## Interactive Diagrams
 
