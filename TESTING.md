@@ -13,6 +13,8 @@ The project has four gates. Three of them run in GitHub CI. The Playwright suite
 
 Clone the repository with `git clone --recurse-submodules`. In an existing checkout, run `git submodule update --init --recursive` instead.
 
+The public repository does not track the course materials. The workflow clones the private material depot into `Content` before it runs the .NET gate. To run the content-hygiene tests locally, remove `Content/.gitkeep`, clone the depot into `Content`, then run `git restore -- Content/.gitkeep`. The Quick Start in [README.md](./README.md) gives the commands. A contributor without depot access does not need it for the fixture workflow below.
+
 ## Gates at a Glance
 
 | Gate | Command | Count | Runs in CI |
@@ -40,6 +42,8 @@ Then run the suite:
 ```bash
 dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj
 ```
+
+Five content-hygiene tests read `Content/Materials`. A clone without the private material depot has no such folder, so those tests skip with `MaterialDepotFact`. The workflow clones the depot before the .NET gate, and its guard fails earlier if the checkout is empty.
 
 ### Patterns to Keep
 
@@ -190,16 +194,20 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 `.github/workflows/build-and-publish.yml` runs on every push to `master` and hourly on a cron. The order is:
 
 1. Check out the repository with recursive submodules.
-2. Freeze a UTC timestamp into `STATIC_GEN_TIME`.
-3. Restore the PDF toolchain cache and the generated PDF cache.
-4. Run `npm ci`.
-5. Run the JS gate.
-6. Delete `Properties/launchSettings.json`, so no launch profile can force Development.
-7. Run the .NET gate in Release.
-8. Run the Python gate.
-9. Generate the per-course RSS feeds.
-10. Build for Netlify with `base href="/"`, then minify, stamp, finalize, and push to `netlify-pages`.
-11. Build for GitHub Pages with `base href="/Ren-s-Courses/"`, then repeat and push to `gh-pages`.
+2. Check out the private material depot into `Content`.
+3. Verify that `Content/Materials` holds a Markdown file.
+4. Freeze a UTC timestamp into `STATIC_GEN_TIME`.
+5. Restore the PDF toolchain cache and the generated PDF cache.
+6. Run `npm ci`.
+7. Run the JS gate.
+8. Delete `Properties/launchSettings.json`, so no launch profile can force Development.
+9. Run the .NET gate in Release.
+10. Run the Python gate.
+11. Generate the per-course RSS feeds.
+12. Build for Netlify with `base href="/"`, then minify, stamp, finalize, and push to `netlify-pages`.
+13. Build for GitHub Pages with `base href="/Ren-s-Courses/"`, then repeat and push to `gh-pages`.
+
+Step 3 fails the run when the depot checkout is empty. No build then reads an empty `Content`.
 
 The RSS step must receive `ACTIVE_COURSES`. Without it the generator sees an empty active set and drops every tagged post.
 

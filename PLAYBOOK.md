@@ -40,6 +40,27 @@ The Playwright row is the full local release gate. When a worker-contention time
 
 Re-read the submodule pin before you trust it. `git submodule status` is the source of truth.
 
+## Content Source
+
+The public repository does not track the course materials. `Content` tracks only `.gitkeep`. The deploy workflow checks out the private `WhiteLicorice/RensMaterialDepot` repository into `Content` with the `MATERIAL_DEPOT_DEPLOY_KEY` deploy key. This step runs after the main checkout and before any step that reads `Content`.
+
+Confirmed 2026-11-11 at `9986bbf` against the `actions/checkout@v5` source and README:
+
+- `actions/checkout` with `path: Content` deletes the contents of an existing folder when that folder is not already a checkout of the same repository. The tracked `.gitkeep` does not survive on the runner. It exists only to keep the folder in a fresh clone of the public repository.
+- The workflow runs `.github/utils/check_content.sh` after the depot checkout. The script fails the run when `Content/Materials` holds no Markdown file. The guard is the CI enforcement.
+- The five content-hygiene tests in `DiagramContentHygieneTests` skip with `MaterialDepotFact` when `Content/Materials` is absent. A contributor without the private depot still runs the rest of the .NET gate. The guard, not the test, protects the deploy.
+- `.gitignore` ignores everything under `Content` except `.gitkeep`, so a local depot clone never shows in `git status`. Clone the depot only after you remove the tracked `.gitkeep`, and restore it with `git restore -- Content/.gitkeep`. Git refuses to clone into a nonempty folder. Never delete an existing depot checkout.
+- The csproj removes `Content/.git/**` from the output copy and from the watch glob. The depot checkout places a `.git` folder inside `Content`.
+- A push to the depot does not trigger this workflow. The next successful hourly run picks up eligible changes. Publication can take longer than one hour. A dispatch trigger is out of scope.
+
+To roll back, move the depot checkout out of `Content` first. Then revert one commit at a time, newest first:
+
+1. `meta: update the license for the private material repository` restores the old `LICENSE.md` section 1.
+2. `docs: describe the material depot as the Content source` restores the old `README.md`, `TESTING.md`, and `PLAYBOOK.md`.
+3. `devops: pull the material depot into Content at build time` restores the 133 tracked `Content` files. It removes the guard, the workflow steps, the ignore rules, and the test change. It also removes `.gitkeep` and the csproj exclusion.
+
+Do not rely on Git to refuse writing over the ignored depot files.
+
 ## Test Fixtures
 
 **No test may depend on a live material.** The rule covers Jest, .NET, and Playwright. It covers a new test and any test you move or edit. A live material is anything under `Content/`, or a route the build generates from it, such as `/articles/cmsc-124-lab0`.
@@ -66,7 +87,7 @@ A hand-mirrored fixture needs two guards:
 
 Also guard the fixture inside each test that needs a specific fixture property. Examples are "the sidebar box can scroll" and "a hidden diagram step heading exists". Without that guard, a fixture edit makes the test vacuous with no signal.
 
-**One exception.** `DiagramContentHygieneTests` reads `Content/Materials` on purpose. Its subject is the authored content, so a fixture cannot stand in for it. It targets no specific material and passes with zero files. Keep any new content lint to the same two limits.
+**One exception.** `DiagramContentHygieneTests` reads `Content/Materials` on purpose. Its subject is the authored content, so a fixture cannot stand in for it. It targets no specific material and passes with zero files. When the folder is absent, the five content-scanning tests skip with `MaterialDepotFact` instead of throwing. The workflow guard fails the CI run before the .NET gate, so the skip cannot hide an empty deploy. Keep any new content lint to the same limits.
 
 Confirmed 2026-09-24. The first TOC fix at `0f28707` added e2e tests against the live `cmsc-124-act9` and `cmsc-124-lab0`. Those tests moved to `toc.spec.js`. Against the pre-fix `toc.js`, the harness fails 5 of 12 tests, the same defect the live page showed.
 

@@ -16,10 +16,39 @@ Clone with submodules. PDF builds read the pinned `Dependencies/RensMarkdownTemp
 git clone --recurse-submodules https://github.com/WhiteLicorice/Ren-s-Courses.git
 cd Ren-s-Courses
 npm ci
-dotnet run
 ```
 
 In a checkout that already exists, run `git submodule update --init --recursive`.
+
+The public repository does not track the course materials. They live in the private `WhiteLicorice/RensMaterialDepot` repository. If you have access, clone it into `Content`. `Content` tracks one file, `.gitkeep`, and Git refuses to clone into a nonempty folder. Run the block for your shell from the repository root.
+
+Git Bash:
+
+```bash
+ls -A Content
+# The only entry must be .gitkeep. Stop if the folder holds a depot checkout.
+rm Content/.gitkeep
+git clone https://github.com/WhiteLicorice/RensMaterialDepot.git Content
+git restore -- Content/.gitkeep
+```
+
+PowerShell:
+
+```powershell
+Get-ChildItem -Force -LiteralPath Content
+# The only entry must be .gitkeep. Stop if the folder holds a depot checkout.
+Remove-Item -LiteralPath Content/.gitkeep
+git clone https://github.com/WhiteLicorice/RensMaterialDepot.git Content
+git restore -- Content/.gitkeep
+```
+
+The depot is private. Use a credential that can read it. Never delete a `Content` folder that already holds a depot checkout. If you do not have access, skip the depot and use the fixture workflow in [TESTING.md](./TESTING.md). The fixture site needs no depot. Without the depot, a local build generates no material.
+
+Then start the development server:
+
+```bash
+dotnet run
+```
 
 `dotnet run` on its own starts a development server and keeps running. That's what you want while writing content. For a static build, and for every test command, see [TESTING.md](./TESTING.md).
 
@@ -27,7 +56,7 @@ In a checkout that already exists, run `git submodule update --init --recursive`
 
 ```
 Components/     Razor components and pages, including Layout/ and Pages/
-Content/        Markdown source: Materials, FAQs, Projects, Bookings, Events
+Content/        Checkout of the private material depot at build time. Tracks only .gitkeep.
 Dependencies/   RensMarkdownTemplates submodule: PDF generator, LaTeX templates, shared models
 Models/         Frontmatter types, the site theme registry, holiday models
 Services/       Content providers, build time, the offline bundle generator
@@ -68,11 +97,13 @@ artifacts/      Toolchain and PDF caches. Not tracked.
 
 `CourseContentProvider` publishes a material only when its `Published` date sits inside the `TERM_START` to `TERM_END` window and is no later than the frozen build time. After the term ends, current-term materials disappear unless showcase mode is on. CI pins these as environment variables, so the build is deterministic. [TESTING.md](./TESTING.md) has the full visibility rules and the local recipes.
 
+A push to the private material depot does not trigger this workflow. The next successful hourly run picks up eligible depot changes. Publication can take longer than one hour.
+
 All client-side behavior is vanilla JS with no framework. Theme, calendar, TOC, code blocks, the FAQ accordion, course filtering, and scroll-to-top are each their own script, loaded with a plain `<script>` tag.
 
 ## Authoring Materials
 
-Materials are Markdown files under `Content/Materials`. YAML frontmatter drives everything below.
+Materials are Markdown files under `Content/Materials`. The public repository does not track them. The deploy workflow clones the private material depot into `Content` before it builds. To run a local build with the real materials, follow the depot setup in Quick Start. Remove only `Content/.gitkeep`, clone the depot, then restore the placeholder. YAML frontmatter drives everything below.
 
 ### Submission Links
 
