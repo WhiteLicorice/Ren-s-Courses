@@ -22,10 +22,10 @@ The public repository does not track the course materials. The workflow clones t
 | JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
 | Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 14 tests | Yes |
-| End-to-end | `npm run test:e2e` | 346 tests | No |
+| End-to-end | `npm run test:e2e` | 352 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004, B-006, B-008, and B-012 merges. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
+We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 merges. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -208,7 +208,7 @@ A full local run can show one or two Firefox failures. `playwright.config.js` us
 | `nested-materials.spec.js` | The nested fixture: the flat article URL, the image beside the file, the generated PDF link, and the image entry in the offline manifest |
 | `relative-materials.spec.js` | The fixture content built with a relative ContentPath, served under `/` and `/Ren-s-Courses/`: exact article URL, image natural width, linked PDF, and worker readiness |
 | `faqs.spec.js` | `/faqs`, the sections, the chip filter, the accordion, hash deep-linking, and `hashchange` |
-| `calendar.spec.js` | `/calendar`, month navigation, the tag filter, and the popover |
+| `calendar.spec.js` | `/calendar`, month navigation, the tag filter, the popover, and the agenda label floor of 12px with a 4.5 to 1 contrast minimum at 360, 390, and 430px in both themes |
 | `projects.spec.js` | `/projects`, `/projects/{tag}`, the tag cloud, and card expansion |
 | `interactive-diagrams.spec.js` | In-memory fixtures on a synthetic route. Readable labels at 360px, 768px, and 1280px, layout selection, overflow cues, keyboard panning, stable widget height, and theme and resize safety |
 | `table-code.spec.js` | An in-memory article on a synthetic route. Inline code in a table cell computes to 13px or more at 360px, 390px, and 430px. Paragraph inline code stays at 14px. The table stays inside its scroll box |

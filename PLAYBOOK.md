@@ -25,14 +25,14 @@ Most entries below end with the same check. It is written once here.
 
 ## Gate Baselines
 
-Measured 2026-11-11 on `master` after the B-004, B-008, and B-012 merges, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the B-019 head build. B-001 changes no route, PDF, or feed input.
+Measured 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 merges, with the local generator head `400b90b`. The Edge offline row remains from 2026-09-12 at `f595f1b`. The production row is from the B-019 head build. B-001 changes no route, PDF, or feed input.
 
 | Gate | Result |
 |---|---|
 | .NET, Release | 271 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
 | Python | 14 passed, 0 failed |
-| Playwright, Chromium and Firefox | 336 of 336 passed |
+| Playwright, Chromium and Firefox | 352 of 352 passed |
 | Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
 | Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
@@ -278,6 +278,11 @@ Confirmed 2026-08-31:
 
 - The desktop calendar shows three events per day at first. **Filtering must re-pack all events before it calculates the overflow count.** Filtering only the initially visible bars leaves an unrelated event inside `+N more`. `Calendar.razor` keeps the full day event list in the static output, and `wwwroot/js/calendar.js` applies the three-event limit after each filter.
 
+Confirmed 2026-11-11:
+
+- **The agenda's second line is an event type label, and it needs 12px and 4.5 to 1 in both themes.** The label was 10px at opacity 0.75. The opacity blends the text into its card tint. Measured light ratios at 360px were Release 3.67, Deadline 3.15, Progress 2.89, Defense 2.89, Custom 3.17. The label now renders at `text-xs` in `text-text-main`, and the title and the left border keep the type colour. Keep the label at or above 12px and at or above 4.5 to 1. `calendar.spec.js` measures the computed value and includes the element opacity in the ratio.
+- **The fixture agenda takes Progress and Defense from Event fixtures, not from material dates.** `tests/fixtures/site/Content/Events/fixture-course-a-progress.md` and `fixture-course-a-defense.md` declare the two types. An Event fixture generates no page and no PDF. A new date on a cached material changes its PDF fingerprint and forces a Tectonic regeneration, which the bundle host can refuse.
+
 ## Scrollbars
 
 Confirmed 2026-08-31:
@@ -304,6 +309,7 @@ Read this before you call a browser failure a regression. Several entries here d
 - **Scroll anchoring breaks a scroll assertion in Firefox.** The `navigation.spec.js` navbar test failed intermittently because a late layout shift of roughly 97px made Firefox re-anchor the view, which fires a downward scroll event the test never issued. Observed with a `MutationObserver` log: `scroll 500 -> hide -> scroll 300 -> show -> scroll 396.8 -> hide`. The fix sets `overflow-anchor: none`, waits for the scroll position to stop changing, and asserts with a retrying expectation instead of one `evaluate` read. `html` also carries `scroll-smooth`, so `scrollBy` starts an animation. Use `scrollTo` with an explicit `scroll-behavior: auto`.
 - `locator.evaluate` given a string containing an arrow function returns `undefined` rather than calling it. Pass the function itself.
 - A focused scroll container answers `ArrowRight` for horizontal scrolling. `End` does not move it sideways.
+- **A theme switch animates the agenda colour.** The agenda card carries `transition-all`, so `color` needs about 150ms to settle. A test that reads the colour one frame after `data-theme` changes measures the previous theme. Wait about 400ms before the read. Confirmed 2026-11-11 in `calendar.spec.js`. An immediate read reported Release at 1.8 to 1 in the dark theme. The settled value is 5.43 to 1.
 - **The e2e server runs on port 8081, not 8080.** `reuseExistingServer` accepts any server already on the port. On 2026-09-24 a leftover `serve output` on 8080 held the real site, and a full run used it without a warning. `fixture-site.spec.js` now fails in that case.
 - **BlazorStatic resolves a relative `ContentPath` against the bin folder.** The csproj copies only `Content/**` there. `SiteLayout.ContentPathFor` therefore passes the fixture tree as an absolute path. The first fixture build failed with `Could not find a part of the path '...\bin\Release\net9.0\tests\fixtures\site\Content\Materials'`.
 - **A per-file `IgnoredPathsOnContentCopy` entry does nothing.** A directory entry works, as `js/__tests__` shows. `SiteLayout.RemoveForeignPdfs` deletes the production PDFs from `output-e2e/pdfs` after generation instead.

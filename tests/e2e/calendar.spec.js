@@ -322,6 +322,277 @@ test.describe('Calendar Page (/calendar)', () => {
   });
 });
 
+// ── Agenda readability ──────────────────────────────────────────────────────
+// The second line of an agenda card names the event type. It was 10px with
+// opacity 0.75, which fails the WCAG AA contrast minimum in the light theme.
+// These tests read the computed size and contrast of the rendered page, not a
+// class name, so a stylesheet change cannot pass them without moving a pixel.
+const AGENDA_VIEWPORTS = [
+  { width: 360, height: 740 },
+  { width: 390, height: 844 },
+  { width: 430, height: 932 },
+];
+const MIN_VISIBLE_TEXT_PX = 12;
+const MIN_LABEL_CONTRAST = 4.5;
+const EVENT_TYPE_LABELS = ['Release', 'Deadline', 'Progress', 'Defense'];
+
+/**
+ * Every element that paints its own text on the page. An element counts only
+ * when it has a non-empty direct text node and a real box. An element with an
+ * ancestor at display:none has a zero box, so hidden months and the closed
+ * popover never count. The label opacity is returned so a caller can see the
+ * value the contrast check applies.
+ */
+function scanVisibleText(minPx) {
+  const skipTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE']);
+  const effectiveOpacity = (element) => {
+    let opacity = 1;
+    for (let node = element; node && node.nodeType === 1; node = node.parentElement) {
+      opacity *= Number.parseFloat(getComputedStyle(node).opacity || '1');
+    }
+    return opacity;
+  };
+  const isRendered = (element) => {
+    const style = getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse') {
+      return false;
+    }
+    const box = element.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) return false;
+    return effectiveOpacity(element) > 0.01;
+  };
+
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const seen = new Set();
+  const visible = [];
+  while (walker.nextNode()) {
+    const text = walker.currentNode.textContent.replace(/\s+/g, ' ').trim();
+    if (!text) continue;
+    const element = walker.currentNode.parentElement;
+    if (!element || skipTags.has(element.tagName) || seen.has(element)) continue;
+    seen.add(element);
+    if (!isRendered(element)) continue;
+    const style = getComputedStyle(element);
+    visible.push({
+      text: text.slice(0, 50),
+      px: Number.parseFloat(style.fontSize),
+      opacity: Number(effectiveOpacity(element).toFixed(2)),
+      tag: element.tagName,
+      className: typeof element.className === 'string' ? element.className : ''
+    });
+  }
+
+  return {
+    counted: visible.length,
+    smallest: Math.min(...visible.map((item) => item.px)),
+    under: visible.filter((item) => item.px < minPx)
+  };
+}
+
+/**
+ * Contrast of every agenda label, with the label opacity applied. The
+ * background is composited from the document root down to the label, so a
+ * translucent card tint is measured as the reader sees it.
+ */
+function measureAgendaLabels() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  const paint = (color) => {
+    ctx.globalCompositeOperation = 'copy';
+    ctx.fillStyle = '#010203';
+    ctx.fillStyle = color;
+    if (ctx.fillStyle === '#010203' && color !== '#010203') {
+      throw new Error(`Canvas cannot parse colour: ${color}`);
+    }
+    ctx.fillRect(0, 0, 1, 1);
+    const data = ctx.getImageData(0, 0, 1, 1).data;
+    return [data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255];
+  };
+
+  const backgroundOf = (element) => {
+    const chain = [];
+    for (let node = element; node && node.nodeType === 1; node = node.parentElement) {
+      chain.unshift(node);
+    }
+    ctx.globalCompositeOperation = 'copy';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 1, 1);
+    ctx.globalCompositeOperation = 'source-over';
+    for (const node of chain) {
+      const background = getComputedStyle(node).backgroundColor;
+      if (!background || background === 'transparent' || background === 'rgba(0, 0, 0, 0)') {
+        continue;
+      }
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, 1, 1);
+    }
+    const data = ctx.getImageData(0, 0, 1, 1).data;
+    return [data[0] / 255, data[1] / 255, data[2] / 255];
+  };
+
+  const luminance = (rgb) => {
+    const channel = (value) => (value <= 0.03928
+      ? value / 12.92
+      : Math.pow((value + 0.055) / 1.055, 2.4));
+    return 0.2126 * channel(rgb[0]) + 0.7152 * channel(rgb[1]) + 0.0722 * channel(rgb[2]);
+  };
+  const contrast = (one, two) => {
+    const first = luminance(one);
+    const second = luminance(two);
+    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+  };
+
+  const effectiveOpacity = (element) => {
+    let opacity = 1;
+    for (let node = element; node && node.nodeType === 1; node = node.parentElement) {
+      opacity *= Number.parseFloat(getComputedStyle(node).opacity || '1');
+    }
+    return opacity;
+  };
+
+  const labels = [];
+  for (const card of document.querySelectorAll('#calendar-container .calendar-event')) {
+    const box = card.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) continue;
+    const spans = Array.from(card.children).filter((child) => child.tagName === 'SPAN');
+    const label = spans[spans.length - 1];
+    if (!label) continue;
+    const text = label.textContent.replace(/\s+/g, ' ').trim();
+    if (!text) continue;
+
+    const style = getComputedStyle(label);
+    const ink = paint(style.color);
+    const alpha = ink[3] * effectiveOpacity(label);
+    const background = backgroundOf(label);
+    const composited = [
+      ink[0] * alpha + background[0] * (1 - alpha),
+      ink[1] * alpha + background[1] * (1 - alpha),
+      ink[2] * alpha + background[2] * (1 - alpha)
+    ];
+    labels.push({
+      text,
+      px: Number.parseFloat(style.fontSize),
+      opacity: Number(effectiveOpacity(label).toFixed(2)),
+      ratio: Number(contrast(composited, background).toFixed(2)),
+      color: style.color,
+      background: background.map((value) => Math.round(value * 255))
+    });
+  }
+
+  const groups = {};
+  for (const label of labels) {
+    const group = groups[label.text] || (groups[label.text] = {
+      text: label.text,
+      count: 0,
+      px: label.px,
+      opacity: label.opacity,
+      minRatio: Infinity
+    });
+    group.count += 1;
+    group.minRatio = Math.min(group.minRatio, label.ratio);
+  }
+
+  return { labels, groups };
+}
+
+test.describe('Calendar agenda readability (/calendar, touch)', () => {
+  test.use({
+    colorScheme: 'light',
+    hasTouch: true,
+    serviceWorkers: 'block'
+  });
+
+  async function openCalendar(page, viewport) {
+    await page.setViewportSize(viewport);
+    await page.goto('/calendar');
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => typeof window.switchPrismTheme === 'function');
+    await expect(page.locator('#calendar-container .calendar-event:visible').first()).toBeVisible();
+  }
+
+  async function selectTheme(page, theme) {
+    await page.evaluate((name) => window.switchPrismTheme(name), theme);
+    await page.waitForFunction(
+      (name) => document.documentElement.dataset.theme === name,
+      theme
+    );
+    // The agenda card carries transition-all, so the colour animates. Read the
+    // settled value, not a frame in the middle of the 150ms transition.
+    await page.evaluate(() => new Promise((resolve) => {
+      setTimeout(resolve, 400);
+    }));
+  }
+
+  test('no visible text on the page is under 12px at phone widths', async ({ page }) => {
+    const reports = [];
+    for (const viewport of AGENDA_VIEWPORTS) {
+      await openCalendar(page, viewport);
+      const report = await page.evaluate(scanVisibleText, MIN_VISIBLE_TEXT_PX);
+      reports.push({ viewport, ...report });
+    }
+    console.log('CALENDAR_TEXT_SIZES ' + JSON.stringify(reports, null, 2));
+
+    for (const report of reports) {
+      expect(
+        report.under,
+        `${report.viewport.width}px has visible text under ${MIN_VISIBLE_TEXT_PX}px: `
+          + JSON.stringify(report.under, null, 2)
+      ).toEqual([]);
+    }
+  });
+
+  test('event type labels meet 4.5 to 1 in both themes', async ({ page }) => {
+    const reports = [];
+    for (const viewport of AGENDA_VIEWPORTS) {
+      await openCalendar(page, viewport);
+      for (const theme of ['light', 'dark']) {
+        await selectTheme(page, theme);
+        const report = await page.evaluate(measureAgendaLabels);
+        reports.push({ viewport, theme, ...report });
+      }
+    }
+    console.log('CALENDAR_LABEL_CONTRAST ' + JSON.stringify(reports, null, 2));
+
+    for (const report of reports) {
+      const where = `${report.viewport.width}px ${report.theme}`;
+      for (const name of EVENT_TYPE_LABELS) {
+        expect(
+          report.groups[name],
+          `${where}: the ${name} label is missing from the agenda`
+        ).toBeTruthy();
+      }
+      for (const group of Object.values(report.groups)) {
+        expect(
+          group.minRatio,
+          `${where}: "${group.text}" label is ${group.minRatio} to 1 at `
+            + `${group.px}px and opacity ${group.opacity}`
+        ).toBeGreaterThanOrEqual(MIN_LABEL_CONTRAST);
+      }
+    }
+  });
+
+  test('the agenda does not overflow sideways at 360px', async ({ page }) => {
+    await openCalendar(page, AGENDA_VIEWPORTS[0]);
+    const metrics = await page.evaluate(() => {
+      const documentElement = document.documentElement;
+      const container = document.querySelector('#calendar-container');
+      return {
+        documentClientWidth: documentElement.clientWidth,
+        documentScrollWidth: documentElement.scrollWidth,
+        containerClientWidth: container.clientWidth,
+        containerScrollWidth: container.scrollWidth
+      };
+    });
+    console.log('CALENDAR_OVERFLOW ' + JSON.stringify(metrics, null, 2));
+
+    expect(metrics.documentScrollWidth).toBeLessThanOrEqual(metrics.documentClientWidth);
+    expect(metrics.containerScrollWidth).toBeLessThanOrEqual(metrics.containerClientWidth);
+  });
+});
+
 test.describe('Calendar text selection (/calendar, touch)', () => {
   // A phone reader selects an event title or a date by long-press. Block the
   // service worker so the measurement always reads the bytes under test.
