@@ -31,12 +31,12 @@ Measured 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 
 |---|---|
 | .NET, Release | 271 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
-| Python | 26 passed, 0 failed |
+| Python | 29 passed, 0 failed |
 | Playwright, Chromium and Firefox | 352 of 352 passed |
 | Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
 | Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
-The Python row is 26 after the deployment-trigger gate landed on 2026-11-12. Twelve of the tests are new. The other rows keep their original measurement dates.
+The Python row is 29 after the deployment-trigger gate and the draft-key fix landed on 2026-11-12. Twelve tests cover the build gate and three cover the draft key. The other rows keep their original measurement dates.
 
 The Playwright row is the full local release gate. When a worker-contention timeout appears, re-run that spec alone before calling it a regression. Test Harness Traps records the pattern.
 

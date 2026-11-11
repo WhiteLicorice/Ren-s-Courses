@@ -244,6 +244,93 @@ Body
             feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
             self.assertNotIn("Old Untagged Post", feed_xml)
 
+    def test_lowercase_draft_key_excludes_post_from_feed(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "draft-post.md",
+                """---
+title: Draft Post
+published: 2026-05-20
+tags:
+  - fixture-course-a
+isDraft: true
+lead: A draft must not reach the feed.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertNotIn("Draft Post", feed_xml)
+
+    def test_capital_draft_key_excludes_post_from_feed(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "draft-post.md",
+                """---
+title: Draft Post
+published: 2026-05-20
+tags:
+  - fixture-course-a
+IsDraft: true
+lead: A draft must not reach the feed.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertNotIn("Draft Post", feed_xml)
+
+    def test_explicit_false_draft_key_keeps_post_in_feed(self):
+        with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
+            self._write_post(
+                content_dir,
+                "published-post.md",
+                """---
+title: Published Post
+published: 2026-05-20
+tags:
+  - fixture-course-a
+isDraft: false
+lead: A completed material stays in the feed.
+---
+Body
+""",
+            )
+
+            self._run_generate_feed(
+                content_dir,
+                output_dir,
+                static_gen_time="2026-05-25T23:20:01Z",
+                term_start="2026-01-19",
+                term_end="2026-05-26",
+                active_courses="fixture-course-a",
+            )
+
+            feed_xml = Path(output_dir, "feed.xml").read_text(encoding="utf-8")
+            self.assertIn("Published Post", feed_xml)
+
     def test_nested_material_is_included_with_its_flat_article_link(self):
         with tempfile.TemporaryDirectory() as content_dir, tempfile.TemporaryDirectory() as output_dir:
             nested = Path(content_dir, "fixture-course-a", "fixture-lab-nested")

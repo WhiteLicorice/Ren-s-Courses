@@ -104,6 +104,13 @@ def parse_date(date_obj: Union[str, datetime.date, datetime.datetime]) -> Option
     
     return None
 
+def is_draft(metadata) -> bool:
+    """Match the site: it reads the draft key without case sensitivity, Python does not."""
+    return any(
+        str(key).lower() == "isdraft" and str(value).lower() == "true"
+        for key, value in metadata.items()
+    )
+
 def article_slug(filepath: str) -> str:
     """Mirror the site: relative path without extension, strip /index, last segment."""
     relative = os.path.relpath(filepath, CONTENT_DIR)
@@ -211,12 +218,9 @@ def generate_feed() -> None:
                 continue
 
             pub_date = parse_date(metadata.get('published'))
-            
-            # --- FILTERING LOGIC ---
-            # FIXME: This does not seem to respect the IsDraft flag as intended. See logs later!
-            is_draft = str(metadata.get('IsDraft', 'false')).lower() == 'true'
 
-            if not pub_date or is_draft:
+            # --- FILTERING LOGIC ---
+            if not pub_date or is_draft(metadata):
                 continue
 
             title = metadata.get('title', 'Untitled')

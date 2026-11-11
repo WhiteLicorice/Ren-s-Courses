@@ -21,7 +21,7 @@ The public repository does not track the course materials. The workflow clones t
 |---|---|---|---|
 | JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
-| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 26 tests | Yes |
+| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 29 tests | Yes |
 | End-to-end | `npm run test:e2e` | 352 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
@@ -108,7 +108,7 @@ Each suite reads its script from disk and runs it with `new Function(source)()`.
 
 ## Python (unittest)
 
-`.github/utils/generate_feed.py` builds one RSS 2.0 feed per course at build time. It has 14 tests. They cover feed generation, date parsing, the term-end boundary, empty-feed output, showcase-mode skipping, the active-course gate, and nested materials.
+`.github/utils/generate_feed.py` builds one RSS 2.0 feed per course at build time. It has 17 tests. They cover feed generation, date parsing, the term-end boundary, empty-feed output, showcase-mode skipping, the active-course gate, the draft key, and nested materials.
 
 `.github/utils/should_build.py` decides whether a dispatch or scheduled run needs a full build. It has 12 tests. They cover the depot commit comparison, the release window, draft materials, a date-only value at midnight Philippine time, missing metadata, and a stale deploy branch. The `check` job uses it. [PLAYBOOK.md](./PLAYBOOK.md), section Deployment Trigger, gives the fastcron setup.
 
