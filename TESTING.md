@@ -21,11 +21,11 @@ The public repository does not track the course materials. The workflow clones t
 |---|---|---|---|
 | JS | `npm test` | 12 suites, 223 tests | Yes |
 | .NET | `dotnet test tests/Ren.Courses.Tests/Ren.Courses.Tests.csproj` | 271 tests | Yes |
-| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 29 tests | Yes |
+| Python | `python -m unittest discover -s .github/utils -p "test_*.py"` | 34 tests | Yes |
 | End-to-end | `npm run test:e2e` | 352 tests | No |
 | Edge offline | `npx playwright test tests/e2e/edge-cases.spec.js --project=msedge --workers=1` | 26 tests | No |
 
-We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 merges. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
+We measured the JS, .NET, Python, and end-to-end counts on 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 merges. The Python gate now has 34 tests after deadline-expiry coverage was added on 2026-11-16. Its measured baseline before that change was 29. The Edge offline count remains from 2026-09-12 at commit `f595f1b`.
 
 ## .NET (xUnit)
 
@@ -110,7 +110,7 @@ Each suite reads its script from disk and runs it with `new Function(source)()`.
 
 `.github/utils/generate_feed.py` builds one RSS 2.0 feed per course at build time. It has 17 tests. They cover feed generation, date parsing, the term-end boundary, empty-feed output, showcase-mode skipping, the active-course gate, the draft key, and nested materials.
 
-`.github/utils/should_build.py` decides whether a dispatch or scheduled run needs a full build. It has 12 tests. They cover the depot commit comparison, the release window, draft materials, a date-only value at midnight Philippine time, missing metadata, and a stale deploy branch. The `check` job uses it. [PLAYBOOK.md](./PLAYBOOK.md), section Deployment Trigger, gives the fastcron setup.
+`.github/utils/should_build.py` decides whether a dispatch or scheduled run needs a full build. It has 17 tests. They cover depot commits, release windows, drafts, date-only publication times, missing metadata, and stale deploy branches. They also cover explicit and default deadline expiry, the expiry boundary, and materials without deadlines. The `check` job uses this gate. [PLAYBOOK.md](./PLAYBOOK.md), section Deployment Trigger, gives the fastcron setup.
 
 ```bash
 python -m unittest discover -s .github/utils -p "test_*.py" -v

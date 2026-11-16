@@ -101,6 +101,114 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertFalse(build)
 
+    def test_ps3_deadline_expiry_after_last_build_builds(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "cmsc-124/ps3.md",
+                "2026-10-29",
+                deadline="2026-11-12",
+            )
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-12T05:40:03Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-16T02:49:50Z"),
+            )
+
+            self.assertTrue(build)
+
+    def test_act15_deadline_expiry_after_last_build_builds(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "cmsc-124/act15.md",
+                "2026-11-12",
+                deadline="2026-11-15",
+            )
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-12T05:40:03Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-16T02:49:50Z"),
+            )
+
+            self.assertTrue(build)
+
+    def test_deadline_expiry_uses_local_end_of_day_and_does_not_repeat(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "course-a/act1.md",
+                "2026-10-29",
+                deadline="2026-11-12",
+            )
+            deployed = [self._deployed("gh-pages", "a6c8c96", "2026-11-12T05:40:03Z")]
+
+            before_expiry, _ = should_build.decide(
+                "a6c8c96",
+                deployed,
+                materials,
+                should_build.generate_feed.parse_date("2026-11-12T15:59:59Z"),
+            )
+            at_expiry, _ = should_build.decide(
+                "a6c8c96",
+                deployed,
+                materials,
+                should_build.generate_feed.parse_date("2026-11-12T16:00:00Z"),
+            )
+            after_expiry_build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-12T16:00:00Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-12T17:00:00Z"),
+            )
+
+            self.assertFalse(before_expiry)
+            self.assertTrue(at_expiry)
+            self.assertFalse(after_expiry_build)
+
+    def test_default_deadline_expiry_uses_published_plus_one_month(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(materials, "course-a/act1.md", "2026-01-31")
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-02-28T15:59:59Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-02-28T16:00:00Z"),
+            )
+
+            self.assertTrue(build)
+
+    def test_draft_and_no_deadline_materials_do_not_trigger_expiry(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "course-a/draft.md",
+                "2026-10-29",
+                deadline="2026-11-12",
+                draft=True,
+            )
+            self._write_material(
+                materials,
+                "course-a/no-deadline.md",
+                "2026-10-29",
+                deadline="2026-11-12",
+                no_deadline=True,
+            )
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-12T05:40:03Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-16T02:49:50Z"),
+            )
+
+            self.assertFalse(build)
+
     def test_any_stale_branch_builds(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(materials, "course-a/act1/act1.md", "2026-11-10")
@@ -186,12 +294,21 @@ class ShouldBuildTests(unittest.TestCase):
             self.assertEqual("build=false\n", stdout.getvalue())
 
     @staticmethod
-    def _write_material(materials: str, relative: str, published: str, draft: bool = False) -> None:
+    def _write_material(
+        materials: str,
+        relative: str,
+        published: str,
+        draft: bool = False,
+        deadline=None,
+        no_deadline: bool = False,
+    ) -> None:
         path = Path(materials, relative)
         path.parent.mkdir(parents=True, exist_ok=True)
         draft_line = "isDraft: true\n" if draft else ""
+        deadline_line = f"deadline: {deadline}\n" if deadline else ""
+        no_deadline_line = "noDeadline: true\n" if no_deadline else ""
         path.write_text(
-            f"---\ntitle: Test\npublished: {published}\n{draft_line}---\nBody\n",
+            f"---\ntitle: Test\npublished: {published}\n{deadline_line}{draft_line}{no_deadline_line}---\nBody\n",
             encoding="utf-8",
         )
 
