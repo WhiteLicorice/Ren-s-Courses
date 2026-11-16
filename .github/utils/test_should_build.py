@@ -92,6 +92,24 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertTrue(build)
 
+    def test_case_insensitive_published_release_builds(self):
+        with tempfile.TemporaryDirectory() as materials:
+            path = Path(materials, "course-a/act15/act15.md")
+            path.parent.mkdir(parents=True)
+            path.write_text(
+                "---\ntitle: Test\nPublished: 2026-11-12T14:00:00Z\n---\nBody\n",
+                encoding="utf-8",
+            )
+
+            build, _ = should_build.decide(
+                "9e9af1b",
+                [self._deployed("netlify-pages", "9e9af1b", "2026-11-11T16:00:01Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-12T14:00:00Z"),
+            )
+
+            self.assertTrue(build)
+
     def test_future_release_skips(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(materials, "course-a/ps4/ps4.md", "2026-11-13")

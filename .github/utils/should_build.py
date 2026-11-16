@@ -66,12 +66,16 @@ def release_due(
             print(f"[gate] Cannot read {filepath}: {exc}", file=sys.stderr)
             continue
 
-        if "published" not in metadata:
+        raw_published = next(
+            (value for key, value in metadata.items() if str(key).lower() == "published"),
+            None,
+        )
+        if raw_published is None:
             continue
         if str(metadata.get("isDraft", "false")).lower() == "true":
             continue
 
-        published = generate_feed.parse_date(metadata.get("published"))
+        published = generate_feed.parse_date(raw_published)
         if published is None:
             continue
         if after < published <= now:
