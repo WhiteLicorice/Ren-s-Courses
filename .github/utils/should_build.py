@@ -72,7 +72,7 @@ def release_due(
         )
         if raw_published is None:
             continue
-        if str(metadata.get("isDraft", "false")).lower() == "true":
+        if generate_feed.is_draft(metadata):
             continue
 
         published = generate_feed.parse_date(raw_published)

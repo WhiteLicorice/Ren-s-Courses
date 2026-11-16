@@ -111,6 +111,27 @@ public class CourseContentProviderTests
         Assert.DoesNotContain(post, result);
     }
 
+    [Fact]
+    public void GetVisiblePosts_PublishedBeforeTermStartWithTime_Excluded()
+    {
+        var provider = CreateEmptyProvider();
+        var post = new Post<CourseFrontMatter>
+        {
+            FrontMatter = new CourseFrontMatter
+            {
+                Title = "Before Term",
+                Published = new DateTime(2026, 1, 14, 20, 0, 0),
+                Tags = new List<string>(),
+            },
+            Url = "before-term-with-time",
+            HtmlContent = "<p>Before Term</p>",
+        };
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.DoesNotContain(post, result);
+    }
+
     // ----------------------------------------------------------------
     // 5. Post published after term end excluded
     // ----------------------------------------------------------------

@@ -110,6 +110,24 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertTrue(build)
 
+    def test_capital_draft_key_does_not_build_for_daytime_release(self):
+        with tempfile.TemporaryDirectory() as materials:
+            path = Path(materials, "course-a/act15/act15.md")
+            path.parent.mkdir(parents=True)
+            path.write_text(
+                "---\ntitle: Test\nPublished: 2026-11-12T14:00:00Z\nIsDraft: true\n---\nBody\n",
+                encoding="utf-8",
+            )
+
+            build, _ = should_build.decide(
+                "9e9af1b",
+                [self._deployed("netlify-pages", "9e9af1b", "2026-11-11T16:00:01Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-12T15:00:00Z"),
+            )
+
+            self.assertFalse(build)
+
     def test_future_release_skips(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(materials, "course-a/ps4/ps4.md", "2026-11-13")
@@ -136,7 +154,7 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertFalse(build)
 
-    def test_ps3_deadline_expiry_after_last_build_builds(self):
+    def test_ps3_deadline_pht_midnight_builds_after_last_build(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(
                 materials,
@@ -154,7 +172,7 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertTrue(build)
 
-    def test_act15_deadline_expiry_after_last_build_builds(self):
+    def test_act15_deadline_pht_midnight_builds_after_last_build(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(
                 materials,
@@ -248,7 +266,7 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertFalse(build)
 
-    def test_deadline_expiry_uses_local_end_of_day_and_does_not_repeat(self):
+    def test_deadline_pht_midnight_builds_due_today_and_does_not_repeat(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(
                 materials,
@@ -281,7 +299,7 @@ class ShouldBuildTests(unittest.TestCase):
             self.assertTrue(at_expiry)
             self.assertFalse(after_expiry_build)
 
-    def test_default_deadline_expiry_uses_published_plus_one_month(self):
+    def test_default_deadline_pht_midnight_builds_after_last_build(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(materials, "course-a/act1.md", "2026-01-31")
 

@@ -47,6 +47,17 @@ public class FAQContentProviderTests
         Assert.DoesNotContain(post, result);
     }
 
+    [Fact]
+    public void GetVisiblePosts_PublishedBeforeTermStartWithTime_Excluded()
+    {
+        var provider = CreateEmptyProvider();
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 1, 14, 20, 0, 0));
+
+        var result = provider.GetVisiblePosts(new[] { post });
+
+        Assert.DoesNotContain(post, result);
+    }
+
     // ----------------------------------------------------------------
     // 3. Post published after term end is excluded
     // ----------------------------------------------------------------
