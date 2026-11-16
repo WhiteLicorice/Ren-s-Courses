@@ -29,14 +29,14 @@ Measured 2026-11-11 on `master` after the B-004, B-005, B-006, B-008, and B-012 
 
 | Gate | Result |
 |---|---|
-| .NET, Release | 271 passed, 0 failed |
+| .NET, Release | 272 passed, 0 failed |
 | Jest | 12 suites, 223 passed, 0 failed |
-| Python | 34 passed, 0 failed |
+| Python | 40 passed, 0 failed |
 | Playwright, Chromium and Firefox | 352 of 352 passed |
 | Edge offline, `edge-cases.spec.js` | 26 passed, 0 failed |
 | Production build | `PDF gen: 62 docs, 0 gen, 61 cached, 1 external, 0 fallback, 0 unavailable`, exit 0. 47 routes, 61 PDF files, 33 feed items. Earlier rows counted PDFs only. This row quotes the generator's own summary line. |
 
-The Python row is 34 after deadline-expiry coverage landed on 2026-11-16. The other rows keep their original measurement dates.
+The .NET row is 272 after FAQ term-end coverage landed on 2026-11-16. The Python row is 40 after PHT midnight coverage landed on the same date. The other rows keep their original measurement dates.
 
 The Playwright row is the full local release gate. When a worker-contention timeout appears, re-run that spec alone before calling it a regression. Test Harness Traps records the pattern.
 
@@ -82,14 +82,11 @@ A `401 Bad credentials` response means fastcron did not send the bearer token cl
 
 The token can start workflows in this repository. It cannot change code. Never put the token in the repository, a ticket, or a chat. fastcron stores it in the job headers. An expired token stops the sync on the GitHub side without an error in this repository, so check the fastcron response.
 
-The `check` job reads `build-metadata.txt` from `netlify-pages` and `gh-pages`. Each file carries `Build Time` and `Depot Commit`. The job builds if metadata is missing or the depot commit differs. It also builds if a non-draft material becomes visible after `Build Time`. It builds if an effective deadline changes a badge to Expired. Date-only values use Philippine time. `.github/utils/should_build.py` holds the decision. `.github/utils/test_should_build.py` covers it.
+The `check` job reads `build-metadata.txt` from `netlify-pages` and `gh-pages`. Each file carries `Build Time` and `Depot Commit`. The job builds if metadata is missing or the depot commit differs. It also builds when a non-draft material becomes visible after `Build Time` or a Philippine midnight passes after that time. `.github/utils/should_build.py` holds the decision. `.github/utils/test_should_build.py` covers it.
 
 Confirmed 2026-11-16:
 
-- The hourly gate detects when a badge changes from Due to Expired. `FrontMatterStatusService.cs` expires a material at midnight Philippine time after its deadline date.
-- The gate compares each expiration with the deployed `Build Time`. It requests a build when expiration falls after that time and no later than now.
-- The check covers explicit deadlines and `Published` plus one month. Draft and `NoDeadline` materials do not trigger it.
-- The live homepage showed stale `Due` badges for ps3 and act15 after their deadlines. Both deploy metadata files recorded `2026-11-12T05:40:03Z`. The latest hourly run skipped because the depot commit and release set had not changed.
+The check requests a build when a Philippine midnight falls after the deployed build time and no later than now. This build updates badge states, clears course and FAQ pages and feeds at term end, and moves the calendar's current day.
 
 A push to the site, or a manual `gh workflow run build-and-publish.yml`, always builds. Use `gh workflow run build-and-publish.yml -f mode=auto` to exercise the gate by hand.
 

@@ -3,8 +3,8 @@
 fastcron calls the workflow hourly. A full build takes about two minutes and
 rewrites both deploy branches, so a run with nothing to publish must exit
 cheaply. A build is needed when either deploy branch was built from a
-different depot commit, or when a material became visible or expired after
-that branch was built.
+different depot commit, a material became visible, or a Philippine midnight
+passed after that branch was built.
 
 Mirrors CourseContentProvider: a non-draft material is visible when its
 `published` instant is no later than the build time. A date-only value is
@@ -12,7 +12,6 @@ midnight Philippine time.
 """
 
 import argparse
-import calendar
 import datetime
 import os
 import sys
@@ -80,57 +79,16 @@ def release_due(
     return None
 
 
-def expiration_due(
-    materials_dir: str, after: datetime.datetime, now: datetime.datetime
-) -> Optional[str]:
-    """Return the first non-draft material that expires in (after, now]."""
-    for filepath in glob(os.path.join(materials_dir, "**", "*.md"), recursive=True):
-        try:
-            with open(filepath, "r", encoding="utf-8") as handle:
-                metadata = frontmatter.load(handle).metadata or {}
-        except Exception as exc:
-            print(f"[gate] Cannot read {filepath}: {exc}", file=sys.stderr)
-            continue
-
-        if generate_feed.is_draft(metadata):
-            continue
-        if any(
-            str(key).lower() == "nodeadline" and str(value).lower() == "true"
-            for key, value in metadata.items()
-        ):
-            continue
-
-        raw_deadline = metadata.get("deadline")
-        if raw_deadline is None:
-            published = generate_feed.parse_date(metadata.get("published"))
-            if published is None:
-                continue
-            published_local = published.astimezone(generate_feed.LMS_TZ)
-            month_index = published_local.year * 12 + published_local.month
-            year, month0 = divmod(month_index, 12)
-            month = month0 + 1
-            day = min(
-                published_local.day,
-                calendar.monthrange(year, month)[1],
-            )
-            deadline_local = datetime.datetime(
-                year, month, day, tzinfo=generate_feed.LMS_TZ
-            )
-        else:
-            deadline = generate_feed.parse_date(raw_deadline)
-            if deadline is None:
-                continue
-            deadline_local = deadline.astimezone(generate_feed.LMS_TZ)
-
-        # The badge expires at midnight after the deadline's local calendar day.
-        expires_at = datetime.datetime.combine(
-            deadline_local.date() + datetime.timedelta(days=1),
-            datetime.time.min,
-            tzinfo=generate_feed.LMS_TZ,
-        ).astimezone(datetime.timezone.utc)
-        if after < expires_at <= now:
-            return f"{filepath} expired at {expires_at.isoformat()}"
-    return None
+def next_pht_midnight(after: datetime.datetime) -> datetime.datetime:
+    """Return the first Philippine midnight after an aware instant."""
+    local_after = after.astimezone(generate_feed.LMS_TZ)
+    next_local_date = local_after.date() + datetime.timedelta(days=1)
+    next_local_midnight = datetime.datetime.combine(
+        next_local_date,
+        datetime.time.min,
+        tzinfo=generate_feed.LMS_TZ,
+    )
+    return next_local_midnight.astimezone(datetime.timezone.utc)
 
 
 def decide(
@@ -139,7 +97,7 @@ def decide(
     materials_dir: str,
     now: datetime.datetime,
 ):
-    """Return (build, reason) for stale targets, releases, or deadline expirations."""
+    """Return (build, reason) for stale targets, releases, or passed PHT midnights."""
     if not deployed:
         return True, "no deployed branch metadata was read"
 
@@ -153,11 +111,11 @@ def decide(
         if due:
             return True, f"{target.name} was built before {due}"
 
-        expired = expiration_due(materials_dir, target.build_time, now)
-        if expired:
-            return True, f"{target.name} was built before {expired}"
+        midnight = next_pht_midnight(target.build_time)
+        if midnight <= now:
+            return True, f"{target.name} was built before PHT midnight {midnight.isoformat()}"
 
-    return False, "the depot commit and release set are unchanged"
+    return False, "the depot commit, release set, and PHT day are unchanged"
 
 
 def main(argv=None) -> int:

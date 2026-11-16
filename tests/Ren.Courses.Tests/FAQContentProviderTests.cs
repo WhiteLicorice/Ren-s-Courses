@@ -53,13 +53,28 @@ public class FAQContentProviderTests
     [Fact]
     public void GetVisiblePosts_AfterTermEnd_Excluded()
     {
-        // termEnd (UTC) = 2026-05-30 16:00 (from PH local "2026-05-31")
+        // termEnd (UTC) = 2026-05-31 16:00 (from PH local "2026-05-31")
         var provider = CreateEmptyProvider();
         var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 6, 15));
 
         var result = provider.GetVisiblePosts(new[] { post });
 
         Assert.DoesNotContain(post, result);
+    }
+
+    [Fact]
+    public void GetVisiblePosts_UsesUtcTermEndInstant()
+    {
+        var provider = CreateEmptyProvider();
+        var post = MakeFaqPost("fixture-course-a", new DateTime(2026, 3, 1));
+        var beforeTermEnd = new DateTime(2026, 5, 31, 8, 0, 1, DateTimeKind.Utc);
+        var atTermEnd = new DateTime(2026, 5, 31, 16, 0, 0, DateTimeKind.Utc);
+
+        var beforeResult = provider.GetVisiblePosts(new[] { post }, false, beforeTermEnd);
+        var atResult = provider.GetVisiblePosts(new[] { post }, false, atTermEnd);
+
+        Assert.Contains(post, beforeResult);
+        Assert.DoesNotContain(post, atResult);
     }
 
     // ----------------------------------------------------------------

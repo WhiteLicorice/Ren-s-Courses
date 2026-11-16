@@ -21,21 +21,26 @@ public class FAQContentProvider
 
     internal IEnumerable<Post<FAQFrontmatter>> GetVisiblePosts(
         IEnumerable<Post<FAQFrontmatter>> sourcePosts, bool showcaseMode)
+        => GetVisiblePosts(sourcePosts, showcaseMode, BuildTimeProvider.UtcNow);
+
+    internal IEnumerable<Post<FAQFrontmatter>> GetVisiblePosts(
+        IEnumerable<Post<FAQFrontmatter>> sourcePosts, bool showcaseMode, DateTime utcNow)
     {
-        if (!showcaseMode && BuildTimeProvider.LocalNow > BuildTimeProvider.TermEnd)
+        var localNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, BuildTimeProvider.LocalTimeZone);
+        if (!showcaseMode && utcNow >= BuildTimeProvider.TermEnd)
             return Enumerable.Empty<Post<FAQFrontmatter>>();
 
         return sourcePosts.Where(p =>
-            showcaseMode || IsVisibleOutsideShowcase(p.FrontMatter)
+            showcaseMode || IsVisibleOutsideShowcase(p.FrontMatter, localNow)
         ).OrderBy(p => p.FrontMatter.Published);
     }
 
     // Tagged FAQs are course-scoped: visible iff their course is active AND
     // published inside the term window. Posts outside the window are not
     // published at all, even for active courses. Future releases stay hidden.
-    private static bool IsVisibleOutsideShowcase(FAQFrontmatter fm)
+    private static bool IsVisibleOutsideShowcase(FAQFrontmatter fm, DateTime localNow)
     {
-        if (fm.Published > BuildTimeProvider.LocalNow)
+        if (fm.Published > localNow)
             return false;
         if (fm.Published < BuildTimeProvider.TermStart
             || fm.Published > BuildTimeProvider.TermEnd)

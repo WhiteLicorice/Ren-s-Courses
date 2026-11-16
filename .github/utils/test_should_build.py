@@ -75,6 +75,23 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertTrue(build)
 
+    def test_release_during_day_after_midnight_builds(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "course-a/act15/act15.md",
+                "2026-11-12T14:00:00Z",
+            )
+
+            build, _ = should_build.decide(
+                "9e9af1b",
+                [self._deployed("netlify-pages", "9e9af1b", "2026-11-11T16:00:01Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-12T14:00:00Z"),
+            )
+
+            self.assertTrue(build)
+
     def test_future_release_skips(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(materials, "course-a/ps4/ps4.md", "2026-11-13")
@@ -96,7 +113,7 @@ class ShouldBuildTests(unittest.TestCase):
                 "9e9af1b",
                 [self._deployed("netlify-pages", "9e9af1b", "2026-11-11T14:10:51Z")],
                 materials,
-                should_build.generate_feed.parse_date("2026-11-11T16:12:00Z"),
+                should_build.generate_feed.parse_date("2026-11-11T15:12:00Z"),
             )
 
             self.assertFalse(build)
@@ -136,6 +153,82 @@ class ShouldBuildTests(unittest.TestCase):
             )
 
             self.assertTrue(build)
+
+    def test_deadline_day_midnight_builds_due_today_badge(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "course-a/ps3.md",
+                "2026-10-29",
+                deadline="2026-11-20",
+            )
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-19T05:00:00Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-20T02:00:00Z"),
+            )
+
+            self.assertTrue(build)
+
+    def test_term_end_midnight_builds_empty_pages_and_feed(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "course-a/no-deadline.md",
+                "2026-10-29",
+                no_deadline=True,
+            )
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-12-30T05:00:00Z")],
+                materials,
+                should_build.generate_feed.parse_date("2027-01-01T01:00:00Z"),
+            )
+
+            self.assertTrue(build)
+
+    def test_next_calendar_day_midnight_builds(self):
+        with tempfile.TemporaryDirectory() as materials:
+            self._write_material(
+                materials,
+                "course-a/no-deadline.md",
+                "2026-10-29",
+                no_deadline=True,
+            )
+
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-18T05:00:00Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-19T02:00:00Z"),
+            )
+
+            self.assertTrue(build)
+
+    def test_build_after_last_pht_midnight_does_not_repeat(self):
+        with tempfile.TemporaryDirectory() as materials:
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-20T01:00:00Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-20T02:00:00Z"),
+            )
+
+            self.assertFalse(build)
+
+    def test_same_day_rerun_does_not_build_again(self):
+        with tempfile.TemporaryDirectory() as materials:
+            build, _ = should_build.decide(
+                "a6c8c96",
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-19T16:00:10Z")],
+                materials,
+                should_build.generate_feed.parse_date("2026-11-19T17:00:00Z"),
+            )
+
+            self.assertFalse(build)
 
     def test_deadline_expiry_uses_local_end_of_day_and_does_not_repeat(self):
         with tempfile.TemporaryDirectory() as materials:
@@ -183,7 +276,7 @@ class ShouldBuildTests(unittest.TestCase):
 
             self.assertTrue(build)
 
-    def test_draft_and_no_deadline_materials_do_not_trigger_expiry(self):
+    def test_draft_and_no_deadline_materials_still_trigger_daily_build(self):
         with tempfile.TemporaryDirectory() as materials:
             self._write_material(
                 materials,
@@ -202,12 +295,12 @@ class ShouldBuildTests(unittest.TestCase):
 
             build, _ = should_build.decide(
                 "a6c8c96",
-                [self._deployed("gh-pages", "a6c8c96", "2026-11-12T05:40:03Z")],
+                [self._deployed("gh-pages", "a6c8c96", "2026-11-18T05:00:00Z")],
                 materials,
-                should_build.generate_feed.parse_date("2026-11-16T02:49:50Z"),
+                should_build.generate_feed.parse_date("2026-11-19T02:00:00Z"),
             )
 
-            self.assertFalse(build)
+            self.assertTrue(build)
 
     def test_any_stale_branch_builds(self):
         with tempfile.TemporaryDirectory() as materials:
